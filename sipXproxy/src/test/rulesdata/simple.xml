@@ -48,6 +48,29 @@
      <routeDnsWildcard>*.WOOF.net</routeDnsWildcard>
      <routeTo authRequired="true">FOREIGN_DNS</routeTo>
   </route>
+  <route mappingType="ruriParam">
+     <routeFrom>RURIPARAM.TEST</routeFrom>
+
+     <methodMatch>
+        <!--this will check ruriParam based on method -->
+        <methodPattern>REGISTRER</methodPattern>
+        <routeTo ruriParams="registrer-param=registrer-value"> REGISTRER.ROUTE </routeTo>
+     </methodMatch>
+
+     <methodMatch>
+        <methodPattern>SUBSCRIBE</methodPattern>
+        <!--this will check ruriParam based on field pattern -->
+        <fieldMatch fieldName="Event">
+            <fieldPattern>message-summary.*</fieldPattern>
+            <routeTo ruriParams="subscribe-param=subscribe-value"> SUBSCRIBE.MS.ROUTE </routeTo>
+        </fieldMatch>
+        <!-- All other SUBSCRIBE requests go to the SIP registry service -->
+        <routeTo ruriParams="subscribe-param=subscribe-value"> SUBSCRIBE.ROUTE </routeTo>
+     </methodMatch>
+    
+    <!--this will check ruriParam for all remaining requests -->
+    <routeTo ruriParams="sipx-noroute=Voicemail"> ALL.ROUTE </routeTo>
+  </route>
   <route mappingType="authProxy good">
      <routeFrom>AUTHPROXY.GOOD</routeFrom>
      <routeTo authRequired="true">

@@ -33,6 +33,7 @@
 #define XML_TAG_FIELDPATTERN        "fieldPattern"
 #define XML_TAG_ROUTETO             "routeTo"
 #define XML_ATT_AUTHREQUIRED        "authRequired"
+#define XML_ATT_RURIPARAMS          "ruriParams"
 
 class UtlString;
 class TiXmlNode;
@@ -84,7 +85,8 @@ public:
       const SipMessage& request,
       UtlString& RouteToString,
       UtlString& mappingType,
-      bool& authRequired);
+      bool& authRequired,
+      UtlString& ruriParams);
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -100,23 +102,27 @@ protected:
       UtlString& RouteToString,
       UtlString& mappingType,
       bool& authRequired,
+      UtlString& ruriParams,
       TiXmlNode* routesNode,
       TiXmlNode* previousRouteMatchNode = NULL);
    
    OsStatus parseMethodMatchContainer(const SipMessage& request,
       UtlString& RouteToString,
       bool& authRequired,
+      UtlString& ruriParams,
       TiXmlNode* routeMatchNode,
       TiXmlNode* previousMethodMatchNode = NULL);
 
    OsStatus parseFieldMatchContainer(const SipMessage& request,
       UtlString& RouteToString,
       bool& authRequired,
+      UtlString& ruriParams,
       TiXmlNode* methodMatchNode,
       TiXmlNode* previousFieldMatchNode = NULL);
 
    OsStatus getRouteTo(UtlString& RouteToString,
       bool& authRequired,
+      UtlString& ruriParams,
       TiXmlNode* fieldMatchNode);
 
 

@@ -33,6 +33,8 @@
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
 #include "SipBridgeRouter.h"
+#include "net/HttpRequestContext.h"
+#include "net/NameValuePairInsensitive.h"
 
 // DEFINES
 //#define TEST_PRINT 1
@@ -497,6 +499,38 @@ SipRouter::handleMessage( OsMsg& eventMessage )
   return(TRUE);
 }
 
+void SipRouter::addRuriParams(SipMessage& sipRequest, const UtlString& ruriParams)
+{
+  UtlDList paramsList;
+  HttpRequestContext::parseCgiVariables(ruriParams,
+      paramsList, ";", "=", TRUE, &HttpMessage::unescape);
+
+  if (!paramsList.isEmpty())
+  {
+    UtlString reqUriStr;
+    sipRequest.getRequestUri(&reqUriStr);
+    Url reqUri(reqUriStr, Url::AddrSpec);
+
+    UtlDListIterator paramsListIterator(paramsList);
+    NameValuePairInsensitive* param = dynamic_cast<NameValuePairInsensitive*>(paramsListIterator());
+    while (param)
+    {
+      reqUri.setUrlParameter(*param, param->getValue());
+      param = dynamic_cast<NameValuePairInsensitive*>(paramsListIterator());
+    }
+
+    reqUri.toString(reqUriStr);
+    sipRequest.changeUri(reqUriStr.data());
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+        "SipRouter::addRuriParams changed uri to %s", reqUriStr.data());
+  }
+  else
+  {
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+        "SipRouter::addRuriParams parseCgiVariables failed");
+  }
+}
+
 SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessage& sipResponse)
 {
    ProxyAction returnedAction = SendRequest;
@@ -717,11 +751,12 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             UtlString mappedTo;
             UtlString routeType;               
             bool authRequired;
+            UtlString ruriParams;
                         
             // see if we have a mapping for the normalized request uri
             if (   mpForwardingRules 
                 && (mpForwardingRules->getRoute(normalizedRequestUri, sipRequest,
-                                                mappedTo, routeType, authRequired)==OS_SUCCESS)
+                                                mappedTo, routeType, authRequired, ruriParams)==OS_SUCCESS)
                 )
             {
                if (mappedTo.length() > 0)
@@ -755,6 +790,16 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                {
                   // Forwarding rules specify that request should be authorized
                   bRequestShouldBeAuthorized = true;
+               }
+
+               if (!ruriParams.isNull())
+               {
+                 addRuriParams(sipRequest, ruriParams);
+               }
+               else
+               {
+                 Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                             "SipRouter::proxyMessage no ruri params to be added");
                }
             }
             else

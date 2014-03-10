@@ -52,9 +52,12 @@ COMMON_CXX_FLAGS = \
 
 COMMON_LIBS = \
    @SIPXUNIT_LIBS@ \
-   @SIPXCOMMSERVERTEST_LIBS@ \
    @SIPXCOMMSERVER_LIBS@ \
-	../libsipXproxy.la
+   	../libsipXproxy.la \
+    -lmongoclient \
+    -lboost_system-mt
+
+
 
 proxytest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)

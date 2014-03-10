@@ -21,6 +21,7 @@
 
 #include "sipxunit/FileTestContext.h"
 #include "MSFT_ExchangeTransferHack.h"
+#include "sipXecsService/SipXecsService.h"
 
 class MSFT_ExchangeTransferHackTest : public CppUnit::TestCase
 {
