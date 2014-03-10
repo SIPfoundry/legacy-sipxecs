@@ -84,7 +84,7 @@ public class LdapImportTrigger implements ApplicationListener {
 
     public boolean isScheduledImportRunning() {
         for (ScheduledFuture<?> future : m_taskHash.values()) {
-            if (future.getDelay(TimeUnit.MILLISECONDS) <= 0) {
+            if (future != null && future.getDelay(TimeUnit.MILLISECONDS) <= 0) {
                 return true;
             }
         }
