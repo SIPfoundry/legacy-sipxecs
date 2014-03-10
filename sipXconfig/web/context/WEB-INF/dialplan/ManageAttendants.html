@@ -1,6 +1,6 @@
 <div jwcid="@common/Border"  borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
-	tabNames="ognl:{'manage', 'special'}"
+	tabNames="ognl:{'manage', 'special', 'settings'}"
 	selectedTab="ognl:tab"/>
   <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
 </div>
@@ -51,5 +51,14 @@
   <span jwcid="@common/ErrorMsg"/>
   <form jwcid="@Form" delegate="bean:validator">
     <span jwcid="specialAttendant@dialplan/SpecialAttendantPanel"></span>
+  </form>
+</div>
+<div jwcid="settingsTab@Block">
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:settings.settings" />
+    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+        listener="listener:applySettings"/>
   </form>
 </div>

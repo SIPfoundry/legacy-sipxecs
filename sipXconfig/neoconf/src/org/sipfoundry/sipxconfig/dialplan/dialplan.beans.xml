@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd">
 
   <!--
     - D I A L   P L A N S
@@ -153,15 +154,33 @@
     <property name="prompt" value="afterhours.wav" />
   </bean>
 
+  <bean id="aaSettings" class="org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantSettings" parent="settingsBean">
+  </bean>
+
   <bean id="autoAttendantManagerImpl" class="org.sipfoundry.sipxconfig.dialplan.AutoAttendantManagerImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="settingDao" ref="settingDao" />
+    <property name="mediaServer" ref="freeswitchMediaServer" />
+    <property name="featureManager" ref="featureManager" />
+    <property name="beanWithSettingsDao">
+      <bean parent="beanWithSettingsDao">
+        <property name="target">
+          <bean parent="beanWithSettingsDaoImpl">
+            <constructor-arg value="org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantSettings"/>
+          </bean>
+        </property>
+      </bean>
+    </property>
   </bean>
 
   <bean id="autoAttendantManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager" />
     <property name="target" ref="autoAttendantManagerImpl" />
   </bean>
+
+  <task:scheduled-tasks>
+	<task:scheduled ref="autoAttendantManagerImpl" method="checkLiveAttendant" fixed-delay="30000" /> 
+  </task:scheduled-tasks>
 
   <bean id="dialPlanSetup" class="org.sipfoundry.sipxconfig.dialplan.DialPlanSetup">
     <property name="autoAttendantManager" ref="autoAttendantManager" />

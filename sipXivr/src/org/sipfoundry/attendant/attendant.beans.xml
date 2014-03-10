@@ -18,4 +18,18 @@
 
   <bean id="autoAttendantConfig" class="org.sipfoundry.attendant.Configuration" init-method="loadXML"/>
 
+  <bean id="aamgmt" class="org.sipfoundry.attendant.LiveAttendantManagement" scope="eslRequest">
+    <property name="did" value="${aa.liveAaDid}" />
+    <property name="enablePrefix" value="${aa.liveAaEnablePrefix}" />
+    <property name="disablePrefix" value="${aa.liveAaDisablePrefix}" />
+    <property name="eslRequestController" ref="aaLiveManagementController" />
+    <property name="mailboxManager" ref="mailboxManager" />
+  </bean>
+
+  <bean id="aaLiveManagementController" class="org.sipfoundry.attendant.AaLiveManagementController" scope="eslRequest">
+    <property name="sipxchangeDomainName" value="${ivr.sipxchangeDomainName}" />
+    <property name="fsConfig" ref="fsConfig" />
+    <property name="fsEventSocket" ref="fsEventSocket" />
+  </bean>
+
 </beans>

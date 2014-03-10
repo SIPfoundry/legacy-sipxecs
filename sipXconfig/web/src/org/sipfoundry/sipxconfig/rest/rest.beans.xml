@@ -286,6 +286,13 @@
   </bean>
   <alias name="specialAttendantResource" alias="/auto-attendant/specialmode" />
 
+  <bean id="liveAttendantResource" class="org.sipfoundry.sipxconfig.rest.LiveAttendantResource"
+    scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+  </bean>
+  <alias name="liveAttendantResource" alias="/auto-attendant/livemode/{code}" />
+
   <bean id="profileResource" class="org.sipfoundry.sipxconfig.rest.ProfileResource" scope="prototype">
     <property name="phoneContext" ref="phoneContext" />
   </bean>

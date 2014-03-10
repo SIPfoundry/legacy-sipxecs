@@ -17,15 +17,18 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
+import org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantSettings;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
-public abstract class ManageAttendants extends SipxBasePage {
+public abstract class ManageAttendants extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "dialplan/ManageAttendants";
 
@@ -49,6 +52,21 @@ public abstract class ManageAttendants extends SipxBasePage {
     public abstract String getTab();
 
     public abstract AutoAttendant getCurrentRow();
+
+    public abstract AutoAttendantSettings getSettings();
+
+    public abstract void setSettings(AutoAttendantSettings settings);
+
+    @Override
+    public void pageBeginRender(PageEvent arg0) {
+        if (getSettings() == null) {
+            setSettings(getAutoAttendantManager().getSettings());
+        }
+    }
+
+    public void applySettings() {
+        getAutoAttendantManager().saveSettings(getSettings());
+    }
 
     public void deleteSelected() {
         Collection selectedRows = getSelections().getAllSelected();

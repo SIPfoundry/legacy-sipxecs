@@ -234,6 +234,11 @@ public class AutoAttendantTestIntegration extends IntegrationTestCase {
         assertEquals(operator, specialAa);
     }
 
+    public void testLiveAttendantMode() throws Exception {
+        loadDataSet("dialplan/attendant_rule.db.xml");
+        assertFalse(m_autoAttendantManager.manageLiveAttendant("345345", false));
+    }
+
     public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
         m_autoAttendantManager = autoAttendantManager;
     }

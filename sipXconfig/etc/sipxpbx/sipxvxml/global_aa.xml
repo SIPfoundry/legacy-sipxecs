@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="liveAttendant">
+    <setting name="did">
+      <value />
+    </setting>
+    <setting name="enablePrefix">
+      <value>*87</value>
+    </setting>
+    <setting name="disablePrefix">
+      <value>*88</value>
+    </setting>
+    <setting name="expireTime">
+      <type>
+        <integer />
+      </type>
+      <value />
+    </setting>
+  </group>
+</model>

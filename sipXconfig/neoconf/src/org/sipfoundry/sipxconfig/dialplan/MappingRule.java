@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
+import org.sipfoundry.sipxconfig.commserver.Location;
 
 /**
  * MappingRule
@@ -158,6 +159,28 @@ public class MappingRule extends DialingRule {
         }
     }
 
+    public static class LiveAttendantManagement extends MappingRule {
+
+        public LiveAttendantManagement(MediaServer mediaServer, String did, String enablePrefix,
+                String disablePrefix, Location location) {
+            String[] prefixes = new String[] {
+                enablePrefix, disablePrefix
+            };
+            if (null != did) {
+                setPatterns((String[]) ArrayUtils.add(prefixes, did));
+            } else {
+                setPatterns(prefixes);
+            }
+            mediaServer.setLocation(location);
+            setUrl(mediaServer.buildLiveAttendantManagementUrl());
+        }
+
+        @Override
+        public CallTag getCallTag() {
+            return CallTag.AAM;
+        }
+    }
+
     public static class VoicemailFallback extends MappingRule {
         private final MediaServer m_mediaServer;
 
@@ -218,7 +241,6 @@ public class MappingRule extends DialingRule {
             return CallTag.FAX;
         }
     }
-
 
     public static class VoicemailTransfer extends MappingRule {
         public VoicemailTransfer(String prefix, int extensionLen, MediaServer mediaServer) {
