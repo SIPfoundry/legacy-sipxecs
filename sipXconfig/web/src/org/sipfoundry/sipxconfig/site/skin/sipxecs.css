@@ -700,10 +700,6 @@ fieldset#loginForm legend {
   height:30px;
 }
 
-.navigationMenuItemTop ul a {
-  height:13px;
-}
-
 .adminPortal ul#nav li:nth-child(n+1):nth-child(-n+5) {
   margin-right: 3px;
 }
