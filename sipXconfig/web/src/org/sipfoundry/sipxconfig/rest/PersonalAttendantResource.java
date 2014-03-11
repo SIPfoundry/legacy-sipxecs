@@ -114,13 +114,13 @@ public class PersonalAttendantResource extends UserResource {
         }
 
         // try to be smart and don't save what's not present in the request
-        if (menuMap != null && settings.getLanguage() != null && settings.getLanguage() != null) {
+        if (menuMap != null || settings.getLanguage() != null || settings.getLanguage() != null) {
             LOG.debug("Saving attendant prefs:\t" + attendant);
 
             m_mgr.storePersonalAttendant(attendant);
         }
-        if (settings.getDepositVM() != null && settings.getPlayVMDefaultOptions() != null
-                && settings.getOperator() != null) {
+        if (settings.getDepositVM() != null || settings.getPlayVMDefaultOptions() != null
+            || settings.getOperator() != null) {
             LOG.debug("Saving user");
 
             getCoreContext().saveUser(user);
@@ -188,5 +188,11 @@ public class PersonalAttendantResource extends UserResource {
             m_overrideLanguage = overrideLanguage;
         }
 
+        @Override
+        public String toString() {
+            return "AttendantBean [m_depositVM=" + m_depositVM + ", m_playVMDefaultOptions="
+                + m_playVMDefaultOptions + ", m_operator=" + m_operator + ", m_menu=" + m_menu + ", m_language="
+                + m_language + ", m_overrideLanguage=" + m_overrideLanguage + "]";
+        }
     }
 }
