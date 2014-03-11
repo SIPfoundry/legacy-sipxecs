@@ -188,7 +188,7 @@ SipLineMgr* addCredentials (EntityDB& entityDb, UtlString domain, UtlString real
 //
 int main(int argc, char* argv[])
 {
-  SipXApplicationData rlsData =
+  SipXApplicationData saaData =
   {
       SIPXSAA_APP_NAME,
       CONFIG_SETTINGS_FILE,
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
   };
 
   // NOTE: this might exit application in case of failure
-  SipXApplication::instance().init(argc, argv, rlsData);
+  SipXApplication::instance().init(argc, argv, saaData);
 
   OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
 

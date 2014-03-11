@@ -57,7 +57,7 @@ using namespace std;
 int
 main(int argc, char* argv[] )
 {
-  SipXApplicationData rlsData =
+  SipXApplicationData statusData =
   {
       SIPSTATUS_APP_NAME,
       CONFIG_SETTINGS_FILE,
@@ -71,7 +71,7 @@ main(int argc, char* argv[] )
   };
 
   // NOTE: this might exit application in case of failure
-  SipXApplication::instance().init(argc, argv, rlsData);
+  SipXApplication::instance().init(argc, argv, statusData);
 
   // register custom exception handling for mongo
   OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));

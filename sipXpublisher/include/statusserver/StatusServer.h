@@ -27,7 +27,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define SIPSTATUS_APP_NAME    "SipStatus"
+#define SIPSTATUS_APP_NAME    "sipxpublisher"
 #define CONFIG_ETC_DIR          SIPX_CONFDIR
 #define CONFIG_SETTINGS_FILE  "status-config"
 // Configuration names pulled from config-file

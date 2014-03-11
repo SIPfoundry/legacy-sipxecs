@@ -39,7 +39,7 @@
 #include "sipXecsService/SipXApplication.h"
 
 // DEFINES
-#define SIPREGISTRAR_APP_NAME "SipRegistrar"
+#define SIPREGISTRAR_APP_NAME "sipxregistry"
 #define CONFIG_SETTINGS_FILE  "registrar-config"
 #define CONFIG_LOG_FILE       "sipregistrar.log"
 #define CONFIG_NODE_FILE      "node.json"
@@ -83,7 +83,7 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 int
 main(int argc, char* argv[] )
 {
-  SipXApplicationData rlsData =
+  SipXApplicationData registryData =
   {
       SIPREGISTRAR_APP_NAME,
       CONFIG_SETTINGS_FILE,
@@ -97,7 +97,7 @@ main(int argc, char* argv[] )
   };
 
   // NOTE: this might exit application in case of failure
-  SipXApplication::instance().init(argc, argv, rlsData);
+  SipXApplication::instance().init(argc, argv, registryData);
 
   OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
 
