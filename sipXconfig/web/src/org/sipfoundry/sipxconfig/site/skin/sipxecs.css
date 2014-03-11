@@ -1327,11 +1327,11 @@ div.dialog
 {
 	background-color: white;
 	width: 400px;
-	height: 540px;
 	position: absolute;
 	left: 50%;
 	top: 50%;
 	border:3px solid #3F4D5D;
+	padding:20px;
 }
 
 div.sectionTitle {
