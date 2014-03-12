@@ -7,7 +7,8 @@
   <span jwcid="serialNumberColumnValue@Block">
     <a jwcid="editPhoneLink@DirectLink"
       listener="listener:editPhone"
-      parameters="ognl:phone.primaryKey">
+      parameters="ognl:phone.primaryKey"
+      id="ognl:'phone_' + phone.serialNumber + '_link'">
       <span jwcid="@Insert" value="ognl:phone.serialNumber"/>
     </a>
   </span>
