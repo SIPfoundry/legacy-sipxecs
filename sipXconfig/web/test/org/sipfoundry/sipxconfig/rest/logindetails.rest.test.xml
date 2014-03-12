@@ -3,4 +3,5 @@
   <imId>johnim</imId>
   <ldapImAuth>false</ldapImAuth>
   <sipPassword>12345678</sipPassword>
+  <pin>userpin</pin>
 </login-details>
