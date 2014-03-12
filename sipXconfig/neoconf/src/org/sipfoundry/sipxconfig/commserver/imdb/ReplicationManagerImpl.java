@@ -335,6 +335,11 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             Set<DataSet> dataSets = entity.getDataSets();
             if (dataSets != null && !dataSets.isEmpty()) {
                 replicateEntity(entity, dataSets.toArray(new DataSet[dataSets.size()]));
+            } else {
+                DBObject top = new BasicDBObject();
+                DBObject cleanCopy = new BasicDBObject();
+                boolean isNew = findOrCreate(entity, top, cleanCopy);
+                replicate(top, cleanCopy, name, isNew);
             }
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);
@@ -361,45 +366,50 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             for (DataSet dataSet : dataSets) {
                 replicateEntity(entity, dataSet, top);
             }
-            if (isNew) {
-                getDbCollection().save(top);
-            } else {
-                LOG.debug(REPLICATION_BEFORE_SAVE + name);
-                DBObject toUpdate = new BasicDBObject();
-                toUpdate.put(ID, top.get(ID));
-                DBObject updateQ = new BasicDBObject();
-                DBObject removeQ = new BasicDBObject();
-                for (String field : cleanCopy.keySet()) {
-                    Object oldValue = cleanCopy.get(field);
-                    Object newValue = top.get(field);
-                    LOG.debug(String.format("field: %s;old: %s; new: %s", field, oldValue, newValue));
-                    if (oldValue == null || !oldValue.equals(newValue)) {
-                        if (newValue == null) {
-                            removeQ.put(field, StringUtils.EMPTY);
-                        } else {
-                            updateQ.put(field, newValue);
-                        }
-                    }
-                }
-                for (String field : top.keySet()) {
-                    Object oldValue = cleanCopy.get(field);
-                    Object newValue = top.get(field);
-
-                    if (newValue != null && (oldValue == null || !oldValue.equals(newValue))) {
-                        updateQ.put(field, newValue);
-                    }
-                }
-                LOG.debug(String.format("Update query: %s: ", updateQ));
-                LOG.debug(String.format("Remove query: %s: ", removeQ));
-                DBObject set = new BasicDBObject("$set", updateQ).append("$unset", removeQ);
-                getDbCollection().update(toUpdate, set);
-            }
+            replicate(top, cleanCopy, name, isNew);
             Long end = System.currentTimeMillis();
             LOG.debug(REPLICATION_INS_UPD + name + IN + (end - start) + MS);
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + name, e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
         }
+    }
+
+    private void replicate(DBObject top, DBObject cleanCopy, String name, boolean isNew) {
+        if (isNew) {
+            getDbCollection().save(top);
+        } else {
+            LOG.debug(REPLICATION_BEFORE_SAVE + name);
+            DBObject toUpdate = new BasicDBObject();
+            toUpdate.put(ID, top.get(ID));
+            DBObject updateQ = new BasicDBObject();
+            DBObject removeQ = new BasicDBObject();
+            for (String field : cleanCopy.keySet()) {
+                Object oldValue = cleanCopy.get(field);
+                Object newValue = top.get(field);
+                LOG.debug(String.format("field: %s;old: %s; new: %s", field, oldValue, newValue));
+                if (oldValue == null || !oldValue.equals(newValue)) {
+                    if (newValue == null) {
+                        removeQ.put(field, StringUtils.EMPTY);
+                    } else {
+                        updateQ.put(field, newValue);
+                    }
+                }
+            }
+            for (String field : top.keySet()) {
+                Object oldValue = cleanCopy.get(field);
+                Object newValue = top.get(field);
+
+                if (newValue != null && (oldValue == null || !oldValue.equals(newValue))) {
+                    updateQ.put(field, newValue);
+                }
+            }
+            LOG.debug(String.format("Update query: %s: ", updateQ));
+            LOG.debug(String.format("Remove query: %s: ", removeQ));
+            DBObject set = new BasicDBObject("$set", updateQ).append("$unset", removeQ);
+            getDbCollection().update(toUpdate, set);
+        }
+
     }
 
     private void replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
