@@ -2023,7 +2023,7 @@
       <type>
         <boolean />
       </type>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <group name="volatile">
       <setting name="dir.local.volatile.maxSize">
