@@ -1,0 +1,305 @@
+<?xml version="1.0"?>
+<document type="freeswitch/xml">
+
+  <X-PRE-PROCESS cmd="set" data="default_password=1234"/>
+  <X-PRE-PROCESS cmd="set" data="sound_prefix=$${sounds_dir}/en/us/callie"/>
+  <X-PRE-PROCESS cmd="set" data="domain=$${local_ip_v4}"/>
+  <X-PRE-PROCESS cmd="set" data="domain_name=$${domain}"/>
+  <X-PRE-PROCESS cmd="set" data="hold_music=local_stream://moh"/>
+  <X-PRE-PROCESS cmd="set" data="use_profile=internal"/>
+  <X-PRE-PROCESS cmd="set" data="zrtp_secure_media=true"/>
+  <X-PRE-PROCESS cmd="set" data="global_codec_prefs=%SIPXEDGE_FS_CODEC%"/>
+  <X-PRE-PROCESS cmd="set" data="outbound_codec_prefs=%SIPXEDGE_FS_CODEC%"/>
+  <X-PRE-PROCESS cmd="set" data="xmpp_client_profile=xmppc"/>
+  <X-PRE-PROCESS cmd="set" data="xmpp_server_profile=xmpps"/>
+  <X-PRE-PROCESS cmd="set" data="bind_server_ip=auto"/>
+  <X-PRE-PROCESS cmd="set" data="external_rtp_ip=stun:stun.freeswitch.org"/>
+  <X-PRE-PROCESS cmd="set" data="external_sip_ip=stun:stun.freeswitch.org"/>
+  <X-PRE-PROCESS cmd="set" data="unroll_loops=true"/>
+  <X-PRE-PROCESS cmd="set" data="outbound_caller_name=FreeSWITCH"/>
+  <X-PRE-PROCESS cmd="set" data="outbound_caller_id=0000000000"/>
+  <X-PRE-PROCESS cmd="set" data="call_debug=false"/>
+  <X-PRE-PROCESS cmd="set" data="console_loglevel=info"/>
+  <X-PRE-PROCESS cmd="set" data="default_areacode=918"/>
+  <X-PRE-PROCESS cmd="set" data="default_country=US"/>
+  <X-PRE-PROCESS cmd="set" data="presence_privacy=false"/>
+  <X-PRE-PROCESS cmd="set" data="be-ring=%(1000,3000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="ca-ring=%(2000,4000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="cn-ring=%(1000,4000,450)"/>
+  <X-PRE-PROCESS cmd="set" data="cy-ring=%(1500,3000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="cz-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="de-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="dk-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="dz-ring=%(1500,3500,425)"/>
+  <X-PRE-PROCESS cmd="set" data="eg-ring=%(2000,1000,475,375)"/>
+  <X-PRE-PROCESS cmd="set" data="es-ring=%(1500,3000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="fi-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="fr-ring=%(1500,3500,440)"/>
+  <X-PRE-PROCESS cmd="set" data="hk-ring=%(400,200,440,480);%(400,3000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="hu-ring=%(1250,3750,425)"/>
+  <X-PRE-PROCESS cmd="set" data="il-ring=%(1000,3000,400)"/>
+  <X-PRE-PROCESS cmd="set" data="in-ring=%(400,200,425,375);%(400,2000,425,375)"/>
+  <X-PRE-PROCESS cmd="set" data="jp-ring=%(1000,2000,420,380)"/>
+  <X-PRE-PROCESS cmd="set" data="ko-ring=%(1000,2000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="pk-ring=%(1000,2000,400)"/>
+  <X-PRE-PROCESS cmd="set" data="pl-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="ro-ring=%(1850,4150,475,425)"/>
+  <X-PRE-PROCESS cmd="set" data="rs-ring=%(1000,4000,425)"/>
+  <X-PRE-PROCESS cmd="set" data="ru-ring=%(800,3200,425)"/>
+  <X-PRE-PROCESS cmd="set" data="sa-ring=%(1200,4600,425)"/>
+  <X-PRE-PROCESS cmd="set" data="tr-ring=%(2000,4000,450)"/>
+  <X-PRE-PROCESS cmd="set" data="uk-ring=%(400,200,400,450);%(400,2000,400,450)"/>
+  <X-PRE-PROCESS cmd="set" data="us-ring=%(2000,4000,440,480)"/>
+  <X-PRE-PROCESS cmd="set" data="bong-ring=v=-7;%(100,0,941.0,1477.0);v=-7;>=2;+=.1;%(1400,0,350,440)"/>
+  <X-PRE-PROCESS cmd="set" data="beep=%(1000,0,640)"/>
+  <X-PRE-PROCESS cmd="set" data="sit=%(274,0,913.8);%(274,0,1370.6);%(380,0,1776.7)"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider=example.com"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_username=joeuser"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_password=password"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_from_domain=example.com"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_register=false"/>
+  <X-PRE-PROCESS cmd="set" data="default_provider_contact=5000"/>
+  <X-PRE-PROCESS cmd="set" data="sip_tls_version=tlsv1"/>
+  <X-PRE-PROCESS cmd="set" data="internal_auth_calls=true"/>
+  <X-PRE-PROCESS cmd="set" data="internal_sip_port=5060"/>
+  <X-PRE-PROCESS cmd="set" data="internal_tls_port=5061"/>
+  <X-PRE-PROCESS cmd="set" data="internal_ssl_enable=false"/>
+  <X-PRE-PROCESS cmd="set" data="external_auth_calls=false"/>
+  <X-PRE-PROCESS cmd="set" data="external_sip_port=5080"/>
+  <X-PRE-PROCESS cmd="set" data="external_tls_port=5081"/>
+  <X-PRE-PROCESS cmd="set" data="external_ssl_enable=false"/>
+
+  <section name="configuration" description="Various Configuration">
+
+    <configuration name="modules.conf" description="Modules">
+      <modules>
+        <load module="mod_console"/>
+        <load module="mod_logfile"/>
+        <load module="mod_dptools"/>
+        <load module="mod_event_socket"/>
+        <load module="mod_sofia"/>
+        <load module="mod_loopback"/>
+        <load module="mod_commands"/>
+        <load module="mod_expr"/>
+        <load module="mod_hash"/>
+        <load module="mod_dialplan_xml"/>
+        <load module="mod_spandsp"/>
+        <load module="mod_g723_1"/>
+        <load module="mod_g729"/>
+        <load module="mod_amr"/>
+        <load module="mod_speex"/>
+        <load module="mod_h26x"/>
+        <load module="mod_vp8"/>
+        <load module="mod_opus"/>
+        <load module="mod_b64"/>
+        <load module="mod_sndfile"/>
+        <load module="mod_native_file"/>
+        <load module="mod_local_stream"/>
+        <load module="mod_tone_stream"/>
+        <load module="mod_say_en"/>
+      </modules>
+    </configuration>
+
+    <configuration name="switch.conf" description="Core Configuration">
+      <cli-keybindings>
+        <key name="1" value="help"/>
+        <key name="2" value="status"/>
+        <key name="3" value="show channels"/>
+        <key name="4" value="show calls"/>
+        <key name="5" value="sofia status"/>
+        <key name="6" value="reloadxml"/>
+        <key name="7" value="console loglevel 0"/>
+        <key name="8" value="console loglevel 7"/>
+        <key name="9" value="sofia status profile internal"/>
+        <key name="10" value="sofia profile internal siptrace on"/>
+        <key name="11" value="sofia profile internal siptrace off"/>
+        <key name="12" value="version"/>
+      </cli-keybindings>
+
+      <default-ptimes>
+        <!-- <codec name="G729" ptime="40"/> -->
+      </default-ptimes>
+
+      <settings>
+        <param name="colorize-console" value="true"/>
+        <param name="max-db-handles" value="50"/>
+        <param name="db-handle-timeout" value="10"/>
+        <param name="max-sessions" value="1000"/>
+        <param name="sessions-per-second" value="30"/>
+        <param name="loglevel" value="debug"/>
+        <param name="mailer-app" value="sendmail"/>
+        <param name="mailer-app-args" value="-t"/>
+        <param name="dump-cores" value="yes"/>
+        <param name="rtp-enable-zrtp" value="true"/>
+      </settings>
+
+    </configuration>
+
+    <configuration name="local_stream.conf" description="stream files from local dir">
+      <directory name="default" path="$${sounds_dir}/music/8000">
+        <param name="rate" value="8000"/>
+        <param name="shuffle" value="true"/>
+        <param name="channels" value="1"/>
+        <param name="interval" value="20"/>
+        <param name="timer-name" value="soft"/>
+      </directory>
+
+      <directory name="moh/8000" path="$${sounds_dir}/music/8000">
+        <param name="rate" value="8000"/>
+        <param name="shuffle" value="true"/>
+        <param name="channels" value="1"/>
+        <param name="interval" value="20"/>
+        <param name="timer-name" value="soft"/>
+      </directory>
+
+      <directory name="moh/16000" path="$${sounds_dir}/music/16000">
+        <param name="rate" value="16000"/>
+        <param name="shuffle" value="true"/>
+        <param name="channels" value="1"/>
+        <param name="interval" value="20"/>
+        <param name="timer-name" value="soft"/>
+      </directory>
+
+      <directory name="moh/32000" path="$${sounds_dir}/music/32000">
+        <param name="rate" value="32000"/>
+        <param name="shuffle" value="true"/>
+        <param name="channels" value="1"/>
+        <param name="interval" value="20"/>
+        <param name="timer-name" value="soft"/>
+      </directory>
+    </configuration>
+
+    <configuration name="logfile.conf" description="File Logging">
+      <settings>
+       <param name="rotate-on-hup" value="true"/>
+      </settings>
+      <profiles>
+        <profile name="default">
+          <settings>
+            <param name="rollover" value="10485760"/>
+          </settings>
+          <mappings>
+	    <map name="all" value="debug,info,notice,warning,err,crit,alert"/>
+          </mappings>
+        </profile>
+      </profiles>
+    </configuration>
+
+    <configuration name="console.conf" description="Console Logger">
+      <mappings>
+        <map name="all" value="console,debug,info,notice,warning,err,crit,alert"/>
+      </mappings>
+      <settings>
+        <param name="colorize" value="true"/>
+        <param name="loglevel" value="$${console_loglevel}"/>
+      </settings>
+    </configuration>
+
+    <configuration name="event_socket.conf" description="Socket Client">
+        <settings>
+          <param name="nat-map" value="false"/>
+          <param name="listen-ip" value="127.0.0.1"/>
+          <param name="listen-port" value="%SIPXEDGE_FS_ESL_PORT%"/>
+          <param name="password" value="ClueCon"/>
+        </settings>
+    </configuration>
+
+    <configuration name="sofia.conf" description="sofia Endpoint">
+      <global_settings>
+        <param name="log-level" value="0"/>
+        <param name="debug-presence" value="0"/>
+      </global_settings>
+
+      <profiles>
+        <profile name="%SIPXEDGE_FS_CONTEXT%">
+          <domains>
+            <domain name="all" alias="false" parse="true"/>
+          </domains>
+          <settings>
+            <param name="context" value="%SIPXEDGE_FS_CONTEXT%"/>
+            <param name="user-agent-string" value="%SIPXEDGE_FS_CONTEXT%"/>
+            <param name="inbound-codec-prefs" value="%SIPXEDGE_FS_CODEC%"/>
+            <param name="outbound-codec-prefs" value="%SIPXEDGE_FS_CODEC%"/>
+            <param name="sip-port" value="%SIPXEDGE_FS_SIP_PORT%"/>
+            <param name="rtp-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="sip-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="ext-rtp-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="ext-sip-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="debug" value="9"/>
+            <param name="sip-trace" value="%SIPXEDGE_FS_SIP_TRACE%"/>
+            <param name="rfc2833-pt" value="101"/>
+            <param name="dialplan" value="XML"/>
+            <param name="dtmf-duration" value="2000"/>
+            <param name="inbound-codec-negotiation" value="generous"/>
+            <param name="hold-music" value="$${hold_music}"/>
+            <param name="rtp-timer-name" value="soft"/>
+            <param name="enable-100rel" value="false"/>
+            <param name="local-network-acl" value="localnet.auto"/>
+            <param name="manage-presence" value="false"/>
+            <param name="nonce-ttl" value="60"/>
+            <param name="auth-calls" value="false"/>
+            <param name="rtp-timeout-sec" value="300"/>
+            <param name="rtp-hold-timeout-sec" value="1800"/>
+            <param name="tls" value="false"/>
+            <param name="accept-blind-reg" value="true"/>
+            <param name="accept-blind-auth" value="true"/>
+          </settings>
+        </profile>
+        <profile name="%SIPXEDGE_FS_INT_CONTEXT%">
+          <domains>
+            <domain name="all" alias="false" parse="true"/>
+          </domains>
+          <settings>
+            <param name="context" value="%SIPXEDGE_FS_INT_CONTEXT%"/>
+            <param name="user-agent-string" value="%SIPXEDGE_FS_INT_CONTEXT%"/>
+            <param name="inbound-codec-prefs" value="%SIPXEDGE_FS_INT_CODEC%"/>
+            <param name="outbound-codec-prefs" value="%SIPXEDGE_FS_INT_CODEC%"/>
+            <param name="sip-port" value="%SIPXEDGE_FS_INT_SIP_PORT%"/>
+            <param name="rtp-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="sip-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="ext-rtp-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="ext-sip-ip" value="%SIPXEDGE_HOST_IP%"/>
+            <param name="debug" value="9"/>
+            <param name="sip-trace" value="%SIPXEDGE_FS_SIP_TRACE%"/>
+            <param name="rfc2833-pt" value="101"/>
+            <param name="dialplan" value="XML"/>
+            <param name="dtmf-duration" value="2000"/>
+            <param name="inbound-codec-negotiation" value="generous"/>
+            <param name="hold-music" value="$${hold_music}"/>
+            <param name="rtp-timer-name" value="soft"/>
+            <param name="enable-100rel" value="false"/>
+            <param name="local-network-acl" value="localnet.auto"/>
+            <param name="manage-presence" value="false"/>
+            <param name="nonce-ttl" value="60"/>
+            <param name="auth-calls" value="false"/>
+            <param name="rtp-timeout-sec" value="300"/>
+            <param name="rtp-hold-timeout-sec" value="1800"/>
+            <param name="tls" value="false"/>
+            <param name="accept-blind-reg" value="true"/>
+            <param name="accept-blind-auth" value="true"/>
+          </settings>
+        </profile>
+      </profiles>
+    </configuration>
+  </section>
+
+
+  <section name="dialplan" description="Regex/XML Dialplan">
+    <context name="%SIPXEDGE_FS_CONTEXT%">
+      <extension name="%SIPXEDGE_FS_CONTEXT%">
+          <condition field="destination_number" expression="^(.*)$">
+              <action application="socket" data="127.0.0.1:%SIPXEDGE_ESL_PORT% async full"/>
+          </condition>
+      </extension>
+    </context>
+    <context name="%SIPXEDGE_FS_INT_CONTEXT%">
+      <extension name="%SIPXEDGE_FS_INT_CONTEXT%">
+          <condition field="destination_number" expression="^(.*)$">
+              <action application="socket" data="127.0.0.1:%SIPXEDGE_ESL_PORT% async full"/>
+          </condition>
+      </extension>
+    </context>
+  </section>
+</document>
+
+

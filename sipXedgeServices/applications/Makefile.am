@@ -13,6 +13,14 @@ RESIPROCATE_LIBS = \
 	-lrutil
 
 
+EXTRA_DIST = \
+    config/freeswitch.xml \
+    config/monitrc \
+    config/pid_from_path.pl \
+    config/sipxedge
+
+
+
 bin_PROGRAMS = sipxcallgen_fs sipxwebrtc sipxedgerpc
 
 

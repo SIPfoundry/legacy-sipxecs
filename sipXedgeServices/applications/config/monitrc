@@ -1,0 +1,27 @@
+set daemon  10                                  # check services at 10 seconds intervals
+set logfile /var/log/sipxpbx/monit_edge.log     # Monit standalone log file
+set idfile /var/log/sipxpbx/monit_edge.id       # Set the location of the Monit id file which stores the unique id
+set statefile /var/log/sipxpbx/monit.state      # Set the location of the Monit state file which saves monitoring states
+# set mailserver mail.bar.baz                   # primary mailserver
+
+
+#
+# Monit built-in web server
+#
+set httpd port %SIPXEDGE_MONIT_HTTPPORT% and
+  allow admin:%SIPXEDGE_MONIT_PASSWORD%         # require user 'admin' with password
+
+#
+# Monitor SIPXWEBRTC Process
+#
+check process sipxwebrtc with pidfile /var/log/sipxpbx/edge/sipxwebrtc.pid
+  start program "/usr/bin/sipxwebrtc --proxy-address %SIPXEDGE_PROXY_ADDRESS% --realm %SIPXEDGE_REALM% --domain %SIPXEDGE_REALM% --ip-address %SIPXEDGE_HOST_IP% --ws-port %SIPXEDGE_WS_PORT% --tcp-udp-port %SIPXEDGE_WS_TCP_UDP_PORT% --bridge-tcp-udp-port %SIPXEDGE_BRIDGE_TCP_UDP_PORT% --enable-library-logging --user-cache /etc/sipxpbx/edge/user-cache.csv --bridge-esl-port %SIPXEDGE_ESL_PORT% --switch-esl-port %SIPXEDGE_FS_ESL_PORT% --log-level 7 --log-file /var/log/sipxpbx/sipxwebrtc.log --pid-file /var/log/sipxpbx/edge/sipxwebrtc.pid -D"
+  stop program "/bin/kill `cat /var/log/sipxpbx/edge/sipxwebrtc.pid`"
+
+#
+# Monitor FREESWITCH Process
+#
+check process freeswitch with pidfile  /var/log/sipxpbx/edge/freeswitch.pid
+    start program "/opt/sipxpbx/edge/bin/freeswitch -nonat -nonatmap -nosql -ncwait -conf /etc/sipxpbx/edge/config -log /var/log/sipxpbx/edge -run /var/log/sipxpbx/edge -db /var/log/sipxpbx/edge
+    stop program "/bin/kill `cat /var/log/sipxpbx/edge/freeswitch.pid`"
+

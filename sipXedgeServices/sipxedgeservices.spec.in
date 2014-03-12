@@ -1,3 +1,21 @@
+%define SIPXEDGE_FS_SIP_TRACE           no
+%define SIPXEDGE_FS_CONTEXT             WebRtcBridge
+%define SIPXEDGE_ESL_PORT               11000
+%define SIPXEDGE_FS_ESL_PORT            11002
+%define SIPXEDGE_FS_SIP_PORT            35080
+%define SIPXEDGE_FS_INT_SIP_PORT        35082
+%define SIPXEDGE_FS_CODEC               PCMU,PCMA
+%define SIPXEDGE_FS_INT_CONTEXT         sipxedge_internal
+%define SIPXEDGE_FS_INT_CODEC           PCMU,PCMA
+
+%define SIPXEDGE_MONIT_HTTPPORT         38000
+%define SIPXEDGE_MONIT_PASSWORD         sipxedge
+
+%define SIPXEDGE_WS_PORT                5064
+%define SIPXEDGE_WS_TCP_UDP_PORT        5065
+%define SIPXEDGE_BRIDGE_TCP_UDP_PORT    5066
+
+
 Name: @PACKAGE@
 Version: @VERSION@
 Release: @PACKAGE_REVISION@
@@ -51,6 +69,12 @@ Summary: RPC Server for sipX Edge Services
 %description rpc
 RPC Server for sipX Edge Services
 
+%package config
+Summary: Configuration files for sipX Edge Services
+
+%description config
+Configuration files for sipX Edge Services
+
 %prep
 %setup -q
 
@@ -63,6 +87,77 @@ make %{_smp_mflags}
 make DESTDIR=%{buildroot} install
 rm -rf %{buildroot}/include/esl
 rm -rf %{buildroot}/usr/opt/sipxpbx/edge/include
+#
+# Install configuration templates
+#
+mkdir -p %{buildroot}/etc/sipxpbx/edge
+cp -rpP applications/config %{buildroot}/%{_sysconfdir}/sipxpbx/edge/.config
+
+%post config
+if [ test -d %{_sysconfdir}/sipxpbx/edge/config ]
+    echo "Configuration already installed in %{_sysconfdir}/sipxpbx/edge/config"
+else
+    cp -rpP %{_sysconfdir}/sipxpbx/edge/.config %{_sysconfdir}/sipxpbx/edge/config
+    
+    cd %{_sysconfdir}/sipxpbx/edge/config
+
+
+    #
+    # Determine the system host ip
+    #
+    SIPXEDGE_HOST_IP=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -n 1`
+
+    #
+    # Configure freeswitch.xml
+    #
+    sed -i "s:%SIPXEDGE_ESL_PORT%:${SIPXEDGE_ESL_PORT}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_ESL_PORT%:${SIPXEDGE_FS_ESL_PORT}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_SIP_TRACE%:${SIPXEDGE_FS_SIP_TRACE}:g" ./freeswitch.xml
+
+    #
+    # Public Profile
+    #
+    sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_SIP_PORT%:${SIPXEDGE_FS_SIP_PORT}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_CODEC%:${SIPXEDGE_FS_CODEC}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_CONTEXT%:${SIPXEDGE_FS_CONTEXT}:g" ./freeswitch.xml
+
+    #
+    # Internal Profile
+    #
+    sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_INT_SIP_PORT%:${SIPXEDGE_FS_INT_SIP_PORT}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_INT_CODEC%:${SIPXEDGE_FS_INT_CODEC}:g" ./freeswitch.xml
+    sed -i "s:%SIPXEDGE_FS_INT_CONTEXT%:${SIPXEDGE_FS_INT_CONTEXT}:g" ./freeswitch.xml
+
+    #
+    # Create a data directory
+    #
+    mkdir -p /var/log/sipxpbx/edge
+
+    #
+    # Configure monitrc
+    #
+    sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_ESL_PORT%:${SIPXEDGE_ESL_PORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_FS_ESL_PORT%:${SIPXEDGE_FS_ESL_PORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_MONIT_HTTPPORT:${SIPXEDGE_MONIT_HTTPPORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_MONIT_PASSWORD:${SIPXEDGE_MONIT_PASSWORD}:g" ./monitrc
+    sed -i "s:SIPXEDGE_WS_PORT:${SIPXEDGE_WS_PORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_WS_TCP_UDP_PORT:${SIPXEDGE_WS_TCP_UDP_PORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_BRIDGE_TCP_UDP_PORT:${SIPXEDGE_BRIDGE_TCP_UDP_PORT}:g" ./monitrc
+    chmod 0700 ./monitrc
+    chmod +x ./pid_from_path.pl
+
+    #
+    # Move the init script
+    #
+    mv ./sipxedge /etc/init.d
+    chmod +x /etc/init.d/sipxedge
+
+
+fi
+rm -rf %{_sysconfdir}/sipxpbx/edge/.config
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -78,4 +173,8 @@ rm -rf $RPM_BUILD_ROOT
 %files rpc
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/sipxedgerpc
+
+%files config
+%dir %attr(0750,-,-) %{_sysconfdir}/sipxpbx/edge/.config
+%{_sysconfdir}/sipxpbx/edge/.config/*
 
