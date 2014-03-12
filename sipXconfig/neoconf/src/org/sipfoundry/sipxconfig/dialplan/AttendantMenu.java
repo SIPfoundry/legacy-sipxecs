@@ -72,4 +72,9 @@ public class AttendantMenu {
         }
         return maxKey;
     }
+
+    @Override
+    public String toString() {
+        return "AttendantMenu [m_menuItems=" + m_menuItems + "]";
+    }
 }

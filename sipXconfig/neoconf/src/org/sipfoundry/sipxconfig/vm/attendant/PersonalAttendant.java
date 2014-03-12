@@ -56,21 +56,9 @@ public class PersonalAttendant extends BeanWithId {
         return m_menu;
     }
 
-    public static class MenuItem {
-        private final String m_key;
-        private final String m_uri;
-
-        public MenuItem(String key, String uri) {
-            m_key = key;
-            m_uri = uri;
-        }
-
-        public String getKey() {
-            return m_key;
-        }
-
-        public String getUri() {
-            return m_uri;
-        }
+    @Override
+    public String toString() {
+        return "PersonalAttendant [m_menu=" + m_menu + ", m_operator=" + m_operator + ", m_language=" + m_language
+                + ", m_overrideLanguage=" + m_overrideLanguage + "]";
     }
 }

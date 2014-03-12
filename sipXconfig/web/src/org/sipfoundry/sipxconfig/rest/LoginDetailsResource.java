@@ -49,22 +49,10 @@ public class LoginDetailsResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
         boolean ldapAuth = m_ldapManager.getSystemSettings().isEnableOpenfireConfiguration();
-        String pin = getUserPin(ldapAuth);
+        String pin = getUser().getPintoken();
+
         return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(), user.getImId(),
             ldapAuth, user.getSipPassword(), pin));
-    }
-
-    protected String getUserPin(boolean ldapAuth) {
-        String pin;
-
-        // for security reasons, include the pin only when it can be different
-        // that is when authentication is done against LDAP for portal, but not for IM
-        if (m_ldapManager.getSystemSettings().isLdapOnly() && !ldapAuth) {
-            pin = getUser().getPintoken();
-        } else {
-            pin = null;
-        }
-        return pin;
     }
 
     @Required

@@ -462,6 +462,7 @@
     <antcall target="add_attendant_lang" />
     <antcall target="add_attendant_dial_regex" />
     <antcall target="live-attendant" />
+    <antcall target="live-attendant-night" />
   </target>
 
   <target name="plugin-patches">
@@ -1392,6 +1393,9 @@
   </target>
   <target name="live-attendant" unless="live-attendant">
 	<db-patch patch="live-attendant"/>
+  </target>
+  <target name="live-attendant-night" unless="live-attendant-night">
+    <db-patch patch="live-attendant-night"/>
   </target>
 
   <!--

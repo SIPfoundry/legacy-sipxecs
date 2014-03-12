@@ -17,6 +17,7 @@ import static org.sipfoundry.sipxconfig.callgroup.AbstractCallSequence.ALIAS_REL
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class AttendantRule extends DialingRule implements Replicable {
 
     private static final String SYSTEM_NAME_PREFIX = "aa_";
+    private static final String DOUBLE_QUOTE = "\"";
     private static final String LIVE_ATTENDANT_CONTACT = "<sip:%s@%s;sipx-noroute=Voicemail?expires=%d>;q=0.933";
     private static final String LIVE_ATTENDANT_CONTACT_FWD = "<sip:%s@%s;sipx-noroute=Voicemail"
         + ";sipx-userforward=false?expires=%d>;q=0.933";
@@ -58,6 +60,9 @@ public class AttendantRule extends DialingRule implements Replicable {
     private String m_liveAttendantExtension;
     private Integer m_liveAttendantRingFor;
     private boolean m_followUserCallForward;
+    private boolean m_liveAttendantEnabled = true;
+    private String m_liveAttendantCode;
+    private Date m_liveAttendantExpire;
 
     @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
@@ -201,6 +206,30 @@ public class AttendantRule extends DialingRule implements Replicable {
         m_followUserCallForward = followUserCallForward;
     }
 
+    public String getLiveAttendantCode() {
+        return m_liveAttendantCode;
+    }
+
+    public void setLiveAttendantCode(String code) {
+        m_liveAttendantCode = code;
+    }
+
+    public boolean isLiveAttendantEnabled() {
+        return m_liveAttendantEnabled;
+    }
+
+    public void setLiveAttendantEnabled(boolean enable) {
+        m_liveAttendantEnabled = enable;
+    }
+
+    public Date getLiveAttendantExpire() {
+        return m_liveAttendantExpire;
+    }
+
+    public void setLiveAttendantExpire(Date expire) {
+        this.m_liveAttendantExpire = expire;
+    }
+
     @Required
     public void setMediaServer(MediaServer mediaServer) {
         m_mediaServer = mediaServer;
@@ -256,8 +285,6 @@ public class AttendantRule extends DialingRule implements Replicable {
 
     @Override
     public Collection<AliasMapping> getAliasMappings(String domainName) {
-        List<AliasMapping> mappings = new ArrayList<AliasMapping>();
-
         String liveContact;
         if (m_followUserCallForward) {
             liveContact = String.format(LIVE_ATTENDANT_CONTACT, getLiveAttendantExtension(), domainName,
@@ -266,10 +293,20 @@ public class AttendantRule extends DialingRule implements Replicable {
             liveContact = String.format(LIVE_ATTENDANT_CONTACT_FWD, getLiveAttendantExtension(), domainName,
                 m_liveAttendantRingFor);
         }
+
+        if (getSchedule() != null) {
+            String validTime = getSchedule().calculateValidTime();
+            String scheduleParam = String.format(VALID_TIME_PARAM, DOUBLE_QUOTE + validTime + DOUBLE_QUOTE);
+            liveContact += ";" + scheduleParam;
+        }
+
+        List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         AliasMapping liveAttendantAlias = new AliasMapping(getExtension(), liveContact, ALIAS_RELATION);
         AliasMapping attendantAlias = new AliasMapping(getExtension(), String.format(ATTENDANT_CONTACT,
             getAttendantIdentity(), domainName), ALIAS_RELATION);
-        mappings.add(liveAttendantAlias);
+        if (m_liveAttendantEnabled) {
+            mappings.add(liveAttendantAlias);
+        }
         mappings.add(attendantAlias);
 
         String[] aliases = getAttendantAliasesAsArray(getAttendantAliases());

@@ -55,3 +55,14 @@ action=shellcmd @SIPX_BINDIR@/sipxtrap BACKUP_FAILED '%s'
 <% 
   end 
 %>
+<% 
+  if LDAP_IMPORT_FAILED[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=LDAP users imported: (.*) rejected: (.*)
+desc=LDAP import could not import all users. SUCCESS: $1 FAILURE: $2
+action=shellcmd @SIPX_BINDIR@/sipxtrap LDAP_IMPORT_FAILED '%s'
+<% 
+  end 
+%>

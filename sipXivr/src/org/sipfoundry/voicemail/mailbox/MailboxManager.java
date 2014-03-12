@@ -90,4 +90,6 @@ public interface MailboxManager {
 
     void migrate(String path);
 
+    boolean manageLiveAttendant(String code, boolean enable);
+
 }

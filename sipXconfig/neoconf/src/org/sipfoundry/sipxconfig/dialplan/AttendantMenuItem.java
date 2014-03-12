@@ -50,4 +50,9 @@ public class AttendantMenuItem {
     public void setParameter(String parameter) {
         m_parameter = parameter;
     }
+
+    @Override
+    public String toString() {
+        return "AttendantMenuItem [m_action=" + m_action + ", m_parameter=" + m_parameter + "]";
+    }
 }

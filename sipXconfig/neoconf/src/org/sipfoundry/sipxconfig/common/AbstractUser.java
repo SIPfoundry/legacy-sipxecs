@@ -95,6 +95,7 @@ public abstract class AbstractUser extends BeanWithGroups {
     public static final String NOTIFICATION_CONF_EXITED = "im_notification/conferenceExitIM";
     public static final String NOTIFICATION_VM_BEGIN = "im_notification/leaveMsgBeginIM";
     public static final String NOTIFICATION_VM_END = "im_notification/leaveMsgEndIM";
+    public static final String IM_ACCOUNT = "im/im-account";
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, GROUP_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;

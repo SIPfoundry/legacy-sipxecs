@@ -25,11 +25,11 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public abstract class RowInserter<T> extends HibernateDaoSupport implements Closure {
+    private static final Log LOG = LogFactory.getLog(RowInserter.class);
+
     public enum RowStatus {
         FAILURE, SUCCESS, WARNING_PIN_RESET, WARNING_ALIAS_COLLISION;
     }
-
-    public static final Log LOG = LogFactory.getLog(RowInserter.class);
 
     private JobContext m_jobContext;
 
@@ -117,7 +117,8 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
 
         protected void doInTransactionWithoutResult(TransactionStatus status_) {
             m_jobContext.start(m_id);
-            switch (checkRowData(m_input).getRowStatus()) {
+            RowResult result = checkRowData(m_input);
+            switch (result.getRowStatus()) {
             case SUCCESS:
                 insertRow(m_input);
                 m_jobContext.success(m_id);
@@ -125,7 +126,7 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
                 break;
             case FAILURE:
                 String errorMessage = "Invalid data format when importing: " + dataToString(m_input);
-                String wrongData = checkRowData(m_input).getErrorMessage();
+                String wrongData = result.getErrorMessage();
                 if (StringUtils.isNotBlank(wrongData)) {
                     errorMessage += " - unsupported value: " + wrongData;
                 }

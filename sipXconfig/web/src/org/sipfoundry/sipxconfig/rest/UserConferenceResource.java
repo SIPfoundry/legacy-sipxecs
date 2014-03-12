@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Required;
 import com.thoughtworks.xstream.XStream;
 
 public class UserConferenceResource extends UserResource {
+    private static final String NAME = "name";
 
     private ConferenceBridgeContext m_conferenceBridgeContext;
 
@@ -49,32 +50,154 @@ public class UserConferenceResource extends UserResource {
         getVariants().add(new Variant(APPLICATION_JSON));
     }
 
+    // GET
     @Override
     public Representation represent(Variant variant) throws ResourceException {
-        List<Conference> conferences = m_conferenceBridgeContext.findConferencesByOwner(getUser());
-        return new ConferenceRepresentation(variant.getMediaType(), convertConferences(conferences));
+        Representation r = null;
+        String name = getNameFromRequest();
+
+        if (name == null) {
+            List<Conference> conferences = m_conferenceBridgeContext.findConferencesByOwner(getUser());
+            r = new ConferencesRepresentation(variant.getMediaType(), convertConferences(conferences));
+        } else {
+            Conference conf = m_conferenceBridgeContext.findConferenceByName(name);
+            r = new ConferenceRepresentation(variant.getMediaType(), new RepresentableFull(conf));
+        }
+
+        return r;
     }
 
-    protected ArrayList<Representable> convertConferences(List<Conference> conferences) {
-        ArrayList<Representable> conferencesArray = new ArrayList<Representable>();
+    // PUT
+    @Override
+    public void storeRepresentation(Representation entity) throws ResourceException {
+        String name = getNameFromRequest();
+
+        if (name != null) {
+            RepresentableFull repr = new ConferenceRepresentation(entity).getObject();
+            Conference conf = m_conferenceBridgeContext.findConferenceByName(name);
+
+            if (repr.m_enabled != null) {
+                conf.setEnabled(repr.m_enabled);
+            }
+            if (repr.m_name != null) {
+                conf.setName(repr.m_name);
+            }
+            if (repr.m_description != null) {
+                conf.setDescription(repr.m_description);
+            }
+            if (repr.m_autorecorded != null) {
+                conf.setAutorecorded(repr.m_autorecorded);
+            }
+            if (repr.m_accessCode != null) {
+                conf.setParticipantAccessCode(repr.m_accessCode);
+            }
+            if (repr.m_moderatorCode != null) {
+                conf.setModeratorAccessCode(repr.m_moderatorCode);
+            }
+            if (repr.m_quickstart != null) {
+                conf.setQuickstart(repr.m_quickstart);
+            }
+            if (repr.m_video != null) {
+                conf.setVideoConference(repr.m_video);
+            }
+            if (repr.m_sendActiveVideoOnly != null) {
+                conf.setVideoToggleFloor(repr.m_sendActiveVideoOnly);
+            }
+            if (repr.m_maxMembers != null) {
+                conf.setConfMaxMembers(repr.m_maxMembers);
+            }
+            if (repr.m_moh != null) {
+                conf.setMohSource(repr.m_moh);
+            }
+            if (repr.m_publicRoom != null) {
+                conf.setPublicRoom(repr.m_publicRoom);
+            }
+            if (repr.m_moderatedRoom != null) {
+                conf.setModeratedRoom(repr.m_moderatedRoom);
+            }
+
+            m_conferenceBridgeContext.saveConference(conf);
+        }
+    }
+
+    private static List<Representable> convertConferences(List<Conference> conferences) {
+        List<Representable> conferencesArray = new ArrayList<Representable>();
         for (Conference conference : conferences) {
             conferencesArray.add(new Representable(conference));
         }
         return conferencesArray;
     }
 
+    private String getNameFromRequest() {
+        return (String) getRequest().getAttributes().get(NAME);
+    }
+
+    @Required
+    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
+        m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
     @SuppressWarnings("serial")
-    static class Representable implements Serializable {
+    private static class RepresentableFull implements Serializable {
+        private final Boolean m_enabled;
+        private final String m_name;
+        private final String m_description;
+        private final Boolean m_autorecorded;
+        private final String m_accessCode;
+        private final String m_moderatorCode;
+        private final Boolean m_quickstart;
+        private final Boolean m_video;
+        private final Boolean m_sendActiveVideoOnly;
+        private final Integer m_maxMembers;
+        private final String m_moh;
+        private final Boolean m_moderatedRoom;
+        private final Boolean m_publicRoom;
+
+        public RepresentableFull(Conference conference) {
+            m_enabled = conference.isEnabled();
+            m_name = conference.getName();
+            m_description = conference.getDescription();
+            m_autorecorded = conference.isAutorecorded();
+            m_accessCode = conference.getParticipantAccessCode();
+            m_moderatorCode = conference.getModeratorAccessCode();
+            m_quickstart = conference.isQuickstart();
+            m_video = conference.isVideoConference();
+            m_sendActiveVideoOnly = conference.isVideoToggleFloor();
+            m_maxMembers = conference.getConfMaxMembers();
+            m_moh = conference.getMohSource();
+            m_moderatedRoom = conference.isModeratedRoom();
+            m_publicRoom = conference.isPublicRoom();
+        }
+    }
+
+    private static class ConferenceRepresentation extends XStreamRepresentation<RepresentableFull> {
+
+        public ConferenceRepresentation(MediaType mediaType, RepresentableFull representable) {
+            super(mediaType, representable);
+        }
+
+        public ConferenceRepresentation(Representation representation) {
+            super(representation);
+        }
+
+        @Override
+        protected void configureXStream(XStream xstream) {
+            xstream.alias("setting", RepresentableFull.class);
+        }
+    }
+
+    @SuppressWarnings("serial")
+    private static class Representable implements Serializable {
         @SuppressWarnings("unused")
-        private boolean m_enabled;
+        private final boolean m_enabled;
         @SuppressWarnings("unused")
-        private String m_name;
+        private final String m_name;
         @SuppressWarnings("unused")
-        private String m_description;
+        private final String m_description;
         @SuppressWarnings("unused")
-        private String m_extension;
+        private final String m_extension;
         @SuppressWarnings("unused")
-        private String m_accessCode;
+        private final String m_accessCode;
 
         public Representable(Conference conference) {
             m_enabled = conference.isEnabled();
@@ -85,18 +208,17 @@ public class UserConferenceResource extends UserResource {
         }
     }
 
-    static class ConferenceRepresentation extends XStreamRepresentation<Collection<Representable>> {
+    private static class ConferencesRepresentation extends XStreamRepresentation<Collection<Representable>> {
         private static final String ID = "m_id";
         private static final String ENABLED = "enabled";
-        private static final String NAME = "name";
         private static final String DESCRIPTION = "description";
         private static final String EXTENSION = "extension";
 
-        public ConferenceRepresentation(MediaType mediaType, Collection<Representable> object) {
+        public ConferencesRepresentation(MediaType mediaType, Collection<Representable> object) {
             super(mediaType, object);
         }
 
-        public ConferenceRepresentation(Representation representation) {
+        public ConferencesRepresentation(Representation representation) {
             super(representation);
         }
 
@@ -112,10 +234,5 @@ public class UserConferenceResource extends UserResource {
             xstream.aliasField("accessCode", Representable.class, "participantAccessCode");
             xstream.omitField(Representable.class, ID);
         }
-    }
-
-    @Required
-    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
-        m_conferenceBridgeContext = conferenceBridgeContext;
     }
 }

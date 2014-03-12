@@ -100,13 +100,15 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
         if (!message.isStored()) {
             String messageId = nextMessageId(m_mailstoreDirectory + "/..");
-            VmMessage savedMessage = saveTempMessageInStorage(destUser, message,
-                    createMessageDescriptor(destUser.getUserName(), message, messageId, subject, destUser.getIdentity()),
-                    folder, messageId);
+            VmMessage savedMessage = saveTempMessageInStorage(
+                    destUser,
+                    message,
+                    createMessageDescriptor(destUser.getUserName(), message, messageId, subject,
+                            destUser.getIdentity()), folder, messageId);
             message.setSavedMessageId(messageId);
             message.setStored(true);
             if (savedMessage != null) {
-                //Make sure to set folder after the message was correctly saved
+                // Make sure to set folder after the message was correctly saved
                 savedMessage.setParentFolder(folder);
                 m_emailer.queueVm2Email(destUser, savedMessage);
             }
@@ -118,7 +120,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         String newMessageId = nextMessageId(m_mailstoreDirectory + "/..");
         VmMessage savedMessage = copyMessage(newMessageId, destUser, message);
         if (savedMessage != null) {
-            //the method applies only to voicemails - so the folder where the message is saved is always INBOX
+            // the method applies only to voicemails - so the folder where the message is saved is
+            // always INBOX
             savedMessage.setParentFolder(Folder.INBOX);
             m_emailer.queueVm2Email(destUser, savedMessage);
         }
@@ -134,7 +137,8 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         descriptor.setSubject("Fwd:Voice Message " + newMessageId);
         VmMessage savedMessage = forwardMessage(message, comments, descriptor, destUser, newMessageId);
         if (savedMessage != null) {
-            //the method applies only to voicemails - so the folder where the message is saved is always INBOX
+            // the method applies only to voicemails - so the folder where the message is saved is
+            // always INBOX
             savedMessage.setParentFolder(Folder.INBOX);
             m_emailer.queueVm2Email(destUser, savedMessage);
         }
@@ -194,6 +198,23 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     }
 
     @Override
+    public final boolean manageLiveAttendant(String code, boolean enable) {
+        try {
+            String url = String.format("%s/sipxconfig/rest/auto-attendant/livemode/%s", m_configUrl, code);
+            // Use sipXconfig's RESTful interface to change the special mode
+            RestfulRequest rr = new RestfulRequest(url, "superadmin", m_secret);
+            if (enable) {
+                return rr.put(null);
+            } else {
+                return rr.delete();
+            }
+        } catch (Exception e) {
+            LOG.error("Failure to manage live attendant", e);
+        }
+        return false;
+    }
+
+    @Override
     public void migrate(String path) {
         // do nothing, classes that extends this should provide a mean for migrating voicemails
     }
@@ -219,7 +240,7 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         return descriptor;
     }
 
-    //Creates VOICEMAIL message descriptors only
+    // Creates VOICEMAIL message descriptors only
     private MessageDescriptor createMessageDescriptor(String destUser, TempMessage message, String messageId,
             String identity) {
         return createMessageDescriptor(destUser, message, messageId, VOICEMAIL_SUBJECT, identity);
@@ -227,7 +248,7 @@ public abstract class AbstractMailboxManager implements MailboxManager {
 
     /**
      * Generate the next message Id static synchronized as it's machine wide
-     *
+     * 
      * @param directory which holds the messageid.txt file
      */
     private synchronized String nextMessageId(String directory) {

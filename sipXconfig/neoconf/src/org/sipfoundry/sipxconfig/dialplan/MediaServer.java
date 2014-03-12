@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 public abstract class MediaServer {
 
     public static enum Operation {
-        Autoattendant, VoicemailRetrieve, VoicemailDeposit, FaxForward
+        Autoattendant, VoicemailRetrieve, VoicemailDeposit, FaxForward, LiveAttendantManagement
     }
 
     protected static final List<String> ENCODE_EXCLUDES = Arrays.<String> asList(new String[] {
@@ -220,5 +220,9 @@ public abstract class MediaServer {
 
     public String buildFaxForwardUrl() {
         return buildUrl(CallDigits.VARIABLE_DIGITS, Operation.FaxForward, null);
+    }
+
+    public String buildLiveAttendantManagementUrl() {
+        return buildUrl(CallDigits.FIXED_DIGITS, Operation.LiveAttendantManagement, null);
     }
 }

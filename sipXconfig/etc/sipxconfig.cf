@@ -110,6 +110,13 @@ bundle edit_line sipx_log4j_properties_contents {
 	  "log4j.appender.userlogin.File=${jetty.log.dir}/sipxconfig-logins.log";
 	  "log4j.appender.userlogin.layout=org.apache.log4j.PatternLayout";
 	  "log4j.appender.userlogin.layout.ConversionPattern=\"%d\":%5p:%c{1}:%L:%m%n";
+	  "# LDAP log";
+	  "log4j.logger.ldap=debug,ldap";
+	  "log4j.additivity.login=false";
+	  "log4j.appender.ldap=org.sipfoundry.commons.log4j.SipFoundryAppender";
+	  "log4j.appender.ldap.File=${jetty.log.dir}/sipxconfig-ldap.log";
+	  "log4j.appender.ldap.layout=org.apache.log4j.PatternLayout";
+	  "log4j.appender.ldap.layout.ConversionPattern=\"%d\":%5p:%c{1}:%L:%m%n";	  
 	  "# Audit log";
 	  "log4j.appender.auditlog=org.sipfoundry.commons.log4j.SipFoundryAppender";
 	  "log4j.appender.auditlog.File=${jetty.log.dir}/sipxconfig-audit.log";

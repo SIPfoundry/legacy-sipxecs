@@ -102,6 +102,16 @@ class SipRouter : public OsServerTask
     *   to SipUserAgent::send as directed by the return code
     */
 
+   /// Adds to the request URI one or more parameters w/ or w/o values
+   void addRuriParams(SipMessage& sipRequest, const UtlString& ruriParam);
+   /**<
+    * @param sipRequest The SIP request to be modified
+    * @param ruriParam A string containing parameters to be added. The string must have the following format:
+    *   "paramName1=paramValue1;...;paramNameN=paramValueN"
+    * @note parameters with no value are accepted, like:
+    *   "paramName1"
+    */
+
    /// @returns true iff the domain of url is a valid form of the domain name for this proxy.
    bool isLocalDomain(const Url& url, ///< a url to be tested
                       bool bIncludeDomainAliases = true ///< also test for domain alias matches 

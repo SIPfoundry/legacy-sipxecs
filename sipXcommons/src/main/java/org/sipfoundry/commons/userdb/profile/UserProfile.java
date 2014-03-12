@@ -42,7 +42,7 @@ public class UserProfile {
     @Indexed
     private String m_userName;
     //plays the role of a user alias, just that this is not unique
-    //if multiple authAccountNames then user cannot authenticate and 
+    //if multiple authAccountNames then user cannot authenticate and
     //domain needs to be specified authAccountName/domain
     @Indexed
     private String m_authAccountName;
@@ -74,7 +74,7 @@ public class UserProfile {
     //this field is not stored in mongo
     //the Set m_emailAddressAliases will split this string and save in mongo
     @Transient
-    private String m_emailAddressAliases;    
+    private String m_emailAddressAliases;
     private boolean m_useBranchAddress;
     private String m_branchName;
     private String m_manager;
@@ -441,7 +441,7 @@ public class UserProfile {
 
     public String getEmailAddressAliases() {
         if (m_emailAddressAliasesSet != null) {
-            m_emailAddressAliases = StringUtils.join(m_emailAddressAliasesSet, ";");           
+            m_emailAddressAliases = StringUtils.join(m_emailAddressAliasesSet, ";");
         }
         return m_emailAddressAliases;
     }

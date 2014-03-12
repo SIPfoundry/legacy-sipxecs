@@ -143,6 +143,18 @@
   </bean>
   <alias name="speedDialResource" alias="/my/speeddial" />
 
+  <bean id="personalAttendantResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+    <property name="mgr" ref="remoteMailboxManagerImpl"/>
+  </bean>
+  <alias name="personalAttendantResource" alias="/my/voicemail/attendant" />
+
   <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="available" value="false" />
@@ -157,6 +169,17 @@
   </bean>
   <alias name="resetPersonalAttendantOperatorResource" alias="/my/voicemail/operator/" />
 
+  <bean id="faxSettingsResource" class="org.sipfoundry.sipxconfig.rest.FaxSettingsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="false" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+  </bean>
+  <alias name="faxSettingsResource" alias="/my/faxprefs" />
+
   <bean id="forwardingResource" class="org.sipfoundry.sipxconfig.rest.ForwardingResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
@@ -164,6 +187,45 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="forwardingResource" alias="/my/forward" />
+
+  <bean id="callFwdResource" class="org.sipfoundry.sipxconfig.rest.CallFwdResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
+    <property name="available" value="true" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+  </bean>
+  <alias name="callFwdResource" alias="/my/callfwd" />
+
+  <bean id="callFwdSchResources" class="org.sipfoundry.sipxconfig.rest.CallFwdScheduleResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
+    <property name="available" value="true" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+  </bean>
+  <alias name="callFwdSchResources" alias="/my/callfwdsched" />
+
+  <bean id="callFwdSchResource" class="org.sipfoundry.sipxconfig.rest.CallFwdScheduleResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
+    <property name="available" value="true" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+  </bean>
+  <alias name="callFwdSchResource" alias="/my/callfwdsched/{id}" />
 
   <bean id="voicemailResource" class="org.sipfoundry.sipxconfig.rest.VoicemailResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
@@ -173,6 +235,17 @@
     <property name="modifiable" value="false" />
   </bean>
   <alias name="voicemailResource" alias="/my/feed/voicemail/{folder}" />
+
+  <bean id="voicemailPrefsResource" class="org.sipfoundry.sipxconfig.rest.VoicemailPreferencesResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+  </bean>
+  <alias name="voicemailPrefsResource" alias="/my/feed/vmprefs" />
 
   <bean id="contactInformationResource" class="org.sipfoundry.sipxconfig.rest.ContactInformationResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
@@ -213,6 +286,13 @@
   </bean>
   <alias name="specialAttendantResource" alias="/auto-attendant/specialmode" />
 
+  <bean id="liveAttendantResource" class="org.sipfoundry.sipxconfig.rest.LiveAttendantResource"
+    scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+  </bean>
+  <alias name="liveAttendantResource" alias="/auto-attendant/livemode/{code}" />
+
   <bean id="profileResource" class="org.sipfoundry.sipxconfig.rest.ProfileResource" scope="prototype">
     <property name="phoneContext" ref="phoneContext" />
   </bean>
@@ -231,14 +311,23 @@
   </bean>
   <alias name="mailboxPrefsPutResource" alias="/my/mailbox/{user}/preferences/activegreeting/{greeting}" />
 
-  <bean id="conferenceResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceResource" scope="prototype">
+  <bean id="conferencesResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="available" value="true" />
     <property name="readable" value="true" />
     <property name="modifiable" value="false" />
   </bean>
-  <alias name="conferenceResource" alias="/my/conferences" />
+  <alias name="conferencesResource" alias="/my/conferences" />
+
+  <bean id="conferenceResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="available" value="true" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="conferenceResource" alias="/my/conferences/{name}" />
 
   <bean id="conferenceCommandsResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceCommandsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />

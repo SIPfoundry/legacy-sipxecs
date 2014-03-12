@@ -14,7 +14,6 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.createMock;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +28,6 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.junit.Assert;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
-import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.bulk.RowInserter.RowStatus;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -89,8 +87,6 @@ public class LdapRowInserterTest extends TestCase {
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
         LdapManager ldapManager = coreContextControl.createMock(LdapManager.class);
-        coreContext.getGroupByName("test-import", false);
-        coreContextControl.andReturn(importGroup);
 
         coreContext.loadUserByUserName(JOE);
         if (!existingUser) {
@@ -114,14 +110,10 @@ public class LdapRowInserterTest extends TestCase {
             coreContextControl.andReturn(joe);
         }
 
-        coreContext.getGroupMembersNames(importGroup);
-        coreContextControl.andReturn(Collections.singleton("olderImportUser"));
-
         coreContext.getGroupByName(SALES, true);
         coreContextControl.andReturn(salesGroup);
         coreContext.saveUser(joe);
         coreContextControl.andReturn(true).atLeastOnce();
-        coreContext.deleteUsersByUserName(Collections.singleton("olderImportUser"));
         ldapManager.retriveOverwritePin();
         coreContextControl.andReturn(new OverwritePinBean(100, true)).anyTimes();
         coreContextControl.replay();
@@ -134,7 +126,6 @@ public class LdapRowInserterTest extends TestCase {
         mailboxManagerControl.replay();
 
         UserMapper rowInserterUserMapper = new UserMapper();
-        m_rowInserter.setLdapManager(ldapManager);
         m_rowInserter.setUserMapper(rowInserterUserMapper);
         m_rowInserter.setCoreContext(coreContext);
         m_rowInserter.setUserMapper(userMapper);
@@ -198,6 +189,7 @@ public class LdapRowInserterTest extends TestCase {
         control.andReturn(null);
         control.replay();
         m_rowInserter.setUserMapper(userMapper);
+        m_rowInserter.beforeInserting(null);
         assertEquals(RowStatus.FAILURE, m_rowInserter.checkRowData(searchResult).getRowStatus());
 
         control.reset();

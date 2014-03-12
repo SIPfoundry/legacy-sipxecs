@@ -55,7 +55,7 @@
 #define LOG_FACILITY   FAC_SIP
 
 // Configuration names pulled from config-file
-#define SIPXPROXY_APP_NAME            "SipXProxy"
+#define SIPXPROXY_APP_NAME            "sipxproxy"
 #define CONFIG_SETTING_BIND_IP        "SIPX_PROXY_BIND_IP"
 #define CONFIG_SETTINGS_FILE          "sipXproxy-config"
 #define CONFIG_SETTING_LOG_LEVEL      "SIPX_PROXY_LOG_LEVEL"
@@ -428,15 +428,17 @@ int proxy()
         UtlString routeTo;
         UtlString routeType;
         bool authRequired;
+        UtlString ruriParams;
         OsStatus routeStatus = forwardingRules.getRoute(msgUrl, 
                                                         foo, 
                                                         routeTo, 
                                                         routeType,
-                                                        authRequired);
+                                                        authRequired,
+                                                        ruriParams);
 
         Url msgRouteToUri(routeTo);
-        osPrintf("Message:\n\tmethod: %s\n\turi: %s\n\tevent: %s\nRouted:\n\tstring: %s\n\turi: %s\n\ttype: %s\n",
-            method, uri, eventType, routeTo.data(), msgRouteToUri.toString().data(), routeType.data());
+        osPrintf("Message:\n\tmethod: %s\n\turi: %s\n\tevent: %s\nRouted:\n\tstring: %s\n\turi: %s\n\ttype: %s\n\truriParams: %s\n",
+            method, uri, eventType, routeTo.data(), msgRouteToUri.toString().data(), routeType.data(), ruriParams.data());
         if(routeStatus != OS_SUCCESS) 
             osPrintf("forwardingRules.getRoute returned: %d\n",
                     routeStatus);
@@ -581,7 +583,7 @@ int proxy()
 // USAGE:  sipXproxy [-v] [pidfile]
 int main(int argc, char* argv[]) {
 
-  SipXApplicationData rlsData =
+  SipXApplicationData proxyData =
   {
       SIPXPROXY_APP_NAME,
       CONFIG_SETTINGS_FILE,
@@ -595,7 +597,7 @@ int main(int argc, char* argv[]) {
   };
 
   // NOTE: this might exit application in case of failure
-  SipXApplication::instance().init(argc, argv, rlsData);
+  SipXApplication::instance().init(argc, argv, proxyData);
 
   proxy();
 

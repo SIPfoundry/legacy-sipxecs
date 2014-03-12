@@ -9,8 +9,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
-#include "testlib/SipDbTestContext.h"
-
 
 #include <os/OsDefs.h>
 #include <os/OsConfigDb.h>
@@ -18,10 +16,11 @@
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 #include "net/SipXauthIdentity.h"
-#include "sipdb/CredentialDB.h"
 #include "ForwardRules.h"
 #include <sipxproxy/SipRouter.h>
 #include "DummyAuthPlugIn.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipxunit/FileTestContext.h"
 
 /**
  * Unit test for SipRouter::proxyMessage
@@ -77,6 +76,8 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testProxyMessageRouteState_DeniedByPlugin);
    CPPUNIT_TEST(testAddNatMappingInfoToContactsToNatedMessage);
    CPPUNIT_TEST(testAddNatMappingInfoToContactsToNonNatedMessage);
+   CPPUNIT_TEST(testProxyAddsRuriParamsFromForwardingRules);
+   CPPUNIT_TEST(terminateMongoDB);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -92,15 +93,15 @@ private:
    static const char* SipRouterConfiguration;
 
 public:
-   static SipDbTestContext TestDbContext;
+   static FileTestContext TestContext;
 
-   void setUp()
+   void buildSipRouter(UtlString forwardingRulesFile = "routing.xml")
       {
          // prevent the test from using any installed configuration files
-         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
-         TestDbContext.setSipxDir(SipXecsService::DatabaseDirType);
-         TestDbContext.inputFile("credential.xml");
-         TestDbContext.inputFile("domain-config");
+        TestContext.setSipxDir(SipXecsService::ConfigurationDirType);
+        TestContext.setSipxDir(SipXecsService::DatabaseDirType);
+        TestContext.inputFile("credential.xml");
+        TestContext.inputFile("domain-config");
 
          // Construct a SipUserAgent to provide the isMyHostAlias recognizer
          mUserAgent = new SipUserAgent(SIP_PORT, // udp port
@@ -110,7 +111,7 @@ public:
                                        );
 
          UtlString rulesFile;
-         TestDbContext.inputFilePath("routing.xml", rulesFile);
+         TestContext.inputFilePath(forwardingRulesFile, rulesFile);
 
          CPPUNIT_ASSERT(OS_SUCCESS ==
                         mForwardingRules.loadMappings(rulesFile,
@@ -129,13 +130,28 @@ public:
          CPPUNIT_ASSERT( mpDummyAuthPlugin );
       }
 
-   void tearDown()
-      {
-         delete mSipRouter;
-         delete mUserAgent;
+   void destroySipRouter()
+   {
+     if (mSipRouter)
+     {
+       delete mSipRouter;
+     }
 
-         CredentialDB::getInstance()->releaseInstance();
-      }
+     if (mUserAgent)
+     {
+       delete mUserAgent;
+     }
+   }
+
+   void setUp()
+   {
+     buildSipRouter();
+   }
+
+   void tearDown()
+   {
+     destroySipRouter();
+   }
 
    void testSupportedOptions()
       {
@@ -1578,6 +1594,115 @@ public:
       ASSERT_STR_EQUAL("<sip:callee@47.0.0.3:5060;x-sipX-privcontact=10.3.3.3%3A1234>",contactString.data());
       CPPUNIT_ASSERT( sipMsg.getContactEntry(1, &contactString) == FALSE );
    }      
+
+   // check if the request uri from the given message contains exactly the given parameter
+   void checkMessageRuriParams(SipMessage& testMsg, const UtlString& ruriParamName, const UtlString& ruriParamValue)
+   {
+     Url expectedRequestUri("sip:user@internal.example.com");
+
+     // get the actual uri as string
+     Url actualRequestUri;
+     UtlString actualRequestUriStr;
+     testMsg.getRequestUri(&actualRequestUriStr);
+     actualRequestUri.fromString(actualRequestUriStr, true);
+
+     if (!ruriParamName.isNull())
+     {
+       UtlString actualRuriParamValue;
+       CPPUNIT_ASSERT(actualRequestUri.getUrlParameter(ruriParamName.data(), actualRuriParamValue, 0));
+       ASSERT_STR_EQUAL(actualRuriParamValue.data(), ruriParamValue.data());
+       CPPUNIT_ASSERT(!actualRequestUri.getUrlParameter(ruriParamName.data(), actualRuriParamValue, 1));
+     }
+
+     // TEST: message also contain route and record-route headers
+     UtlString topRoute, recordRoute, tempString, urlParmName;
+     CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
+     ASSERT_STR_EQUAL("<sip:registrar.example.com;lr>", topRoute.data());
+     CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
+     ASSERT_STR_EQUAL("<sip:10.10.10.1:5060;lr>", recordRoute.data());
+     CPPUNIT_ASSERT( testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
+   }
+
+   void testProxyAddsRuriParamsFromForwardingRules()
+   {
+     // destroy previous sip router that was build using "routing.xml"
+     destroySipRouter();
+
+     // build a special sip router to test ruriparams from forwarding rules xml file: "routing-with-ruriparams.xml"
+     buildSipRouter("routing-with-ruriparams.xml");
+
+     // TEST: proxy does not add ruri param in case nothing was specified in fwd rules xml;
+     {
+       const char* message =
+          "INVITE sip:user@internal.example.com;dummy SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:user@internal.example.com\r\n"
+          "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 INVITE\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: caller@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+         checkMessageRuriParams(testMsg, "", "");
+     }
+
+     // TEST: ruri param added in case it is specified in fwd rules xml (original request uri does not
+     // have that ruri param)
+     {
+       const char* message =
+          "SUBSCRIBE sip:user@internal.example.com;lr SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:someone@somewhere\r\n"
+          "From: Caller <sip:caller@example.edu>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 SUBSCRIBE\r\n"
+          "Event: message-summary\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: caller@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+         checkMessageRuriParams(testMsg, "subscribe-param", "subscribe-value");
+     }
+
+     // TEST: ruri param added in case it is specified in fwd rules xml (original request uri does
+     // have that ruri param - the param is added only one time)
+     {
+       const char* message =
+          "SUBSCRIBE sip:user@internal.example.com;subscribe-param=subscribe-value SIP/2.0\r\n"
+          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+          "To: sip:someone@somewhere\r\n"
+          "From: Caller <sip:caller@example.edu>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+          "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 SUBSCRIBE\r\n"
+          "Event: dialog\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: caller@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+         checkMessageRuriParams(testMsg, "subscribe-param", "subscribe-value");
+     }
+   }
+
+   void terminateMongoDB()
+   {
+     mongo::dbexit(mongo::EXIT_CLEAN);
+   }
 };
 
 const char* SipRouterTest::VoiceMail   = "Voicemail";
@@ -1592,4 +1717,4 @@ const char* SipRouterTest::SipRouterConfiguration =
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRouterTest);
 
-SipDbTestContext  SipRouterTest::TestDbContext(TEST_DATA_DIR "/siproutertestdata", TEST_WORK_DIR "/siproutertestdata");
+FileTestContext SipRouterTest::TestContext(TEST_DATA_DIR "/siproutertestdata", TEST_WORK_DIR "/siproutertestdata");

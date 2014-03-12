@@ -124,12 +124,6 @@
     <![CDATA[select u from User u where u.isShared = :isShared]]>
   </query>
 
-  <query name="potentialImAccountsByUserNameOrAlias">
-    <![CDATA[select new org.sipfoundry.sipxconfig.im.ImAccount(u) from User u left outer join u.aliases alias
-      where (lower(u.userName) = lower(:imId) or lower(alias) = lower(:imId))
-      and u.id != :userId]]>
-  </query>
-
   <query name="userByUserName">
     <![CDATA[select u from User u where u.userName = :value]]>
   </query>

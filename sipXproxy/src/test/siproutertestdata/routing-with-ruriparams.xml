@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<routes>
+  <route mappingType="local">
+
+    <routeFrom>example.com</routeFrom>
+    <routeFrom>internal.example.com</routeFrom>
+
+     <methodMatch>
+        <!--this will check ruriParam based on method -->
+        <methodPattern>INVITE</methodPattern>
+        <routeTo> &lt;registrar.example.com;x-sipx-routetoreg&gt; </routeTo>
+     </methodMatch>
+     
+    <methodMatch>
+
+      <methodPattern>SUBSCRIBE</methodPattern>
+
+      <fieldMatch fieldName="Event">
+        <!-- Message waiting indication events -->
+        <fieldPattern>message-summary.*</fieldPattern>
+
+        <routeTo ruriParams="subscribe-param=subscribe-value">&lt;registrar.example.com;x-sipx-routetoreg&gt;</routeTo>
+      </fieldMatch>
+
+      <!-- All other SUBSCRIBE requests go to the SIP registry service -->
+      <routeTo ruriParams="subscribe-param=subscribe-value">&lt;registrar.example.com;x-sipx-routetoreg&gt;</routeTo>
+
+    </methodMatch>
+    
+    <!-- All other requests go to the SIP registry service -->
+    <routeTo ruriParams="sipx-noroute=Voicemail;lr">&lt;registrar.example.com;x-sipx-routetoreg&gt;</routeTo>
+
+  </route>
+</routes>

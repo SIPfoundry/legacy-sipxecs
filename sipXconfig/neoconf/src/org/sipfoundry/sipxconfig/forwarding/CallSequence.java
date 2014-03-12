@@ -88,4 +88,10 @@ public class CallSequence extends AbstractCallSequence {
         return mappings;
     }
 
+    @Override
+    public String toString() {
+        return "CallSequence [m_user=" + m_user + ", m_withVoicemail=" + m_withVoicemail + ", getCfwdTime()="
+            + getCfwdTime() + ", getRings()=" + getRings() + "]";
+    }
+
 }

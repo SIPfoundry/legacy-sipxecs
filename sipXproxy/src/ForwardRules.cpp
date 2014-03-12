@@ -242,7 +242,8 @@ OsStatus ForwardRules::getRoute(const Url& requestUri,
                                 const SipMessage& request,
                                 UtlString& routeToString,
                                 UtlString& mappingType,
-                                bool& authRequired)
+                                bool& authRequired,
+                                UtlString& ruriParams)
 
 {
     OsStatus currentStatus = OS_FAILED;
@@ -260,6 +261,7 @@ OsStatus ForwardRules::getRoute(const Url& requestUri,
                                             routeToString,
                                             mappingType,
                                             authRequired,
+                                            ruriParams,
                                             prevRouteNode);
 
     return currentStatus;
@@ -270,6 +272,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
                                               UtlString& routeToString,
                                               UtlString& mappingType,
                                               bool& authRequired,
+                                              UtlString& ruriParams,
                                               TiXmlNode* routesNode,
                                               TiXmlNode* previousRouteMatchNode)
 {
@@ -405,6 +408,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
                   methodMatchFound = parseMethodMatchContainer(request,
                      routeToString,
                      authRequired,
+                     ruriParams,
                      routeMatchNode);
 
                   if( methodMatchFound == OS_SUCCESS)
@@ -420,6 +424,7 @@ OsStatus ForwardRules::parseRouteMatchContainer(const Url& requestUri,
 OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
                                                  UtlString& routeToString,
                                                  bool& authRequired,
+                                                 UtlString& ruriParams,
                                                  TiXmlNode* routeMatchNode,
                                                  TiXmlNode* previousMethodMatchNode)
 {
@@ -484,6 +489,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
                   fieldMatchFound = parseFieldMatchContainer(request,
                      routeToString,
                      authRequired,
+                     ruriParams,
                      methodMatchNode);
 
                   if(fieldMatchFound == OS_SUCCESS)
@@ -499,6 +505,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
                   {
                       fieldMatchFound = getRouteTo(routeToString, 
                           authRequired,
+                          ruriParams,
                           methodMatchElement);
                       if(fieldMatchFound == OS_SUCCESS)
                       {
@@ -515,7 +522,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
    {
       // if none of the method match were successfull or if no methodMatch node present
       // get the default routeTo for this routeNode.
-      fieldMatchFound = getRouteTo(routeToString, authRequired,
+      fieldMatchFound = getRouteTo(routeToString, authRequired, ruriParams,
             routeMatchNode);
    }
    return fieldMatchFound;
@@ -524,6 +531,7 @@ OsStatus ForwardRules::parseMethodMatchContainer(const SipMessage& request,
 OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
                                                 UtlString& routeToString,
                                                 bool& authRequired,
+                                                UtlString& ruriParams,
                                                 TiXmlNode* methodMatchNode,
                                                 TiXmlNode* previousFieldMatchNode)
 {
@@ -616,7 +624,7 @@ OsStatus ForwardRules::parseFieldMatchContainer(const SipMessage& request,
           || noFieldPatternRequired )
       {
             //get the routeTo field
-         getRouteFound = getRouteTo(routeToString, authRequired,
+         getRouteFound = getRouteTo(routeToString, authRequired, ruriParams,
             fieldMatchNode);
       }
 
@@ -664,6 +672,7 @@ static bool getYN(const char* boolText,
 
 OsStatus ForwardRules::getRouteTo(UtlString& RouteToString,
                                  bool& authRequired,
+                                 UtlString& ruriParams,
                                   TiXmlNode* nodeWithRouteToChild)
 {
    
@@ -671,7 +680,6 @@ OsStatus ForwardRules::getRouteTo(UtlString& RouteToString,
    nodeWithRouteToChild->ToElement();
    TiXmlNode* routeToNode = NULL;
    TiXmlNode* routeToText = NULL;
-
 
    //get the user text value from it
    routeToNode = nodeWithRouteToChild->FirstChild(XML_TAG_ROUTETO);
@@ -689,6 +697,14 @@ OsStatus ForwardRules::getRouteTo(UtlString& RouteToString,
 
       //set the authRequired attribute
       authRequired=getYN(authRequiredPtr, false) ; //defaults to false
+
+      // set the ruriParams attribute
+      ruriParams.remove(0);
+      const char* ruriParamsPtr = routeToElement->Attribute(XML_ATT_RURIPARAMS);
+      if (ruriParamsPtr)
+      {
+        ruriParams.append(ruriParamsPtr);
+      }
 
       RouteToString.remove(0);
       routeToText = routeToElement->FirstChild();

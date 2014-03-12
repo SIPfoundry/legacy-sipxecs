@@ -19,7 +19,7 @@ public class RlsRule extends InternalForwardRule {
     private static final FullTransform RLS_TRANSFORM = new FullTransform();
 
     static {
-        RLS_TRANSFORM.setHeaderParams("Route=sip:${RLS_SIP_SRV_OR_HOSTPORT}");
+        RLS_TRANSFORM.setHeaderParams("Route=sip:${RLS_SIP_SRV_OR_HOSTPORT};transport=tcp");
     }
 
     public RlsRule() {

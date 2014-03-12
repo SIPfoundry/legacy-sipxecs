@@ -30,6 +30,9 @@ import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.address.SipURI;
+import javax.sip.address.URI;
+import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.Header;
@@ -145,6 +148,13 @@ public class SipListenerImpl extends AbstractSipListener {
                     String statusLine = ((SIPResponse) responseEvent.getResponse())
                             .getStatusLine().toString();
                     dialogContext.setStatus(callId, method, statusLine);
+                    if (response.getStatusCode() == 200) {
+                        ContactHeader contactHeader = (ContactHeader)response.getHeader("Contact");
+                        URI uri = contactHeader.getAddress().getURI();
+                        //make sure the contact uri from 200 OK received when initial INVITE is stored
+                        //we need it when sending BYE
+                        dialogContext.getRequest(dialog).setRequestURI(uri);
+                    }
                 }
                 tad.response(responseEvent);
             } else {

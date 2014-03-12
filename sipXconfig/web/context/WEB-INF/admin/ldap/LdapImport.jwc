@@ -7,11 +7,6 @@
   <property name="schedule" />
 
   <!--
-    - B E A N S
-  -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
-
-  <!--
     - C O M P O N E N T S
   -->
   <component id="importForm" type="Form">

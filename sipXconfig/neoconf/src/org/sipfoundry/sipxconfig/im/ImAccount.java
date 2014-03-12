@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.im;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sipfoundry.sipxconfig.common.AbstractUser.IM_ACCOUNT;
 
 import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.User;
@@ -21,8 +22,6 @@ import org.sipfoundry.sipxconfig.common.User;
  * services
  */
 public class ImAccount {
-    public static final String IM_ACCOUNT = "im/im-account";
-
     private final AbstractUser m_user;
 
     public ImAccount(AbstractUser user) {

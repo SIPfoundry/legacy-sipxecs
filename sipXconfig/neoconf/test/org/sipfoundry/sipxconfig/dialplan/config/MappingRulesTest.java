@@ -285,6 +285,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         EasyMock.replay(lc);
 
+        rules.add(new MappingRule.LiveAttendantManagement(mediaServer, "123456", "*87", "*88", null));
         rules.add(new MappingRule.Operator(aa, "100", new String[] {
             "operator", "0"
         }, mediaServer));

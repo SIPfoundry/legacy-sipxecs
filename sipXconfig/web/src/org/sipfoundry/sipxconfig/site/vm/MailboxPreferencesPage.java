@@ -15,6 +15,7 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
+import org.sipfoundry.sipxconfig.common.DuplicateEntity;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -59,10 +60,10 @@ public abstract class MailboxPreferencesPage extends UserBasePage {
     // user IDs or aliases. Report an error if there is a collision.
     private boolean checkForUserIdOrAliasCollision() {
         boolean result = false;
-        String dup = getCoreContext().checkForDuplicateNameOrAlias(getEditedUser());
-        if (dup != null) {
+        DuplicateEntity dup = getCoreContext().checkForDuplicateNameOrAlias(getEditedUser());
+        if (dup != null && dup.getValue() != null) {
             result = true;
-            recordError("message.duplicateUserIdOrAlias", dup);
+            recordError("message.duplicateUserIdOrAlias", dup.getValue());
         }
         return result;
     }

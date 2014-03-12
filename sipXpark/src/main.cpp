@@ -208,7 +208,7 @@ void initCodecs(SdpCodecFactory* codecFactory, OsConfigDb* pConfig)
 
 int main(int argc, char* argv[])
 {
-  SipXApplicationData rlsData =
+  SipXApplicationData parkData =
   {
       SIPXPARK_APP_NAME,
       CONFIG_SETTINGS_FILE,
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
   };
 
   // NOTE: this might exit application in case of failure
-  SipXApplication::instance().init(argc, argv, rlsData);
+  SipXApplication::instance().init(argc, argv, parkData);
 
   OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();
   {
