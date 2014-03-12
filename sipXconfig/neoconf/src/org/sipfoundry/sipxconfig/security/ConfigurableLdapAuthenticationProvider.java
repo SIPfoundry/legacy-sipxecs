@@ -112,7 +112,7 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
             String userDomain = retrieveDomain(userLoginName);
             UserDetailsImpl loaddedUser = null;
             try {
-                loaddedUser = (UserDetailsImpl) getUserDetailsService().loadUserByUsername(userLoginName);
+                loaddedUser = (UserDetailsImpl) getUserDetailsService().loadUserByUsername(username);
             } catch (DuplicateUserException dupEx) {
                 if (StringUtils.isEmpty(userDomain)) {
                     if (LOG.isDebugEnabled()) {
@@ -132,7 +132,7 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
                         }
                         if (!loaded && StringUtils.equals(user.getUserDomain(), userDomain)) {
                             loaddedUser = (UserDetailsImpl) ((AbstractUserDetailsService) getUserDetailsService()).
-                                createUserDetails(userLoginName, user);
+                                createUserDetails(username, user);
                             loaded = true;
                         }
                     }
