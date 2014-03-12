@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class RestoreForm extends BaseComponent implements PageBeginRenderListener {
+    private static final String CANNOT_RESTORE_KEY = "&cannot.restore";
 
     @Parameter(required = true)
     public abstract void setBackupPlan(BackupPlan plan);
@@ -48,10 +49,17 @@ public abstract class RestoreForm extends BaseComponent implements PageBeginRend
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
+    @Parameter(required = true)
+    public abstract boolean isCanRestore();
+
     @Override
     public void pageBeginRender(PageEvent event) {
         if (getSelections() == null) {
             setSelections(new SelectMap());
+        }
+        //on first page display, show informal message about whether restore could be possible
+        if (!isCanRestore()) {
+            getValidator().record(new UserException(CANNOT_RESTORE_KEY), getMessages());
         }
     }
 
@@ -60,6 +68,11 @@ public abstract class RestoreForm extends BaseComponent implements PageBeginRend
         Collection<String> restoreFrom = getSelections().getAllSelected();
         if (restoreFrom.isEmpty()) {
             getValidator().record(new UserException("Missing selection"), getMessages());
+            return null;
+        }
+        //make sure restore won't be initiated if validation do not pass
+        if (!isCanRestore()) {
+            getValidator().record(new UserException(CANNOT_RESTORE_KEY), getMessages());
             return null;
         }
 
