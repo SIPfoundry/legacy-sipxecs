@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> implements SpeedDialManager {
+    private static final int MAX_BUTTONS = 136;
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
@@ -138,15 +139,19 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
     }
 
     private void verifyBlfs(List<Button> buttons) {
+        int blfCount = 0;
         for (Button button : buttons) {
             if (button.isBlf()) {
+                blfCount++;
                 String number = button.getNumber();
-                if (UserValidationUtils.isValidEmail(number) || m_aliasManager.isAliasInUse(number)) {
-                    continue;
+                if (!UserValidationUtils.isValidEmail(number) && !m_aliasManager.isAliasInUse(number)) {
+                    button.setBlf(false);
+                    throw new UserException("&error.notValidBlf", number);
                 }
-                button.setBlf(false);
-                throw new UserException("&error.notValidBlf", number);
             }
+        }
+        if (blfCount > MAX_BUTTONS) {
+            throw new UserException("&error.blfExceedsMaxNumber", MAX_BUTTONS);
         }
     }
 
