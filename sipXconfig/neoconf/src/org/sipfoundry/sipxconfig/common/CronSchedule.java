@@ -100,9 +100,6 @@ public class CronSchedule extends BeanWithId {
     }
 
     public void setScheduledDay(ScheduledDay scheduledDay) {
-        if (scheduledDay != ScheduledDay.EVERYDAY) {
-            setType(Type.WEEKLY);
-        }
         m_dayOfWeek = scheduledDay.getDayOfWeek();
     }
 
