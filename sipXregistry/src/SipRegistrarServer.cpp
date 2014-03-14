@@ -300,7 +300,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                               // user name, if any
                                              ,const unsigned long timeNow
                                              ,const SipMessage& registerMessage
-                                             ,RegistrationExpiryIntervals*& pExpiryIntervals
+                                             ,RegistrationExpiryIntervals*& pExpiryIntervals,
+                                              bool& isUnregister
                                              )
 {
 #if 0
@@ -447,6 +448,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                       if ( 0 == expires )
                       {
                          // unbind this mapping; ok
+                        isUnregister = true;
                       }
                       else if ( expires < pExpiryIntervals->mMinExpiresTime) // lower bound
                       {
@@ -596,6 +598,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
             else
             {
                 // Asterisk ('*') requests that we unregister all contacts for the AOR
+                isUnregister = true;
                 removeAll = TRUE;
             }
         } // iteration over Contact entries
@@ -850,10 +853,13 @@ void SipRegistrarServer::handleRegister(SipMessage* pMsg)
           // Add new contact values - update or insert.
           unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
           RegistrationExpiryIntervals* pExpiryIntervalsUsed = 0;
+          bool isUnregister = false;
           RegisterStatus applyStatus
              = applyRegisterToDirectory( toUri, instrument,
                                          timeNow, message,
-                                         pExpiryIntervalsUsed );
+                                         pExpiryIntervalsUsed,
+                                         isUnregister
+             );
 
           switch (applyStatus)
           {
@@ -878,7 +884,7 @@ void SipRegistrarServer::handleRegister(SipMessage* pMsg)
                   SipRegistrar::getInstance(NULL)->getRegDB()->getUnexpiredContactsUser(identity_.str(),
                       timeNow, registrations, true);
                   
-                  if (applyStatus == REGISTER_SUCCESS && registrations.empty())
+                  if (!isUnregister && applyStatus == REGISTER_SUCCESS && registrations.empty())
                   {
                     //
                     // This should not happen.  Send out a 500 internal server error

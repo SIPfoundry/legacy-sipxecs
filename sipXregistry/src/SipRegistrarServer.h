@@ -114,7 +114,8 @@ protected:
                            ///< instrument value to add to bindings
         const unsigned long timeNow, ///< base time for all expiration calculations
         const SipMessage& registerMessage, ///< message containing bindings
-        RegistrationExpiryIntervals*& expiryIntervalsUsed ); ///< returns the expiry interval used to bound the expiry of the registration
+        RegistrationExpiryIntervals*& expiryIntervalsUsed,
+        bool& isUnregister); ///< returns the expiry interval used to bound the expiry of the registration
 
 
 
