@@ -13,3 +13,6 @@ sipxsaa-core-enabled=false
 sipxpark-fd-soft=6666
 sipxpark-fd-hard=66667
 sipxpark-core-enabled=false
+plugin-fd-soft=11119
+plugin-fd-hard=11118
+plugin-core-enabled=false
