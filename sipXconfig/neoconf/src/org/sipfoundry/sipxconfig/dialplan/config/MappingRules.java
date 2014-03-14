@@ -25,13 +25,11 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.rls.Rls;
 
 /**
  * Special type of mappingrules document with a single host match matching standard SIPx hosts
@@ -174,12 +172,6 @@ public class MappingRules extends RulesXmlFile {
             rulesString = rulesString.replace(MY_FULL_HOSTNAME, location.getFqdn());
             rulesString = rulesString.replace(MY_HOSTNAME, location.getHostname());
 
-            // Not sure why these addresses cannot use dialplan interfaces
-            Address rls = m_addressManager.getSingleAddress(getRlsType(), location);
-            if (rls != null) {
-                rulesString = rulesString.replace(RLS_SIP_SRV_OR_HOSTPORT, rls.addressColonPort());
-            }
-
             Address park = m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, location);
             if (park != null) {
                 rulesString = rulesString.replace(ORBIT_SERVER_SIP_SRV_OR_HOSTPORT, park.addressColonPort());
@@ -199,14 +191,6 @@ public class MappingRules extends RulesXmlFile {
         } catch (DocumentException de) {
             throw new RuntimeException(de);
         }
-    }
-
-    protected AddressType getRlsType() {
-        return Rls.TCP_SIP;
-    }
-
-    private String addressPort(Address a) {
-        return a.getAddress() + ':' + a.getPort();
     }
 
     public AddressManager getAddressManager() {

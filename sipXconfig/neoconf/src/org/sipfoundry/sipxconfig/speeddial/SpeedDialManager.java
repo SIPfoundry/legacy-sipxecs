@@ -12,9 +12,8 @@ package org.sipfoundry.sipxconfig.speeddial;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 
-public interface SpeedDialManager extends DialingRuleProvider {
+public interface SpeedDialManager {
     String CONTEXT_BEAN_NAME = "speedDialManager";
 
     SpeedDial getSpeedDialForUserId(Integer userId, boolean create);

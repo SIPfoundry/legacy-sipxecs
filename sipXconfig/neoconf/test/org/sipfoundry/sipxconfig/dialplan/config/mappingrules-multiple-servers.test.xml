@@ -21,17 +21,6 @@
       </permissionMatch>
     </userMatch>
     <userMatch>
-      <!--RLS-->
-      <description>Forward resource list subscriptions to RLS</description>
-      <callTag>RL</callTag>
-      <userPattern>~~rl~.</userPattern>
-      <permissionMatch>
-        <transform>
-          <headerparams>Route=sip:192.168.1.5:9906;transport=tcp</headerparams>
-        </transform>
-      </permissionMatch>
-    </userMatch>
-    <userMatch>
       <callTag>AAM</callTag>
       <userPattern>*87</userPattern>
       <userPattern>*88</userPattern>
