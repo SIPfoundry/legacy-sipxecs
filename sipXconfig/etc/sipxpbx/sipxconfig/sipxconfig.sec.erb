@@ -49,8 +49,8 @@ action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_DELETED '%s'
 %>
 type=Single
 ptype=RegExp
-pattern=Backup FAILED for configuration: (.*)
-desc=Backup with configuration $1 failed
+pattern=BACKUP error: (.*)
+desc=BACKUP failed: $1
 action=shellcmd @SIPX_BINDIR@/sipxtrap BACKUP_FAILED '%s'
 <% 
   end 

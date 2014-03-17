@@ -51,6 +51,7 @@
   
   <bean id="backupRunner" class="org.sipfoundry.sipxconfig.backup.BackupRunnerImpl">
     <property name="backupScript" value="${sysdir.bin}/sipx-archive"/>
+    <property name="jobContext" ref="jobContext" />
   </bean>
   
   <!-- BACKUP REST API -->

@@ -29,7 +29,7 @@ public interface BackupRunner {
 
     public Map<String, List<String>> list(File plan);
 
-    public boolean backup(File plan);
+    public void backup(File plan);
 
     /**
      * Restore selected archives. a selection has this form: 201401301800/configuration.tar.gz
@@ -50,5 +50,5 @@ public interface BackupRunner {
      * @param selections
      * @return
      */
-    public boolean restore(File plan, Collection<String> selections);
+    public void restore(File plan, Collection<String> selections);
 }

@@ -14,7 +14,7 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class BackupRunnerTest {
     private BackupRunnerImpl m_runner;
-    
+
     @Before
     public void setUp() {
         m_runner = new BackupRunnerImpl();
@@ -24,7 +24,7 @@ public class BackupRunnerTest {
 
     @Test
     public void list() throws IOException {
-        String plan = getClass().getResource("expected-auto-backup.yaml").getFile();        
+        String plan = getClass().getResource("expected-auto-backup.yaml").getFile();
         Map<String, List<String>> actual = m_runner.list(new File(plan));
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-listing.json"));
         TestHelper.assertEquals(expected, actual);
@@ -32,6 +32,13 @@ public class BackupRunnerTest {
 
     @Test
     public void backup() {
-        assertTrue(m_runner.backup(new File("foo")));
+        try {
+            m_runner.backup(new File("foo"));
+            //if we are here backup finished successfuy
+            assertTrue(true);
+        } catch (Exception ex) {
+            //backup either moved to background or failed
+            assertTrue(false);
+        }
     }
 }
