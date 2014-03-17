@@ -81,6 +81,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STATE;
 import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STREET;
 import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_ZIP;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
+import static org.sipfoundry.commons.mongo.MongoConstants.PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
 import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
 import static org.sipfoundry.commons.mongo.MongoConstants.PERSONAL_ATT;
@@ -637,6 +638,7 @@ public class ValidUsers {
         user.setDisplayName(getStringValue(obj, DISPLAY_NAME));
         user.setUri(getStringValue(obj, CONTACT));
         user.setPasstoken(getStringValue(obj, HASHED_PASSTOKEN));
+        user.setSipPassword(getStringValue(obj, PASSTOKEN));
         user.setPintoken(getStringValue(obj, PINTOKEN));
         user.setVoicemailPintoken(getStringValue(obj, VOICEMAIL_PINTOKEN));
         user.setTimeZone(getStringValue(obj, TIMEZONE));
