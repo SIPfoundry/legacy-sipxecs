@@ -49,7 +49,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         m_defaultLanguage = defaultLanguage;
         // Calling getLocalization() populates the localization table
         // when empty
-        //getLocalization();
+        getLocalization();
     }
 
     @Required
