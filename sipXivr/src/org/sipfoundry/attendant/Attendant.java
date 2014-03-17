@@ -269,6 +269,10 @@ public class Attendant extends SipxIvrApp {
             DialByName dbn = new DialByName();
             dbn.setApplicationConfiguration(config);
             dbn.setLocalization(controller.getLocalization());
+            String lang = config.getLang();
+            if (StringUtils.isNotBlank(lang) && !StringUtils.equals(config.getLang(), "default")) {
+                dbn.changeLocale(lang);
+            }
             dbn.setValidUsers(m_validUsers);
             dbn.setMailboxManager(m_mailboxManager);
             DialByNameChoice choice = dbn.dialByName(item.getParameter());
