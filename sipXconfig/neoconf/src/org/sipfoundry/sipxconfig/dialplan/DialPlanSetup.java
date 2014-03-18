@@ -9,12 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.dialplan;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.localization.RegionUpdatedEvent;
 import org.sipfoundry.sipxconfig.setup.MigrationListener;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationListener;
 
-public class DialPlanSetup implements SetupListener, MigrationListener {
+public class DialPlanSetup implements SetupListener, MigrationListener, ApplicationListener<RegionUpdatedEvent> {
+    private static final Log LOG = LogFactory.getLog(DialPlanSetup.class);
     private AutoAttendantManager m_autoAttendantManager;
     private DialPlanContext m_dialPlanContext;
     private String m_defaultDialPlanId = "na.dialPlan";
@@ -86,5 +91,11 @@ public class DialPlanSetup implements SetupListener, MigrationListener {
 
     public void setDefaultDialPlanId(String defaultDialPlanId) {
         m_defaultDialPlanId = defaultDialPlanId;
+    }
+
+    @Override
+    public void onApplicationEvent(RegionUpdatedEvent event) {
+        LOG.debug("Language updated, resetting dialplan...");
+        setup(event.getBeanId());
     }
 }

@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.sipfoundry.sipxconfig.localization.LanguageUpdatedEvent;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -49,10 +50,11 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements AutoAttendantManager,
-        BeanFactoryAware {
+public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport<AutoAttendant> implements
+        AutoAttendantManager, BeanFactoryAware, ApplicationListener<LanguageUpdatedEvent> {
     private static final String AUTO_ATTENDANT = "auto attendant";
     private static final String DID = "did";
     private static final Log LOG = LogFactory.getLog(AutoAttendantManagerImpl.class);
@@ -63,6 +65,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
     private MediaServer m_mediaServer;
     private BeanWithSettingsDao<AutoAttendantSettings> m_beanWithSettingsDao;
 
+    @Override
     public boolean isAliasInUse(String alias) {
         AutoAttendantSettings settings = getSettings();
         return !getAutoAttendantsWithName(alias).isEmpty()
@@ -71,6 +74,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
                 || StringUtils.equalsIgnoreCase(alias, settings.getLiveDid());
     }
 
+    @Override
     public void storeAutoAttendant(AutoAttendant aa) {
         // Check for duplicate names or extensions before saving the call group
         String name = aa.getName();
@@ -88,7 +92,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         getDaoEventPublisher().publishSave(aa);
     }
 
-    private void checkRegEx(String regEx, String errMessage) {
+    private static void checkRegEx(String regEx, String errMessage) {
         if (StringUtils.isNotEmpty(regEx)) {
             try {
                 Pattern.compile(regEx);
@@ -98,6 +102,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         }
     }
 
+    @Override
     public AutoAttendant getOperator() {
         return getAttendant(AutoAttendant.OPERATOR_ID);
     }
@@ -108,20 +113,23 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
 
     private AutoAttendant getAttendant(String systemId) {
         String query = "from AutoAttendant a where a.systemId = :systemId";
-        List operatorList = getHibernateTemplate().findByNamedParam(query, "systemId", systemId);
+        List<AutoAttendant> operatorList = getHibernateTemplate().findByNamedParam(query, "systemId", systemId);
 
-        return (AutoAttendant) DaoUtils.requireOneOrZero(operatorList, query);
+        return DaoUtils.requireOneOrZero(operatorList, query);
     }
 
+    @Override
     public List<AutoAttendant> getAutoAttendants() {
         List<AutoAttendant> aas = getHibernateTemplate().loadAll(AutoAttendant.class);
         return aas;
     }
 
+    @Override
     public AutoAttendant getAutoAttendant(Integer id) {
-        return (AutoAttendant) getHibernateTemplate().load(AutoAttendant.class, id);
+        return getHibernateTemplate().load(AutoAttendant.class, id);
     }
 
+    @Override
     public AutoAttendant getAutoAttendantBySystemName(String systemId) {
         Integer id = AutoAttendant.getIdFromSystemId(systemId);
         if (id != null) {
@@ -130,6 +138,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         return getAttendant(systemId);
     }
 
+    @Override
     public void deleteAutoAttendantsByIds(Collection<Integer> attendantIds) {
         for (Integer id : attendantIds) {
             AutoAttendant aa = getAutoAttendant(id);
@@ -150,6 +159,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         }
     }
 
+    @Override
     public void deleteAutoAttendant(AutoAttendant attendant) {
         if (attendant.isPermanent()) {
             throw new AttendantInUseException();
@@ -159,16 +169,16 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         getHibernateTemplate().refresh(attendant);
 
         Collection<AttendantRule> attendantRules = getHibernateTemplate().loadAll(AttendantRule.class);
-        Collection affectedRules = new ArrayList();
+        Collection<DialingRule> affectedRules = new ArrayList<DialingRule>();
         for (AttendantRule rule : attendantRules) {
             if (rule.checkAttendant(attendant)) {
                 affectedRules.add(rule);
             }
         }
         if (!affectedRules.isEmpty()) {
-            List names = new ArrayList(affectedRules.size());
-            for (Iterator i = affectedRules.iterator(); i.hasNext();) {
-                DialingRule rule = (DialingRule) i.next();
+            List<String> names = new ArrayList<String>(affectedRules.size());
+            for (Iterator<DialingRule> i = affectedRules.iterator(); i.hasNext();) {
+                DialingRule rule = i.next();
                 names.add(rule.getName());
             }
             String ruleNames = StringUtils.join(names.iterator(), ", ");
@@ -188,12 +198,14 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         getHibernateTemplate().delete(attendant);
     }
 
+    @Override
     public Group getDefaultAutoAttendantGroup() {
         return m_settingDao.getGroupCreateIfNotFound(ATTENDANT_GROUP_ID, "default");
     }
 
+    @Override
     public AutoAttendant newAutoAttendantWithDefaultGroup() {
-        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME, AutoAttendant.class);
+        AutoAttendant aa = m_beanFactory.getBean(AutoAttendant.BEAN_NAME, AutoAttendant.class);
 
         // All auto attendants share same group: default
         Set groups = aa.getGroups();
@@ -205,7 +217,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
     }
 
     public Setting getAttendantSettingModel() {
-        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME, AutoAttendant.class);
+        AutoAttendant aa = m_beanFactory.getBean(AutoAttendant.BEAN_NAME, AutoAttendant.class);
         return aa.getSettings();
     }
 
@@ -219,11 +231,13 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         return getHibernateTemplate().findByNamedQueryAndNamedParam("autoAttendantIdsWithName", "value", alias);
     }
 
+    @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection autoAttendants = getAutoAttendantsWithName(alias);
         return BeanId.createBeanIdCollection(autoAttendants, AutoAttendant.class);
     }
 
+    @Override
     public AutoAttendant createOperator(String attendantId) {
         AutoAttendant attendant = getAttendant(attendantId);
         if (attendant != null) {
@@ -246,8 +260,8 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
 
         String prefixFormat = "%s.";
         DialingRule liveAaRule = new MappingRule.LiveAttendantManagement(m_mediaServer, settings.getLiveDid(),
-                String.format(prefixFormat, settings.getDisablePrefix()),
-                String.format(prefixFormat, settings.getEnablePrefix()), location);
+                String.format(prefixFormat, settings.getDisablePrefix()), String.format(prefixFormat,
+                        settings.getEnablePrefix()), location);
         DialingRule[] rules = new DialingRule[] {
             liveAaRule
         };
@@ -257,12 +271,14 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
     /**
      * This is for testing only.
      */
+    @Override
     public void clear() {
-        List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
+        List<AutoAttendant> attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
         getDaoEventPublisher().publishDelete(attendants);
         getHibernateTemplate().deleteAll(attendants);
     }
 
+    @Override
     public void updatePrompts(File sourceDir) {
         try {
             if (getOperator() != null) {
@@ -276,6 +292,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         }
     }
 
+    @Override
     public void deselectSpecial(AutoAttendant aa) {
         AttendantSpecialMode specialMode = loadAttendantSpecialMode();
         if (specialMode.isEnabled()) {
@@ -288,11 +305,13 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         getDaoEventPublisher().publishSave(specialMode);
     }
 
+    @Override
     public AutoAttendant getSelectedSpecialAttendant() {
         AttendantSpecialMode specialMode = loadAttendantSpecialMode();
         return specialMode.getAttendant();
     }
 
+    @Override
     public boolean getSpecialMode() {
         AttendantSpecialMode specialMode = loadAttendantSpecialMode();
         return specialMode.isEnabled();
@@ -315,8 +334,8 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
     }
 
     private AttendantSpecialMode loadAttendantSpecialMode() {
-        List asm = getHibernateTemplate().loadAll(AttendantSpecialMode.class);
-        AttendantSpecialMode specialMode = (AttendantSpecialMode) DataAccessUtils.singleResult(asm);
+        List<AttendantSpecialMode> asm = getHibernateTemplate().loadAll(AttendantSpecialMode.class);
+        AttendantSpecialMode specialMode = DataAccessUtils.singleResult(asm);
         return specialMode;
     }
 
@@ -365,8 +384,8 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
                         wt.setWorkingHours(hours);
                         List<Interval> intervals = wt.calculateValidTime(utc);
                         int intervalNow = intervals.get(0).getStart();
-                        List<Interval> scheduleIntervals = schedule.getWorkingTime().
-                                calculateValidTime(TimeZone.getDefault());
+                        List<Interval> scheduleIntervals = schedule.getWorkingTime().calculateValidTime(
+                                TimeZone.getDefault());
                         int dif = 0;
                         int firstStartInWeek = 0;
                         for (Interval interval : scheduleIntervals) {
@@ -449,6 +468,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
         m_aliasManager = aliasManager;
     }
 
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
@@ -461,6 +481,12 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements
     @Required
     public void setMediaServer(MediaServer mediaServer) {
         m_mediaServer = mediaServer;
+    }
+
+    @Override
+    public void onApplicationEvent(LanguageUpdatedEvent event) {
+        LOG.debug("Language updated, updating prompts...");
+        updatePrompts(new File(event.getPromptsDir(), event.getCurrentLanguageDir()));
     }
 
 }

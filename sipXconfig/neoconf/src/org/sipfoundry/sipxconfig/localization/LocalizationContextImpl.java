@@ -9,28 +9,26 @@
  */
 package org.sipfoundry.sipxconfig.localization;
 
-
 import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
-import org.sipfoundry.sipxconfig.dialplan.DialPlanSetup;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class LocalizationContextImpl extends SipxHibernateDaoSupport implements LocalizationContext {
+public class LocalizationContextImpl extends SipxHibernateDaoSupport<Localization> implements LocalizationContext,
+        ApplicationContextAware {
+    private static final Log LOG = LogFactory.getLog(LocalizationContextImpl.class);
     private static final String PROMPTS_PREFIX = "stdprompts_";
     private String m_promptsDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;
-    private DialPlanSetup m_dialplanSetup;
-    private AutoAttendantManager m_autoAttendantManager;
-    private SipxReplicationContext m_sipxReplicationContext;
+    private ApplicationContext m_applicationContext;
 
     public void setPromptsDir(String promptsDir) {
         m_promptsDir = promptsDir;
@@ -40,21 +38,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         m_defaultRegion = defaultRegion;
     }
 
-    @Required
-    public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
-        m_autoAttendantManager = autoAttendantManager;
-    }
-
     public void setDefaultLanguage(String defaultLanguage) {
         m_defaultLanguage = defaultLanguage;
         // Calling getLocalization() populates the localization table
         // when empty
         getLocalization();
-    }
-
-    @Required
-    public void setDialPlanSetup(DialPlanSetup resetDialPlanTask) {
-        m_dialplanSetup = resetDialPlanTask;
     }
 
     @Override
@@ -99,8 +87,8 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
 
     @Override
     public Localization getLocalization() {
-        List l = getHibernateTemplate().loadAll(Localization.class);
-        Localization localization = (Localization) DataAccessUtils.singleResult(l);
+        List<Localization> l = getHibernateTemplate().loadAll(Localization.class);
+        Localization localization = DataAccessUtils.singleResult(l);
         if (localization == null) {
             // The localization table is empty - create a new localization using
             // default values and update the table
@@ -127,7 +115,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         }
 
         localization.setRegion(regionBeanId);
-        m_dialplanSetup.setup(regionBeanId);
+        m_applicationContext.publishEvent(new RegionUpdatedEvent(this, regionBeanId));
         getHibernateTemplate().saveOrUpdate(localization);
         getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(localization);
@@ -150,18 +138,19 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         }
         // The language has been changed - handle the change
         localization.setLanguage(language);
-        // Copy default AutoAttendant prompts in the currently applied language
-        // to AutoAttendant prompts directory.
-        m_autoAttendantManager.updatePrompts(new File(m_promptsDir, getCurrentLanguageDir()));
         getHibernateTemplate().saveOrUpdate(localization);
         getHibernateTemplate().flush();
+        // TODO: do we really need this? It does not seem to be caught anywhere!
         getDaoEventPublisher().publishSave(localization);
-        m_sipxReplicationContext.generateAll(DataSet.MAILSTORE);
+        // Copy default AutoAttendant prompts in the currently applied language
+        // to AutoAttendant prompts directory.
+        LOG.debug("Language updated, sending LanguageUpdatedEvent...");
+        m_applicationContext.publishEvent(new LanguageUpdatedEvent(this, m_promptsDir, getCurrentLanguageDir()));
         return 1;
     }
 
-    @Required
-    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
-        m_sipxReplicationContext = sipxReplicationContext;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
     }
 }

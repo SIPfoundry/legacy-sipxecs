@@ -14,6 +14,7 @@ public class LocalizationContextImplTest extends TestCase {
 
     public void testGetInstalledLanguages() {
         LocalizationContextImpl out = new LocalizationContextImpl() {
+            @Override
             protected String[] getListOfDirectories(String path, String prefix) {
                 return new String[] {"stdprompts_en", "stdprompts_de"};
             }

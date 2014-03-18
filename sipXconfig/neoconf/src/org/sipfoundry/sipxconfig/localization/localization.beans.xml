@@ -8,9 +8,6 @@
     <property name="promptsDir" value="${sysdir.doc}"/>
     <property name="defaultRegion" value="na" />
     <property name="defaultLanguage" value="en" />
-    <property name="dialPlanSetup" ref="dialPlanSetup" />
-    <property name="autoAttendantManager" ref="autoAttendantManager" />
-    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
 
   <bean id="localizationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

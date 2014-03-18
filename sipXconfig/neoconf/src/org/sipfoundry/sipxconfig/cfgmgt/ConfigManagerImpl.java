@@ -69,8 +69,8 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     private LocationsManager m_locationManager;
     private Collection<ConfigProvider> m_providers;
     private ListableBeanFactory m_beanFactory;
-    private int m_sleepInterval = 7000;
-    private ConfigWorker m_worker = new ConfigWorker();
+    private final int m_sleepInterval = 7000;
+    private final ConfigWorker m_worker = new ConfigWorker();
     private final ConfigRequest[] m_outstandingRequest = new ConfigRequest[1];
     private ConfigAgent m_configAgent;
     private RunBundleAgent m_runAgent;
@@ -102,6 +102,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         }
     }
 
+    @Override
     public String getRemoteCommand(String server) {
         return String.format(m_remoteCommand, getHomeDir(), server);
     }
@@ -150,11 +151,13 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         return work;
     }
 
+    @Override
     public Collection<Location> getRegisteredLocations() {
         return getRegisteredLocations(m_locationManager.getLocationsList());
     }
 
 
+    @Override
     public Collection<Location> getRegisteredLocations(Collection<Location> locations) {
         File csv = new File(m_uploadDir + "/lastseen.csv");
         RegisteredLocationResolver resolver = new RegisteredLocationResolver(this, m_registeredIps, csv);
@@ -311,6 +314,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         return m_featureManager;
     }
 
+    @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
@@ -438,6 +442,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         run(collect);
     }
 
+    @Override
     public void resetKeys(Collection<Location> locations) {
         if (locations.size() == 0) {
             return;

@@ -19,10 +19,12 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.localization.LanguageUpdatedEvent;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationListener;
 
 /*
  * (non-Javadoc)
@@ -32,7 +34,8 @@ import org.springframework.context.ApplicationEventPublisherAware;
  * By heavy replication operations we mean operations that take a lot of time when are performed, usually
  * on a large number of users. (generate all data, generate 1 dataset)
  */
-public class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
+public class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext,
+        ApplicationListener<LanguageUpdatedEvent> {
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
     private ApplicationEventPublisher m_applicationEventPublisher;
     private ReplicationManager m_replicationManager;
@@ -43,7 +46,6 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     public void generate(final Replicable entity) {
         m_replicationManager.replicateEntity(entity);
     }
-
 
     @Override
     public void generateAll() {
@@ -67,7 +69,8 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     }
 
     private class DatasetReplicationWorker implements Runnable {
-        private DataSet m_ds;
+        private final DataSet m_ds;
+
         public DatasetReplicationWorker(DataSet ds) {
             m_ds = ds;
         }
@@ -137,5 +140,11 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     @Override
     public void replicateWork(Replicable entity) {
         throw new RuntimeException("No clear what should happen here --Douglas");
+    }
+
+    @Override
+    public void onApplicationEvent(LanguageUpdatedEvent arg0) {
+        LOG.debug("Language updated, replicating DataSet.MAILSTORE...");
+        generateAll(DataSet.MAILSTORE);
     }
 }
