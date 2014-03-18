@@ -1,0 +1,22 @@
+#!/bin/sh
+
+usage() { echo "Usage: $0 [-p <proxy_address>] [-d <sip_domain>]" 1>&2; exit 1; }
+
+while getopts ":p:d:" opt; do
+    case "${opt}" in
+        p)
+            p=${OPTARG}
+            sed -i "s:%SIPXEDGE_PROXY_ADDRESS%:${p}:g" /etc/sipxpbx/edge/config/monitrc
+            ;;
+        d)
+            d=${OPTARG}
+            sed -i "s:%SIPXEDGE_REALM%:${d}:g" /etc/sipxpbx/edge/config/monitrc
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
+echo "Proxy address set to ${p}"
+echo "SIP domain set to ${d}"
