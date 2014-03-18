@@ -965,7 +965,9 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             break;
          }
       }     // end should be authorized
-      else
+
+
+      if (!bRequestShouldBeAuthorized)
       {
          // In order to guarantee symmetric signaling, this proxy has to 
          // Record-Route all incoming requests.  The RouteState mechanism
@@ -1045,6 +1047,22 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
               sipRequest.addRecordRouteUri(recordRoute);
             }
          }
+      }
+      else if (
+        !bMessageWillSpiral &&
+        sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET &&
+        sipRequest.isRecordRouteAccepted())
+      {
+          // Generate the Record-Route string to be used by proxy to Record-Route requests
+          // based on the route name
+          UtlString recordRoute;
+          //Url route(mRouteHostPort);
+          Url route;
+          route = Url(mRouteHostSecurePort);
+          route.setUrlParameter("lr",NULL);
+          route.setUrlParameter("transport=tls",NULL);
+          route.toString(recordRoute);
+          sipRequest.addRecordRouteUri(recordRoute);
       }
    }        // end all extensions are supported
    else
