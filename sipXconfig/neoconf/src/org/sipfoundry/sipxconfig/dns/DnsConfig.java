@@ -261,7 +261,7 @@ public class DnsConfig implements ConfigProvider {
         if (!ArrayUtils.contains(excludes, DnsView.ExcludedRecords.NAPTR)) {
             c.write("naptr_protocols", "[ udp, tcp ]");
         }
-        c.write(YML_DOMAIN, domain.getNetworkName());
+        c.write(YML_DOMAIN, domainName);
         c.startArray("resource_records");
         String qualifiedTarget = null;
         boolean domainIsFqdn = domainName.equals(all.get(0).getFqdn());

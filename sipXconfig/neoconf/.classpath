@@ -5,7 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/sipXconfig-etc"/>
-	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/neoconf/test"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXconfig/cdr-bindings.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
