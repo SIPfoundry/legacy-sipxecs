@@ -28,6 +28,7 @@ import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
+import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
@@ -61,7 +62,11 @@ public class UserConferenceResource extends UserResource {
             r = new ConferencesRepresentation(variant.getMediaType(), convertConferences(conferences));
         } else {
             Conference conf = m_conferenceBridgeContext.findConferenceByName(name);
-            r = new ConferenceRepresentation(variant.getMediaType(), new RepresentableFull(conf));
+            if (conf != null) {
+                r = new ConferenceRepresentation(variant.getMediaType(), new RepresentableFull(conf));
+            } else {
+                throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+            }
         }
 
         return r;

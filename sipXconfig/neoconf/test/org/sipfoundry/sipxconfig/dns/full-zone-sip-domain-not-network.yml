@@ -1,6 +1,6 @@
 serialno: 1
 naptr_protocols: [ udp, tcp ]
-domain: x
+domain: xxx
 resource_records:
  - :proto: _sip._tcp
    :lhs: _sip._tcp.rr1

@@ -157,6 +157,22 @@ public class DnsConfigTest {
         assertEquals(expected, actual.toString());
     }
 
+    // expect the same as above, just make sure SIP and network domains are different
+    @Test
+    public void fullZoneSameFqdnAsDomainButNotNetworkDomain() throws IOException {
+        StringWriter actual = new StringWriter();
+        DnsSrvRecord[] records = new DnsSrvRecord[] {
+            DnsSrvRecord.domainLevel("_sip._tcp", "rr1", 1, "s1.example.org.")
+        };
+        List<Address> all = Arrays.asList(m_a1);
+        List<DnsSrvRecord> rrs = Arrays.asList(records);
+        Domain d = new Domain("one.example.org");
+        d.setNetworkName("example.org");
+        m_config.writeZoneConfig(actual, d, Arrays.asList(m_l1), all, rrs, 1, null);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("full-zone-domain-fqdn.yml"));
+        assertEquals(expected, actual.toString());
+    }
+
     @Test
     public void writeServerYaml() throws IOException {
         StringWriter actual = new StringWriter();

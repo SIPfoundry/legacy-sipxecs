@@ -130,6 +130,8 @@ public class RestRedirectorResource extends UserResource {
                     + CALLCONTROLLER + callcontrollerRelativeUrl);
         } else if (!StringUtils.isEmpty(mediaRelativeUrl)) {
             result = invokeIvrFallback(GET, MEDIA + mediaRelativeUrl);
+        } else {
+            throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No known resource was requested");
         }
         return new InputRepresentation(new ByteArrayInputStream(result), MediaType.ALL);
     }
