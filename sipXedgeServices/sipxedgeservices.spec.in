@@ -1,21 +1,3 @@
-%define SIPXEDGE_FS_SIP_TRACE           no
-%define SIPXEDGE_FS_CONTEXT             WebRtcBridge
-%define SIPXEDGE_ESL_PORT               11000
-%define SIPXEDGE_FS_ESL_PORT            11002
-%define SIPXEDGE_FS_SIP_PORT            35080
-%define SIPXEDGE_FS_INT_SIP_PORT        35082
-%define SIPXEDGE_FS_CODEC               PCMU,PCMA
-%define SIPXEDGE_FS_INT_CONTEXT         sipxedge_internal
-%define SIPXEDGE_FS_INT_CODEC           PCMU,PCMA
-
-%define SIPXEDGE_MONIT_HTTPPORT         38000
-%define SIPXEDGE_MONIT_PASSWORD         sipxedge
-
-%define SIPXEDGE_WS_PORT                5064
-%define SIPXEDGE_WS_TCP_UDP_PORT        5065
-%define SIPXEDGE_BRIDGE_TCP_UDP_PORT    5066
-
-
 Name: @PACKAGE@
 Version: @VERSION@
 Release: @PACKAGE_REVISION@
@@ -30,11 +12,21 @@ BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
 BuildRequires: zip
-%if %{_vendor} == suse
-BuildRequires: pwdutils
-%else
-BuildRequires: shadow-utils
+
+%if 0%{?fedora} >= 18
+BuildRequires: libdb4-cxx-devel
+BuildRequires: libdb4-devel
+Requires: libdb4-cxx
+Requires: libdb4
 %endif
+
+%if 0%{?fedora_version} < 18 || 0%{?rhel} >= 6
+BuildRequires: db4-cxx-devel
+BuildRequires: db4-devel
+Requires: db4-cxx
+Requires: db4
+%endif
+
 
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
@@ -44,12 +36,17 @@ BuildRequires: sipxesllib-devel >= %version
 BuildRequires: libjsonrpccpp-devel
 
 Requires: sipxesllib
-BuildRequires: sipxcommserverlib  >= %version
-BuildRequires: sipxportlib        >= %version
-BuildRequires: sipxtacklib       >= %version
-BuildRequires: sipxresiprocate-libs    >= %version
-BuildRequires: sipxesllib >= %version
-BuildRequires: libjsonrpccpp
+Requires: sipxcommserverlib  >= %version
+Requires: sipxportlib        >= %version
+Requires: sipxtacklib       >= %version
+Requires: sipxresiprocate-libs    >= %version
+Requires: sipxesllib >= %version
+Requires: libjsonrpccpp
+Requires: freeswitch_edge
+Requires: sipxedgeservices-config
+Requires: monit
+
+
 
 
 Source:   %name-%version.tar.gz
@@ -94,11 +91,30 @@ mkdir -p %{buildroot}/etc/sipxpbx/edge
 cp -rpP applications/config %{buildroot}/%{_sysconfdir}/sipxpbx/edge/.config
 
 %post config
-if [ test -d %{_sysconfdir}/sipxpbx/edge/config ]
+
+SIPXEDGE_FS_SIP_TRACE="no"
+SIPXEDGE_FS_CONTEXT="WebRtcBridge"
+SIPXEDGE_ESL_PORT=11000
+SIPXEDGE_FS_ESL_PORT=11002
+SIPXEDGE_FS_SIP_PORT=35080
+SIPXEDGE_FS_INT_SIP_PORT=35082
+SIPXEDGE_FS_CODEC="PCMU,PCMA"
+SIPXEDGE_FS_INT_CONTEXT="sipxedge_internal"
+SIPXEDGE_FS_INT_CODEC="PCMU,PCMA"
+
+SIPXEDGE_MONIT_HTTPPORT=38000
+SIPXEDGE_MONIT_PASSWORD="sipxedge"
+
+SIPXEDGE_WS_PORT=5064
+SIPXEDGE_WS_TCP_UDP_PORT=5065
+SIPXEDGE_BRIDGE_TCP_UDP_PORT=5066
+
+
+if [ -d %{_sysconfdir}/sipxpbx/edge/config ]; then
     echo "Configuration already installed in %{_sysconfdir}/sipxpbx/edge/config"
 else
+    echo "Performing post config operation"
     cp -rpP %{_sysconfdir}/sipxpbx/edge/.config %{_sysconfdir}/sipxpbx/edge/config
-    
     cd %{_sysconfdir}/sipxpbx/edge/config
 
 
@@ -131,23 +147,23 @@ else
     sed -i "s:%SIPXEDGE_FS_INT_CONTEXT%:${SIPXEDGE_FS_INT_CONTEXT}:g" ./freeswitch.xml
 
     #
-    # Create a data directory
-    #
-    mkdir -p /var/log/sipxpbx/edge
-
-    #
     # Configure monitrc
     #
+    sed -i "s:%SIPXEDGE_MONIT_HTTPPORT%:${SIPXEDGE_MONIT_HTTPPORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_MONIT_PASSWORD%:${SIPXEDGE_MONIT_PASSWORD}:g" ./monitrc
     sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./monitrc
     sed -i "s:%SIPXEDGE_ESL_PORT%:${SIPXEDGE_ESL_PORT}:g" ./monitrc
     sed -i "s:%SIPXEDGE_FS_ESL_PORT%:${SIPXEDGE_FS_ESL_PORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_MONIT_HTTPPORT:${SIPXEDGE_MONIT_HTTPPORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_MONIT_PASSWORD:${SIPXEDGE_MONIT_PASSWORD}:g" ./monitrc
-    sed -i "s:SIPXEDGE_WS_PORT:${SIPXEDGE_WS_PORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_WS_TCP_UDP_PORT:${SIPXEDGE_WS_TCP_UDP_PORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_BRIDGE_TCP_UDP_PORT:${SIPXEDGE_BRIDGE_TCP_UDP_PORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_WS_PORT%:${SIPXEDGE_WS_PORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_WS_TCP_UDP_PORT%:${SIPXEDGE_WS_TCP_UDP_PORT}:g" ./monitrc
+    sed -i "s:%SIPXEDGE_BRIDGE_TCP_UDP_PORT%:${SIPXEDGE_BRIDGE_TCP_UDP_PORT}:g" ./monitrc
     chmod 0700 ./monitrc
     chmod +x ./pid_from_path.pl
+
+    #
+    # Create a data directory
+    #
+    mkdir -p /var/log/sipxpbx/edge
 
     #
     # Move the init script
@@ -155,9 +171,20 @@ else
     mv ./sipxedge /etc/init.d
     chmod +x /etc/init.d/sipxedge
 
+    #
+    # Move the setup-script
+    #
+    mv ./sipxedge-setup /usr/bin
+    chmod +x /usr/bin/sipxedge-setup
+
+    #
+    # Create monit softlink
+    #
+    mkdir -p  /opt/sipxecs/edge/monit/bin
+    cd /opt/sipxecs/edge/monit/bin
+    ln -snf /usr/bin/monit ./monit
 
 fi
-rm -rf %{_sysconfdir}/sipxpbx/edge/.config
 
 %clean
 rm -rf $RPM_BUILD_ROOT

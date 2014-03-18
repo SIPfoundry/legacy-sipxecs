@@ -21,8 +21,8 @@ MONIT_PIDFILE=/var/log/sipxpbx/edge/monit.pid
 FREESWITCH_PIDFILE=/var/log/sipxpbx/edge/freeswitch.pid
 
 WEBRTC_PROC=/usr/bin/sipxwebrtc
-MONIT_PROC=/opt/sipxpbx/edge/bin/monit
-FREESWITCH_PROC=/opt/sipxpbx/edge/bin/freeswitch
+MONIT_PROC=/opt/sipxecs/edge/monit/bin/monit
+FREESWITCH_PROC=/opt/sipxecs/edge/freeswitch/bin/freeswitch
 
 do_setlimits()
 {

@@ -161,8 +161,6 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName) :
   addOptionString("db-path", ": Specify a specific directory where application databases will be saved.", CommandLineOption, false);
   addOptionInt("bridge-esl-port", ": The ESL Port where the bridge will listen for incoming connection from the switch.", CommandLineOption, false);
   addOptionInt("switch-esl-port", ": The ESL Port where the switch will listen for incoming connection from the bridge.", CommandLineOption, false);
-
-
 }
 
 WSRouter::~WSRouter()

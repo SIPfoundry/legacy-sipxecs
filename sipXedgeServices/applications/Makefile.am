@@ -2,7 +2,8 @@ SUBDIRS = .
 
 AM_CPPFLAGS =  \
 	$(SIPXPROXY_COMMON_CXX_FLAGS) \
-	-I$(top_srcdir)/include
+	-I$(top_srcdir)/include \
+	-I/usr/include/libdb4
 
 RESIPROCATE_LIBS = \
 	-lcares \
@@ -17,8 +18,8 @@ EXTRA_DIST = \
     config/freeswitch.xml \
     config/monitrc \
     config/pid_from_path.pl \
-    config/sipxedge
-
+    config/sipxedge \
+    config/sipxedge-setup
 
 
 bin_PROGRAMS = sipxcallgen_fs sipxwebrtc sipxedgerpc

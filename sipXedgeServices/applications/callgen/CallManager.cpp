@@ -159,12 +159,6 @@ void CallManager::spawn()
   CallThread* pCall = new CallThread(*this, ++_totalCount);
   _callMap[pCall->_id] = pCall;
 
-  pCall->_targetUri;
-  pCall->_authUser;
-  pCall->_authPass;
-  pCall->_fromUser;
-  pCall->_domain;
-
   pCall->run();
 }
 
