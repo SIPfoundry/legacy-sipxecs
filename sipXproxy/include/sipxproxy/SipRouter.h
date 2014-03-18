@@ -195,7 +195,7 @@ class SipRouter : public OsServerTask
     *  for this proxy.
     *  @returns true iff sipRequest was modified.
     */
-   bool addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) const;
+   bool addPathHeaderIfNATOrTlsRegisterRequest( SipMessage& sipRequest ) const;
 
    bool addNatMappingInfoToContacts( SipMessage& sipRequest ) const;
    

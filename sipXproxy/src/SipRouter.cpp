@@ -601,7 +601,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             // Path header to this proxy to make sure that all subsequent 
             // requests sent to the registering UA get funneled through
             // this proxy.
-            addPathHeaderIfNATRegisterRequest( sipRequest );
+            addPathHeaderIfNATOrTlsRegisterRequest( sipRequest );
 
             if(isPAIdentityApplicable(sipRequest))
             {
@@ -1146,7 +1146,7 @@ void SipRouter::sendUdpKeepAlive( SipMessage& keepAliveMsg, const char* serverAd
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-bool SipRouter::addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) const 
+bool SipRouter::addPathHeaderIfNATOrTlsRegisterRequest( SipMessage& sipRequest ) const
 {
    bool bMessageModified = false;
    UtlString method;
@@ -1160,12 +1160,31 @@ bool SipRouter::addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) cons
       UtlString  privateAddress, protocol;
       int        privatePort;
       UtlBoolean bReceivedSet;
-      
+      UtlBoolean bIsTls;
+
       sipRequest.getTopVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
-      if( bReceivedSet )
+      bIsTls = protocol.compareTo("tls", UtlString::ignoreCase) == 0;
+
+      if( bReceivedSet || bIsTls)
       {
+         UtlString routeHostPort;
+         if (bIsTls)
+         {
+           routeHostPort = mRouteHostSecurePort;
+         }
+         else
+         {
+           routeHostPort = mRouteHostPort;
+         }
+
          // Add Path header to the message
-         Url pathUri( mRouteHostPort );
+         Url pathUri( routeHostPort );
+         
+         if (bIsTls)
+         {
+           pathUri.setUrlParameter("transport=tls",NULL);
+         }
+
          SignedUrl::sign( pathUri );
          UtlString pathUriString;      
          pathUri.toString( pathUriString );
