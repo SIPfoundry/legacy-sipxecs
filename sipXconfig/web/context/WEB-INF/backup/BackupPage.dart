@@ -189,9 +189,13 @@ class BackupPage {
     req.setRequestHeader("Content-Type", "application/json"); 
     req.send(JSON.encode(meta));
     req.onLoad.listen((e) {
-      if (DataLoader.checkResponse(msg, req)) {
+      if (req.status == 200) {
         msg.success(getString(successMessage));
         load();
+      } else if (req.status == 408) {
+        msg.success(getString('message.backupTimeout'));
+      } else {
+        msg.error(getString('message.backupError'));
       }
     });      
   }
