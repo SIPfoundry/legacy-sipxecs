@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class LdapRowInserter extends RowInserter<SearchResult> {
     public static final String LDAP_SETTING = "ldap";
-    private static final Log LOG = LogFactory.getLog(LDAP_SETTING);
+    private static final Log LOG = LogFactory.getLog("ldap_logger");
     private static final String EMPTY = "EMPTY";
     private static final String EMPTY_NO_USERNAME_MAP = "EMPTY_NO_MAPPING";
 
@@ -57,6 +57,11 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     private Set<String> m_aliases;
     private List<String> m_importedUserNames;
     private List<String> m_notImportedUserNames;
+
+    @Override
+    protected Log getLog() {
+        return LOG;
+    }
 
     @Override
     public void beforeInserting(Object... inputs) {

@@ -41,7 +41,7 @@ import org.springframework.ldap.core.NameClassPairMapper;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager, AlarmProvider {
-    private static final Log LOG = LogFactory.getLog("ldap");
+    private static final Log LOG = LogFactory.getLog("ldap_logger");
     private LdapTemplateFactory m_templateFactory;
     private LdapManager m_ldapManager;
     private LdapRowInserter m_rowInserter;

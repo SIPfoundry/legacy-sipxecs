@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.mwi.MwiSettings;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
@@ -35,7 +37,6 @@ import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.proxy.ProxySettings;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.registrar.RegistrarSettings;
-import org.sipfoundry.sipxconfig.rls.Rls;
 //import org.sipfoundry.sipxconfig.rls.RlsSettings;
 import org.sipfoundry.sipxconfig.saa.SaaManager;
 import org.sipfoundry.sipxconfig.saa.SaaSettings;
@@ -85,23 +86,34 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     private Mwi m_mwi;
     private ProxyManager m_proxyManager;
     private Registrar m_registrar;
-    //private Rls m_rls;
     private SaaManager m_saaManager;
     private ParkOrbitContext m_parkOrbitContext;
     private AdminContext m_adminContext;
     private ListableBeanFactory m_beanFactory;
     private Collection<AbstractResLimitsConfig> m_resLimitsConfigs;
+    private Collection<ResLimitPluginConfig> m_pluginFeatures;
     private AbstractResLimitsConfig m_proxyLimitsConfig;
     private AbstractResLimitsConfig m_publisherLimitsConfig;
     private AbstractResLimitsConfig m_registrarLimitsConfig;
     private AbstractResLimitsConfig m_saaLimitsConfig;
-    private AbstractResLimitsConfig m_rlsLimitsConfig;
     private AbstractResLimitsConfig m_parkLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(ProxyManager.FEATURE, Mwi.FEATURE, Registrar.FEATURE,
-                Rls.FEATURE, SaaManager.FEATURE, ParkOrbitContext.FEATURE)) {
+        Collection<Feature> features = new ArrayList<Feature>();
+        Collection<ResLimitPluginConfig> pluginFeatures = getPluginFeatures();
+        for (ResLimitPluginConfig pluginFeature : pluginFeatures) {
+            if (pluginFeature.getLimitsConfig() != null) {
+                features.add(pluginFeature.getLocationFeature());
+            }
+        }
+        features.add(ProxyManager.FEATURE);
+        features.add(Mwi.FEATURE);
+        features.add(Registrar.FEATURE);
+        features.add(SaaManager.FEATURE);
+        features.add(SaaManager.FEATURE);
+        features.add(ParkOrbitContext.FEATURE);
+        if (!request.applies(features)) {
             return;
         }
         final Writer w = createWriter(manager);
@@ -119,13 +131,21 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         settings.setSettingTypedValue("resource-limits/core-enabled", coreEnabled.getTypedValue());
     }
 
-    void writeFeaturedResourceLimits(Writer w) throws IOException {
+    public void writeFeaturedResourceLimits(Writer w) throws IOException {
         m_proxyLimitsConfig.writeResourceLimits(w, m_proxyManager.getSettings());
         m_publisherLimitsConfig.writeResourceLimits(w, m_mwi.getSettings());
         m_registrarLimitsConfig.writeResourceLimits(w, m_registrar.getSettings());
         m_saaLimitsConfig.writeResourceLimits(w, m_saaManager.getSettings());
-        //m_rlsLimitsConfig.writeResourceLimits(w, m_rls.getSettings());
         m_parkLimitsConfig.writeResourceLimits(w, m_parkOrbitContext.getSettings());
+        Collection<ResLimitPluginConfig> pluginFeatures = getPluginFeatures();
+        AbstractResLimitsConfig resLimitsConfig = null;
+        for (ResLimitPluginConfig pluginConfig : pluginFeatures) {
+            resLimitsConfig = pluginConfig.getLimitsConfig();
+            if (resLimitsConfig != null) {
+                resLimitsConfig.writeResourceLimits(w, pluginConfig.getSettings());
+            }
+        }
+
     }
 
     private Writer createWriter(ConfigManager manager) throws IOException {
@@ -143,7 +163,7 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         }
     }
 
-    void writeDefaultsResourceLimits(Writer w) throws IOException {
+    protected void writeDefaultsResourceLimits(Writer w) throws IOException {
         Collection<AbstractResLimitsConfig> resLimitsConfigs = getResLimitsConfigs();
         AdminSettings settings = m_adminContext.getSettings();
 
@@ -171,13 +191,20 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         setResLimitsValues(saaSettings, fdSoft, fdHard, coreEnabled);
         m_saaManager.saveSettings(saaSettings);
 
-        //RlsSettings rlsSettings = m_rls.getSettings();
-        //setResLimitsValues(rlsSettings, fdSoft, fdHard, coreEnabled);
-        //m_rls.saveSettings(rlsSettings);
-
         ParkSettings parkSettings = m_parkOrbitContext.getSettings();
         setResLimitsValues(parkSettings, fdSoft, fdHard, coreEnabled);
         m_parkOrbitContext.saveSettings(parkSettings);
+        Collection<ResLimitPluginConfig> pluginFeatures = getPluginFeatures();
+        AbstractResLimitsConfig resLimitsConfig = null;
+        PersistableSettings pluginSettings = null;
+        for (ResLimitPluginConfig pluginConfig : pluginFeatures) {
+            resLimitsConfig = pluginConfig.getLimitsConfig();
+            if (resLimitsConfig != null) {
+                pluginSettings = pluginConfig.getSettings();
+                setResLimitsValues(pluginSettings, fdSoft, fdHard, coreEnabled);
+                pluginConfig.saveSettings(pluginSettings);
+            }
+        }
     }
 
     private Collection<AbstractResLimitsConfig> getResLimitsConfigs() {
@@ -187,6 +214,15 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
             m_resLimitsConfigs = resLimitsConfigsMap.values();
         }
         return m_resLimitsConfigs;
+    }
+
+    private Collection<ResLimitPluginConfig> getPluginFeatures() {
+        if (m_pluginFeatures == null) {
+            Map<String, ResLimitPluginConfig> resLimitsConfigsMap = m_beanFactory.
+                    getBeansOfType(ResLimitPluginConfig.class, false, false);
+            m_pluginFeatures = resLimitsConfigsMap.values();
+        }
+        return m_pluginFeatures;
     }
 
     /**
@@ -211,11 +247,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     public void setRegistrar(Registrar registrar) {
         m_registrar = registrar;
     }
-
-    //@Required
-    //public void setRls(Rls rls) {
-        //m_rls = rls;
-    //}
 
     @Required
     public void setSaaManager(SaaManager saaManager) {
@@ -250,11 +281,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     @Required
     public void setSaaLimitsConfig(AbstractResLimitsConfig saaLimitsConfig) {
         m_saaLimitsConfig = saaLimitsConfig;
-    }
-
-    @Required
-    public void setRlsLimitsConfig(AbstractResLimitsConfig rlsLimitsConfig) {
-        m_rlsLimitsConfig = rlsLimitsConfig;
     }
 
     @Required

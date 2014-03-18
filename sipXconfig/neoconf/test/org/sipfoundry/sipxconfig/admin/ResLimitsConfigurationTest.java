@@ -19,11 +19,14 @@ import static org.junit.Assert.assertEquals;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.mwi.MwiSettings;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
@@ -36,7 +39,14 @@ import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.rls.RlsSettings;
 import org.sipfoundry.sipxconfig.saa.SaaManager;
 import org.sipfoundry.sipxconfig.saa.SaaSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingImpl;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
+import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 public class ResLimitsConfigurationTest {
     private ResLimitsConfiguration m_config;
@@ -44,6 +54,28 @@ public class ResLimitsConfigurationTest {
     @Before
     public void setUp() {
         m_config = new ResLimitsConfiguration();
+
+        PluginSettings pluginSettings = new PluginSettings();
+        pluginSettings.setSettingTypedValue("resource-limits/fd-soft", "11119");
+        pluginSettings.setSettingTypedValue("resource-limits/fd-hard", "11118");
+        pluginSettings.setSettingTypedValue("resource-limits/core-enabled", false);
+
+        ResLimitPluginConfig config1 = EasyMock.createMock(ResLimitPluginConfig.class);
+        config1.getLimitsConfig();
+        EasyMock.expectLastCall().andReturn(new PluginResLimitsConfig());
+        config1.getLocationFeature();
+        EasyMock.expectLastCall().andReturn(new LocationFeature("PLUGIN_FEATURE"));
+        config1.getSettings();
+        EasyMock.expectLastCall().andReturn(pluginSettings);
+
+        ListableBeanFactory beanFactory = EasyMock.createMock(ListableBeanFactory.class);
+        Map<String, ResLimitPluginConfig> resLimitsConfigsMap = new HashMap<String, ResLimitPluginConfig>();
+        resLimitsConfigsMap.put("config1", config1);
+        beanFactory.getBeansOfType(ResLimitPluginConfig.class, false, false);
+        EasyMock.expectLastCall().andReturn(resLimitsConfigsMap);
+
+        m_config.setBeanFactory(beanFactory);
+
         Collection<AbstractResLimitsConfig> resLimitsConfigs = new ArrayList<AbstractResLimitsConfig>();
         ResLimitsConfigImpl proxyResLimits = new ResLimitsConfigImpl();
         proxyResLimits.setPrefix("sipxproxy-");
@@ -68,7 +100,6 @@ public class ResLimitsConfigurationTest {
         m_config.setParkLimitsConfig(parkResLimits);
         m_config.setRegistrarLimitsConfig(registrarResLimits);
         m_config.setProxyLimitsConfig(proxyResLimits);
-        m_config.setRlsLimitsConfig(rlsResLimits);
         m_config.setSaaLimitsConfig(sipxsaaResLimits);
         m_config.setPublisherLimitsConfig(mwiResLimits);
 
@@ -148,13 +179,13 @@ public class ResLimitsConfigurationTest {
         parkOrbitContext.saveSettings(parkSettings);
         EasyMock.expectLastCall().anyTimes();
 
-        EasyMock.replay(adminContext, proxyManager, mwi, registrar, rls, saaManager, parkOrbitContext);
+        EasyMock.replay(config1, beanFactory, adminContext,
+            proxyManager, mwi, registrar, rls, saaManager, parkOrbitContext);
 
         m_config.setAdminContext(adminContext);
         m_config.setMwi(mwi);
         m_config.setRegistrar(registrar);
         m_config.setParkOrbitContext(parkOrbitContext);
-        //m_config.setRls(rls);
         m_config.setSaaManager(saaManager);
         m_config.setProxyManager(proxyManager);
     }
@@ -174,4 +205,41 @@ public class ResLimitsConfigurationTest {
         //String expected = IOUtils.toString(getClass().getResourceAsStream("default-resource-limits"));
         //assertEquals(expected, actual.toString());
     //}
+
+    private class PluginResLimitsConfig extends AbstractResLimitsConfig {
+        @Override
+        public String getPrefix() {
+            return "plugin-";
+        }
+    }
+
+    private class PluginSettings extends PersistableSettings {
+
+        @Override
+        protected Setting loadSettings() {
+            Setting s = new SettingSet();
+            s.setName("resource-limits/fd-soft");
+            Setting s1 = new SettingSet("resource-limits");
+            Setting s1_1 = new SettingImpl("fd-soft");
+            Setting s1_2 = new SettingImpl("fd-hard");
+            Setting s1_3 = new SettingImpl("core-enabled");
+            s1_1.setType(new IntegerSetting());
+            s1_2.setType(new IntegerSetting());
+            BooleanSetting trueFalse = new BooleanSetting();
+            trueFalse.setTrueValue("true");
+            trueFalse.setFalseValue("false");
+            s1_3.setType(trueFalse);
+            s.addSetting(s1);
+            s1.addSetting(s1_1);
+            s1.addSetting(s1_2);
+            s1.addSetting(s1_3);
+
+            return s;
+        }
+        @Override
+        public String getBeanId() {
+            return "pluginSettings";
+        }
+
+    }
 }

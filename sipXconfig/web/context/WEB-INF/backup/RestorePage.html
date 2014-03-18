@@ -4,13 +4,13 @@
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="restoreLocalTab@Block">
-    <span jwcid="@backup/RestoreForm" backupPlan="ognl:localPlan"/>
+    <span jwcid="@backup/RestoreForm" backupPlan="ognl:localPlan" canRestore="ognl:canRestore"/>
   </span>
   <span jwcid="restoreFtpTab@Block">
-    <span jwcid="@backup/RestoreForm" backupPlan="ognl:ftpPlan"/>
+    <span jwcid="@backup/RestoreForm" backupPlan="ognl:ftpPlan" canRestore="ognl:canRestore"/>
   </span>
   <span jwcid="uploadTab@Block">
-    <span jwcid="@backup/RestoreUpload"/>
+    <span jwcid="@backup/RestoreUpload" canRestore="ognl:canRestore"/>
   </span>
   <!-- Didn't get around to port this --Douglas 
     <span jwcid="logTab@Block">

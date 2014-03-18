@@ -57,14 +57,17 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         m_dialplanSetup = resetDialPlanTask;
     }
 
+    @Override
     public String getCurrentRegionId() {
         return getLocalization().getRegionId();
     }
 
+    @Override
     public String getCurrentLanguage() {
         return getLocalization().getLanguage();
     }
 
+    @Override
     public String getCurrentLanguageDir() {
         String language = getLocalization().getLanguage();
         if (StringUtils.equals(language, DEFAULT)) {
@@ -73,6 +76,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         return PROMPTS_PREFIX + language;
     }
 
+    @Override
     public String[] getInstalledLanguages() {
         String[] languageDirs = getListOfDirectories(m_promptsDir, PROMPTS_PREFIX);
         String[] languages = new String[languageDirs.length];
@@ -84,6 +88,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         return languages;
     }
 
+    @Override
     public String[] getInstalledLanguageDirectories() {
         return getListOfDirectories(m_promptsDir, PROMPTS_PREFIX);
     }
@@ -92,6 +97,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         return new File(path).list(new PrefixFileFilter(prefix));
     }
 
+    @Override
     public Localization getLocalization() {
         List l = getHibernateTemplate().loadAll(Localization.class);
         Localization localization = (Localization) DataAccessUtils.singleResult(l);
@@ -113,6 +119,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
      * @return true if there was a change , false if no change was neccessary
      * @throw exception if not successful
      */
+    @Override
     public void updateRegion(String regionBeanId) {
         Localization localization = getLocalization();
         if (localization.getRegion().equals(regionBeanId)) {
@@ -131,6 +138,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
      *
      * @return positive value is success, negative if failure, 0 if there was no change
      */
+    @Override
     public int updateLanguage(String language) {
         if (language == null) {
             return -1;

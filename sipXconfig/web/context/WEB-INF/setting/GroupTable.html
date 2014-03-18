@@ -4,7 +4,8 @@
         <span jwcid="nameColumnValue">
             <span jwcid="lineNumber"/>.
             <img jwcid="@Image" image="asset:groupIcon" align="absmiddle" />
-            <a jwcid="viewGroupLink"><span jwcid="viewGroupLabel"/></a>
+            <a jwcid="viewGroupLink"
+            id="ognl:'group_' + currentRow.name + '_link'"><span jwcid="viewGroupLabel"/></a>
         </span>
         <span jwcid="membersColumnValue">
             <a jwcid="memberLink"><span jwcid="memberCount"/></a>

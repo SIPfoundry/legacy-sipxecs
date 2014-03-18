@@ -24,6 +24,7 @@ public class User {
     private String m_pintoken;
     private String m_voicemailPintoken;
     private String m_passtoken;
+    private String m_sipPassword;
     private boolean m_inDirectory;
     private boolean m_hasVoicemail;
     private boolean m_userBusyPrompt;
@@ -86,7 +87,7 @@ public class User {
 
     public enum EmailFormats {
         FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
-        private String m_id;
+        private final String m_id;
 
         EmailFormats(String id) {
             m_id = id;
@@ -648,7 +649,7 @@ public class User {
     public void setMoh(String moh) {
         m_moh = moh;
     }
-    
+
     public String getHighestWeightGroup() {
         return m_highestWeightGroup;
     }
@@ -712,8 +713,16 @@ public class User {
     public boolean isForcePinChange() {
         return m_forcePinChange;
     }
-        
+
     public void setForcePinChange(String value) {
        m_forcePinChange = value.equals("1") || value.equals("true");
+    }
+
+    public String getSipPassword() {
+        return m_sipPassword;
+    }
+
+    public void setSipPassword(String sipPassword) {
+        m_sipPassword = sipPassword;
     }
 }

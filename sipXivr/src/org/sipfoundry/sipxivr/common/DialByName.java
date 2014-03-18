@@ -270,6 +270,10 @@ public class DialByName {
         m_loc = new Localization(RESOURCE_NAME, parentLocalization);
     }
 
+    public void changeLocale(String localeString) {
+        m_loc.changeLocale(localeString);
+    }
+
     public void setApplicationConfiguration(ApplicationConfiguraton config) {
         m_config = config;
     }

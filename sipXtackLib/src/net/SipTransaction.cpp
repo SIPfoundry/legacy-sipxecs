@@ -2646,27 +2646,42 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
             if (pRequest)
             {
-              Url requestUri;
-              UtlString requestUriString;
-              pRequest->getRequestUri(&requestUriString);
-              requestUri.fromString(requestUriString, TRUE /* is a request uri */);
-
-              if (requestUri.getScheme() == Url::SipsUrlScheme)
+              UtlString routeUri;
+              if (!pRequest->getRouteUri(0, &routeUri))
               {
-                scheme = "sips";
-                msgSizeProtocol = OsSocket::SSL_SOCKET;
+                                
+                Url requestUri;
+                UtlString requestUriString;
+                pRequest->getRequestUri(&requestUriString);
+                requestUri.fromString(requestUriString, TRUE /* is a request uri */);
+
+                if (requestUri.getScheme() == Url::SipsUrlScheme)
+                {
+                  scheme = "sips";
+                  msgSizeProtocol = OsSocket::SSL_SOCKET;
+                }
+                else
+                {
+                  UtlString transport;
+                  requestUri.getUrlParameter("transport", transport);
+                  if (transport == "tls" || transport == "TLS")
+                  {
+                    scheme = "sips";
+                    msgSizeProtocol = OsSocket::SSL_SOCKET;
+                  }
+                }
               }
               else
               {
                 UtlString transport;
-                requestUri.getUrlParameter("transport", transport);
+                Url routeUrlParser(routeUri);
+                routeUrlParser.getUrlParameter("transport", transport);
                 if (transport == "tls" || transport == "TLS")
                 {
                   scheme = "sips";
                   msgSizeProtocol = OsSocket::SSL_SOCKET;
                 }
-
-              }
+              }   
             }
 
             

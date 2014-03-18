@@ -2,5 +2,6 @@
   "userName": "200",
   "imId": "johnim",
   "ldapImAuth": false,
-  "sipPassword": "12345678"
+  "sipPassword": "12345678",
+  "pin": "userpin"
 }}

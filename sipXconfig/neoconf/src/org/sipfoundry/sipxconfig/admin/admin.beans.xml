@@ -60,8 +60,7 @@
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="proxyLimitsConfig" ref="proxyResLimits" />
     <property name="parkLimitsConfig" ref="parkResLimits" />
-    <property name="publisherLimitsConfig" ref="publisherResLimits" />
-    <property name="rlsLimitsConfig" ref="rlsResLimits" />
+    <property name="publisherLimitsConfig" ref="publisherResLimits" />    
     <property name="saaLimitsConfig" ref="saaResLimits" />
     <property name="registrarLimitsConfig" ref="registrarResLimits" />
   </bean>

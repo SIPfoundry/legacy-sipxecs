@@ -60,9 +60,10 @@ class ArchiveBase
   def redirect_output
     log_file = get_log_file
     unless log_file == nil
-      $stdout.reopen(log_file, "w")
+      @logger = Logger.new(log_file)
+      $stdout.reopen(log_file, "a")
       $stdout.sync = true
-      $stderr.reopen(log_file, "w")
+      $stderr.reopen(log_file, "a")
       $stderr.sync = true
     end
   end
@@ -112,7 +113,13 @@ class Backup < ArchiveBase
             #cfengine does not accept '.' characters to be sent as variable values
             defId_name = defId.split('.')[0]
             unless cmd("#{@bin_dir}/sipxagent -b backup_collect -d #{defId_name}_definition")
-              raise "Could not collect backup from host #{host}"
+              @logger.error("BACKUP error: DONE but could not collect backup from host #{host}")
+              if Dir["#{@backup_dir}/#{@data['plan']}/#{date_dir}/*"].empty?
+                @logger.info("Newly created #{@backup_dir}/#{@data['plan']}/#{date_dir} is empty - remove it")
+                FileUtils.rm_rf "#{@backup_dir}/#{@data['plan']}/#{date_dir}"
+              end              
+              @logger.info("Exit with exception")
+              raise "Error condition. EXIT"
             end
             if File.exists?("#{@backup_tmp_dir}/#{defId}")
               FileUtils.mv("#{@backup_tmp_dir}/#{defId}", "#{@backup_dir}/#{@data['plan']}/#{date_dir}/#{defId}")
@@ -120,7 +127,13 @@ class Backup < ArchiveBase
           end
         end
       else
-        raise "Could not complete backup on host #{host}"
+        @logger.error("BACKUP error: Cannot complete on host #{host}")
+        if Dir["#{@backup_dir}/#{@data['plan']}/#{date_dir}/*"].empty?
+          @logger.info("Newly created #{@backup_dir}/#{@data['plan']}/#{date_dir} is empty - remove it")
+          FileUtils.rm_rf "#{@backup_dir}/#{@data['plan']}/#{date_dir}"
+        end
+        @logger.info("Exit with exception")
+        raise "Error condition. EXIT"
       end
     }
     fs = file_manager(params)
@@ -170,12 +183,12 @@ class Restore < Backup
           #cfengine does not accept '.' characters to be sent as variable values
           defId_name = defId.split('.')[0]
           unless cmd("#{@bin_dir}/sipxagent -h #{host} -b restore_collect -d #{defId_name}_definition")
-            raise "Could not collect backup from host #{host}"
+            raise "RESTORE cannot INITIATE: Could not collect backup from host #{host}"
           end
         end
       end
       unless cmd("ssh #{@ssh_params} root@#{host} sipx-archive --restore-host #{location_id} < #{@config}")
-        raise "Could not complete restore on host #{host}"
+        raise "RESTORE FAILED: Could not complete restore on host #{host}"
       end
     }
   end
@@ -317,8 +330,13 @@ class FtpFileManager < FileManagerBase
   def save(max)
     # handy - reuse local backup file handler to manage temp ftp directory
     local = LocalFileManager.new(@backup_dir)
-
-    upload(local.list.last)
+    begin
+      upload(local.list.last)
+    rescue
+      puts("BACKUP error: Cannot upload backup")
+      puts("Exit with exception")
+      raise "Error condition. EXIT"
+    end  
 
     purgable(max) { |b|
       purge(b)
@@ -438,8 +456,11 @@ class BackupHost < ArchiveHost
         meta['backup'].each do |defId, command|
           file = "#{@backup_tmp_dir}/#{defId}"
           line = command % file
-          cmd(line) or
-           raise "Failed to backup #{defId} using command #{line}"
+          unless cmd(line)
+            @logger.error("BACKUP error: Failed to backup #{defId} using command #{line}")
+            @logger.info("Exit with exception")
+            raise "Error condition. EXIT"
+          end 
         end
       end
     end
@@ -457,7 +478,7 @@ class RestoreHost < ArchiveHost
           if File.exists?(file)
             line = command % file
             cmd(line) or
-             raise "Failed to restore #{defId} using command #{line}"
+             raise "RESTORE error: Failed to restore #{defId} using command #{line}"
           end   
         end
       end

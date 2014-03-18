@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.job.JobContext;
 
 /**
  * Run commands and allow caller to block for a specific time and unblock for
@@ -46,6 +48,17 @@ public class SimpleCommandRunner implements CommandRunner {
     private String[] m_command;
     private int m_foregroundTimeout;
     private int m_backgroundTimeout;
+    private JobContext m_jobContext;
+    private String m_jobName;
+
+    public SimpleCommandRunner(JobContext jobContext) {
+        m_jobContext = jobContext;
+    }
+
+    public SimpleCommandRunner() {
+        m_jobContext = null;
+        m_jobName = null;
+    }
 
     public String getStderr() {
         return m_stderr.toString();
@@ -110,7 +123,14 @@ public class SimpleCommandRunner implements CommandRunner {
         final String fullCommand = StringUtils.join(m_command, ' ');
         LOG.info(fullCommand);
         ProcessBuilder pb = new ProcessBuilder(Arrays.asList(m_command));
+        final Serializable job;
         try {
+            if (m_jobContext != null && m_jobName != null) {
+                job = m_jobContext.schedule(m_jobName);
+                m_jobContext.start(job);
+            } else {
+                job = null;
+            }
             final Process p = pb.start();
             if (m_stdin != null) {
                 Runnable inPutter = new Runnable() {
@@ -141,6 +161,13 @@ public class SimpleCommandRunner implements CommandRunner {
                 public void run() {
                     try {
                         m_exitCode = p.waitFor();
+                        if (job != null) {
+                            if (m_exitCode == 0) {
+                                m_jobContext.success(job);
+                            } else {
+                                m_jobContext.failure(job, m_jobName + " failed", null);
+                            }
+                        }
                     } catch (InterruptedException willBeHandledByReaper) {
                         LOG.error("Interrupted running " + fullCommand);
                     } finally {
@@ -165,6 +192,9 @@ public class SimpleCommandRunner implements CommandRunner {
             // not requested to go into background
             if (m_backgroundTimeout <= m_foregroundTimeout) {
                 LOG.info("background timer not specified or valid, killing process " + fullCommand);
+                if (job != null) {
+                    m_jobContext.failure(job, "Interrupted(foreground) " + m_jobName, null);
+                }
                 kill();
                 return false;
             }
@@ -180,6 +210,9 @@ public class SimpleCommandRunner implements CommandRunner {
                         m_procThread.join(remainingTime);
                         if (m_exitCode == null) {
                             LOG.info("Reaping background process, did not complete in time. " + fullCommand);
+                            if (job != null) {
+                                m_jobContext.failure(job, "Interrupted(background) " + m_jobName, null);
+                            }
                             kill();
                         }
                     } catch (InterruptedException e) {
@@ -215,6 +248,10 @@ public class SimpleCommandRunner implements CommandRunner {
         m_procThread = null;
         m_errThread = null;
         m_outThread = null;
+    }
+
+    public void setJobName(String jobName) {
+        m_jobName = jobName;
     }
 
     class StreamGobbler implements Runnable {

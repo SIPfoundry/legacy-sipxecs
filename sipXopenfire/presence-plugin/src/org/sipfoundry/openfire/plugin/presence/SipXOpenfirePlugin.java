@@ -234,9 +234,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome + "/plugins/"
                     + SipXOpenfirePlugin.PLUGIN_PATH + "/lib/libhostname.so");
             System.setProperty("java.class.path", sb.toString());
-            
-            PropertyConfigurator.configureAndWatch(openfireHome+"/conf/log4j.properties", 
-                    SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
+
+            PropertyConfigurator.configureAndWatch(openfireHome + "/conf/log4j.properties",
+                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
         } catch (Exception ex) {
             throw new SipXOpenfirePluginException(ex);
         } finally {
@@ -271,7 +271,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     @Override
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
         SipXOpenfirePlugin.instance = this;
-        
+
         initializeLogging();
 
         InputStream in = getClass().getResourceAsStream("/config.properties");
@@ -303,7 +303,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
 
         parseConfigurationFile();
-        
+
         log.info(">>>>>>>>STARTING " + SipXOpenfirePlugin.class + "<<<<<<<<");
 
         pluginManager = manager;
@@ -408,6 +408,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         if (watcherConfig.isImMessageLoggingEnabled()) {
             addInterceptor(new ImLogger(watcherConfig.getImMessageLoggingDirectory()));
         }
+
+        PresenceUnifier.setPlugin(this);
 
         log.info("plugin initializaton completed");
         log.info("DONE");

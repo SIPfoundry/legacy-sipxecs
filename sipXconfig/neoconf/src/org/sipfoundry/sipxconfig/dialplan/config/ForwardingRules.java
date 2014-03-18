@@ -18,11 +18,13 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
@@ -83,6 +85,7 @@ public class ForwardingRules extends RulesFile {
         context.put("statusAddress", m_addressManager.getSingleAddress(Mwi.SIP_TCP, getLocation()));
         context.put("regEventAddress", m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS, getLocation()));
         context.put("regAddress", m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS, getLocation()));
+        context.put("rlsAddress", m_addressManager.getSingleAddress(getRlsType(), getLocation()));
         context.put("location", getLocation());
 
         List<BridgeSbc> bridgeSbcs = new ArrayList<BridgeSbc>();
@@ -98,6 +101,10 @@ public class ForwardingRules extends RulesFile {
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    protected AddressType getRlsType() {
+        return Rls.TCP_SIP;
     }
 
     public void setAddressManager(AddressManager addressManager) {

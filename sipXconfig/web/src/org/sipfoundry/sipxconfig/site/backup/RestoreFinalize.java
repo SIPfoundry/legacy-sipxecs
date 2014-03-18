@@ -122,15 +122,19 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
             return waitingPage;
         } else {
             try {
+                getValidator().recordSuccess(getMessages().getMessage("restore.initiated"));
                 restore.restore(plan, getBackupSettings(), getSelections());
+                // if we are here, restore is successful
+                getValidator().recordSuccess(getMessages().getMessage("restore.success"));
+
             } catch (ResourceException e) {
                 if (e.getCause() instanceof BackupRunnerImpl.TimeoutException) {
-                    getValidator().record(new ValidatorException(getMessages().getMessage("err.timeout")));
-                } else {
+                    //BackupRunnerImpl has a background timeout > foreground timeout for restore: it went background
+                    getValidator().recordSuccess(getMessages().getMessage("restore.background"));
+                } else if (e.getCause() instanceof BackupRunnerImpl.StdErrException) {
                     getValidator().record(new ValidatorException(e.getMessage()));
                 }
             }
-            getValidator().recordSuccess(getMessages().getMessage("restore.success"));
         }
         return null;
     }

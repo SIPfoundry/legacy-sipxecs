@@ -35,6 +35,10 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
 
     private PlatformTransactionManager m_transactionManager;
 
+    protected Log getLog() {
+        return LOG;
+    }
+
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
     }
@@ -130,19 +134,19 @@ public abstract class RowInserter<T> extends HibernateDaoSupport implements Clos
                 if (StringUtils.isNotBlank(wrongData)) {
                     errorMessage += " - unsupported value: " + wrongData;
                 }
-                LOG.warn(errorMessage);
+                getLog().warn(errorMessage);
                 m_jobContext.failure(m_id, errorMessage, null);
                 break;
             case WARNING_PIN_RESET:
                 insertRow(m_input);
                 String warnMessage = "Unable to import Voicemail PIN: PIN has been reset.";
-                LOG.warn(warnMessage);
+                getLog().warn(warnMessage);
                 m_jobContext.warning(m_id, warnMessage);
                 break;
             case WARNING_ALIAS_COLLISION:
                 insertRow(m_input);
                 warnMessage = "Alias collision - skip alias for: " + dataToString(m_input);
-                LOG.warn(warnMessage);
+                getLog().warn(warnMessage);
                 m_jobContext.warning(m_id, warnMessage);
                 afterInsert();
                 break;

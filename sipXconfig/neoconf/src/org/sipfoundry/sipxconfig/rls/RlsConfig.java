@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
+import org.sipfoundry.sipxconfig.admin.ResLimitPluginConfig;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -34,12 +35,14 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 
-public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryAware {
+public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryAware, ResLimitPluginConfig {
     private Rls m_rls;
     private ResourceLists m_lists;
     private ConfigManager m_configManager;
@@ -140,5 +143,25 @@ public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryA
     @Required
     public void setRlsLimitsConfig(AbstractResLimitsConfig rlsLimitsConfig) {
         m_rlsLimitsConfig = rlsLimitsConfig;
+    }
+
+    @Override
+    public LocationFeature getLocationFeature() {
+        return Rls.FEATURE;
+    }
+
+    @Override
+    public AbstractResLimitsConfig getLimitsConfig() {
+        return m_rlsLimitsConfig;
+    }
+
+    @Override
+    public PersistableSettings getSettings() {
+        return m_rls.getSettings();
+    }
+
+    @Override
+    public void saveSettings(PersistableSettings settings) {
+        m_rls.saveSettings((RlsSettings) settings);
     }
 }

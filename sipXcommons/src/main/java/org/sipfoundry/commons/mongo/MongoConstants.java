@@ -153,6 +153,7 @@ public interface MongoConstants {
     static final String EMERGENCY = "e911";
     static final String ELIN = "elin";
     static final String ADDRESS_INFO = "addrinfo";
+    static final String ELIN_ID = "elid";
 
     // registrations
     static final String INSTRUMENT = "instrument";

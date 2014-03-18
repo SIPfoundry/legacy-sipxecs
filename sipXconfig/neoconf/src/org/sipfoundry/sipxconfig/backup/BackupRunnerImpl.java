@@ -29,12 +29,16 @@ import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.common.SimpleCommandRunner;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.job.JobContext;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.StringUtils;
 
 public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
     private SimpleCommandRunner m_actionRunner;
     private String m_backupScript;
-    private int m_foregroundTimeout = 5000;
+    private int m_defaultForegroundTimeout = 5000;
+    private int m_defaultBackgroundTimeout = 300000;
+    private JobContext m_jobContext;
 
     @Override
     public boolean isInProgress() {
@@ -50,11 +54,12 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
         if (!plan.exists()) {
             return Collections.emptyMap();
         }
-        SimpleCommandRunner runner = new SimpleCommandRunner();
+        SimpleCommandRunner runner = new SimpleCommandRunner(m_jobContext);
+        runner.setJobName("List Backups");
         String[] cmd = new String[] {
             m_backupScript, "--list", plan.getAbsolutePath()
         };
-        op(runner, cmd);
+        op(runner, cmd, 15000, 0);
         Map<String, List<String>> list = new LinkedHashMap<String, List<String>>();
         String[] lines = runner.getStdout().split("\\n+");
         for (String line : lines) {
@@ -70,7 +75,7 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
 
     SimpleCommandRunner obtainBackgroundRunner() {
         if (m_actionRunner == null) {
-            m_actionRunner = new SimpleCommandRunner();
+            m_actionRunner = new SimpleCommandRunner(m_jobContext);
         } else if (m_actionRunner.isInProgress()) {
             throw new UserException("Operation still in progress");
         }
@@ -78,25 +83,26 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
     }
 
     @Override
-    public boolean backup(File plan) {
-        return op(plan, "--backup");
+    public void backup(File plan) {
+        op(plan, "--backup", m_defaultForegroundTimeout, m_defaultBackgroundTimeout, "Backup");
     }
 
     @Override
-    public boolean restore(File plan, Collection<String> selections) {
+    public void restore(File plan, Collection<String> selections) {
         Collection<String> params = new ArrayList<String>();
         params.add(plan.getAbsolutePath());
         params.addAll(selections);
         String stringParams = StringUtils.collectionToCommaDelimitedString(params);
-        return op("--restore", stringParams);
+        op("--restore", stringParams, m_defaultForegroundTimeout, m_defaultBackgroundTimeout, "Restore");
     }
 
-    boolean op(File plan, String operation) {
+    void op(File plan, String operation, int foregroundTimeout, int backgroundTimeout, String jobName) {
         SimpleCommandRunner runner = obtainBackgroundRunner();
+        runner.setJobName(jobName);
         String[] cmd = new String[] {
             m_backupScript, operation, plan.getAbsolutePath()
         };
-        return op(runner, cmd);
+        op(runner, cmd, foregroundTimeout, backgroundTimeout);
     }
 
     /**
@@ -106,12 +112,13 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
      * @param params = /backup.yaml,201401301800/configuration.tar.gz, 201401301800/voicemail.tar.gz
      * @return
      */
-    boolean op(String operation, String params) {
+    void op(String operation, String params, int foregroundTimeout, int backgroundTimeout, String jobName) {
         SimpleCommandRunner runner = obtainBackgroundRunner();
+        runner.setJobName(jobName);
         String[] cmd = new String[] {
             m_backupScript, operation, params
         };
-        return op(runner, cmd);
+        op(runner, cmd, foregroundTimeout, backgroundTimeout);
     }
     /**
      * Generic command call with exception handling. Any ruby script exception is kept in runner.getStderr()
@@ -119,13 +126,17 @@ public class BackupRunnerImpl implements BackupRunner, AlarmProvider {
      * @param cmd
      * @return
      */
-    private boolean op(SimpleCommandRunner runner, String[] cmd) {
-        if (!runner.run(cmd, m_foregroundTimeout)) {
+    private void op(SimpleCommandRunner runner, String[] cmd, int foregroundTimeout, int backgroundTimeout) {
+        if (!runner.run(cmd, foregroundTimeout, backgroundTimeout)) {
             throw new TimeoutException();
-        } else if (runner.getExitCode() != 0) {
+        } else if (runner.getExitCode() != null && runner.getExitCode() != 0) {
             throw new StdErrException(runner.getStderr());
         }
-        return true;
+    }
+
+    @Required
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
     }
 
     @Override

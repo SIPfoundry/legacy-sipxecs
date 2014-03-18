@@ -171,6 +171,7 @@ class BackupPage {
   }
   
   backupNow(e) {
+    msg.success(getString('message.backupInitiated'));
     postOrPut('POST', 'message.backupCompleted');
   }
   

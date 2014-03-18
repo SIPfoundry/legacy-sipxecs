@@ -225,14 +225,17 @@ public class BackupApi extends Resource {
             IOUtils.closeQuietly(planWtr);
             planWtr = null;
             configuration = FileUtils.readFileToString(planFile);
-            if (m_backupRunner.backup(planFile)) {
-                LOG.info("Backup SUCCEEDED for configuration: " + configuration);
-            }
+            LOG.info("Backup started for configuration: " + configuration);
+            m_backupRunner.backup(planFile);
+            //if we are here than backup finished successful
+            LOG.info("Backup finished successful ");
         } catch (Exception e) {
-            LOG.error("Backup FAILED for configuration: " + configuration, e);
             if (e instanceof BackupRunnerImpl.TimeoutException) {
+                //BackupRunnerImpl has a background timeout > foreground timeout for backup: it went background
+                LOG.info("Backup moved to background");
                 throw new ResourceException(Status.CLIENT_ERROR_REQUEST_TIMEOUT, e);
-            } else {
+            } else if (e instanceof BackupRunnerImpl.StdErrException) {
+                LOG.error("Backup failed", e);
                 throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
             }
         } finally {

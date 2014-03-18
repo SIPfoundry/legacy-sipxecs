@@ -21,6 +21,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
+import org.sipfoundry.sipxconfig.common.CronSchedule.Type;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
 
@@ -71,7 +72,13 @@ public class DailyBackupSchedule extends BeanWithId {
 
     public String toCronString() {
         CronSchedule cron = new CronSchedule();
-        cron.setScheduledDay(getScheduledDay());
+        ScheduledDay scheduledDay = getScheduledDay();
+        cron.setScheduledDay(scheduledDay);
+        //By default 'cron' type is Type.DAILY.
+        //But if you don't want this everyday, then they type should be changed to WEEKLY
+        if (scheduledDay != ScheduledDay.EVERYDAY) {
+            cron.setType(Type.WEEKLY);
+        }
         cron.setTimeOfDay(getTimeOfDay());
         return cron.getUnixCronString();
     }

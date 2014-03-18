@@ -10,7 +10,8 @@
     <span jwcid="@If" condition="ognl:userListener != null" renderTag="false">
       <a href="#" jwcid="userNameLink@DirectLink"
         listener="ognl:userListener"
-        parameters="ognl:currentUser.id">
+        parameters="ognl:currentUser.id"
+        id="ognl:'user_' + currentUser.userName + '_link'">
         <span jwcid="@Insert" value="ognl:currentUser.userName" />
       </a>
     </span>

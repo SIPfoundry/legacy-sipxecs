@@ -69,9 +69,9 @@ public class RestoreApi extends Resource {
             IOUtils.closeQuietly(planWtr);
             planWtr = null;
             configuration = FileUtils.readFileToString(planFile);
-            if (m_backupRunner.restore(planFile, selections)) {
-                LOG.info("Restore SUCCEEDED for configuration: " + configuration);
-            }
+            m_backupRunner.restore(planFile, selections);
+            //if we are here, than restore finished successful
+            LOG.info("Restore SUCCEEDED for configuration: " + configuration);
         } catch (Exception e) {
             LOG.error("Restore FAILED for configuration: " + configuration, e);
             if (e instanceof BackupRunnerImpl.TimeoutException) {
