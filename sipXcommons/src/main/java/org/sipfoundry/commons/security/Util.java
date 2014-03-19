@@ -56,4 +56,13 @@ public class Util {
         Matcher matcher = MD5_HASH_PATTERN.matcher(hashedString);
         return matcher.find();
     }
+
+    public static String unicodeEscape(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            sb.append(String.format("\\u%04x", (int)c));
+        }
+        return sb.toString();
+    }
 }

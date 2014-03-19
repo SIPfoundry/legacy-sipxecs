@@ -29,6 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.security.Util;
 import org.sipfoundry.sipxconfig.cfgmgt.CfengineModuleConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -39,9 +40,11 @@ import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class BackupConfig implements ConfigProvider, FeatureListener {
     private static final String RESTORE = "restore";
+    private static final String QUOTE = "\"";
     private BackupManager m_backupManager;
     private ConfigManager m_configManager;
     private boolean m_dirty;
@@ -183,6 +186,11 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         if (settings != null) {
             if (plan.getType() == BackupType.ftp) {
                 String ftp = "ftp";
+                String password = "ftp/password";
+                Setting passwSetting = settings.getSettings().getSetting(password);
+                //YAML accepts only plain ASCII characters - therefore we need to convert to unicode
+                //and surround by quotes to accept any character password
+                passwSetting.setTypedValue(QUOTE + Util.unicodeEscape((String) passwSetting.getTypedValue()) + QUOTE);
                 config.startStruct(ftp);
                 config.writeSettings(settings.getSettings().getSetting(ftp));
                 config.endStruct();
