@@ -19,7 +19,9 @@ EXTRA_DIST = \
     config/monitrc \
     config/pid_from_path.pl \
     config/sipxedge \
-    config/sipxedge-setup
+    config/sipxedge-setup \
+    config/sipxwebrtcd \
+    config/freeswitch_edged
 
 
 bin_PROGRAMS = sipxcallgen_fs sipxwebrtc sipxedgerpc

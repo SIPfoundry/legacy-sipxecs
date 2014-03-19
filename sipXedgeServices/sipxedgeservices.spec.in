@@ -151,12 +151,20 @@ else
     #
     sed -i "s:%SIPXEDGE_MONIT_HTTPPORT%:${SIPXEDGE_MONIT_HTTPPORT}:g" ./monitrc
     sed -i "s:%SIPXEDGE_MONIT_PASSWORD%:${SIPXEDGE_MONIT_PASSWORD}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_ESL_PORT%:${SIPXEDGE_ESL_PORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_FS_ESL_PORT%:${SIPXEDGE_FS_ESL_PORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_WS_PORT%:${SIPXEDGE_WS_PORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_WS_TCP_UDP_PORT%:${SIPXEDGE_WS_TCP_UDP_PORT}:g" ./monitrc
-    sed -i "s:%SIPXEDGE_BRIDGE_TCP_UDP_PORT%:${SIPXEDGE_BRIDGE_TCP_UDP_PORT}:g" ./monitrc
+
+    #
+    # Configure sipxwebrtcd
+    #
+    sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./sipxwebrtcd
+    sed -i "s:%SIPXEDGE_ESL_PORT%:${SIPXEDGE_ESL_PORT}:g" ./sipxwebrtcd
+    sed -i "s:%SIPXEDGE_FS_ESL_PORT%:${SIPXEDGE_FS_ESL_PORT}:g" ./sipxwebrtcd
+    sed -i "s:%SIPXEDGE_WS_PORT%:${SIPXEDGE_WS_PORT}:g" ./sipxwebrtcd
+    sed -i "s:%SIPXEDGE_WS_TCP_UDP_PORT%:${SIPXEDGE_WS_TCP_UDP_PORT}:g" ./sipxwebrtcd
+    sed -i "s:%SIPXEDGE_BRIDGE_TCP_UDP_PORT%:${SIPXEDGE_BRIDGE_TCP_UDP_PORT}:g" ./sipxwebrtcd
+
+    #
+    # Set file permissions
+    #
     chmod 0700 ./monitrc
     chmod +x ./pid_from_path.pl
 
@@ -170,6 +178,14 @@ else
     #
     mv ./sipxedge /etc/init.d
     chmod +x /etc/init.d/sipxedge
+
+    #
+    # Move the daemon scripts
+    #
+    mv ./sipxwebrtcd /usr/bin
+    chmod +x /usr/bin/sipxwebrtcd
+    mv ./freeswitch_edged /usr/bin
+    chmod +x /usr/bin/freeswitch_edged
 
     #
     # Move the setup-script

@@ -227,6 +227,16 @@ do_assure_monit_shutdown()
   echo ""
 }
 
+do_assure_freeswitch_shutdown()
+{
+  assure_process_shutdown "${FREESWITCH_PIDFILE}" 30
+  process_pid=`${PID_FROM_PATH} ${FREESWITCH_PROC}`
+  if [ "$process_pid" != "" ]; then
+        kill -9 ${process_pid}
+  fi
+  echo_success
+  echo ""
+}
 
 do_start_monit()
 {
@@ -244,9 +254,23 @@ do_start_monit()
 
 obliterate()
 {
-    kill -9 `${PID_FROM_PATH} ${MONIT_PROC}`
-    kill -9 `${PID_FROM_PATH} ${WEBRTC_PROC}`
-    kill -9 `${PID_FROM_PATH} ${FREESWITCH_PROC}`
+    pid=`${PID_FROM_PATH} ${MONIT_PROC}`
+    if [ "$pid" != "" ]; then
+        echo "${MONIT_PROC} shutdown signal 9 sent"
+        kill -9 `${PID_FROM_PATH} ${pid}`
+    fi
+
+    pid=`${PID_FROM_PATH} ${WEBRTC_PROC}`
+    if [ "$pid" != "" ]; then
+        echo "${WEBRTC_PROC} shutdown signal 9 sent"
+        kill -9 `${PID_FROM_PATH} ${pid}`
+    fi
+
+    pid=`${PID_FROM_PATH} ${FREESWITCH_PROC}`
+    if [ "$pid" != "" ]; then
+        echo "${FREESWITCH_PROC} shutdown signal 9 sent"
+        kill -9 `${PID_FROM_PATH} ${pid}`
+    fi
 }
 
 do_start()
@@ -273,7 +297,7 @@ do_stop()
   echo -n "Stopping FreeSWITCH "
   do_assure_freeswitch_shutdown
 
-  obliterate
+  sleep 1
 
   Status=$?
 }
