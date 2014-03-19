@@ -31,7 +31,7 @@ public interface SpeedDialManager {
 
     void deleteSpeedDialsForGroup(int groupId);
 
-    void speedDialSynchToGroup(SpeedDial speedDial);
+    void speedDialSynchToGroup(User user);
 
     boolean isSpeedDialDefinedForUserId(Integer userId);
 

@@ -41,6 +41,7 @@ public abstract class SpeedDialPage extends UserBasePage {
     @InjectObject(value = "spring:phoneProfileManager")
     public abstract ProfileManager getProfileManager();
 
+    @Override
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
@@ -115,7 +116,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         }
 
         if (isGroupSynced()) {
-            getSpeedDialManager().speedDialSynchToGroup(getSpeedDial());
+            getSpeedDialManager().speedDialSynchToGroup(getLoadedUser());
             // force reload
             setSpeedDial(null);
         } else {

@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
@@ -82,19 +81,23 @@ public class SpeedDialResource extends UserResource {
 
         LOG.debug("Saving speed dial:\t" + bean);
 
-        List<SpeedDial> dials = m_mgr.findSpeedDialForUserId(getUser().getId());
-        if (!dials.isEmpty()) {
-            SpeedDial dial = dials.get(0);
-            dial.setButtons(bean.getButtons());
+        if (bean.isGroupSpeedDial()) {
+            m_mgr.speedDialSynchToGroup(getUser());
+        } else {
+            List<SpeedDial> dials = m_mgr.findSpeedDialForUserId(getUser().getId());
+            if (!dials.isEmpty()) {
+                SpeedDial dial = dials.get(0);
+                dial.setButtons(bean.getButtons());
 
-            if (bean.isGroupSpeedDial()) {
-                m_mgr.speedDialSynchToGroup(dial);
+                m_mgr.saveSpeedDial(dial);
             } else {
+                SpeedDial dial = new SpeedDial();
+
+                dial.setUser(getUser());
+                dial.setButtons(bean.getButtons());
+
                 m_mgr.saveSpeedDial(dial);
             }
-        } else {
-            // trying to save, but no user speed dial found
-            throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
         }
     }
 

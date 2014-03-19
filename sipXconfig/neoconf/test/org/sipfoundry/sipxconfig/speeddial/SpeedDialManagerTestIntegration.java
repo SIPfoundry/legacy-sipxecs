@@ -94,7 +94,7 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         user.put("spdl", speeddial);
 
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
-        
+
         //Test clear speed dials directly from Mongo
         int result = getEntityCollection().find(QueryBuilder.start(MongoConstants.SPEEDDIAL).exists(true).get()).count();
         assertEquals(1, result);
@@ -181,7 +181,7 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         m_speedDialManager.saveSpeedDial(speedDial);
         assertEquals(8, m_speedDialManager.getSpeedDialForUserId(1003, true).getButtons().size());
 
-        m_speedDialManager.speedDialSynchToGroup(speedDial);
+        m_speedDialManager.speedDialSynchToGroup(m_coreContext.getUser(1003));
         assertEquals(3, m_speedDialManager.getSpeedDialForUserId(1003, true).getButtons().size());
 
         DBObject user = new BasicDBObject().append(ID, "User1003");
