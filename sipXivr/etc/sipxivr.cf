@@ -59,6 +59,7 @@ bundle agent sipxivr_config {
 
       "$(sipx.SIPX_IVRDATADIR)/ivrscript"
         comment => "sync custom ivr scripts",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
         copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_IVRDATADIR)/ivrscript"),
         depth_search => recurse("inf");
 }
