@@ -21,9 +21,7 @@ Requires: libdb4
 %endif
 
 %if 0%{?fedora_version} < 18 || 0%{?rhel} >= 6
-BuildRequires: db4-cxx-devel
 BuildRequires: db4-devel
-Requires: db4-cxx
 Requires: db4
 %endif
 
