@@ -15,12 +15,11 @@
 
   <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl" parent="abstractDaoImpl">
     <property name="coreContext" ref="coreContext" />
-    <property name="featureManager" ref="featureManager" />
     <property name="configManager" ref="configManager" />
     <property name="validUsers" ref="validUsers" />
     <property name="aliasManager" ref="aliasManagerImpl" />
   </bean>
-  
+
   <bean id="speedDialOnEdit" class="org.sipfoundry.sipxconfig.speeddial.SpeadDialOnEdit">
     <property name="speedDialManager" ref="speedDialManager"/>
   </bean>

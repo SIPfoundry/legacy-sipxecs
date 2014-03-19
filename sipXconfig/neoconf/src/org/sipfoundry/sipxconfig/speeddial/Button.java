@@ -70,4 +70,9 @@ public class Button implements Serializable {
         Button rhs = (Button) obj;
         return new EqualsBuilder().append(m_label, rhs.m_label).append(m_number, rhs.m_number).isEquals();
     }
+
+    @Override
+    public String toString() {
+        return "Button [m_label=" + m_label + ", m_number=" + m_number + ", m_blf=" + m_blf + "]";
+    }
 }

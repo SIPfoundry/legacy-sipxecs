@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
-import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
@@ -30,12 +29,10 @@ import org.springframework.beans.factory.annotation.Required;
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> implements SpeedDialManager {
     private static final int MAX_BUTTONS = 136;
     private CoreContext m_coreContext;
-    private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
     private ValidUsers m_validUsers;
 
     private AliasManager m_aliasManager;
-    private String m_feature = "rls";
 
     @Override
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
@@ -154,9 +151,8 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
      * ReplicationTrigger.java)
      */
     @Override
-    public void speedDialSynchToGroup(SpeedDial speedDial) {
-        User user = m_coreContext.loadUser(speedDial.getUser().getId());
-        deleteSpeedDialsForUser(speedDial.getUser().getId());
+    public void speedDialSynchToGroup(User user) {
+        deleteSpeedDialsForUser(user.getId());
         getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(user);
     }
@@ -189,11 +185,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
         m_coreContext = coreContext;
     }
 
-    @Required
-    public void setFeatureManager(FeatureManager featureManager) {
-        m_featureManager = featureManager;
-    }
-
     @Override
     public void clear() {
         removeAll(SpeedDial.class);
@@ -219,9 +210,5 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
 
     public void setAliasManager(AliasManager aliasMgr) {
         m_aliasManager = aliasMgr;
-    }
-
-    public void setFeatureId(String feature) {
-        m_feature = feature;
     }
 }
