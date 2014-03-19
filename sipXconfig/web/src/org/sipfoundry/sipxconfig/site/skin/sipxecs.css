@@ -563,11 +563,9 @@ li div.tabLink
   margin-top:10px;
 }
 
-#login-form input {
-    height: auto;
-}
 #login-form input[type="text"], input[type="password"] {
     width:240px;
+    height:20px;
 }
 #login-form input[type="submit"] {
     background-color: #262626;
@@ -576,7 +574,7 @@ li div.tabLink
     border-color:#d6d6d6;
     border-bottom-color:#bcbcbc;
     color: #5c5c5c;
-    font-size: 14pt;
+    font-size: 13pt;
     height: 40px;
     margin-left: 10px;
     width: 170px;
