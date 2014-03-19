@@ -27,12 +27,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.sipfoundry.commons.security.Util;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class BackupConfigTest {
@@ -53,32 +57,32 @@ public class BackupConfigTest {
             backupRestore);
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-backup.yaml"));
         assertEquals(expected, actual.toString());
-    }    
-    
+    }
+
     @Test
     public void cluster() throws IOException {
         BackupConfig config = new BackupConfig();
-        
+
         BackupSettings settings = new BackupSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         settings.setSettingTypedValue("ftp/url", "ftp://ftp.example.org");
         settings.setSettingTypedValue("ftp/user", "joe");
         settings.setSettingTypedValue("ftp/password", "xxx");
-        
+
         Location l1 = new Location("one", "1.1.1.1");
         l1.setUniqueId(1);
         Location l2 = new Location("two", "2.2.2.2");
         l2.setUniqueId(2);
         Collection<Location> hosts = Arrays.asList(l1, l2);
-        
+
         ArchiveDefinition d1 = new ArchiveDefinition("d1", "backup", "restore");
         ArchiveDefinition d2 = new ArchiveDefinition("d2", "backup", "restore");
         ArchiveDefinition d3 = new ArchiveDefinition("d3", "backup", "restore");
-                
+
         BackupPlan plan = new BackupPlan(BackupType.ftp);
         plan.setDefinitionIds(new TreeSet<String>(Arrays.asList("d1", "d2", "d3")));
         plan.setLimitedCount(20);
-        
+
         BackupManager mgr = createMock(BackupManager.class);
         mgr.getArchiveDefinitions(l1, null, null);
         expectLastCall().andReturn(Arrays.asList(d1, d2)).anyTimes();
@@ -87,37 +91,37 @@ public class BackupConfigTest {
         mgr.getArchiveDefinitions(l1, plan, settings);
         expectLastCall().andReturn(Arrays.asList(d1, d2)).anyTimes();
         mgr.getArchiveDefinitions(l2, plan, settings);
-        expectLastCall().andReturn(Arrays.asList(d3)).anyTimes();         
+        expectLastCall().andReturn(Arrays.asList(d3)).anyTimes();
         replay(mgr);
         config.setBackupManager(mgr);
 
         StringWriter actual = new StringWriter();
         config.writeConfig(actual, plan, hosts, settings);
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-auto-backup.yaml"));        
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-auto-backup.yaml"));
         assertEquals(expected, actual.toString());
-        
+
         verify(mgr);
     }
-    
+
     @Test
     public void clusterBackupRestoreOnDifferentNodes() throws IOException {
         BackupConfig config = new BackupConfig();
-        
+
         BackupSettings settings = new BackupSettings();
         settings.setModelFilesContext(TestHelper.getModelFilesContext());
         settings.setSettingTypedValue("ftp/url", "ftp://ftp.example.org");
         settings.setSettingTypedValue("ftp/user", "joe");
         settings.setSettingTypedValue("ftp/password", "xxx");
-        
+
         Location l1 = new Location("one", "1.1.1.1");
         l1.setUniqueId(1);
         Location l2 = new Location("two", "2.2.2.2");
         l2.setUniqueId(2);
         Collection<Location> hosts = Arrays.asList(l1, l2);
-        
+
         ArchiveDefinition d1 = new ArchiveDefinition("archive.tar.gz", "backup", null);
         ArchiveDefinition d2 = new ArchiveDefinition("archive.tar.gz", null, "restore");
-                
+
         BackupPlan plan = new BackupPlan(BackupType.ftp);
         plan.setDefinitionIds(new TreeSet<String>(Arrays.asList("archive.tar.gz")));
         plan.setLimitedCount(20);
@@ -130,18 +134,38 @@ public class BackupConfigTest {
         mgr.getArchiveDefinitions(l1, plan, settings);
         expectLastCall().andReturn(Arrays.asList(d1)).anyTimes();
         mgr.getArchiveDefinitions(l2, plan, settings);
-        expectLastCall().andReturn(Arrays.asList(d2)).anyTimes();        
+        expectLastCall().andReturn(Arrays.asList(d2)).anyTimes();
         replay(mgr);
-        config.setBackupManager(mgr);
 
+        config.setBackupManager(mgr);
         StringWriter actual = new StringWriter();
         config.writeConfig(actual, plan, hosts, settings);
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-different-nodes-backup.yaml"));        
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-different-nodes-backup.yaml"));
         assertEquals(expected, actual.toString());
-        
+
         verify(mgr);
-    }    
-    
+    }
+
+    @Test
+    public void testUnicodePassword() {
+        BackupSettings settings = new BackupSettings();
+        String password = "ftp/password";
+        settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        settings.setSettingTypedValue("ftp/url", "ftp://ftp.example.org");
+        settings.setSettingTypedValue("ftp/user", "joe");
+        settings.setSettingTypedValue(password, "#123");
+        Setting passwSetting = settings.getSettings().getSetting(password);
+        passwSetting.setTypedValue("\""+ Util.unicodeEscape((String)passwSetting.getTypedValue()) + "\"");
+        StringBuilder buf = new StringBuilder();
+        buf.append("\"");
+        buf.append(String.format("\\u%04x", (int)'#'));
+        buf.append(String.format("\\u%04x", (int)'1'));
+        buf.append(String.format("\\u%04x", (int)'2'));
+        buf.append(String.format("\\u%04x", (int)'3'));
+        buf.append("\"");
+        TestCase.assertTrue(settings.getSettingTypedValue(password).equals(buf.toString()));
+    }
+
     @Test
     public void schedules() throws IOException {
         BackupConfig config = new BackupConfig();
@@ -154,7 +178,7 @@ public class BackupConfigTest {
         s2.setEnabled(true);
         StringWriter actual = new StringWriter();
         config.writeBackupSchedules(actual, BackupType.local, Arrays.asList(s1, s2, s3));
-        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-schedules.cfdat"));        
-        assertEquals(expected, actual.toString());        
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-schedules.cfdat"));
+        assertEquals(expected, actual.toString());
     }
 }

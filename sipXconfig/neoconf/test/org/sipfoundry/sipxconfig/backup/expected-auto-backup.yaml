@@ -19,4 +19,4 @@ settings:
    ftp:
       url: ftp://ftp.example.org
       user: joe
-      password: xxx
+      password: "\u0078\u0078\u0078"
