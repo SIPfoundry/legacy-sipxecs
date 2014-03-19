@@ -51,27 +51,22 @@ public class SpeedDialResource extends UserResource {
         List<SpeedDial> dials = m_mgr.findSpeedDialForUserId(getUser().getId());
         List<Button> buttons;
         boolean groupSpeedDial;
-        Integer id;
 
         if (!dials.isEmpty()) {
             SpeedDial dial = dials.get(0);
             buttons = dial.getButtons();
-            id = dial.getId();
             groupSpeedDial = false;
         } else {
             groupSpeedDial = true;
             SpeedDial dial = m_mgr.getGroupSpeedDialForUser(getUser(), false);
             if (dial != null) {
                 buttons = dial.getButtons();
-                id = dial.getId();
             } else {
                 buttons = Collections.emptyList();
-                id = null;
             }
         }
 
         SpeedDialBean bean = new SpeedDialBean();
-        bean.setId(id);
         bean.setButtons(buttons);
         bean.setGroupSpeedDial(groupSpeedDial);
 
@@ -90,9 +85,7 @@ public class SpeedDialResource extends UserResource {
         List<SpeedDial> dials = m_mgr.findSpeedDialForUserId(getUser().getId());
         if (!dials.isEmpty()) {
             SpeedDial dial = dials.get(0);
-            dial.setUniqueId(bean.getId());
             dial.setButtons(bean.getButtons());
-            dial.setUser(getUser());
 
             if (bean.isGroupSpeedDial()) {
                 m_mgr.speedDialSynchToGroup(dial);
@@ -111,17 +104,8 @@ public class SpeedDialResource extends UserResource {
 
     // the JSON representation of this is sent to/from the client
     private static class SpeedDialBean {
-        private Integer m_id;
         private List<Button> m_buttons;
         private boolean m_groupSpeedDial;
-
-        public Integer getId() {
-            return m_id;
-        }
-
-        public void setId(Integer id) {
-            m_id = id;
-        }
 
         public List<Button> getButtons() {
             return m_buttons;
@@ -146,8 +130,7 @@ public class SpeedDialResource extends UserResource {
 
         @Override
         public String toString() {
-            return "SpeedDialBean [m_id=" + m_id + ", m_buttons=" + m_buttons + ", m_groupSpeedDial="
-                + m_groupSpeedDial + "]";
+            return "SpeedDialBean [m_buttons=" + m_buttons + ", m_groupSpeedDial=" + m_groupSpeedDial + "]";
         }
     }
 }
