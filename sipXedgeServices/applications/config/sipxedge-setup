@@ -6,11 +6,11 @@ while getopts ":p:d:" opt; do
     case "${opt}" in
         p)
             p=${OPTARG}
-            sed -i "s:%SIPXEDGE_PROXY_ADDRESS%:${p}:g" /etc/sipxpbx/edge/config/monitrc
+            sed -i "s:%SIPXEDGE_PROXY_ADDRESS%:${p}:g" /usr/bin/sipxwebrtcd
             ;;
         d)
             d=${OPTARG}
-            sed -i "s:%SIPXEDGE_REALM%:${d}:g" /etc/sipxpbx/edge/config/monitrc
+            sed -i "s:%SIPXEDGE_REALM%:${d}:g" /usr/bin/sipxwebrtcd
             ;;
         *)
             usage
