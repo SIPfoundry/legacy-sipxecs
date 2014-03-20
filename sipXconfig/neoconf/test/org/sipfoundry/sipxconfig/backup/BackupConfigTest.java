@@ -27,16 +27,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.sipfoundry.commons.security.Util;
 import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class BackupConfigTest {
@@ -147,23 +145,10 @@ public class BackupConfigTest {
     }
 
     @Test
-    public void testUnicodePassword() {
-        BackupSettings settings = new BackupSettings();
-        String password = "ftp/password";
-        settings.setModelFilesContext(TestHelper.getModelFilesContext());
-        settings.setSettingTypedValue("ftp/url", "ftp://ftp.example.org");
-        settings.setSettingTypedValue("ftp/user", "joe");
-        settings.setSettingTypedValue(password, "#123");
-        Setting passwSetting = settings.getSettings().getSetting(password);
-        passwSetting.setTypedValue("\""+ Util.unicodeEscape((String)passwSetting.getTypedValue()) + "\"");
-        StringBuilder buf = new StringBuilder();
-        buf.append("\"");
-        buf.append(String.format("\\u%04x", (int)'#'));
-        buf.append(String.format("\\u%04x", (int)'1'));
-        buf.append(String.format("\\u%04x", (int)'2'));
-        buf.append(String.format("\\u%04x", (int)'3'));
-        buf.append("\"");
-        TestCase.assertTrue(settings.getSettingTypedValue(password).equals(buf.toString()));
+    public void testHexUnicodePassword() {
+        String[] password = Util.hexUnicodeEscape("#123");
+        String passwToSave = StringUtils.join(password, '.');
+        assertEquals("35.49.50.51", passwToSave);
     }
 
     @Test

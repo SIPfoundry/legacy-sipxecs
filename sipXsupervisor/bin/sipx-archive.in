@@ -83,6 +83,8 @@ class ArchiveBase
       local.save(1)
       remote = nil
       params = settings['ftp']
+      #convert the unicode characters to string
+      params['password'] = params['password'].split('.').map(&:to_i).pack("U*") unless params['password'] == nil
       uri = URI.parse(params['url'])
       if uri.scheme == "sftp"
         remote = SftpFileManager.new("#{@backup_dir}/#{@data['plan']}")
@@ -323,7 +325,7 @@ class FtpFileManager < FileManagerBase
   end
 
   def connect(uri, params)
-    @uri = uri
+    @uri = uri    
     @params = params
   end
 
@@ -332,10 +334,10 @@ class FtpFileManager < FileManagerBase
     local = LocalFileManager.new(@backup_dir)
     begin
       upload(local.list.last)
-    rescue
+    rescue Exception => e
       puts("BACKUP error: Cannot upload backup")
       puts("Exit with exception")
-      raise "Error condition. EXIT"
+      raise e.message
     end  
 
     purgable(max) { |b|

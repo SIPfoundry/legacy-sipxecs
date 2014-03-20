@@ -13,4 +13,4 @@ settings:
    ftp:
       url: ftp://ftp.example.org
       user: joe
-      password: "\u0078\u0078\u0078"
+      password: 120.120.120
