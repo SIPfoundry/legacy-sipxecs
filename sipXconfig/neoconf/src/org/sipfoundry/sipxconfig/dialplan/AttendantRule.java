@@ -58,7 +58,7 @@ public class AttendantRule extends DialingRule implements Replicable {
     private String m_did;
     private boolean m_liveAttendant;
     private String m_liveAttendantExtension;
-    private Integer m_liveAttendantRingFor;
+    private int m_liveAttendantRingFor;
     private boolean m_followUserCallForward;
     private boolean m_liveAttendantEnabled = true;
     private String m_liveAttendantCode;
@@ -190,11 +190,11 @@ public class AttendantRule extends DialingRule implements Replicable {
         m_liveAttendantExtension = liveAttendantExtension;
     }
 
-    public Integer getLiveAttendantRingFor() {
+    public int getLiveAttendantRingFor() {
         return m_liveAttendantRingFor;
     }
 
-    public void setLiveAttendantRingFor(Integer liveAttendantRingFor) {
+    public void setLiveAttendantRingFor(int liveAttendantRingFor) {
         m_liveAttendantRingFor = liveAttendantRingFor;
     }
 
