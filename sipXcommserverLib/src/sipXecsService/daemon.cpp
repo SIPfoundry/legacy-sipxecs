@@ -20,22 +20,19 @@ void daemonize(const char* pidfile) {
     if (i > 0) {
         exit(0); // parent exits
     }
-    
-    printf("DAEMONIZE child enters\n");
-    
     // child (daemon) continues
     setsid(); // obtain a new process group
-    //for (int i = getdtablesize(); i >= 0; --i) {
-    //    // fork need to squeltch all STDIO or parent is left w/open resources
-    //    close(i);
-    //}
+    for (int i = getdtablesize(); i >= 0; --i) {
+        // fork need to squeltch all STDIO or parent is left w/open resources
+        close(i);
+    }
 
     // reopen stdout, err and in incase spawned process need stub fds
-    //i = open("/dev/null", O_RDWR);
-    //dup(i); 
-    //dup(i);
+    i = open("/dev/null", O_RDWR);
+    dup(i); 
+    dup(i);
 
-    //umask(027); // set newly created file permissions
+    umask(027); // set newly created file permissions
 
     // safe when runner was root
     //chdir(RUNNING_DIR);
@@ -48,16 +45,12 @@ void daemonize(const char* pidfile) {
 
     if (lockf(lockfp, F_TLOCK, 0) < 0) {
         // trying to run a second instance, no need, abort
-        printf("DAEMONIZE obtained lock\n");
         exit(0);
     }
 
     /* first instance continues */
     char str[10];
     sprintf(str, "%d\n", getpid());
-    
-    printf("DAEMONIZE child pid=%s\n", str);
-    
     write(lockfp, str, strlen(str)); /* record pid to lockfile */
 
     signal(SIGCHLD, SIG_IGN); // ignore child - May be a problem on BSD
