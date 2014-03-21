@@ -817,7 +817,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                         + "users.user_id=user_group.user_id "
                         + "left outer join group_storage on user_group.group_id=group_storage.group_id "
                         + "where group_storage.branch_id=:branchId or users.branch_id=:branchId "
-                        + "limit :pageSize offset :first").addScalar(USER_ID, Hibernate.INTEGER);
+                        + "order by users.user_id limit :pageSize offset :first").addScalar(USER_ID, Hibernate.INTEGER);
         q.setInteger("branchId", bid);
         q.setInteger(FIRST, first);
         q.setInteger(PAGE_SIZE, pageSize);
