@@ -69,6 +69,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.time.NtpManager;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -134,9 +135,14 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         CdrsStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone())
                 : m_tz, limit, offset);
         CdrsResultReader resultReader = new CdrsResultReader((user != null) ? (user.getTimezone())
-                : (TimeZone.getTimeZone(m_ntpManager.getSystemTimezone())));
+                : (getTimeZone()));
         getJdbcTemplate().query(psc, resultReader);
         return resultReader.getResults();
+    }
+
+    private TimeZone getTimeZone() {
+        String systemTimezone = m_ntpManager.getSystemTimezone();
+        return systemTimezone == null ? TimeZone.getDefault() : TimeZone.getTimeZone(systemTimezone);
     }
 
     @Override
@@ -636,6 +642,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         return Collections.singleton(def);
     }
 
+    @Required
     public void setNtpManager(NtpManager ntpManager) {
         m_ntpManager = ntpManager;
     }

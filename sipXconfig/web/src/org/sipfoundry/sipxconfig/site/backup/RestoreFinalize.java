@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.backup.BackupRunnerImpl;
 import org.sipfoundry.sipxconfig.backup.BackupSettings;
 import org.sipfoundry.sipxconfig.backup.BackupType;
 import org.sipfoundry.sipxconfig.backup.RestoreApi;
+import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.common.WaitingListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -107,7 +108,7 @@ public abstract class RestoreFinalize extends PageWithCallback implements PageBe
                 selectedDefinitions.add(splittedString[splittedString.length - 1]);
             }
         }
-        boolean isAdminRestore = isSelected(AdminContext.ARCHIVE);
+        boolean isAdminRestore = isSelected(AdminContext.ARCHIVE) || isSelected(CdrManager.ARCHIVE);
         //The plan needs to know what archives are to be restored
         //in order to corectly create the configuration .yaml file
         BackupPlan plan = getBackupManager().findOrCreateBackupPlan(getBackupType());
