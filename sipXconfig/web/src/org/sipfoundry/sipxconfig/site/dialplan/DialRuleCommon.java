@@ -11,12 +11,14 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
@@ -74,6 +76,13 @@ public abstract class DialRuleCommon extends BaseComponent {
 
     void saveValid() {
         DialingRule rule = getRule();
+        if (isAttendantRuleInstance()) {
+            AttendantRule attendantRule = (AttendantRule) rule;
+            if (attendantRule.isLiveAttendant() && StringUtils.isBlank(attendantRule.getLiveAttendantExtension())) {
+                throw new UserException(getMessages().getMessage("error.liveAttendantExtension"));
+            }
+        }
+
         getDialPlanContext().storeRule(rule);
         Integer id = getRule().getId();
         Collection<Integer> gatewaysToAdd = getGatewaysToAdd();
@@ -93,7 +102,7 @@ public abstract class DialRuleCommon extends BaseComponent {
     }
 
     public boolean isAttendantRuleInstance() {
-        return getRule() instanceof AttendantRule ? true : false;
+        return getRule() instanceof AttendantRule;
     }
 
     public boolean isDisableEnabledCheckbox() {

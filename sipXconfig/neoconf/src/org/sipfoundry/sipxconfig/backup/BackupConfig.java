@@ -44,7 +44,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class BackupConfig implements ConfigProvider, FeatureListener {
     private static final String RESTORE = "restore";
-    private static final String QUOTE = "\"";
     private BackupManager m_backupManager;
     private ConfigManager m_configManager;
     private boolean m_dirty;
@@ -188,9 +187,11 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
                 String ftp = "ftp";
                 String password = "ftp/password";
                 Setting passwSetting = settings.getSettings().getSetting(password);
+                String[] passwHexValue  = Util.hexUnicodeEscape((String) passwSetting.getTypedValue());
                 //YAML accepts only plain ASCII characters - therefore we need to convert to unicode
-                //and surround by quotes to accept any character password
-                passwSetting.setTypedValue(QUOTE + Util.unicodeEscape((String) passwSetting.getTypedValue()) + QUOTE);
+                if (passwHexValue != null) {
+                    passwSetting.setTypedValue(StringUtils.join(passwHexValue, '.'));
+                }
                 config.startStruct(ftp);
                 config.writeSettings(settings.getSettings().getSetting(ftp));
                 config.endStruct();

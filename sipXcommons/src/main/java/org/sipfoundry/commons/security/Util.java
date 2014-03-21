@@ -21,6 +21,8 @@ import static org.apache.commons.lang.StringUtils.split;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 public class Util {
     private static final Pattern MD5_HASH_PATTERN = Pattern.compile("(?i)(?<![a-z0-9])[a-f0-9]{32}(?![a-z0-9])");
 
@@ -58,11 +60,26 @@ public class Util {
     }
 
     public static String unicodeEscape(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             sb.append(String.format("\\u%04x", (int)c));
         }
         return sb.toString();
+    }
+
+    public static String[] hexUnicodeEscape(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return null;
+        }
+        String [] array = new String[s.length()];
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            array[i] = String.valueOf(Integer.parseInt(String.format("%04x", (int)c), 16));
+        }
+        return array;
     }
 }

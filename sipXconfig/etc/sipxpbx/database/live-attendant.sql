@@ -3,7 +3,7 @@ update attendant_dialing_rule set live_attendant = false;
 alter table attendant_dialing_rule alter column live_attendant set not null;
 alter table attendant_dialing_rule alter column live_attendant set default false;
 alter table attendant_dialing_rule add column live_attendant_extension character varying(255);
-alter table attendant_dialing_rule add column live_attendant_ring_for integer;
+alter table attendant_dialing_rule add column live_attendant_ring_for integer not null default 0;
 alter table attendant_dialing_rule add column follow_user_call_forward boolean;
 update attendant_dialing_rule set follow_user_call_forward = false;
 alter table attendant_dialing_rule alter column follow_user_call_forward set not null;

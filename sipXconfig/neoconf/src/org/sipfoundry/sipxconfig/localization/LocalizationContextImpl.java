@@ -95,7 +95,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport<Localizatio
             localization = new Localization();
             localization.setRegion(m_defaultRegion);
             localization.setLanguage(m_defaultLanguage);
-            getDaoEventPublisher().publishSave(localization);
             getHibernateTemplate().saveOrUpdate(localization);
         }
         return localization;

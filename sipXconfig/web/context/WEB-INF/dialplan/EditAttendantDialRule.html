@@ -36,7 +36,7 @@
 			<span jwcid="liveAttendantExtension@TextField" id="liveAttendantExtension"
 				value="ognl:rule.liveAttendantExtension"
 				displayName="message:label.liveAttendantExtension"
-				validators="spring-validators:required,validSipUserId,validFieldSize"/>
+				validators="spring-validators:validSipUserId,validFieldSize"/>
 		  </tr>
 		  <tr jwcid="@common/FieldPanel" field="component:liveAttendantCode"
 			  label="message:label.liveAttendantCode"
@@ -49,7 +49,7 @@
 			  label="message:label.liveAttendantRingFor">
 			<span jwcid="liveAttendantRingFor@TextField" id="liveAttendantRingFor"
 				value="ognl:rule.liveAttendantRingFor"
-				translator="translator:integer" validators="spring-validators:required,min=0,max=1200"
+				translator="translator:integer" validators="spring-validators:min=0,max=1200"
 				displayName="message:label.liveAttendantRingFor"/>
 			<span jwcid="@Insert" value="message:label.seconds"/>
 		  </tr>
