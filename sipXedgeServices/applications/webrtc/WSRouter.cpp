@@ -32,7 +32,7 @@
 
 #define SWITCH_APPLICATION_NAME "WebRtcBridge"
 #define DEFAULT_ESL_ADDRESS "127.0.0.1"
-#define DEFAULT_ESL_PORT 2022
+#define DEFAULT_ESL_PORT 11000
 
 //
 // Extension URI Parameters
@@ -171,12 +171,8 @@ WSRouter::~WSRouter()
 }
 
 bool WSRouter::initialize()
-{ 
-  int parseOptionsFlags = OsServiceOptions::NoOptionsFlag;
-  parseOptionsFlags |= OsServiceOptions::AddDefaultComandLineOptionsFlag;
-  parseOptionsFlags |= OsServiceOptions::StopIfVersionHelpFlag;
-  parseOptions((OsServiceOptions::ParseOptionsFlags)parseOptionsFlags);
-
+{
+  OS_LOG_INFO(FAC_SIP, "WSRouter::initialize INVOKED")
   assert(getOption("ip-address", _address));
   assert(getOption("ws-port", _wsPort));
   assert(getOption("tcp-udp-port", _tcpUdpPort));
@@ -271,6 +267,16 @@ bool WSRouter::initialize()
   //
   std::string userCache;
   getOption("user-cache", userCache);
+
+  if (!userCache.empty())
+  {
+    OS_LOG_INFO(FAC_SIP, "Setting Cache File:  " << userCache);
+  }
+  else
+  {
+    OS_LOG_INFO(FAC_SIP, "User Cache not set");
+  }
+
   _pRepro->setProxyConfigValue("DisableAuth", "false");
   _pRepro->setProxyConfigValue("DisableAuthInt", "true");
   _pRepro->setExternalAuthGrabber(new AuthInformationGrabber(this, 0, _pRpc, userCache.empty() ? 0 : userCache.c_str()));
@@ -287,8 +293,7 @@ bool WSRouter::initialize()
   
 int WSRouter::main()
 {
-  if (initialize())
-  {
+
     //
     // run the repro instance
     //
@@ -299,6 +304,8 @@ int WSRouter::main()
     //
     // Run the ESL Event Layer
     //
+    getOption("bridge-esl-port", _eslPort, DEFAULT_ESL_PORT);
+
     if (!_eventListener.listenForEvents(boost::bind(&WSRouter::handleBridgeEvent, this, _1, _2), DEFAULT_ESL_ADDRESS, _eslPort))
       return -1;
     _eventListener.run();  
@@ -308,9 +315,6 @@ int WSRouter::main()
     OS_LOG_INFO(FAC_SIP, "WSRouter::main() process TERMINATED");
 
     return 0;
-  }
-  
-  return -1;
 }
 
 static void addWsContactParams(resip::SipMessage& msg)
@@ -678,6 +682,14 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onDigestAuthenticate(ReproG
   //
   Message *message = context.getCurrentEvent();
   SipMessage *sipMessage = dynamic_cast<SipMessage*>(message);
+  UserInfoMessage *userInfo = dynamic_cast<UserInfoMessage*>(message);
+
+  if (userInfo)
+  {
+    OS_LOG_DEBUG(FAC_SIP, "WSRouter::onDigestAuthenticate passing user info event to default chain.");
+    return ReproGlue::RequestProcessor::CallDefaultChain;
+  }
+
 
   //
   // Do not authenticate REGISTER.  This is sent directly to sipX.
@@ -826,6 +838,7 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onDigestAuthenticate(ReproG
 
 void WSRouter::handleBridgeEvent(const EslConnection::Ptr& pConnection, const EslEvent::Ptr& pEvent)
 {
+  OS_LOG_DEBUG(FAC_SIP, "WSRouter::handleBridgeEvent - \n" << pEvent->toString());
   //
   // Establish early media
   //
@@ -920,8 +933,8 @@ void WSRouter::handleBridgeEvent(const EslConnection::Ptr& pConnection, const Es
   AuthInformationGrabber::AuthInfoRecord rec;
   if (pAuthGrabber->getCachedAuthInfo(user, realm, rec))
   {
-    arg << "{sip_invite_domain=" << user << "}";
-    arg << "{sip_auth_username=" << realm << "}";
+    arg << "{sip_invite_domain=" << realm << "}";
+    arg << "{sip_auth_username=" << user << "}";
     arg << "{sip_auth_password=" << rec.password << "}";
   }
   else
@@ -935,5 +948,7 @@ void WSRouter::handleBridgeEvent(const EslConnection::Ptr& pConnection, const Es
   pConnection->set("hangup_after_bridge=true");
   pConnection->set("bridge_early_media=true");
   pConnection->set("ignore_early_media=false");
+
+  OS_LOG_INFO(FAC_SIP, "WSRouter::handleBridgeEvent - " << "sofia/" << SWITCH_APPLICATION_NAME << "/" << requestUri);
   pConnection->executeAsync("bridge", arg.str().c_str(), 0);
 }

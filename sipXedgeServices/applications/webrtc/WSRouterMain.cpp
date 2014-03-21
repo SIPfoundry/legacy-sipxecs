@@ -42,7 +42,19 @@ int main(int argc, char** argv)
   };
 
   WSRouter router(argc, argv, "wsrouter");
-  SipXApplication::instance().init(argc, argv, appData, &router);
+
+  int parseOptionsFlags = OsServiceOptions::NoOptionsFlag;
+  parseOptionsFlags |= OsServiceOptions::AddDefaultComandLineOptionsFlag;
+  parseOptionsFlags |= OsServiceOptions::StopIfVersionHelpFlag;
+  
+
+  if (  !router.parseOptions((OsServiceOptions::ParseOptionsFlags)parseOptionsFlags) ||
+        !SipXApplication::instance().init(argc, argv, appData, &router) ||
+        !router.initialize()
+     )
+  {
+    exit(-1);
+  }
 
   return router.main();
 }

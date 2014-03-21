@@ -30,7 +30,7 @@ SIPXEDGE_WS_PORT=%SIPXEDGE_WS_PORT%
 SIPXEDGE_WS_TCP_UDP_PORT=%SIPXEDGE_WS_TCP_UDP_PORT%
 SIPXEDGE_BRIDGE_TCP_UDP_PORT=%SIPXEDGE_BRIDGE_TCP_UDP_PORT%
 
-WEBRTC_START_CMD="/usr/bin/sipxwebrtc --proxy-address ${SIPXEDGE_PROXY_ADDRESS} --realm ${SIPXEDGE_REALM} --domain ${SIPXEDGE_REALM} --ip-address ${SIPXEDGE_HOST_IP} --ws-port ${SIPXEDGE_WS_PORT} --tcp-udp-port ${SIPXEDGE_WS_TCP_UDP_PORT} --bridge-tcp-udp-port ${SIPXEDGE_BRIDGE_TCP_UDP_PORT} --enable-library-logging --user-cache ${WEBRTC_CACHEFILE} --bridge-esl-port %SIPXEDGE_ESL_PORT% --switch-esl-port %SIPXEDGE_FS_ESL_PORT% --log-level ${WEBRTC_LOGLEVEL} --log-file ${WEBRTC_LOGFILE} --pid-file ${WEBRTC_PIDFILE}"
+WEBRTC_START_CMD="${WEBRTC_PROC} --proxy-address ${SIPXEDGE_PROXY_ADDRESS} --realm ${SIPXEDGE_REALM} --domain ${SIPXEDGE_REALM} --ip-address ${SIPXEDGE_HOST_IP} --ws-port ${SIPXEDGE_WS_PORT} --tcp-udp-port ${SIPXEDGE_WS_TCP_UDP_PORT} --bridge-tcp-udp-port ${SIPXEDGE_BRIDGE_TCP_UDP_PORT} --enable-library-logging --user-cache ${WEBRTC_CACHEFILE} --bridge-esl-port %SIPXEDGE_ESL_PORT% --switch-esl-port %SIPXEDGE_FS_ESL_PORT% --log-level ${WEBRTC_LOGLEVEL} --log-file ${WEBRTC_LOGFILE} --pid-file ${WEBRTC_PIDFILE}"
 
 
 

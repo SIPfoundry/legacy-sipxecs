@@ -1,22 +1,243 @@
 #!/bin/sh
 
-usage() { echo "Usage: $0 [-p <proxy_address>] [-d <sip_domain>]" 1>&2; exit 1; }
+display_header()
+{
+echo "      _     __   __        _             _____                 _               "
+echo "     (_)    \\ \\ / /       | |           / ____|               (_)              "
+echo "  ___ _ _ __ \\ V / ___  __| | __ _  ___| (___   ___ _ ____   ___  ___ ___  ___ "
+echo " / __| | '_ \\ > < / _ \\/ _\` |/ _\` |/ _ \\\\___ \\ / _ \\ '__\\ \\ / / |/ __/ _ \\/ __|"
+echo " \\__ \\ | |_) / . \\  __/ (_| | (_| |  __/____) |  __/ |   \\ V /| | (_|  __/\\__ \\"
+echo " |___/_| .__/_/ \\_\\___|\\__,_|\\__, |\\___|_____/ \\___|_|    \\_/ |_|\\___\\___||___/"
+echo "       | |                    __/ |                                            "
+echo "       |_|                   |___/                                             "
+echo ""
+}
 
-while getopts ":p:d:" opt; do
+SIPXEDGE_FS_SIP_TRACE="no"
+SIPXEDGE_FS_CONTEXT="WebRtcBridge"
+SIPXEDGE_ESL_PORT=11000
+SIPXEDGE_FS_ESL_PORT=11002
+SIPXEDGE_FS_SIP_PORT=35080
+SIPXEDGE_FS_INT_SIP_PORT=35082
+SIPXEDGE_FS_CODEC="PCMU,PCMA"
+SIPXEDGE_FS_INT_CONTEXT="sipxedge_internal"
+SIPXEDGE_FS_INT_CODEC="PCMU,PCMA"
+
+SIPXEDGE_MONIT_HTTPPORT=38000
+SIPXEDGE_MONIT_PASSWORD="sipxedge"
+
+SIPXEDGE_WS_PORT=5064
+SIPXEDGE_WS_TCP_UDP_PORT=5065
+SIPXEDGE_BRIDGE_TCP_UDP_PORT=${SIPXEDGE_FS_SIP_PORT}
+
+SIPXEDGE_HOST_IP_DEFAULT=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\\.){3}[0-9]*' | grep -Eo '([0-9]*\\.){3}[0-9]*' | grep -v '127.0.0.1' | head -n 1`
+
+ask_for_yes_no()
+{
+    default_answer=""
+    if [ "$2" != "" ]; then
+        default_answer="Press enter for [$2]."
+    fi
+
+    while true; do
+    read -p "$1 $default_answer [Y/N]? : " yn
+
+    if [ "$yn" = "" ]; then
+        yn=$2
+    fi
+    case $yn in
+        [Yy]* ) echo "yes"; break;;
+        [Nn]* ) echo "no"; break;;
+        * ) echo "Please type Y or N.";;
+    esac
+    done
+}
+
+ask_for_string()
+{
+    default_answer=""
+    if [ "$2" != "" ]; then
+        default_answer="Press enter for [$2]"
+    fi
+    while true; do
+    read -p "$1 $default_answer: " answer
+    if [ "${answer}" = "" ]; then
+        answer=$2
+    fi
+    if [ "${answer}" != "" ]; then
+        echo ${answer}
+        return
+    fi
+    done
+}
+
+edge_setup()
+{
+    if [ -d /etc/sipxpbx/edge/config ]; then
+        echo "Configuration already installed in /etc/sipxpbx/edge/config"
+    else
+        echo "Performing post config operation"
+        cp -rpP /etc/sipxpbx/edge/.config /etc/sipxpbx/edge/config
+        chmod 755 /etc/sipxpbx/edge/config
+        cd /etc/sipxpbx/edge/config
+
+
+        #
+        # Determine the system host ip
+        #
+        
+
+        #
+        # Configure freeswitch.xml
+        #
+        sed -i "s:%SIPXEDGE_ESL_PORT%:${SIPXEDGE_ESL_PORT}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_ESL_PORT%:${SIPXEDGE_FS_ESL_PORT}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_SIP_TRACE%:${SIPXEDGE_FS_SIP_TRACE}:g" ./freeswitch.xml
+
+        #
+        # Public Profile
+        #
+        sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_SIP_PORT%:${SIPXEDGE_FS_SIP_PORT}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_CODEC%:${SIPXEDGE_FS_CODEC}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_CONTEXT%:${SIPXEDGE_FS_CONTEXT}:g" ./freeswitch.xml
+
+        #
+        # Internal Profile
+        #
+        sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_INT_SIP_PORT%:${SIPXEDGE_FS_INT_SIP_PORT}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_INT_CODEC%:${SIPXEDGE_FS_INT_CODEC}:g" ./freeswitch.xml
+        sed -i "s:%SIPXEDGE_FS_INT_CONTEXT%:${SIPXEDGE_FS_INT_CONTEXT}:g" ./freeswitch.xml
+
+        #
+        # Configure monitrc
+        #
+        sed -i "s:%SIPXEDGE_MONIT_HTTPPORT%:${SIPXEDGE_MONIT_HTTPPORT}:g" ./monitrc
+        sed -i "s:%SIPXEDGE_MONIT_PASSWORD%:${SIPXEDGE_MONIT_PASSWORD}:g" ./monitrc
+
+        #
+        # Configure sipxwebrtcd
+        #
+        sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./sipxwebrtcd
+        sed -i "s:%SIPXEDGE_ESL_PORT%:${SIPXEDGE_ESL_PORT}:g" ./sipxwebrtcd
+        sed -i "s:%SIPXEDGE_FS_ESL_PORT%:${SIPXEDGE_FS_ESL_PORT}:g" ./sipxwebrtcd
+        sed -i "s:%SIPXEDGE_WS_PORT%:${SIPXEDGE_WS_PORT}:g" ./sipxwebrtcd
+        sed -i "s:%SIPXEDGE_WS_TCP_UDP_PORT%:${SIPXEDGE_WS_TCP_UDP_PORT}:g" ./sipxwebrtcd
+        sed -i "s:%SIPXEDGE_BRIDGE_TCP_UDP_PORT%:${SIPXEDGE_BRIDGE_TCP_UDP_PORT}:g" ./sipxwebrtcd
+        sed -i "s:%SIPXEDGE_PROXY_ADDRESS%:${SIPXEDGE_PROXY_ADDRESS}:g" /usr/bin/sipxwebrtcd
+        sed -i "s:%SIPXEDGE_REALM%:${SIPXEDGE_REALM}:g" /usr/bin/sipxwebrtcd
+
+        #
+        # Set file permissions
+        #
+        chmod 0700 ./monitrc
+        chmod +x ./pid_from_path.pl
+
+        #
+        # Create a data directory
+        #
+        mkdir -p /var/log/sipxpbx/edge
+        chmod 755 /var/log/sipxpbx/edge
+
+        #
+        # Move the init script
+        #
+        mv ./sipxedge /etc/init.d
+        chmod +x /etc/init.d/sipxedge
+
+        #
+        # Move the daemon scripts
+        #
+        mv ./sipxwebrtcd /usr/bin
+        chmod +x /usr/bin/sipxwebrtcd
+        mv ./freeswitch_edged /usr/bin
+        chmod +x /usr/bin/freeswitch_edged
+
+        #
+        # Move the setup-script
+        #
+        mv ./sipxedge-setup /usr/bin
+        chmod +x /usr/bin/sipxedge-setup
+
+        #
+        # Create monit softlink
+        #
+        mkdir -p  /opt/sipxecs/edge/monit/bin
+        cd /opt/sipxecs/edge/monit/bin
+        ln -snf /usr/bin/monit ./monit
+
+    fi
+}
+
+
+while getopts ":p:d:i:" opt; do
     case "${opt}" in
         p)
-            p=${OPTARG}
-            sed -i "s:%SIPXEDGE_PROXY_ADDRESS%:${p}:g" /usr/bin/sipxwebrtcd
+            SIPXEDGE_PROXY_ADDRESS=${OPTARG}
             ;;
         d)
-            d=${OPTARG}
-            sed -i "s:%SIPXEDGE_REALM%:${d}:g" /usr/bin/sipxwebrtcd
+            SIPXEDGE_REALM=${OPTARG}
+            ;;
+        i)
+            SIPXEDGE_HOST_IP=${OPTARG}
             ;;
         *)
-            usage
             ;;
     esac
 done
 
-echo "Proxy address set to ${p}"
-echo "SIP domain set to ${d}"
+display_header
+
+while true; do
+    if [ "${SIPXEDGE_HOST_IP}" = "" ]; then
+        SIPXEDGE_HOST_IP=`ask_for_string "Please enter the IP address to be used for the system." $SIPXEDGE_HOST_IP_DEFAULT`
+    fi
+
+    if [ "${SIPXEDGE_REALM}" = "" ]; then
+        SIPXEDGE_REALM=`ask_for_string "Please enter the domain name for sipXecs."`
+    fi
+
+    if [ "${SIPXEDGE_PROXY_ADDRESS}" = "" ]; then
+        SIPXEDGE_PROXY_ADDRESS=`ask_for_string "Please enter the host name or IP address for sipXecs proxy." ${SIPXEDGE_REALM}`
+    fi
+
+    echo ""
+    echo " ----------------------------------------------"
+    echo ""
+    echo "   Local IP address   : ${SIPXEDGE_HOST_IP}"
+    echo "   Proxy address      : ${SIPXEDGE_PROXY_ADDRESS}"
+    echo "   SIP domain         : ${SIPXEDGE_REALM}"
+    echo ""
+    echo " ----------------------------------------------"
+
+    answer=`ask_for_yes_no "Would you like to change the above settings?" "N"`
+    if [ "$answer" = "yes" ]; then
+        SIPXEDGE_REALM=""
+        SIPXEDGE_PROXY_ADDRESS=""
+        SIPXEDGE_HOST_IP=""
+    else
+        break
+    fi
+done
+
+edge_setup
+
+answer=`ask_for_yes_no "Would you like to install sipXedgeServices as a system daemon?" "Y"`
+if [ "$answer" = "yes" ]; then
+    chkconfig --add sipxedge
+fi
+
+answer=`ask_for_yes_no "Would you like to run sipXedgeServices daemon now?" "Y"`
+if [ "$answer" = "yes" ]; then
+    /etc/init.d/sipxedge start
+fi
+
+echo ""
+echo "Congratulations! sipXedge services is now configured."
+echo ""
+
+
+
+
+

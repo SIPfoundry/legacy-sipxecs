@@ -28,7 +28,6 @@
 #include "csv_parser.hpp"
 
 #define DEFAULT_CACHE_LIFETIME 3600 * 24
-#define USER_CACHE_FILE "/edge/user-cache.csv"
 
 AuthInformationGrabber::AuthInformationGrabber(WSRouter* pRouter, UserInfoCache* pUserInfoCache, jsonrpc::Client* pRpc, const char* userCacheFile) :
   repro::UserAuthGrabber(pRouter->repro()->getReproConfig().getDataStore()->mUserStore),
@@ -57,8 +56,6 @@ AuthInformationGrabber::AuthInformationGrabber(WSRouter* pRouter, UserInfoCache*
 
   if (userCacheFile)
     loadCacheFromFile(userCacheFile);
-  else
-    loadCacheFromFile(USER_CACHE_FILE);
 }
   
 AuthInformationGrabber::~AuthInformationGrabber()
@@ -154,7 +151,7 @@ void AuthInformationGrabber::setCachedAuthInfo(const resip::Data& user, const re
   
   UserInfoPtr cacheData  = UserInfoPtr(new AuthInfoRecord(rec));
   _pUserInfoCache->add(identity.str(), cacheData);
-  OS_LOG_DEBUG(FAC_SIP, "AuthInformationGrabber::setCachedAuthInfo(" << identity.str() << ", " << rec.a1 << ")");
+  OS_LOG_DEBUG(FAC_SIP, "AuthInformationGrabber::setCachedAuthInfo(" << identity.str() << ")");
 }
       
 bool AuthInformationGrabber::process(resip::ApplicationMessage* msg)
@@ -164,25 +161,42 @@ bool AuthInformationGrabber::process(resip::ApplicationMessage* msg)
   
   if(uinf)
   {
-    getUserAuthInfo(uinf->user(), uinf->realm(), uinf->mRec.passwordHash);
-    DebugLog(<<"AuthInformationGrabber Grabbed user info for " 
+    if (!getUserAuthInfo(uinf->user(), uinf->realm(), uinf->mRec.passwordHash))
+    {
+      uinf->setMode(resip::UserAuthInfo::UserUnknown);
+      OS_LOG_INFO(FAC_SIP, uinf->user() << "@" << uinf->realm() << " has no authentication record in the system.");
+    }
+    else
+    {
+      uinf->setMode(UserAuthInfo::RetrievedA1);
+      OS_LOG_INFO(FAC_SIP, "AuthInformationGrabber Grabbed user info for "
                    << uinf->user() <<"@"<<uinf->realm()
                    << " : " << uinf->A1());
+    }
+    
     return true;
   }
   else if(uainf)
   {
     resip::Data a1Hash;
     if (getUserAuthInfo(uainf->getUser(), uainf->getRealm(), a1Hash))
+    {
       uainf->setA1(a1Hash);
-    
+      OS_LOG_INFO(FAC_SIP, "AuthInformationGrabber Grabbed user info for "
+                   << uainf->getUser() <<"@"<<uainf->getRealm()
+                   << " : " << uainf->getA1());
+    }
+    else
+    {
+      OS_LOG_INFO(FAC_SIP, "AuthInformationGrabber " << uinf->user()
+        << "@" << uinf->realm() << " has no authentication record in the system.");
+    }
+
     if(uainf->getA1().empty())
     {
        uainf->setMode(resip::UserAuthInfo::UserUnknown);
     }
-    DebugLog(<<"AuthInformationGrabber Grabbed user info for " 
-                   << uainf->getUser() <<"@"<<uainf->getRealm()
-                   << " : " << uainf->getA1());
+    
     return true;
   }
   else
@@ -200,7 +214,10 @@ repro::UserAuthGrabber* AuthInformationGrabber::clone() const
 bool AuthInformationGrabber::loadCacheFromFile( const std::string& cacheFile)
 {
   if (!boost::filesystem::exists(cacheFile.c_str()))
+  {
+    OS_LOG_NOTICE(FAC_SIP, "AuthInformationGrabber::loadCacheFromFile - " << cacheFile << " is not present");
     return false;
+  }
 
   const char field_terminator = ',';
   const char line_terminator  = '\n';
@@ -219,7 +236,9 @@ bool AuthInformationGrabber::loadCacheFromFile( const std::string& cacheFile)
   // Detect the index for user name and password
   //
   if (!csvParser.has_more_rows())
-    return false;
+  {
+    OS_LOG_NOTICE(FAC_SIP, "AuthInformationGrabber::loadCacheFromFile - Unable to get auth information records from " << cacheFile);
+  }
 
   csv_row header = csvParser.get_row();
   std::size_t headerSize = header.size();
@@ -238,7 +257,10 @@ bool AuthInformationGrabber::loadCacheFromFile( const std::string& cacheFile)
   }
 
   if (userNameIndex == headerSize || sipPasswordIndex == headerSize)
+  {
+    OS_LOG_NOTICE(FAC_SIP, "AuthInformationGrabber::loadCacheFromFile - Unable to get auth information columns from " << cacheFile);
     return false;
+  }
 
   while(csvParser.has_more_rows())
   {
