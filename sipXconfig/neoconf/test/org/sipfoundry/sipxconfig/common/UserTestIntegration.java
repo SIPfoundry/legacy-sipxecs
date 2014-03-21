@@ -92,7 +92,7 @@ public class UserTestIntegration extends ImdbTestCase {
         User user = m_coreContext.loadUser(id);
         user.setAliasesString("bongo, kuku");
         m_coreContext.saveUser(user);
-
+        flush();
         assertEquals(2, getConnection().getRowCount("user_alias", "where user_id = 1000"));
     }
 
@@ -165,7 +165,7 @@ public class UserTestIntegration extends ImdbTestCase {
         user.addSupervisorForGroup(group);
 
         m_coreContext.saveUser(user);
-
+        flush();
         assertEquals(1, db().queryForLong("select count(*) from supervisor where user_id = 1001"));
     }
 

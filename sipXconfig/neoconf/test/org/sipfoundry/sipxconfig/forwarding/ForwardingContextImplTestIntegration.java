@@ -26,12 +26,9 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.test.ImdbTestCase;
-import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.ResultDataGrid;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.dao.DataAccessException;
@@ -97,7 +94,7 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
     }
 
     public void testSave() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
+
         loadDataSetXml("commserver/seedLocations.xml");
         User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(user);
@@ -116,6 +113,7 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
 
         try {
             m_forwardingContext.saveCallSequence(callSequence);
+            flush();
         } catch (DataAccessException e) {
             Throwable cause = e.getCause();
             System.err.println(((SQLException) cause).getNextException().getMessage());
@@ -155,7 +153,7 @@ public class ForwardingContextImplTestIntegration extends ImdbTestCase {
         }
 
         m_forwardingContext.saveCallSequence(callSequence);
-
+        flush();
         Object[][] expected = new Object[][] {
                 {1001, 1001, "231001", 401, true, "If no response", 0, 102},
                 {1002, 1000, "231002", 402, true, "If no response", 0, null},
