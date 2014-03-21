@@ -203,7 +203,7 @@ public class Attendant extends SipxIvrApp {
                     LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", digits, uri,
                             controller.getUuid()));
                     // It's valid, transfer the call there.
-                    controller.transfer(uri, true);
+                    controller.transfer(uri, config.isPlayPrompt());
                     break;
                 }
             }
