@@ -11,58 +11,17 @@ thresh=<%= LOGIN_FAILED[:minThreshold] %>
 <% 
   end 
 %>
+
 <% 
-  if PHONE_ADDED[:groupName] != 'disabled'
+  data.each {|a, v|
+    next unless a =~ /^PHONE_|^BACKUP_|^LDAP_/
+    next unless v[:groupName] != 'disabled'
 %>
 type=Single
 ptype=RegExp
-pattern=ALARM_PHONE_ADDED Phone with serial (.*) was added to the system.
-desc=Phone with serial $1 added. 
-action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_ADDED '%s'
+pattern=ALARM_<%= a %> (.*)$
+desc=$1
+action=shellcmd @SIPX_BINDIR@/sipxtrap <%= a %> '%s'
 <% 
-  end 
-%>
-<% 
-  if PHONE_CHANGED[:groupName] != 'disabled'
-%>
-type=Single
-ptype=RegExp
-pattern=ALARM_PHONE_CHANGED Phone with id: (.*), serial: (.*) was changed.
-desc=Phone with id $1 and serial $2 changed. 
-action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_CHANGED '%s'
-<% 
-  end 
-%>
-<% 
-  if PHONE_DELETED[:groupName] != 'disabled'
-%>
-type=Single
-ptype=RegExp
-pattern=ALARM_PHONE_DELETED Phone with id: (.*), serial: (.*) was deleted.
-desc=Phone with id $1 and serial $2 deleted. 
-action=shellcmd @SIPX_BINDIR@/sipxtrap ALARM_PHONE_DELETED '%s'
-<% 
-  end 
-%>
-<% 
-  if BACKUP_FAILED[:groupName] != 'disabled'
-%>
-type=Single
-ptype=RegExp
-pattern=BACKUP error: (.*)
-desc=BACKUP failed: $1
-action=shellcmd @SIPX_BINDIR@/sipxtrap BACKUP_FAILED '%s'
-<% 
-  end 
-%>
-<% 
-  if LDAP_IMPORT_FAILED[:groupName] != 'disabled'
-%>
-type=Single
-ptype=RegExp
-pattern=LDAP users imported: (.*) rejected: (.*)
-desc=LDAP import could not import all users. SUCCESS: $1 FAILURE: $2
-action=shellcmd @SIPX_BINDIR@/sipxtrap LDAP_IMPORT_FAILED '%s'
-<% 
-  end 
+  } 
 %>

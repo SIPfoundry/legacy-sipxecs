@@ -115,7 +115,7 @@ class Backup < ArchiveBase
             #cfengine does not accept '.' characters to be sent as variable values
             defId_name = defId.split('.')[0]
             unless cmd("#{@bin_dir}/sipxagent -b backup_collect -d #{defId_name}_definition")
-              @logger.error("BACKUP error: DONE but could not collect backup from host #{host}")
+              @logger.error("ALARM_BACKUP_FAILED error: DONE but could not collect backup from host #{host}")
               if Dir["#{@backup_dir}/#{@data['plan']}/#{date_dir}/*"].empty?
                 @logger.info("Newly created #{@backup_dir}/#{@data['plan']}/#{date_dir} is empty - remove it")
                 FileUtils.rm_rf "#{@backup_dir}/#{@data['plan']}/#{date_dir}"
@@ -129,7 +129,7 @@ class Backup < ArchiveBase
           end
         end
       else
-        @logger.error("BACKUP error: Cannot complete on host #{host}")
+        @logger.error("ALARM_BACKUP_FAILED error: Cannot complete on host #{host}")
         if Dir["#{@backup_dir}/#{@data['plan']}/#{date_dir}/*"].empty?
           @logger.info("Newly created #{@backup_dir}/#{@data['plan']}/#{date_dir} is empty - remove it")
           FileUtils.rm_rf "#{@backup_dir}/#{@data['plan']}/#{date_dir}"
@@ -335,7 +335,7 @@ class FtpFileManager < FileManagerBase
     begin
       upload(local.list.last)
     rescue Exception => e
-      puts("BACKUP error: Cannot upload backup")
+      puts("ALARM_BACKUP_FAILED error: Cannot upload backup")
       puts("Exit with exception")
       raise e.message
     end  
@@ -459,7 +459,7 @@ class BackupHost < ArchiveHost
           file = "#{@backup_tmp_dir}/#{defId}"
           line = command % file
           unless cmd(line)
-            @logger.error("BACKUP error: Failed to backup #{defId} using command #{line}")
+            @logger.error("ALARM_BACKUP_FAILED error: Failed to backup #{defId} using command #{line}")
             @logger.info("Exit with exception")
             raise "Error condition. EXIT"
           end 
