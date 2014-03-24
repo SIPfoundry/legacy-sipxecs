@@ -360,20 +360,30 @@
     <property name="ldapManager" ref="ldapManager"/>
   </bean>
   <alias name="loginDetailsResource" alias="/my/logindetails" />
-  
+
   <bean id="restRedirectorResource" class="org.sipfoundry.sipxconfig.rest.RestRedirectorResource" scope="prototype">
     <property name="addressManager" ref="addressManager"/>
     <property name="mailboxManager" ref="mailboxManager"/>
     <property name="coreContext" ref="coreContext" />
   </bean>
   <alias name="restRedirectorResource" alias="/my/redirect" />
-  
+
   <bean id="conferenceDetailsResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceDetailsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="activeConferenceContext" ref="activeConferenceContext" />
 	<property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
   </bean>
   <alias name="conferenceDetailsResource" alias="/my/conferencedetails/{confName}" />     
+
+  <bean id="keepAliveResource" class="org.sipfoundry.sipxconfig.rest.KeepAliveResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="variants">
+        <list>
+                <ref bean="jsonFormat"/>
+        </list>
+    </property>
+  </bean>
+  <alias name="keepAliveResource" alias="/my/keepalive" />
 
   <bean id="permissionsResource" class="org.sipfoundry.sipxconfig.rest.PermissionsResource" scope="prototype">
     <property name="permissionManager" ref="permissionManager" />
