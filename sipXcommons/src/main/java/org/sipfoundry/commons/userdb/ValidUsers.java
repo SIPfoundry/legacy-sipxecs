@@ -174,6 +174,7 @@ public class ValidUsers {
                     users.add(extractValidUser(validUser));
                 }
             }
+            cursor.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -192,6 +193,19 @@ public class ValidUsers {
         return cursor;
     }
 
+    /**
+     * Find a list of users DBObjects based on a search query. The DBObject will have only
+     * the fields specified by projection. 
+     * @param query
+     * @param projection
+     * @return
+     */
+    public List<DBObject> getUsers(DBObject query, DBObject projection) {
+        DBCursor cursor = getEntityCollection().find(query, projection);
+        cursor.close();
+        return cursor.toArray();
+    }
+    
     public DBCursor getUsersWithSpeedDial() {
         DBCursor cursor = getEntityCollection().find(
                 QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER)
@@ -242,6 +256,7 @@ public class ValidUsers {
             DBObject user = objects.next();
             imIds.add(user.get(IM_ID).toString());
         }
+        cursor.close();
         return imIds;
     }
 
@@ -338,6 +353,7 @@ public class ValidUsers {
             DBObject user = objects.next();
             users.add(extractUser(user));
         }
+        cursor.close();
         return users;
     }
 
@@ -365,7 +381,7 @@ public class ValidUsers {
         return cursor;
     }
 
-    private void addConference(User user, DBObject conference) {
+    private static void addConference(User user, DBObject conference) {
         user.setConfName(getStringValue(conference, CONF_NAME));
         user.setConfNum(getStringValue(conference, CONF_EXT));
         user.setConfPin(getStringValue(conference, CONF_PIN));
@@ -415,6 +431,7 @@ public class ValidUsers {
                 }
             }
         }
+        aliasResult.close();
         return matches;
     }
 
@@ -451,6 +468,7 @@ public class ValidUsers {
                 users.add(imUser);
             }
         }
+        cursor.close();
         return users;
     }
 
@@ -468,6 +486,7 @@ public class ValidUsers {
                 userNames.add(imUsername);
             }
         }
+        cursor.close();
         return userNames;
     }
 
@@ -491,10 +510,11 @@ public class ValidUsers {
                 groups.add(convertUserGroup(groupResult));
             }
         }
+        cursor.close();
         return groups;
     }
 
-    private UserGroup convertUserGroup(DBObject groupResult) {
+    private static UserGroup convertUserGroup(DBObject groupResult) {
         UserGroup group = new UserGroup();
         group.setGroupName(getStringValue(groupResult, UID));
         group.setDescription(getStringValue(groupResult, DESCR));
@@ -547,6 +567,7 @@ public class ValidUsers {
                 groupNames.add(groupName);
             }
         }
+        cursor.close();
         return groupNames;
     }
 
@@ -561,6 +582,7 @@ public class ValidUsers {
             DBObject group = objects.next();
             groups.add(getStringValue(group, UID));
         }
+        cursor.close();
         return groups;
     }
 
@@ -596,6 +618,7 @@ public class ValidUsers {
                 userNames.add(imUsername);
             }
         }
+        cursor.close();
         return userNames;
     }
 
