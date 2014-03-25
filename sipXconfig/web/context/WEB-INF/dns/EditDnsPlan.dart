@@ -17,10 +17,10 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:sipxconfig/sipxconfig.dart';
 
-var api = new Api(test : true);
+var api = new Api(test : false);
 
 main() {
-  new DnsPlanEditor();  
+  new DnsPlanEditor();
 }
 
 class DnsPlanEditor {
@@ -32,7 +32,7 @@ class DnsPlanEditor {
   Map itemPrototype;
   Map<String, Object> groupPrototype;
   int dnsPlanId;
-  
+
   DnsPlanEditor() {
     var planDom = querySelector("#plan-picker");
     querySelector("#ok").onClick.listen(ok);
@@ -43,7 +43,7 @@ class DnsPlanEditor {
     if (params['dnsPlanId'] != null) {
       dnsPlanId = int.parse(params['dnsPlanId']);
     }
-    loader = new DataLoader(this.msg, loadForm);    
+    loader = new DataLoader(this.msg, loadForm);
     load();
     itemPrototype = {
       "targetType" : "BASIC",
@@ -55,36 +55,36 @@ class DnsPlanEditor {
             "targetType" : "BASIC",
             "targetId" : "ALL_OTHER_LOCATIONS",
             "percentage" : "100"
-          }                    
-       ]    
+          }
+       ]
     };
   }
-  
+
   ok(e) {
     save(close);
   }
-  
+
   apply(e) {
     save();
   }
-  
+
   cancel(e) {
     close();
   }
-  
+
   void save([onOk]) {
     var id = (dnsPlanId != null ? dnsPlanId : '');
-    HttpRequest req = new HttpRequest();   
+    HttpRequest req = new HttpRequest();
     var meta = getPlanByScrapingForm();
     var method;
     if (dnsPlanId != null) {
       meta['id'] = dnsPlanId;
       method = 'PUT';
     } else {
-      method = 'POST';      
+      method = 'POST';
     }
     req.open(method, api.url("rest/dnsPlan/${id}"));
-    req.setRequestHeader("Content-Type", "application/json"); 
+    req.setRequestHeader("Content-Type", "application/json");
     req.send(JSON.encode(meta));
     req.onLoadEnd.listen((e) {
       if (DataLoader.checkResponse(msg, req)) {
@@ -96,9 +96,9 @@ class DnsPlanEditor {
           onOk();
         }
       }
-    });      
+    });
   }
-  
+
   Map<String, Object> getPlanByScrapingForm() {
     var form = querySelector("#edit-plan").querySelectorAll("input,select");
     var plan = new Map<String, Object>();
@@ -106,10 +106,10 @@ class DnsPlanEditor {
     var groups = new List<Map<String, Object>>();
     plan['groups'] = groups;
     List<Map<String, Object>> targets;
-    Map<String, Object> target;        
+    Map<String, Object> target;
     for (HtmlElement i in form.sublist(1)) {
       if (i.id.startsWith("group-")) {
-        var group = new Map<String, Object>(); 
+        var group = new Map<String, Object>();
         targets = new List();
         group['targets'] = targets;
         groups.add(group);
@@ -131,19 +131,19 @@ class DnsPlanEditor {
     }
     return plan;
   }
-  
+
   close() {
-    window.location.href = 'EditDns.html';      
+    window.location.href = 'EditDns.html';
   }
-  
+
   load() {
     var id = (dnsPlanId != null ? dnsPlanId : 'blank');
     var url = api.url("rest/dnsPlan/${id}", "edit-failover-test.json");
     loader.load(url);
   }
-  
+
   loadForm(json) {
-    var data = JSON.decode(json);    
+    var data = JSON.decode(json);
     targetOptions = data['targetCandidates'];
     Map<String, Object> plan = data['plan'];
     (querySelector("#name") as InputElement).value = plan['name'];
@@ -154,7 +154,7 @@ class DnsPlanEditor {
       }
     }
   }
-  
+
   void addGroup(Element sibling, Map<String, Object> group) {
     var isFirst = (groups.length == 0);
     var label = getString(isFirst ? 'label.primaryPlan' : 'label.alternativePlan');
@@ -177,7 +177,7 @@ class DnsPlanEditor {
   </tbody>
 </table>
 ''').querySelector("tr");
-    
+
     ButtonElement remove = eGroup.querySelector("#${removeId}");
     remove.disabled = isFirst;
     remove.onClick.listen((_) {
@@ -189,7 +189,7 @@ class DnsPlanEditor {
     });
     if (sibling == null) {
       var tbody = querySelector("#plan-picker");
-      tbody.children.add(eGroup);      
+      tbody.children.add(eGroup);
     } else {
       sibling.insertAdjacentElement("afterEnd", eGroup);
     }
@@ -199,9 +199,9 @@ class DnsPlanEditor {
     Element lastRow = eGroup;
     for (Map<String, Object> target in group['targets']) {
       lastRow = addTarget(lastRow, juggler, target);
-    }    
+    }
   }
-  
+
   List<Element> removeGroup(Element group) {
     while (true) {
       Element nextRow = group.nextElementSibling;
@@ -213,7 +213,7 @@ class DnsPlanEditor {
     group.remove();
     groups.remove(group);
   }
-  
+
   Element lastItemInGroup(Element group) {
     Element item = group;
     while (true) {
@@ -222,7 +222,7 @@ class DnsPlanEditor {
         return item;
       }
       item = nextRow;
-    }    
+    }
   }
 
   Element addTarget(Element sibling, PercentageJuggler juggler, Map<String, Object> target) {
@@ -253,7 +253,7 @@ class DnsPlanEditor {
 </table>
 ''').querySelector('tr');
     SelectElement services = eItem.querySelector("select");
-    addTargetOptions(services, targetOptions, target['targetId'].toString(), 'BASIC');
+    addTargetOptions(services, targetOptions, target['targetId'].toString(), target['targetType'], 'BASIC');
     InputElement percentage = eItem.querySelector("#${percentageId}");
     ButtonElement remove = eItem.querySelector("#${removeId}");
     remove.disabled = isFirst;
@@ -268,9 +268,9 @@ class DnsPlanEditor {
     sibling.insertAdjacentElement("afterEnd", eItem);
     juggler.add(percentage);
     return eItem;
-  }    
-    
-  addTargetOptions(Element select, Map options, String currentValue, String targetType) {
+  }
+
+  addTargetOptions(Element select, Map options, String currentValue, String currentTargetType, String targetType) {
     options.forEach((targetId, targetValue) {
       var label = (targetType == 'BASIC' ? getString('select.${targetId}') : targetValue);
       if (targetValue is Map) {
@@ -278,35 +278,35 @@ class DnsPlanEditor {
         separator.label = label;
         select.append(separator);
         // RECURSIVE !
-        addTargetOptions(separator, (targetValue as Map), currentValue, targetId);
+        addTargetOptions(separator, (targetValue as Map), currentValue, currentTargetType, targetId);
       } else {
-        var selected = (currentValue == targetId);
+        var selected = (currentValue == targetId) && (currentTargetType == targetType);
         var optionId = "${targetType}-${targetId}";
-        select.append(new OptionElement(data: label, value: optionId, selected: selected));        
+        select.append(new OptionElement(data: label, value: optionId, selected: selected));
       }
-    });    
+    });
   }
 }
 
 class PercentageJuggler {
   var listeners = new Map<InputElement,Object>();
   InputElement last;
-  
+
   add(InputElement percentage) {
-    listeners[percentage] = percentage.onClick.listen(juggle);    
+    listeners[percentage] = percentage.onClick.listen(juggle);
     decideWhoIsLast();
   }
-  
+
   int size() {
     return listeners.length;
   }
-  
+
   remove(InputElement percentage) {
     listeners.remove(percentage).cancel;
     decideWhoIsLast();
   }
-  
-  decideWhoIsLast() {    
+
+  decideWhoIsLast() {
     int y = 0;
     Element candidate;
     // we use parent because y offset can be 0 immediately
@@ -315,12 +315,12 @@ class PercentageJuggler {
       if (e.parent.offsetTop >= y) {
         candidate = e;
         y = e.parent.offsetTop;
-      }       
+      }
     }
     last = candidate;
     for (InputElement e in listeners.keys) {
       e.readOnly = (e == last);
-    }    
+    }
   }
 
   juggle([Event e]) {
@@ -333,11 +333,11 @@ class PercentageJuggler {
     int total = 0;
     for (InputElement e in listeners.keys) {
       if (e != last) {
-        total += int.parse(e.value);        
+        total += int.parse(e.value);
       }
     }
     // we don't show negative numbers because disconcerting to users
-    // allow total > 100 as it should work in backend implementation 
+    // allow total > 100 as it should work in backend implementation
     last.value = max(0, 100 - total).toString();
   }
 }
