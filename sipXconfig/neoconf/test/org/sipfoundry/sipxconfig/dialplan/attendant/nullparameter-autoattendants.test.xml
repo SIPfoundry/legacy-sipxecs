@@ -39,7 +39,7 @@
       <transferOnFailures>false</transferOnFailures>
     </invalidResponse>
     <onTransfer>
-      <play-prompt>false</play-prompt>
+      <play-prompt>true</play-prompt>
     </onTransfer>
   </autoattendant>
   <autoattendant id="xcf-1" special="true">
