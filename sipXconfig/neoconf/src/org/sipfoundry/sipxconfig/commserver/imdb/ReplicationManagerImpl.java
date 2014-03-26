@@ -82,8 +82,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
-    private static final String REPLICATION_BEFORE_FIND = "Replication (before find): ";
-    private static final String REPLICATION_BEFORE_SAVE = "Replication (before save): ";
     private static final String DATABASE_REGENERATION = "Database regeneration";
     private static final String BRANCH_REGENERATION = "Branch regeneration";
     private static final String SECONDS = "s | ";
@@ -137,7 +135,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private final Closure<User> m_userGroupClosure = new Closure<User>() {
         @Override
         public void execute(User user) {
-            LOG.debug("Execute closure for " + user.getUserName());
             replicateEntity(user, GROUP_DATASETS);
             getHibernateTemplate().clear(); // clear the H session (see XX-9741)
         }
@@ -359,7 +356,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         String name = (entity.getName() != null) ? entity.getName() : entity.toString();
         try {
             Long start = System.currentTimeMillis();
-            LOG.debug(REPLICATION_BEFORE_FIND + name);
             DBObject top = new BasicDBObject();
             DBObject cleanCopy = new BasicDBObject();
             boolean isNew = findOrCreate(entity, top, cleanCopy);
@@ -379,7 +375,6 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         if (isNew) {
             getDbCollection().save(top);
         } else {
-            LOG.debug(REPLICATION_BEFORE_SAVE + name);
             DBObject toUpdate = new BasicDBObject();
             toUpdate.put(ID, top.get(ID));
             DBObject updateQ = new BasicDBObject();
