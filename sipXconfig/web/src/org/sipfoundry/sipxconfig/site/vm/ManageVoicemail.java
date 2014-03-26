@@ -39,6 +39,7 @@ import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
@@ -278,7 +279,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         }
 
         VoicemailSource source = null;
-        List<Voicemail> voicemails = Collections.EMPTY_LIST;
+        List<Voicemail> voicemails = Collections.emptyList();
         Map<Serializable, Voicemail> voicemailMap = new LinkedHashMap<Serializable, Voicemail>();
         try {
             voicemails = mgr.getVoicemail(userId, getFolderId());
@@ -326,6 +327,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         String userAddrSpec = user.getAddrSpec(domain);
         if (fromUri != null) {
             String displayName = "ClickToCall";
+            fromUri = fromUri.substring(0, fromUri.indexOf('@') + 1) + domain;
             getSipService().sendRefer(user, userAddrSpec, displayName, fromUri);
         } else {
             LOG.error("Failed to get URI to call: " + fromUri);
