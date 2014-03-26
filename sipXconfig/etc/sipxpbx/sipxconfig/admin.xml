@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE model 
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <type id="policy-type">
     <enum>
       <option>
         <label>Empty Password/VM Pin Fields</label>
-        <value>blank</value>        
+        <value>blank</value>
       </option>
       <option>
         <label>Default Password/VM Pin Values</label>
@@ -24,7 +24,7 @@
 			<value>false</value>
 		</false>
 	</boolean>
-  </type>  
+  </type>
   <type id="loglevel">
     <enum>
       <option>
@@ -70,21 +70,21 @@
       <type>
         <string minLen="4" password="yes"/>
       </type>
-    </setting>     
+    </setting>
     <setting name="externalAliases.aliasAddins" advanced="yes">
       <type>
         <string/>
-      </type>      
+      </type>
     </setting>
     <setting name="mappingRules.externalRulesFileName" advanced="yes">
       <type>
         <string/>
-      </type>      
+      </type>
     </setting>
     <setting name="fallbackRules.externalRulesFileName" advanced="yes">
       <type>
         <string/>
-      </type>      
+      </type>
     </setting>
     <setting name="replicationManagerImpl.nThreads" advanced="yes">
       <type>
@@ -103,7 +103,7 @@
         <boolean />
       </type>
       <value>0</value>
-    </setting>   
+    </setting>
     <setting name="configManagerImpl.unregisteredConfigurable" advanced="yes">
       <type refid="true-false"/>
       <value>false</value>
@@ -115,6 +115,11 @@
     <setting name="email-address">
       <type refid="true-false"/>
       <value>false</value>
+    </setting>
+    <setting name="corsDomains" advanced="yes">
+      <type>
+        <string/>
+      </type>
     </setting>
   </group>
   <group name="ldap-management">
@@ -129,19 +134,19 @@
     	<integer/>
       </type>
       <value>1000</value>
-    </setting>    
+    </setting>
     <setting name="disable">
       <type>
     	<boolean/>
       </type>
       <value>0</value>
-    </setting>    
+    </setting>
     <setting name="delete">
       <type>
     	<boolean/>
       </type>
       <value>false</value>
-    </setting>     
+    </setting>
   </group>
   <group name="user-portal">
     <setting name="old-portal">

@@ -22,6 +22,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.AdminSettings;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
@@ -62,6 +63,12 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
     public void apply() {
         getSettings().setSettingTypedValue(USER_PORTAL_PATH,
                 BooleanUtils.toBoolean(getWebPortal(), OLD, NEW));
+        try {
+            // this is just to force validation
+            getSettings().setCorsDomains(getSettings().getCorsDomains());
+        } catch (IllegalArgumentException ex) {
+            throw new UserException(ex.getMessage());
+        }
         getAdminContext().saveSettings(getSettings());
     }
 }
