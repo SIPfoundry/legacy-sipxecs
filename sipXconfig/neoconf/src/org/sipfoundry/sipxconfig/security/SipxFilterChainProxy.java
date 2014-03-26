@@ -17,6 +17,9 @@
 package org.sipfoundry.sipxconfig.security;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -24,6 +27,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -37,20 +41,42 @@ import org.springframework.security.web.FilterChainProxy;
 public class SipxFilterChainProxy extends FilterChainProxy {
     private static final Log LOG = LogFactory.getLog(SipxFilterChainProxy.class);
     private DomainManager m_domainManager;
+    private AdminContext m_adminCtx;
+
     /**
-     * If internal port is used, automatically authenticate using shared secret
-     * If other sipxecs components need to call rest services in sipxconfig, no authentication
-     * is needed
+     * If internal port is used, automatically authenticate using shared secret If other sipxecs
+     * components need to call rest services in sipxconfig, no authentication is needed
      */
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+        ServletException {
         ServletRequest requestToFilter = request;
         int port = AdminContext.HTTP_ADDRESS.getCanonicalPort();
+        int authPort = AdminContext.HTTP_ADDRESS_AUTH.getCanonicalPort();
         if (request.getLocalPort() == port && request instanceof HttpServletRequest) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             requestToFilter = new AuthorizedServletRequest(httpRequest);
             LOG.debug("Internal request port: " + port);
+        }
+        if (request.getLocalPort() == authPort && request instanceof HttpServletRequest
+            && response instanceof HttpServletResponse) {
+            HttpServletResponse httpResponse = (HttpServletResponse) response;
+            String originDomain = ((HttpServletRequest) request).getRemoteHost();
+            httpResponse.setHeader("Access-Control-Allow-Origin", originDomain);
+            httpResponse.setHeader("Access-Control-Allow-Credentials",
+                String.valueOf(getAllowedCorsDomains().contains(originDomain)));
+            httpResponse.setHeader("Access-Control-Allow-Methods", "DELETE, HEAD, GET, PATCH, POST, PUT");
+            httpResponse.setHeader("Access-Control-Max-Age", "3600");
+            String allowedHeaders;
+            if ("OPTIONS".equals(((HttpServletRequest) request).getMethod())) {
+                allowedHeaders = "accept, authorization";
+            } else {
+                allowedHeaders = "accept, accept-charset, accept-encoding, accept-language, authorization, "
+                    + "content-length, content-type, host, origin, proxy-connection, referer, user-agent, "
+                    + "x-requested-with";
+            }
+            httpResponse.setHeader("Access-Control-Allow-Headers", allowedHeaders);
+            LOG.debug("Internal request authPort: " + port);
         }
         super.doFilter(requestToFilter, response, chain);
     }
@@ -60,18 +86,38 @@ public class SipxFilterChainProxy extends FilterChainProxy {
         m_domainManager = domainManager;
     }
 
+    @Required
+    public void setAdminContext(AdminContext adminContext) {
+        m_adminCtx = adminContext;
+        LOG.debug("AdminContext: " + m_adminCtx.getClass().getName());
+    }
+
+    private List<String> getAllowedCorsDomains() {
+        String domains = m_adminCtx.getSettings().getCorsDomains();
+        LOG.debug(String.format("Stored domains: [%s]", domains));
+        List<String> allowedDomains;
+        if (domains != null) {
+            allowedDomains = Arrays.asList(domains.split(","));
+        } else {
+            allowedDomains = Collections.emptyList();
+        }
+        LOG.debug("Allowed CORS domains: " + allowedDomains);
+
+        return allowedDomains;
+    }
+
     private class AuthorizedServletRequest extends HttpServletRequestWrapper {
         public AuthorizedServletRequest(HttpServletRequest request) {
             super(request);
         }
 
+        @Override
         public String getHeader(String name) {
-            if (name.equals("Authorization")) {
+            if ("Authorization".equals(name)) {
                 String authString = AbstractUser.SUPERADMIN + ":" + m_domainManager.getSharedSecret();
                 return "Basic " + new String(Base64.encodeBase64(authString.getBytes()));
-            } else {
-                return super.getHeader(name);
             }
+            return super.getHeader(name);
         }
     }
 }

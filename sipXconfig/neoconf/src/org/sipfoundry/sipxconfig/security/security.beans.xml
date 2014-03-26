@@ -30,6 +30,7 @@
             filters="securityContextPersistenceFilter,authenticationProcessingFilter,loginExceptionTranslationFilter,filterInvocationInterceptor"/>
     </security:filter-chain-map>
     <property name="domainManager" ref="domainManager" />
+    <property name="adminContext" ref="adminContextImpl" />
   </bean>
 
   <!-- ======================== AUTHENTICATION ======================= -->

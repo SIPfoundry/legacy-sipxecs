@@ -17,6 +17,8 @@ package org.sipfoundry.sipxconfig.admin;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
@@ -29,12 +31,15 @@ import org.springframework.beans.factory.annotation.Required;
  * and we don't want to restart config server
  */
 public class AdminSettings extends PersistableSettings implements DeployConfigOnEdit {
+    private static final Log LOG = LogFactory.getLog(AdminSettings.class);
+
     private static final String LDAP_MANAGEMENT_DISABLE = "ldap-management/disable";
     private static final String LDAP_MANAGEMENT_DELETE = "ldap-management/delete";
     private static final String LDAP_MANAGEMENT_AGE = "ldap-management/age";
     private static final String LDAP_MANAGEMENT_PAGE_SIZE = "ldap-management/pageImportSize";
     private static final String AUTHENTICATION_AUTH_ACC_NAME = "configserver-config/account-name";
     private static final String AUTHENTICATION_EMAIL_ADDRESS = "configserver-config/email-address";
+    private static final String CORS_DOMAIN_SETTING = "configserver-config/corsDomains";
 
     private PasswordPolicy m_passwordPolicy;
 
@@ -105,6 +110,27 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
 
     public void setEmailAddress(boolean authEmailAddress) {
         setSettingTypedValue(AUTHENTICATION_EMAIL_ADDRESS, authEmailAddress);
+    }
+
+    public String getCorsDomains() {
+        return getSettingValue(CORS_DOMAIN_SETTING);
+    }
+
+    public void setCorsDomains(String corsDomains) {
+        String noSpaces = validateDomainList(corsDomains);
+        LOG.warn("Setting CORS domains " + corsDomains + " " + noSpaces);
+        setSettingValue(CORS_DOMAIN_SETTING, noSpaces);
+    }
+
+    protected static String validateDomainList(String corsDomains) {
+        String noSpaces = corsDomains.replaceAll("\\s", "");
+        String validDomainRegex = "\\w[\\w\\.\\-]*";
+        String validDomainListRegex = String.format("%s[%s,]*", validDomainRegex, validDomainRegex);
+        if (!noSpaces.matches(validDomainListRegex)) {
+            throw new IllegalArgumentException("Invalid domain list. List must match " + validDomainListRegex);
+        }
+
+        return noSpaces;
     }
 
     @Required
