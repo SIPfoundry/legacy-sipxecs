@@ -27,7 +27,7 @@
       <userPattern>~~rl~.</userPattern>
       <permissionMatch>
         <transform>
-          <headerparams>Route=sip:192.168.1.5:9906;transport=tcp</headerparams>
+          <headerparams>Route=&lt;sip:192.168.1.5:9906;transport=tcp&gt;</headerparams>
         </transform>
       </permissionMatch>
     </userMatch>
