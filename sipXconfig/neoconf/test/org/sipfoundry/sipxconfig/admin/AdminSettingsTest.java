@@ -51,6 +51,11 @@ public class AdminSettingsTest {
     }
 
     @Test
+    public void testCorsSimpleDomainWhitespaceTrim() {
+        assertEquals(DOMAIN1, propertySet("\n\n " + DOMAIN1 + "\t\r"));
+    }
+
+    @Test
     public void testCorsFqdn() {
         assertTrue(propertyOk(FQDN1));
         assertTrue(propertyOk(FQDN2));
@@ -67,8 +72,19 @@ public class AdminSettingsTest {
     }
 
     @Test
+    public void testCorsDomainListWithEverythingTrim() {
+        assertEquals(IP4_ADDR2 + "," + DOMAIN1 + "," + FQDN2, propertySet("\t" + IP4_ADDR2 + " , \r" + DOMAIN1
+            + " \n, " + FQDN2 + "  "));
+    }
+
+    @Test
     public void testCorsDomainListInvalidChar() {
         assertFalse(propertyOk(FQDN1 + "," + FQDN2 + " +"));
+    }
+
+    @Test
+    public void testCorsDomainNull() {
+        assertEquals("", propertySet(null));
     }
 
     private static boolean propertyOk(String corsDomainList) {

@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.admin;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
@@ -123,7 +124,10 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     }
 
     protected static String validateDomainList(String corsDomains) {
-        String noSpaces = corsDomains.replaceAll("\\s", "");
+        if (corsDomains == null) {
+            return StringUtils.EMPTY;
+        }
+        String noSpaces = corsDomains.replaceAll("\\s", StringUtils.EMPTY);
         String validDomainRegex = "\\w[\\w\\.\\-]*";
         String validDomainListRegex = String.format("%s[%s,]*", validDomainRegex, validDomainRegex);
         if (!noSpaces.matches(validDomainListRegex)) {
