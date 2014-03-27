@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.region.Region;
 import org.sipfoundry.sipxconfig.region.RegionManager;
@@ -57,7 +58,7 @@ public class MongoConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, MongoManager.ARBITER_FEATURE,
+        if (!request.applies(MongoManager.FEATURE_ID, LocationsManager.FEATURE, DomainManager.FEATURE, MongoManager.ARBITER_FEATURE,
                 MongoManager.LOCAL_FEATURE, MongoManager.LOCAL_ARBITER_FEATURE)) {
             return;
         }

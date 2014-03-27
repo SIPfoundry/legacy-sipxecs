@@ -1,0 +1,32 @@
+#!/bin/env ruby
+
+# Copyright (c) 2014 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Archive and Restore sipXconfig's postgres database. Can be used as standalone
+# script or within the larger sipx-backup context.
+#
+
+$LOAD_PATH.unshift File.expand_path(File.dirname($PROGRAM_NAME))
+load 'sipxecs-setup'
+
+if is_primary?
+  unless $prompt[:net_host] == nil && $prompt[:net_domain] == nil && $prompt[:sip_domain] == nil
+    rm_file($mongo_client_ini)
+    rm_file($domain_dat)
+    rm_file($domain_part)
+    set_primary_hostname
+    set_sip_domain
+  end
+end  

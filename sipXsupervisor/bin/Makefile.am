@@ -16,6 +16,8 @@ bin_SCRIPTS = \
 	sipxagent \
 	sipxagent-log-reader \
 	sipxecs-setup \
+	setup-master-host-domain \
+	master-reconfig.js \
 	sipx-archive
 
 cfmoddir = @SIPX_CFMODULES@
