@@ -41,7 +41,6 @@ import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
-import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.sbc.AuxSbc;
 import org.sipfoundry.sipxconfig.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.sbc.Sbc;
@@ -80,8 +79,6 @@ public class ForwardingRulesTest extends XMLTestCase {
         expectLastCall().andReturn(new Address(Registrar.EVENT_ADDRESS, "regevent.example.org", 9903)).once();
         m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS, m_location);        
         expectLastCall().andReturn(new Address(Registrar.TCP_ADDRESS, "reg.example.org", 9904)).once();
-        m_addressManager.getSingleAddress(Rls.TCP_SIP, m_location);
-        expectLastCall().andReturn(new Address(Rls.TCP_SIP, "192.168.1.5", 5140)).once();
         replay(m_addressManager);
 
         List<Location> locations = new ArrayList<Location>();

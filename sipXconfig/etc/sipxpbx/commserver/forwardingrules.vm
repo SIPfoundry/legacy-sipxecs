@@ -33,15 +33,6 @@
       </fieldMatch>
 
 #end
-#if( ${rlsAddress} )
-      <!-- RLS dialog events -->
-      <fieldMatch fieldName="Event">
-        <fieldPattern>dialog</fieldPattern>
-        <!--this goes to the RLS server-->
-        <routeTo>&lt;${rlsAddress.addressColonPort()};transport=tcp&gt;</routeTo>
-      </fieldMatch>
-
-#end
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>

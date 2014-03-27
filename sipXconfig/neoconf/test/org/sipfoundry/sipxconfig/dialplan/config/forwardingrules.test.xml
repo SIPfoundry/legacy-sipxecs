@@ -29,13 +29,6 @@
         <routeTo>&lt;mwi.example.org:9902;transport=tcp&gt;</routeTo>
       </fieldMatch>
 
-      <!-- RLS dialog events -->
-      <fieldMatch fieldName="Event">
-        <fieldPattern>dialog</fieldPattern>
-        <!--this goes to the RLS server-->
-        <routeTo>&lt;192.168.1.5:5140;transport=tcp&gt;</routeTo>
-      </fieldMatch>
-
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>

@@ -50,6 +50,8 @@ import org.sipfoundry.sipxconfig.moh.MohRule;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.rls.Rls;
+import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.sipfoundry.sipxconfig.test.XmlUnitHelper;
 
@@ -74,6 +76,8 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setLocation(l);
         
         m_addressManager = createMock(AddressManager.class);
+        m_addressManager.getSingleAddress(Rls.TCP_SIP, l);
+        expectLastCall().andReturn(new Address(Rls.TCP_SIP, "192.168.1.5", 9906)).anyTimes();
         m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, l);
         expectLastCall().andReturn(new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 100)).anyTimes();
         m_addressManager.getSingleAddress(PagingContext.SIP_TCP, l);
@@ -267,6 +271,7 @@ public class MappingRulesTest extends XMLTestCase {
         aa.setName("Operator");
         aa.resetToFactoryDefault();
         rules.add(new MohRule("192.168.1.5:9905", "~~mh~u"));
+        rules.add(new RlsRule());
 
         LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
 
