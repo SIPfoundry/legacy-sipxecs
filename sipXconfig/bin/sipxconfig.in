@@ -1,7 +1,7 @@
 #!@BASH@
 # sipxconfig - Startup script for sipxconfig
 
-# chkconfig: 35 92 5
+# chkconfig: 35 99 5
 # description: sipxconfig is an administration server
 # processname: sipxconfig
 
