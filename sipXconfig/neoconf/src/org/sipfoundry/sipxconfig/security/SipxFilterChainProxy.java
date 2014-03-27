@@ -61,10 +61,10 @@ public class SipxFilterChainProxy extends FilterChainProxy {
         if (request.getLocalPort() == authPort && request instanceof HttpServletRequest
             && response instanceof HttpServletResponse) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            String originDomain = ((HttpServletRequest) request).getRemoteHost();
-            httpResponse.setHeader("Access-Control-Allow-Origin", originDomain);
+            String origin = ((HttpServletRequest) request).getHeader("Origin");
+            httpResponse.setHeader("Access-Control-Allow-Origin", origin);
             httpResponse.setHeader("Access-Control-Allow-Credentials",
-                String.valueOf(getAllowedCorsDomains().contains(originDomain)));
+                String.valueOf(getAllowedCorsDomains().contains(origin)));
             httpResponse.setHeader("Access-Control-Allow-Methods", "DELETE, HEAD, GET, PATCH, POST, PUT");
             httpResponse.setHeader("Access-Control-Max-Age", "3600");
             String allowedHeaders;
