@@ -1,7 +1,7 @@
 <div jwcid="@common/Border" restricted="false" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <span jwcid="@user/UserNavigation" bean="ognl:loadedUser" renderCondition="ognl:userSession.admin" />
-  <span jwcid="@common/ErrorMsg"/>
+  <div jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <!--  form jwcid="@tacos:AjaxForm" delegate="bean:validator" -->
     <form jwcid="speedDialForm@Form" delegate="bean:validator" listener="listener:onSubmit">
