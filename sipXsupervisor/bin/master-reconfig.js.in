@@ -1,0 +1,9 @@
+var cfg = rs.conf();
+for (var i=0;i<cfg.members.length;i++) {
+  if (cfg.members[i].host.split(":")[0] == oldHost) {
+     hostPort = cfg.members[i].host.split(":");
+     newHostPortStr = newHost + ":" + hostPort[1];
+     cfg.members[i].host = newHostPortStr;
+  }
+}
+rs.reconfig(cfg, {force: true });

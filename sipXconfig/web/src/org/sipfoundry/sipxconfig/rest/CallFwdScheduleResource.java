@@ -29,6 +29,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.InvalidPeriodException;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.OverlappingPeriodsException;
@@ -36,6 +37,7 @@ import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.forwarding.Schedule.ScheduleException;
+import org.sipfoundry.sipxconfig.forwarding.UserSchedule;
 import org.springframework.beans.factory.annotation.Required;
 
 public class CallFwdScheduleResource extends UserResource {
@@ -67,6 +69,25 @@ public class CallFwdScheduleResource extends UserResource {
         return r;
     }
 
+    // POST
+    @Override
+    public void acceptRepresentation(Representation entity) throws ResourceException {
+        ScheduleBean bean = fromRepresentation(entity, ScheduleBean.class);
+        LOG.debug("Creating call fwd schedule bean:\t" + bean);
+
+        Schedule sch = new UserSchedule();
+        fromScheduleBean(bean, sch);
+        sch.setUser(getUser());
+
+        LOG.debug("Creating call fwd schedule:\t" + sch);
+
+        try {
+            m_forwardingContext.saveSchedule(sch);
+        } catch (UserException e) {
+            throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e.getMessage());
+        }
+    }
+
     // PUT
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
@@ -77,25 +98,15 @@ public class CallFwdScheduleResource extends UserResource {
             LOG.debug("Saving call fwd schedule bean:\t" + bean);
 
             Schedule sch = m_forwardingContext.getScheduleById(id);
-            sch.setName(bean.getName());
-            sch.setDescription(bean.getDescription());
-            WorkingTime wTime = new WorkingTime();
-            wTime.setWorkingHours(fromPeriodBeanList(bean.getPeriods()));
-            sch.setWorkingTime(wTime);
-
-            try {
-                sch.checkForValidSchedule();
-            } catch (ScheduleException e) {
-                throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
-            } catch (InvalidPeriodException e) {
-                throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
-            } catch (OverlappingPeriodsException e) {
-                throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
-            }
+            fromScheduleBean(bean, sch);
 
             LOG.debug("Saving call fwd schedule:\t" + sch);
 
-            m_forwardingContext.saveSchedule(sch);
+            try {
+                m_forwardingContext.saveSchedule(sch);
+            } catch (UserException e) {
+                throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e.getMessage());
+            }
         } else {
             throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
         }
@@ -133,6 +144,24 @@ public class CallFwdScheduleResource extends UserResource {
         bean.setDescription(schedule.getDescription());
         bean.setPeriods(toPeriodBeanList(schedule.getWorkingTime()));
         return bean;
+    }
+
+    private static void fromScheduleBean(ScheduleBean bean, Schedule sch) throws ResourceException {
+        sch.setName(bean.getName());
+        sch.setDescription(bean.getDescription());
+        WorkingTime wTime = new WorkingTime();
+        wTime.setWorkingHours(fromPeriodBeanList(bean.getPeriods()));
+        sch.setWorkingTime(wTime);
+
+        try {
+            sch.checkForValidSchedule();
+        } catch (ScheduleException e) {
+            throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
+        } catch (InvalidPeriodException e) {
+            throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
+        } catch (OverlappingPeriodsException e) {
+            throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
+        }
     }
 
     private Integer getIdFromRequest() {

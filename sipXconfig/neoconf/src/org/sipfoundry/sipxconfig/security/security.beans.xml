@@ -23,7 +23,7 @@
       <security:filter-chain pattern="/rest/avatar/.*"
             filters="lazySecurityContextPersistenceFilter,basicAuthenticationFilter,digestAuthenticationFilter,digestExceptionTranslationFilter,anonymousProcessingFilter,filterInvocationInterceptor"/>
       <security:filter-chain pattern="/(services|rest)/.*"
-            filters="lazySecurityContextPersistenceFilter,basicAuthenticationFilter,digestAuthenticationFilter,digestExceptionTranslationFilter,filterInvocationInterceptor"/>
+            filters="lazySecurityContextPersistenceFilter,optionsAuthFilter,basicAuthenticationFilter,digestAuthenticationFilter,digestExceptionTranslationFilter,filterInvocationInterceptor"/>
       <security:filter-chain pattern="/(TestPage|FirstUser).html"
             filters="securityContextPersistenceFilter"/>
       <security:filter-chain pattern="/.*"
@@ -144,6 +144,8 @@
     <property name="authenticationEntryPoint" ref="authenticationEntryPoint" />
     <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
   </bean>
+
+  <bean id="optionsAuthFilter" class="org.sipfoundry.sipxconfig.security.OptionsAuthFilter"/>
 
   <bean id="authenticationEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxBasicAuthenticationEntryPoint">
     <property name="domainManager" ref="domainManager" />

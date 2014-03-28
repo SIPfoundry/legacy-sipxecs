@@ -25,6 +25,10 @@ class ArchiveBase
   def sql_exec(db, sql)
     cmd "psql -U #{@pguser} #{db} -c \"#{sql}\""
   end
+  
+  def sql_exec_output(db, sql)
+    return `psql -U #{@pguser} #{db} --no-align -t -c \"#{sql}\"`
+  end
 
   def cmd(cmd)
     puts cmd if @verbose
@@ -84,6 +88,15 @@ class Restore < ArchiveBase
 
   def run(params)
     pre_mongo = false
+    backup_domain = nil
+    backup_sip_domain = nil
+    backup_host = nil
+    backup_fqdn = nil
+    current_domain = sql_exec_output(@db, "select name from domain LIMIT 1").split("\n")[0]
+    current_fqdn = sql_exec_output(@db, "select fqdn from location where primary_location='TRUE' LIMIT 1").split("\n")[0]
+    current_host = current_fqdn.split('.' + current_domain)[0]
+    current_sip_domain = sql_exec_output(@db, "select sip_realm from domain LIMIT 1").split("\n")[0]
+    
     if cmd "tar -zxvf #{params[:file]} -C #{@tmpdir} version"
       v = File.read("#{@tmpdir}/version").split(".")
       dev = (v[0] == '0' and v[1] == '0')
@@ -135,15 +148,23 @@ class Restore < ArchiveBase
       sql_exec(@restoredb, "update users set voicemail_pintoken = md5(user_name || ':#{params[:reset_pin]}')") or
           raise "Failed to reset pins."
     end
-
+    
+    backup_fqdn = sql_exec_output(@restoredb, "select fqdn from location where primary_location='TRUE' LIMIT 1").split("\n")[0]
+    _backup_domain = sql_exec_output(@restoredb, "select name from domain LIMIT 1").split("\n")[0]
+    
     if params.has_key?(:domain)
       sql_exec(@restoredb, "select change_domain_on_restore('#{params[:domain]}');") or
         raise "Failed to change domain."
+    else     
+      backup_domain = sql_exec_output(@restoredb, "select name from domain LIMIT 1").split("\n")[0]
+      backup_sip_domain = sql_exec_output(@restoredb, "select sip_realm from domain LIMIT 1").split("\n")[0]
     end
 
     if params.has_key?(:fqdn)
         sql_exec(@restoredb, "select change_primary_fqdn_on_restore('#{params[:fqdn]}');") or
           raise "Failed to change domain."
+    else
+      backup_host = backup_fqdn.split('.' + _backup_domain)[0]            
     end
 
 	custom_option(params)
@@ -163,8 +184,27 @@ class Restore < ArchiveBase
     # exclude certdb because we don't need it but it's in <= 4.4.0 backups
     cmd "tar --exclude certdb -zxvf #{params[:file]} -C @localstatedir@/.. var/sipxdata" or
       raise "Could not restore file uploads"
+    
+    new_fqdn = nil
+      
+    if backup_host != nil && backup_domain != nil
+      new_fqdn = backup_fqdn
+      cmd "#{@bindir}/setup-master-host-domain --noui --net_domain #{backup_domain} --net_host #{backup_host} --sip_domain #{backup_sip_domain} --sip_realm #{backup_sip_domain}" if params[:restart]
+    elsif backup_host != nil
+      new_fqdn = backup_host + '.' + current_domain
+      cmd "#{@bindir}/setup-master-host-domain --noui --net_domain #{current_domain} --net_host #{backup_host} --sip_domain #{current_sip_domain} --sip_realm #{current_sip_domain}" if params[:restart]
+    elsif backup_domain != nil
+      new_fqdn = current_host + '.' + backup_domain
+      cmd "#{@bindir}/setup-master-host-domain --noui --net_domain #{backup_domain} --net_host #{current_host} --sip_domain #{backup_sip_domain} --sip_realm #{backup_sip_domain}" if params[:restart]
+    end
     cmd "#{@bindir}/sipxagent -d setup #{'-v ' if @verbose}" if params[:restart]
     cmd "#{@bindir}/sipxagent #{'-v ' if @verbose}" if params[:restart]
+    # reconfig replica set with the new hostname if hostname or domain changed
+    unless new_fqdn == nil
+      puts "New fqdn is: #{new_fqdn}"
+      puts "Reconfig replica set: mongo --eval \"var oldHost=\\\"#{current_fqdn}\\\", newHost=\\\"#{new_fqdn}\\\"\" #{@bindir}/master-reconfig.js"
+      cmd "mongo --eval \"var oldHost=\\\"#{current_fqdn}\\\", newHost=\\\"#{new_fqdn}\\\"\" #{@bindir}/master-reconfig.js" if params[:restart]
+    end
   end
 end
 

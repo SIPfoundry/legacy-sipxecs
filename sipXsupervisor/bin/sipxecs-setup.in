@@ -601,6 +601,7 @@ args = OptionParser.new { |opts|
 args.parse!
 
 raise 'Must run as root' unless Process.uid == 0
+if __FILE__ == $0
 set_root_keys()
 network_settings
 custom_hook
@@ -662,4 +663,5 @@ interface from your web browser at the following URL:
 EOL
   end
   exit 0
+end
 end

@@ -61,15 +61,26 @@ public class SipxFilterChainProxy extends FilterChainProxy {
         if (request.getLocalPort() == authPort && request instanceof HttpServletRequest
             && response instanceof HttpServletResponse) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
-            String origin = ((HttpServletRequest) request).getHeader("Origin");
-            httpResponse.setHeader("Access-Control-Allow-Origin", origin);
+            String originUrl = ((HttpServletRequest) request).getHeader("Origin");
+            String origin = originUrl;
+            String schemeSeparator = "://";
+            String portSeparator = ":";
+            // it is important to strip the scheme first, because it contains the separator for
+            // port
+            if (origin != null && origin.indexOf(schemeSeparator) > 0) {
+                origin = origin.substring(origin.indexOf(schemeSeparator) + schemeSeparator.length());
+            }
+            if (origin != null && origin.indexOf(portSeparator) > 0) {
+                origin = origin.substring(0, origin.indexOf(portSeparator));
+            }
+            httpResponse.setHeader("Access-Control-Allow-Origin", originUrl);
             httpResponse.setHeader("Access-Control-Allow-Credentials",
                 String.valueOf(getAllowedCorsDomains().contains(origin)));
             httpResponse.setHeader("Access-Control-Allow-Methods", "DELETE, HEAD, GET, PATCH, POST, PUT");
             httpResponse.setHeader("Access-Control-Max-Age", "3600");
             String allowedHeaders;
             if ("OPTIONS".equals(((HttpServletRequest) request).getMethod())) {
-                allowedHeaders = "accept, authorization";
+                allowedHeaders = "accept, authorization, content-type";
             } else {
                 allowedHeaders = "accept, accept-charset, accept-encoding, accept-language, authorization, "
                     + "content-length, content-type, host, origin, proxy-connection, referer, user-agent, "
@@ -114,7 +125,8 @@ public class SipxFilterChainProxy extends FilterChainProxy {
         @Override
         public String getHeader(String name) {
             if ("Authorization".equals(name)) {
-                String authString = AbstractUser.SUPERADMIN + ":" + m_domainManager.getSharedSecret();
+                String authString = String.format("%s:%s", AbstractUser.SUPERADMIN,
+                    m_domainManager.getSharedSecret());
                 return "Basic " + new String(Base64.encodeBase64(authString.getBytes()));
             }
             return super.getHeader(name);
