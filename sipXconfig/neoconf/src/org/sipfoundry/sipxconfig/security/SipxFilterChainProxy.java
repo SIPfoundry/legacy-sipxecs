@@ -80,7 +80,7 @@ public class SipxFilterChainProxy extends FilterChainProxy {
             httpResponse.setHeader("Access-Control-Max-Age", "3600");
             String allowedHeaders;
             if ("OPTIONS".equals(((HttpServletRequest) request).getMethod())) {
-                allowedHeaders = "accept, authorization";
+                allowedHeaders = "accept, authorization, content-type";
             } else {
                 allowedHeaders = "accept, accept-charset, accept-encoding, accept-language, authorization, "
                     + "content-length, content-type, host, origin, proxy-connection, referer, user-agent, "
