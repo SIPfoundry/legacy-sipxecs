@@ -79,7 +79,7 @@ public class CallFwdScheduleResource extends UserResource {
         fromScheduleBean(bean, sch);
         sch.setUser(getUser());
 
-        LOG.debug("Saving call fwd schedule:\t" + sch);
+        LOG.debug("Creating call fwd schedule:\t" + sch);
 
         try {
             m_forwardingContext.saveSchedule(sch);
