@@ -71,7 +71,9 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             }
             LOG.info("***** FINISHED INSERTING DATA *****");
         } catch (Exception ex) {
-            LOG.error("***** FAILURE DURING INSERTING DATA *****", ex);
+            String message = ex.getMessage();
+            message = (message == null) ? "No exception message" : message;
+            LOG.error("ALARM_LDAP_IMPORT_FAILED Ldap connectivity issues: " + message);
         } finally {
             m_rowInserter.afterInserting();
         }
