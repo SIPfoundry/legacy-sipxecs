@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -251,7 +252,8 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) BridgeSbcContext.FEATURE);
+        return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) BridgeSbcContext.FEATURE,
+            (Feature) ProxyManager.FEATURE);
     }
 
     public void setConfigManager(ConfigManager configManager) {

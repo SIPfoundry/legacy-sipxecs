@@ -16,11 +16,12 @@
  */
 package org.sipfoundry.sipxconfig.parkorbit;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -54,6 +55,6 @@ public class ParkSettings extends PersistableSettings implements DeployConfigOnE
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) ParkOrbitContext.FEATURE);
+        return Arrays.asList((Feature) ParkOrbitContext.FEATURE, (Feature) ProxyManager.FEATURE);
     }
 }

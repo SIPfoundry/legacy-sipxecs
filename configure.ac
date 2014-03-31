@@ -4,7 +4,7 @@
 # 
 AC_PREREQ(2.57)
 
-AC_INIT(sipX, 4.6.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipX, 14.04, sipx-dev@list.sipfoundry.org)
 
 # Pass standard and sipxecs common params to ./configure switches on all sub-projects.
 # Doesn't have to handle ./configure vars like SIPX_PBXUSER because those
