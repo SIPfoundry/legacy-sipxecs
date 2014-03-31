@@ -28,13 +28,6 @@ AC_DEFUN([SF_MISSING_DEP],[
   fi
 ])
 
-AC_SUBST(MAJOR_VERSION, "14")
-AC_SUBST(MINOR_VERSION, "4")
-
-PACKAGE_REVISION=`cd ${srcdir} && ./revision-gen ${PACKAGE_VERSION}`
-AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])
-AC_SUBST(PACKAGE_REVISION)
-
 AC_CHECK_LIB(boost_thread, main, [BOOST_LIBS="-lboost_date_time -lboost_filesystem -lboost_system -lboost_thread -lboost_program_options -lboost_iostreams -lboost_random -lboost_regex"],
     [AC_CHECK_LIB(boost_thread-mt, main,
     [BOOST_LIBS="-lboost_date_time-mt -lboost_filesystem-mt -lboost_system-mt -lboost_thread-mt -lboost_program_options-mt -lboost_iostreams-mt -lboost_regex-mt"],
