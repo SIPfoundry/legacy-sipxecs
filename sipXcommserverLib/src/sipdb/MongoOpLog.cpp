@@ -132,7 +132,7 @@ bool MongoOpLog::processQuery(mongo::DBClientCursor* cursor,
     {
       if (_querySleepTime)
       {
-        usleep(_querySleepTime * 1000);
+        sleep(_querySleepTime);
       }
 
       if(cursor->isDead())
@@ -224,7 +224,7 @@ void MongoOpLog::internal_run()
     // If we are at the end of the data, block for a while rather
     // than returning no data. After a timeout period, we do return as normal
     std::auto_ptr<mongo::DBClientCursor> cursor = pConn->get()->query(_ns, query, 0, 0, 0,
-          _querySleepTime ? (mongo::QueryOption_CursorTailable) : (mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData) );
+                 mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
 
     bool rc = processQuery(cursor.get(), lastEntry);
     if (false == rc)
