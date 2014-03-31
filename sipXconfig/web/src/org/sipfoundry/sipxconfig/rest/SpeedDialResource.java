@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.rest;
 import static org.sipfoundry.sipxconfig.rest.JacksonConvert.fromRepresentation;
 import static org.sipfoundry.sipxconfig.rest.JacksonConvert.toRepresentation;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,14 +26,20 @@ import org.apache.commons.logging.LogFactory;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 
 public class SpeedDialResource extends UserResource {
-    private static final Log LOG = LogFactory.getLog(ImSettingsResource.class);
+    private static final Log LOG = LogFactory.getLog(SpeedDialResource.class);
 
     private SpeedDialManager m_mgr;
+    private PhoneContext m_phoneCtx;
+    private ProfileManager m_profileMgr;
 
     @Override
     public boolean allowPost() {
@@ -78,7 +85,8 @@ public class SpeedDialResource extends UserResource {
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
         SpeedDialBean bean = fromRepresentation(entity, SpeedDialBean.class);
-
+        // do not update if this was not explicitly requested
+        boolean updatePhones = bean.isUpdatePhones() ? bean.isUpdatePhones() : false;
         LOG.debug("Saving speed dial:\t" + bean);
 
         if (bean.isGroupSpeedDial()) {
@@ -99,16 +107,33 @@ public class SpeedDialResource extends UserResource {
                 m_mgr.saveSpeedDial(dial);
             }
         }
+        if (updatePhones) {
+            Collection<Phone> phones = m_phoneCtx.getPhonesByUserId(getUser().getId());
+            LOG.debug("Updating phones: " + phones);
+            @SuppressWarnings("unchecked")
+            Collection<Integer> ids = DataCollectionUtil.extractPrimaryKeys(phones);
+            m_profileMgr.generateProfiles(ids, true, null);
+        }
     }
 
     public void setMgr(SpeedDialManager mgr) {
         m_mgr = mgr;
     }
 
+    public void setPhoneCtx(PhoneContext phoneCtx) {
+        m_phoneCtx = phoneCtx;
+    }
+
+    public void setProfileMgr(ProfileManager profileMgr) {
+        m_profileMgr = profileMgr;
+    }
+
     // the JSON representation of this is sent to/from the client
     private static class SpeedDialBean {
         private List<Button> m_buttons;
         private boolean m_groupSpeedDial;
+        // this is a request parameter
+        private Boolean m_updatePhones;
 
         public List<Button> getButtons() {
             return m_buttons;
@@ -131,9 +156,19 @@ public class SpeedDialResource extends UserResource {
             this.m_groupSpeedDial = groupSpeedDial;
         }
 
+        public Boolean isUpdatePhones() {
+            return m_updatePhones;
+        }
+
+        @SuppressWarnings("unused")
+        public void setUpdatePhones(Boolean updatePhones) {
+            m_updatePhones = updatePhones;
+        }
+
         @Override
         public String toString() {
-            return "SpeedDialBean [m_buttons=" + m_buttons + ", m_groupSpeedDial=" + m_groupSpeedDial + "]";
+            return "SpeedDialBean [m_buttons=" + m_buttons + ", m_groupSpeedDial=" + m_groupSpeedDial
+                + ", m_updatePhones=" + m_updatePhones + "]";
         }
     }
 }
