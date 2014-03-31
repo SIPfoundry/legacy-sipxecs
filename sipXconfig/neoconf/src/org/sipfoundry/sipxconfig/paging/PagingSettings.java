@@ -23,6 +23,7 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -53,7 +54,8 @@ public class PagingSettings extends PersistableSettings implements DeployConfigO
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) PagingContext.FEATURE, (Feature) DialPlanContext.FEATURE);
+        return Arrays.asList((Feature) PagingContext.FEATURE, (Feature) DialPlanContext.FEATURE,
+            (Feature) ProxyManager.FEATURE);
     }
 
     public int getSipTcpPort() {

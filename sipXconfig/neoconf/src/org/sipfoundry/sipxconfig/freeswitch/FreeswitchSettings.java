@@ -17,13 +17,14 @@
 package org.sipfoundry.sipxconfig.freeswitch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.SettingsWithLocation;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -80,6 +81,6 @@ public class FreeswitchSettings extends SettingsWithLocation implements DeployCo
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) FreeswitchFeature.FEATURE);
+        return Arrays.asList((Feature) FreeswitchFeature.FEATURE, (Feature) ProxyManager.FEATURE);
     }
 }

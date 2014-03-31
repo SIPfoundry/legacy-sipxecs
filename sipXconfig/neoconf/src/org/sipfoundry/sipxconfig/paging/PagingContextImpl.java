@@ -156,28 +156,6 @@ public class PagingContextImpl extends SipxHibernateDaoSupport implements Paging
         return Arrays.asList(rule);
     }
 
-/*    public UserDeleteListener createUserDeleteListener() {
-        return new OnUserDelete();
-    }
-
-    private class OnUserDelete extends UserDeleteListener {
-        protected void onUserDelete(User user) {
-            boolean affectPaging = false;
-            List<PagingGroup> groups = getPagingGroups();
-            for (PagingGroup group : groups) {
-                Set<User> users = group.getUsers();
-                if (users.remove(user)) {
-                    getHibernateTemplate().saveOrUpdate(group);
-                    getHibernateTemplate().flush();
-                    affectPaging = true;
-                }
-            }
-            if (affectPaging) {
-                m_configManager.configureEverywhere(FEATURE);
-            }
-        }
-    }*/
-
     @Override
     public boolean isAliasInUse(String alias) {
         if (!m_featureManager.isFeatureEnabled(FEATURE)) {
