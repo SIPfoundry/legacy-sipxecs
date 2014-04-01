@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(sipXedgeServices, 4.6.0, https://github.com/SIPFoundry)
+AC_INIT(sipXedgeServices, 14.04, https://github.com/SIPFoundry)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([applications/webrtc])
 AC_PATH_PROG([BASH], [bash])
@@ -27,13 +27,6 @@ AC_DEFUN([SF_MISSING_DEP],[
     AC_MSG_ERROR([$1])
   fi
 ])
-
-AC_SUBST(MAJOR_VERSION, "14")
-AC_SUBST(MINOR_VERSION, "4")
-
-PACKAGE_REVISION=`cd ${srcdir} && ./revision-gen ${PACKAGE_VERSION}`
-AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])
-AC_SUBST(PACKAGE_REVISION)
 
 AC_CHECK_LIB(boost_thread, main, [BOOST_LIBS="-lboost_date_time -lboost_filesystem -lboost_system -lboost_thread -lboost_program_options -lboost_iostreams -lboost_random -lboost_regex"],
     [AC_CHECK_LIB(boost_thread-mt, main,

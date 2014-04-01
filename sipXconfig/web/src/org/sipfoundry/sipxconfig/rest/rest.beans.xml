@@ -140,6 +140,8 @@
       </list>
     </property>
     <property name="mgr" ref="speedDialManager"/>
+    <property name="phoneCtx" ref="phoneContext"/>
+    <property name="profileMgr" ref="phoneProfileManager"/>
   </bean>
   <alias name="speedDialResource" alias="/my/speeddial" />
 
@@ -480,6 +482,4 @@
     <property name="modifiable" value="true" />
   </bean>
   <alias name="usersPermissionResource" alias="/user-permission/{id}" />
-
-
 </beans>
