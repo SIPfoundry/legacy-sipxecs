@@ -99,7 +99,7 @@ void MongoOpLog::stop()
 
   if (_pThread)
   {
-    _pThread->join();
+    _pThread->timed_join((boost::posix_time::milliseconds(500)));
 
     delete _pThread;
     _pThread = 0;
