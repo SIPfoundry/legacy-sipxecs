@@ -13,8 +13,4 @@
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.tls.TlsPeerManager" />
     <property name="target" ref="tlsPeerManagerImpl" />
   </bean>
-
-  <bean id="tlsPeerReplicationProvider" class="org.sipfoundry.sipxconfig.tls.TlsPeerReplicationProvider">
-    <property name="tlsPeerManager" ref="tlsPeerManager" />
-  </bean>
 </beans>

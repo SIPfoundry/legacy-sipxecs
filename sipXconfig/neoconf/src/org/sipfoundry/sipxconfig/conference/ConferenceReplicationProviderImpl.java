@@ -14,29 +14,36 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-
-package org.sipfoundry.sipxconfig.tls;
+package org.sipfoundry.sipxconfig.conference;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 
-public class TlsPeerReplicationProvider implements ReplicableProvider {
-    private TlsPeerManager m_tlsPeerManager;
+public class ConferenceReplicationProviderImpl implements ConferenceReplicationProvider {
+    private ConferenceBridgeContext m_bridgeContext;
+    private FeatureManager m_featureManager;
 
     @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
-        for (TlsPeer tp : m_tlsPeerManager.getTlsPeers()) {
-            replicables.add(tp);
+        if (!m_featureManager.isFeatureEnabled(FreeswitchFeature.FEATURE)) {
+            return replicables;
+        }
+        for (Conference conf : m_bridgeContext.getAllConferences()) {
+            replicables.add(conf);
         }
         return replicables;
     }
 
-    public void setTlsPeerManager(TlsPeerManager tlsPeerManager) {
-        m_tlsPeerManager = tlsPeerManager;
+    public void setBridgeContext(ConferenceBridgeContext bridgeContext) {
+        m_bridgeContext = bridgeContext;
     }
 
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
 }

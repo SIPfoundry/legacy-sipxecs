@@ -51,11 +51,11 @@
   </bean>
 
   <bean id="conferenceReplicationProvider" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.common.ReplicableProvider" />
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.conference.ConferenceReplicationProvider" />
     <property name="target" ref="conferenceReplicationProviderImpl" />
   </bean>
 
-  <bean id="conferenceReplicationProviderImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceReplicationProvider">
+  <bean id="conferenceReplicationProviderImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceReplicationProviderImpl">
     <property name="bridgeContext" ref="conferenceBridgeContext"/>
     <property name="featureManager" ref="featureManager"/>
   </bean>
