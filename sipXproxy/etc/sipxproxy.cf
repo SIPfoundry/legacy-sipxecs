@@ -129,7 +129,7 @@ bundle agent sipxproxy_running {
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxproxy_running");
 
 	sipxproxy.sipxproxy_properties_changed.!restart_sipxproxy::
-      "sipxproxy_properties_changed" usebundle => refresh_sip_service("SIPX_PROXY_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      "sipxproxy_properties_changed" usebundle => refresh_sip_service("SIPX_PROXY_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
       										 "$(sipx.SIPX_CONFDIR)/sipXproxy-config",
       										 "$(sipx.SIPX_CONFDIR)/sipXproxy-config.cf-before-edit",
       										 "sipxproxy"); 

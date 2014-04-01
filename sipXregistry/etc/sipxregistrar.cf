@@ -80,7 +80,7 @@ bundle agent sipxregistrar_running {
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxregistrar_running");
     sipxregistrar.sipxregistrar_properties_changed.!restart_sipxregistrar::
-      "sipxregistrar_properties_changed" usebundle => refresh_sip_service("SIP_REGISTRAR_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      "sipxregistrar_properties_changed" usebundle => refresh_sip_service("SIP_REGISTRAR_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
       										 "$(sipx.SIPX_CONFDIR)/registrar-config",
       										 "$(sipx.SIPX_CONFDIR)/registrar-config.cf-before-edit",
       										 "sipxregistrar"); 
