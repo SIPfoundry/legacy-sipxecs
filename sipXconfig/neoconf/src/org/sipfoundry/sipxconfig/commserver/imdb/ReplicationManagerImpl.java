@@ -17,6 +17,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -302,8 +303,10 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
             // get the rest of Replicables and replicate them
             Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
             for (ReplicableProvider provider : beanMap.values()) {
-                for (Replicable entity : provider.getReplicables()) {
-                    replicateEntity(entity);
+                if (provider instanceof Proxy) {
+                    for (Replicable entity : provider.getReplicables()) {
+                        replicateEntity(entity);
+                    }
                 }
             }
             // Replicate the external aliases

@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.gateway;
 import java.util.Collection;
 import java.util.List;
 
-public interface GatewayContext {
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+
+public interface GatewayContext extends ReplicableProvider {
     public static final String CONTEXT_BEAN_NAME = "gatewayContext";
 
     List<Gateway> getGateways();

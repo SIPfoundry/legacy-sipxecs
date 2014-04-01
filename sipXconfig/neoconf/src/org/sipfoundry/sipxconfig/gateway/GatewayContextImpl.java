@@ -21,7 +21,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
@@ -35,8 +34,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class GatewayContextImpl extends SipxHibernateDaoSupport implements GatewayContext, BeanFactoryAware,
-        ReplicableProvider {
+public class GatewayContextImpl extends SipxHibernateDaoSupport implements GatewayContext, BeanFactoryAware {
     private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
     private static final String AUDIT_LOG_CONFIG_TYPE = "Gateway";
 

@@ -28,7 +28,6 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
@@ -50,7 +49,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider,
-    FirewallProvider, ReplicableProvider {
+    FirewallProvider {
 
     private static final int PASS_LENGTH = 8;
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
