@@ -33,7 +33,7 @@ bundle agent sipxpark_config {
         create => "true",
         perms => m("644"),
         edit_line => sipxpark_config_contents(),
-        classes => if_repaired("restart_sipxpark");
+        classes => if_repaired("sipxpark_properties_changed");
 
       "$(sipx.SIPX_CONFDIR)/orbits.xml"
         comment => "install sipxpark orbits config $(this.promiser)",
@@ -41,7 +41,7 @@ bundle agent sipxpark_config {
         perms => m("644"),
         copy_from => copy_from_cfdata("$(sipx.location_id)/orbits.xml"),
         classes => if_repaired("restart_sipxpark");
-        
+
     any::   
       "$(sipx.SIPX_CONFDIR)/resource-limits-park.ini"
         comment => "park resource limits changed - restart park",
@@ -95,9 +95,18 @@ bundle agent sipxpark_running {
     any::
       "service_command" string => "$(sipx.SIPX_BINDIR)/sipxpark";
 
+  classes:
+    sipxpark.sipxpark_properties_changed::
+  	  "restart_sipxpark" not => fileexists("$(sipx.SIPX_CONFDIR)/sipxpark-config.cf-before-edit");
+
   methods:
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)","sipxpark_running");
+    sipxpark.sipxpark_properties_changed.!restart_sipxpark::
+      "sipxpark_properties_changed" usebundle => refresh_sip_service("SIP_PARK_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      										 "$(sipx.SIPX_CONFDIR)/sipxpark-config",
+      										 "$(sipx.SIPX_CONFDIR)/sipxpark-config.cf-before-edit",
+      										 "sipxpark"); 
 
   commands:
     (!sipxpark|stop_sipxecs).sipxpark_running::
@@ -114,5 +123,10 @@ bundle agent sipxpark_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxpark"
         comment => "restart sipxpark",
         args => "asyncrestart";
+
+    sipxpark.sipxpark_running.refresh_sipxpark::
+      "/usr/bin/killall"
+        comment => "refresh sipxpark",
+        args => "-HUP sipxpark";
 }
 

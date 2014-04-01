@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -18,6 +22,7 @@ import org.easymock.EasyMock;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -41,6 +46,12 @@ public class SharedSecretUserDetailsImplTest extends TestCase {
         final User user = new AdminUser();
         final String userName = "angelina";
         user.setUserName(userName);
+
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
 
         String hashedSecret = Md5Encoder.getEncodedPassword("secret");
 

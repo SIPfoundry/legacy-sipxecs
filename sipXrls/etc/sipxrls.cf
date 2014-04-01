@@ -81,7 +81,7 @@ bundle agent sipxrls_running {
     !src.!sipxrls::
       "any" usebundle => rh_chkconfig_status("sipxrls off");
     sipxrls.sipxrls_properties_changed.!restart_sipxrls::
-      "sipxrls_properties_changed" usebundle => refresh_sip_service("SIP_RLS_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      "sipxrls_properties_changed" usebundle => refresh_sip_service("SIP_RLS_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
       										 "$(sipx.SIPX_CONFDIR)/sipxrls-config",
       										 "$(sipx.SIPX_CONFDIR)/sipxrls-config.cf-before-edit",
       										 "sipxrls");

@@ -17,6 +17,8 @@ public enum PermissionName {
     /** application */
     SUPERADMIN(Type.APPLICATION, "superadmin"),
 
+    DBAUTH_ONLY(Type.APPLICATION, "dbauth-only"),
+
     TUI_CHANGE_PIN(Type.APPLICATION, "tui-change-pin"),
 
     PERSONAL_AUTO_ATTENDANT(Type.APPLICATION, "personal-auto-attendant"),

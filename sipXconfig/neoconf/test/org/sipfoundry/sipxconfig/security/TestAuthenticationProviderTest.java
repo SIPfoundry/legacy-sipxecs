@@ -9,10 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.easymock.classextension.EasyMock.createMock;
 import static org.sipfoundry.sipxconfig.security.TestAuthenticationProvider.DUMMY_ADMIN_USER_NAME;
 
 import java.util.Collection;
@@ -21,6 +22,8 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,8 +39,13 @@ public class TestAuthenticationProviderTest extends TestCase {
 
         TestAuthenticationProvider tap = new TestAuthenticationProvider();
         tap.setCoreContext(coreContext);
-
-        TestAuthenticationToken token = new TestAuthenticationToken(new UserDetailsImplTest.RegularUser(), false, false);
+        User user = new UserDetailsImplTest.RegularUser();
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
+        TestAuthenticationToken token = new TestAuthenticationToken(user, false, false);
 
         Authentication authentication = tap.authenticate(token);
         assertNull(authentication);
@@ -69,6 +77,12 @@ public class TestAuthenticationProviderTest extends TestCase {
         User user = new UserDetailsImplTest.RegularUser();
         user.setUniqueId();
         user.setName("bongo");
+
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
 
         TestAuthenticationToken token = new TestAuthenticationToken(user, false, true);
         Authentication authentication = tap.authenticate(token);

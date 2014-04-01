@@ -1,10 +1,12 @@
 package org.sipfoundry.sipxconfig.rest;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
 
 import java.io.StringWriter;
+
+import junit.framework.TestCase;
 
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
@@ -17,11 +19,11 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.ActiveConferenceContext;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import junit.framework.TestCase;
 
 public class UserConferenceCommandsResourceTest extends TestCase {
     private User m_user;
@@ -45,6 +47,11 @@ public class UserConferenceCommandsResourceTest extends TestCase {
         m_user.setUniqueId();
         m_user.setUserName("portalUser");
         m_user.setEmailAddress("myName@email.com");
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        m_user.setPermissionManager(pManager);
 
         m_conference = new Conference();
         m_conference.setName(CONFERENCE_NAME);
@@ -103,7 +110,7 @@ public class UserConferenceCommandsResourceTest extends TestCase {
         String generated = getCommandResponse(m_resource);
         assertEquals(INVITATION_SENT_RESPONSE, generated);
     }
-    
+
     public void testInviteIm() throws Exception {
         m_conference.setOwner(m_user);
 
@@ -120,7 +127,7 @@ public class UserConferenceCommandsResourceTest extends TestCase {
 
         String generated = getCommandResponse(m_resource);
         assertEquals(INVITATION_SENT_RESPONSE, generated);
-    }    
+    }
 
     private String getCommandResponse(UserConferenceCommandsResource resource) throws Exception {
         Representation representation = resource.represent(new Variant(MediaType.TEXT_ALL));

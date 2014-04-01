@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
@@ -24,18 +29,16 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.createMock;
 
 public class UserPhonebookEntryResourceTest extends TestCase {
     private User m_user;
@@ -50,6 +53,12 @@ public class UserPhonebookEntryResourceTest extends TestCase {
         m_user = new User();
         m_user.setUniqueId();
         m_user.setUserName("200");
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        m_user.setPermissionManager(pManager);
+
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.loadUserByUserName(m_user.getUserName());
         expectLastCall().andReturn(m_user);

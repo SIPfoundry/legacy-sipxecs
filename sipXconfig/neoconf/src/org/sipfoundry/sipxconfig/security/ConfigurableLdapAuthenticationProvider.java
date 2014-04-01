@@ -147,6 +147,15 @@ public class ConfigurableLdapAuthenticationProvider extends AbstractUserDetailsA
                         + "is an interface contract violation");
             }
 
+            if (loaddedUser.isDbAuthOnly()) {
+                String message = "LDAP Auth BYPASS. The user " + loaddedUser.getCanonicalUserName()
+                    + " can authenticate only to database";
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(message);
+                }
+                throw new AuthenticationServiceException(message);
+            }
+
             for (SipxLdapAuthenticationProvider provider : m_providers) {
                 String providerDomain = provider.getDomain();
                 if (LOG.isDebugEnabled()) {

@@ -81,7 +81,7 @@ bundle agent sipxsaa_running {
     !src.!sipxsaa::
       "any" usebundle => rh_chkconfig_status("sipxsaa off");
     sipxsaa.sipxsaa_properties_changed.!restart_sipxsaa::
-      "sipxsaa_properties_changed" usebundle => refresh_sip_service("SIP_SAA_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      "sipxsaa_properties_changed" usebundle => refresh_sip_service("SIP_SAA_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
       										 "$(sipx.SIPX_CONFDIR)/sipxsaa-config",
       										 "$(sipx.SIPX_CONFDIR)/sipxsaa-config.cf-before-edit",
       										 "sipxsaa");

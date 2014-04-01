@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
@@ -36,11 +38,11 @@ import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import junit.framework.TestCase;
 
 public class UserActiveCdrsResourceTest extends TestCase {
     private User m_user;
@@ -54,6 +56,12 @@ public class UserActiveCdrsResourceTest extends TestCase {
         m_user = new User();
         m_user.setUniqueId();
         m_user.setUserName("user3");
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        m_user.setPermissionManager(pManager);
+
         m_cdr = new ActiveCallCdr();
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(new Long("1299785283000"));
