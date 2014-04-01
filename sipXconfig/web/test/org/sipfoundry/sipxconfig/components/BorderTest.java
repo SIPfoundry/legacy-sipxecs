@@ -9,11 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
+import static org.sipfoundry.sipxconfig.security.UserRole.User;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
 import junit.framework.TestCase;
+
 import org.apache.hivemind.Messages;
 import org.apache.hivemind.impl.AbstractMessages;
 import org.apache.tapestry.IAsset;
@@ -35,21 +44,15 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManagerImpl;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.GrantedAuthority;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
-import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
 public class BorderTest extends TestCase {
     IPage m_dummyPage;
@@ -157,6 +160,12 @@ public class BorderTest extends TestCase {
 
         MockUserSession(boolean admin) {
             User user = new User();
+            PermissionManager pManager = createMock(PermissionManager.class);
+            pManager.getPermissionModel();
+            expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+            replay(pManager);
+            user.setPermissionManager(pManager);
+
             Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
             authorities.add(User.toAuth());
             if (admin) {
@@ -260,7 +269,7 @@ public class BorderTest extends TestCase {
                 @Override
                 public UserProfileService getUserProfileService() {
                     return null;
-                }                
+                }
 
             };
         }

@@ -9,16 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import java.util.ArrayList;
-import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.login.LoginContext;
-import org.springframework.security.core.GrantedAuthority;
-
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.easymock.classextension.EasyMock.createMock;
+
+import java.util.ArrayList;
+
+import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.login.LoginContext;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
+import org.springframework.security.core.GrantedAuthority;
 
 public class PasswordEncoderImplTest extends TestCase {
     private static final String USER_NAME = "angelina";
@@ -39,6 +43,12 @@ public class PasswordEncoderImplTest extends TestCase {
 
         final User user = new UserDetailsImplTest.RegularUser();
         user.setUserName(USER_NAME);
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
+
         m_userDetails = new UserDetailsImpl(user, USER_ALIAS, new ArrayList<GrantedAuthority>());
 
         m_saltSourceImpl = new SaltSourceImpl();

@@ -10,20 +10,26 @@
 
 package org.sipfoundry.sipxconfig.security;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
+import static org.sipfoundry.sipxconfig.security.UserRole.User;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-
-import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
-import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
 public class TestAuthenticationProvider implements AuthenticationProvider {
     static final String DUMMY_ADMIN_USER_NAME = "dummyAdminUserNameForTestingOnly";
@@ -63,6 +69,12 @@ public class TestAuthenticationProvider implements AuthenticationProvider {
         User testUser = new RegularUser();
         testUser.setUserName(DUMMY_ADMIN_USER_NAME);
         testUser.setPintoken("");
+
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        testUser.setPermissionManager(pManager);
 
         UserDetailsImpl userDetails =
                 new UserDetailsImpl(testUser, DUMMY_ADMIN_USER_NAME, AUTH_USER_AND_ADMIN_COLLECTION);
