@@ -1,5 +1,7 @@
 package org.sipfoundry.sipxconfig.backup;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -28,13 +30,22 @@ public class BackupApiTest {
         DailyBackupSchedule s1 = new DailyBackupSchedule();
         s1.setBackupPlan(plan);
         s1.setScheduledDay(ScheduledDay.FRIDAY);
-        s1.setTimeOfDay(new TimeOfDay(1, 2));    
+        s1.setTimeOfDay(new TimeOfDay(1, 2));
         plan.setEncodedDefinitionString("A,BEE,C");
         plan.setSchedules(Arrays.asList(s1));
         StringWriter actual = new StringWriter();
         BackupSettings settings = new BackupSettings();
+        BackupDbSettings backupDbSettings = new BackupDbSettings();
+        backupDbSettings.setSettings(TestHelper.loadSettings("backup/backup-db.xml"));
+        settings.setBackupDbSettings(backupDbSettings);
         settings.setSettings(TestHelper.loadSettings("backup/backup.xml"));
         settings.setModelFilesContext(TestHelper.getModelFilesContext(TestHelper.getSystemEtcDir()));
+
+        //test default value different than actual value
+        settings.getDb().getSetting("includeDeviceFiles").setTypedValue(true);
+        assertTrue(settings.getIncludeDeviceFiles().getDefaultValue().equals("0"));
+        assertTrue(settings.getIncludeDeviceFiles().getValue().equals("1"));
+
         Map<String, List<String>> backups = new HashMap<String, List<String>>();
         backups.put("x", Arrays.asList("one", "two", "three"));
         api.writeBackup(actual, false, plan, backups, settings, archiveIds);

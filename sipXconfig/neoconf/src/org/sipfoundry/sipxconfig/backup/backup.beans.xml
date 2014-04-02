@@ -18,7 +18,11 @@
     -->
   <bean id="backupSettings" class="org.sipfoundry.sipxconfig.backup.BackupSettings" parent="settingsBean">    
     <property name="localBackupPath" value="${sysdir.var}/backup/local"/>
+    <property name="backupDbSettings" ref="backupDbSettings"/>
   </bean>
+  
+  <bean id="backupDbSettings" class="org.sipfoundry.sipxconfig.backup.BackupDbSettings" parent="settingsBean">    
+  </bean>  
 
   <bean id="backupManagerImpl" class="org.sipfoundry.sipxconfig.backup.BackupManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>

@@ -19,7 +19,7 @@
         "description" : null,
         "value" : {
           "includeDeviceFiles" : {
-            "value" : "0",
+            "value" : "1",
             "default" : "0",
             "type" : {
               "falseValue" : "0",
