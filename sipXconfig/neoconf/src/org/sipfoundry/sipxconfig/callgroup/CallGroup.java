@@ -180,18 +180,17 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
             }
         } else if (StringUtils.isNotBlank(m_fallbackDestination)) {
             String falback = SipUri.fix(m_fallbackDestination, domainName);
-            String fallbackContact = String.format("<%s>;%s", falback, forkQueueValue.getSerial());
+            String fallbackContact = String.format("<%s?expires=%s>;%s", falback, AbstractRing.DEFAULT_EXPIRATION,
+                    forkQueueValue.getSerial());
             mappings.add(new AliasMapping(m_name, fallbackContact, ALIAS_RELATION));
         }
 
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
-            AliasMapping extensionAlias = new AliasMapping(m_extension,
-                    myIdentity, ALIAS_RELATION);
+            AliasMapping extensionAlias = new AliasMapping(m_extension, myIdentity, ALIAS_RELATION);
             mappings.add(extensionAlias);
         }
         if (StringUtils.isNotBlank(m_did) && !m_did.equals(m_name)) {
-            AliasMapping didAlias = new AliasMapping(m_did, myIdentity,
-                    ALIAS_RELATION);
+            AliasMapping didAlias = new AliasMapping(m_did, myIdentity, ALIAS_RELATION);
             mappings.add(didAlias);
         }
 

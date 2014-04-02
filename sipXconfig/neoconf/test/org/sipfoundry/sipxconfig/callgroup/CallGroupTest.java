@@ -190,6 +190,19 @@ public class CallGroupTest extends TestCase {
         assertTrue(am.getContact().startsWith(group.getName() + ATMYDOMAIN));
     }
 
+    public void testGenerateAliasesWithExpiresForFallbackExtension() {
+        CallGroup group = new CallGroup();
+        group.setName("myName");
+        group.setFallbackDestination("2002");
+        group.setVoicemailFallback(false);
+        group.setEnabled(true);
+
+        List<AliasMapping> aliases = group.getAliasMappings(MYDOMAIN);
+        AliasMapping mapping = aliases.get(0);
+
+        assertEquals("<sip:2002@mydomain.org?expires=30>;q=0.9", mapping.getContact());
+    }
+
     public void testGenerateAliasesWithFallbackDestinationAsSipUri() {
         String fallbackDestination = "fallback" + ATMYDOMAIN;
         m_callGroup.setFallbackDestination(fallbackDestination);

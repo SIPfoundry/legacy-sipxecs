@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 public abstract class AbstractRing extends BeanWithId {
     public static final String TYPE_PROP = "type";
 
-    private static final int DEFAULT_EXPIRATION = 30;
+    public static final int DEFAULT_EXPIRATION = 30;
     private static final String FORMAT = "<sip:%s%s%s?expires=%s>;%s";
     private static final String IGNORE_VOICEMAIL_FIELD_PARAM = "sipx-noroute=Voicemail";
     private static final String DISABLE_USERFORWARD_FIELD_PARAM = "sipx-userforward=false";
