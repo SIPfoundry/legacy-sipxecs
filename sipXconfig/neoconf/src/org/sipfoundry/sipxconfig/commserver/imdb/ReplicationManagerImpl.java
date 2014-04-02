@@ -14,7 +14,6 @@ import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
 import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
@@ -29,7 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,7 +92,7 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private static final String MS = " ms ";
     private static final DataSet[] GROUP_DATASETS = {
         DataSet.ATTENDANT, DataSet.PERMISSION, DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL, DataSet.USER_FORWARD,
-        DataSet.USER_LOCATION, DataSet.USER_STATIC, DataSet.MAILSTORE
+        DataSet.USER_LOCATION, DataSet.USER_STATIC, DataSet.MAILSTORE, DataSet.E911
     };
     private static final DataSet[] BRANCH_DATASETS = {
         DataSet.USER_LOCATION
@@ -502,9 +500,9 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
 
     @Override
     public void deleteBranch(Branch branch) {
+        LOG.info("Starting regeneration of branch members.");
+        DBCursor users = m_validUsers.getUsersInBranch(branch.getName());
         try {
-            LOG.info("Starting regeneration of branch members.");
-            DBCursor users = m_validUsers.getUsersInBranch(branch.getName());
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
                 User u = m_coreContext.loadUserByUserName(uid);
@@ -515,14 +513,16 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         } catch (Exception e) {
             LOG.error(ERROR_PERMISSION, e);
             throw new UserException(ERROR_PERMISSION, e);
+        } finally {
+            users.close();
         }
     }
 
     @Override
     public void deleteGroup(Group group) {
+        LOG.info("Starting regeneration of group members.");
+        DBCursor users = m_validUsers.getUsersInGroup(group.getName());
         try {
-            LOG.info("Starting regeneration of group members.");
-            DBCursor users = m_validUsers.getUsersInGroup(group.getName());
             for (DBObject user : users) {
                 String uid = user.get(MongoConstants.UID).toString();
                 User u = m_coreContext.loadUserByUserName(uid);
@@ -533,6 +533,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         } catch (Exception e) {
             LOG.error(ERROR_PERMISSION, e);
             throw new UserException(ERROR_PERMISSION, e);
+        } finally {
+            users.close();
         }
     }
 
@@ -617,30 +619,14 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     }
 
     /**
-     * Encodes payload using Base64 and returns encoded data as string
-     *
-     * @param payload
-     * @return string representing encoded data
-     */
-    private String encodeBase64(byte[] payload) {
-        try {
-            // Base64 encoded content is always limited to US-ASCII charset
-            byte[] encodedPayload = Base64.encodeBase64(payload);
-            return new String(encodedPayload, "US-ASCII");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
      * Adds the specified Permission to all entities supporting permissions. Used only when a new
      * permission with default "checked" is added. Much faster than using
      * replicateAllData(DataSet.PERMISSION)
      */
     @Override
     public void addPermission(Permission permission) {
+        DBCursor users = m_validUsers.getEntitiesWithPermissions();
         try {
-            DBCursor users = m_validUsers.getEntitiesWithPermissions();
             for (DBObject user : users) {
                 Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
                 prms.add(permission.getName());
@@ -650,6 +636,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         } catch (Exception e) {
             LOG.error(ERROR_PERMISSION, e);
             throw new UserException(ERROR_PERMISSION, e);
+        } finally {
+            users.close();
         }
     }
 
@@ -658,8 +646,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
      */
     @Override
     public void removePermission(Permission permission) {
+        DBCursor users = m_validUsers.getEntitiesWithPermission(permission.getName());
         try {
-            DBCursor users = m_validUsers.getEntitiesWithPermission(permission.getName());
             for (DBObject user : users) {
                 Collection<String> prms = (Collection<String>) user.get(MongoConstants.PERMISSIONS);
                 prms.remove(permission.getName());
@@ -669,6 +657,8 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         } catch (Exception e) {
             LOG.error(ERROR_PERMISSION, e);
             throw new UserException(ERROR_PERMISSION, e);
+        } finally {
+            users.close();
         }
     }
 
