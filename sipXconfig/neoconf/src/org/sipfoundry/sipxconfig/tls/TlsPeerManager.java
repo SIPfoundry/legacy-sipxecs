@@ -13,9 +13,10 @@ package org.sipfoundry.sipxconfig.tls;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
-public interface TlsPeerManager {
+public interface TlsPeerManager extends ReplicableProvider {
     public static final GlobalFeature FEATURE = new GlobalFeature("tlsPeers");
 
     TlsPeer getTlsPeer(Integer tlsPeerId);

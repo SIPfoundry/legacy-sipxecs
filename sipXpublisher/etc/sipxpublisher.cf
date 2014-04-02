@@ -82,7 +82,7 @@ bundle agent sipxpublisher_running {
 					 
   methods:
     sipxpublisher.sipxpublisher_properties_changed.!restart_sipxpublisher::
-      "sipxpublisher_properties_changed" usebundle => refresh_sip_service("SIP_STATUS_LOG_LEVEL : (DEBUG|INFO|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+      "sipxpublisher_properties_changed" usebundle => refresh_sip_service("SIP_STATUS_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
       										 "$(sipx.SIPX_CONFDIR)/status-config",
       										 "$(sipx.SIPX_CONFDIR)/status-config.cf-before-edit",
       										 "sipxpublisher");

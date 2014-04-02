@@ -45,6 +45,10 @@
         <type refid="enable-disable" />
         <value>DISABLE</value>
       </setting>
+      <setting name="dbauth-only">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
       <setting name="tui-change-pin">
         <type refid="enable-disable" />
         <value>ENABLE</value>

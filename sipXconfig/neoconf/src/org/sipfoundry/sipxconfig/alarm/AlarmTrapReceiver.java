@@ -22,10 +22,10 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
 
 public class AlarmTrapReceiver extends BeanWithId implements DeployConfigOnEdit {
-
+    private static final int DEFAULT_PORT = 162;
     private String m_hostAddress;
     private String m_communityString = "public";
-    private int m_port = 162;
+    private int m_port = DEFAULT_PORT;
 
     public AlarmTrapReceiver() {
     }
@@ -57,7 +57,7 @@ public class AlarmTrapReceiver extends BeanWithId implements DeployConfigOnEdit 
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getHostAddress());
-        if (getPort() != null) {
+        if (getPort() != null && getPort() != DEFAULT_PORT) {
             sb.append(':').append(getPort());
         }
         if (StringUtils.isNotBlank(getCommunityString())) {

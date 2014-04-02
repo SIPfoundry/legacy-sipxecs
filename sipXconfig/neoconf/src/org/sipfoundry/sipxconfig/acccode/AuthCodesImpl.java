@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -50,8 +49,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AuthCodesImpl implements ReplicableProvider, DialingRuleProvider, FeatureProvider, AuthCodes,
-        ProcessProvider {
+public class AuthCodesImpl implements DialingRuleProvider, FeatureProvider, AuthCodes, ProcessProvider {
     private static final Log LOG = LogFactory.getLog(AuthCodesImpl.class);
     private static final String ALIAS_IN_USE = "&error.aliasinuse";
     private static final String EXTENSION = "extension";

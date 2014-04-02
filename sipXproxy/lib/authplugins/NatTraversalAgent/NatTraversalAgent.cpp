@@ -796,6 +796,16 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
                   bRecordRouteAdjusted = true;
                }
             }
+            else if (tmpRecordRouteHost == mNatTraversalRules.getSecureProxyTransportInfo().getAddress() &&
+                tmpRecordRoutePort == mNatTraversalRules.getSecureProxyTransportInfo().getPort())
+            {
+              //
+              // TLS does hop-by-hop record routing so we need to consider multiple record routes for TLS
+              //
+              tmpRecordRouteUrl.setHostAddress( replacementAddress );
+              tmpRecordRouteUrl.setHostPort( replacementPort );
+              tmpRecordRouteUrl.toString( tmpRecordRoute );
+            }
             message.insertHeaderField( SIP_RECORD_ROUTE_FIELD, tmpRecordRoute.data(), writeRecordRouteIndex );
             writeRecordRouteIndex++;
             readRecordRouteIndex += 2; //+1 to advance index and +1 to skip over the RecordRoute field we just added

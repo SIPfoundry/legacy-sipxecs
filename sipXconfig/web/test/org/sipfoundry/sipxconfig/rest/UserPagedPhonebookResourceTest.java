@@ -29,6 +29,7 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PagedPhonebook;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
@@ -50,6 +51,12 @@ public class UserPagedPhonebookResourceTest extends TestCase {
         m_user = new User();
         m_user.setUniqueId();
         m_user.setUserName("200");
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        m_user.setPermissionManager(pManager);
+
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.loadUser(m_user.getId());
         expectLastCall().andReturn(m_user);

@@ -9,8 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.cdr;
 
-import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
-import static org.sipfoundry.sipxconfig.security.UserRole.User;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,10 +28,12 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.security.UserRole;
 import org.sipfoundry.sipxconfig.sip.SipServiceImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.GrantedAuthority;
 
 public class CdrTableTest extends TestCase {
@@ -105,6 +108,11 @@ public class CdrTableTest extends TestCase {
 
         MockUserSession(boolean admin) {
             User user = new User();
+            PermissionManager pManager = createMock(PermissionManager.class);
+            pManager.getPermissionModel();
+            expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+            replay(pManager);
+            user.setPermissionManager(pManager);
             Collection<GrantedAuthority> gas = new ArrayList<GrantedAuthority>();
             gas.add(UserRole.User.toAuth());
             if (admin) {

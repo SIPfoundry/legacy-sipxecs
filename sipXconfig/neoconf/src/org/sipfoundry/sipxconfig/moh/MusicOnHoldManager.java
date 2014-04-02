@@ -12,10 +12,11 @@ package org.sipfoundry.sipxconfig.moh;
 import java.io.File;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public interface MusicOnHoldManager extends DialingRuleProvider, AliasOwner {
+public interface MusicOnHoldManager extends DialingRuleProvider, AliasOwner, ReplicableProvider {
     static final LocationFeature FEATURE = new LocationFeature("moh");
 
     String getAudioDirectoryPath();

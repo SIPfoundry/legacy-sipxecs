@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -52,8 +51,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
-public abstract class AbstractMusicOnHoldManagerImpl implements MusicOnHoldManager, ReplicableProvider,
-        DaoEventListener, BeanFactoryAware, FeatureProvider {
+public abstract class AbstractMusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListener,
+        BeanFactoryAware, FeatureProvider {
 
     public static final Log LOG = LogFactory.getLog(AbstractMusicOnHoldManagerImpl.class);
     private String m_audioDirectory;
@@ -219,8 +218,7 @@ public abstract class AbstractMusicOnHoldManagerImpl implements MusicOnHoldManag
     }
 
     /**
-     * Setting this to true just relaxes the validator, Stock sipXivr will not
-     * work in HA mode
+     * Setting this to true just relaxes the validator, Stock sipXivr will not work in HA mode
      */
     public void setHighAvailabilitySupport(boolean highAvailabilitySupport) {
         m_highAvailabilitySupport = highAvailabilitySupport;

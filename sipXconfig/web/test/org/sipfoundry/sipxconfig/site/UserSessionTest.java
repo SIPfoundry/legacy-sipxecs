@@ -9,13 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.security.UserRole;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.GrantedAuthority;
 
 public class UserSessionTest extends TestCase {
@@ -24,7 +31,11 @@ public class UserSessionTest extends TestCase {
         final User user = new User();
         user.setUniqueId();
         user.setUserName("bongo");
-
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
         UserSession userSession = new UserSession() {
             @Override
             protected UserDetailsImpl getUserDetails() {

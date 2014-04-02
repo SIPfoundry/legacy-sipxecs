@@ -14,10 +14,11 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 
-public interface DialPlanContext extends DataObjectSource, AliasOwner {
+public interface DialPlanContext extends DataObjectSource, AliasOwner, ReplicableProvider {
     public static GlobalFeature FEATURE = new GlobalFeature("dialPlans");
 
     String CONTEXT_BEAN_NAME = "dialPlanContext";

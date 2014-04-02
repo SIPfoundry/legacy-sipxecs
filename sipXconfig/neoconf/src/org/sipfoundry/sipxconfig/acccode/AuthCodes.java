@@ -16,9 +16,10 @@
  */
 package org.sipfoundry.sipxconfig.acccode;
 
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public interface AuthCodes {
+public interface AuthCodes extends ReplicableProvider {
     public static final LocationFeature FEATURE = new LocationFeature("authCode");
 
     public AuthCodeSettings getSettings();

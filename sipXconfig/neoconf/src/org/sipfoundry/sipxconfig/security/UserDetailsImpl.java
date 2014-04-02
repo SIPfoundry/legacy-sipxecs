@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.security;
 
 import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -24,6 +26,7 @@ public class UserDetailsImpl implements UserDetails {
     private final boolean m_enabled;
     private final boolean m_ldapManaged;
     private final boolean m_admin;
+    private final boolean m_dbAuthOnly;
 
     /**
      * UserDetails constructor
@@ -42,6 +45,7 @@ public class UserDetailsImpl implements UserDetails {
         m_enabled = user.isEnabled();
         m_ldapManaged = user.isLdapManaged();
         m_admin = user.isAdmin();
+        m_dbAuthOnly = user.hasPermission(PermissionName.DBAUTH_ONLY);
     }
 
     public UserDetailsImpl(User user, String userNameOrAlias, Collection<GrantedAuthority> authorities,
@@ -55,6 +59,7 @@ public class UserDetailsImpl implements UserDetails {
         m_enabled = user.isEnabled();
         m_ldapManaged = user.isLdapManaged();
         m_admin = isAdmin;
+        m_dbAuthOnly = user.hasPermission(PermissionName.DBAUTH_ONLY);
     }
 
     @Override
@@ -118,5 +123,9 @@ public class UserDetailsImpl implements UserDetails {
 
     public boolean isAdmin() {
         return m_admin;
+    }
+
+    public boolean isDbAuthOnly() {
+        return m_dbAuthOnly;
     }
 }

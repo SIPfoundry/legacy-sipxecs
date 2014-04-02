@@ -13,8 +13,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 
-public interface CallGroupContext extends AliasOwner {
+public interface CallGroupContext extends AliasOwner, ReplicableProvider {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
 
     CallGroup loadCallGroup(Integer id);

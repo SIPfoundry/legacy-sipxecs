@@ -20,6 +20,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -88,6 +89,15 @@ public class TlsPeerManagerImpl extends SipxHibernateDaoSupport implements TlsPe
         String query = "tlsPeerByName";
         Collection<TlsPeer> peers = getHibernateTemplate().findByNamedQueryAndNamedParam(query, TLS_PEER_NAME, name);
         return requireOneOrZero(peers, query);
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (TlsPeer tp : getTlsPeers()) {
+            replicables.add(tp);
+        }
+        return replicables;
     }
 
     public TlsPeer newTlsPeer() {

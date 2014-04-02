@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.common.DidInUseException;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -33,7 +32,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * Hibernate implementation of the call group context
  */
-public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext, ReplicableProvider {
+public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
     private static final String VALUE = "value";
 
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";

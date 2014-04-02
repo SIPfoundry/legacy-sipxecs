@@ -1,8 +1,9 @@
 package org.sipfoundry.sipxconfig.rest;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+import junit.framework.TestCase;
 
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.Method;
@@ -13,12 +14,12 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.sip.SipService;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import junit.framework.TestCase;
 
 public class CallResourceTest extends TestCase {
 
@@ -34,6 +35,11 @@ public class CallResourceTest extends TestCase {
         m_user.setUniqueId();
         m_user.setUserName("portalUser");
         m_user.setEmailAddress("myName@email.com");
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        m_user.setPermissionManager(pManager);
 
         m_sipService = createMock(SipService.class);
         m_sipService.sendRefer(m_user, "sip:portalUser@example.org", "sip:9986406999@example.org");
