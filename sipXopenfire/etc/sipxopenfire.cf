@@ -227,9 +227,9 @@ bundle edit_line sipxopenfire_log4j_xml_contents {
   vars:
     sipxopenfire::
       "loglevelfile" string => readfile("$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-openfire.properties.part", "100");
-      
+
   classes:
-    "sipxopenfire" expression => regextract("(.*)=(.*)",
+    "sipxopenfire" expression => regextract("(.*)=(.*)(\n|\r|\r\n)",
                                   "$(loglevelfile)",
                                   "loglevel");
   replace_patterns:
