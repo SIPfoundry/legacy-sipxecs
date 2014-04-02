@@ -29,6 +29,7 @@ class BackupPage {
     dbSettings = new SettingEditor(querySelector("#db-settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
     inProgress(false);
+    load();
     refresh = new Timer.periodic(new Duration(seconds: 30), (e) {
       if (isInProgress) {                                                                            
         load();
