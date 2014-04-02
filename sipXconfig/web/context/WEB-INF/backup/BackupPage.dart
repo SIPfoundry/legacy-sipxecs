@@ -5,11 +5,23 @@ import 'package:intl/intl.dart';
 import 'package:sipxconfig/sipxconfig.dart';
 
 var api = new Api(test : true);
+bool isInProgress;
 
 main() {
   var backup = new BackupPage();
-  var tabs = new Tabs(querySelector("#leftNavAbsolute"), ["local", "ftp"], backup.showContent);
+  var tabs = new BackupTabs(querySelector("#leftNavAbsolute"), ["local", "ftp"], backup.showContent);  
   tabs.setPersistentStateId("backup");
+  var persistedTabId = window.sessionStorage["backup"];
+  backup.showContent(tabs, persistedTabId == null ? "local" : persistedTabId);
+}
+
+class BackupTabs extends Tabs {
+  BackupTabs(Element root, Iterable<String> ids, tabChangeListener) : super(root, ids, tabChangeListener);
+  changeTab(String selectedId) {
+    if (!isInProgress) {
+      super.changeTab(selectedId);
+    }
+  }
 }
 
 class BackupPage {
@@ -20,8 +32,7 @@ class BackupPage {
   SettingEditor ftpSettings;
   var timeOfDayFormat = new DateFormat("jm");
   Timer refresh;
-  bool isInProgress;
-  
+
   BackupPage() {
     querySelector("#backup-now").onClick.listen(backupNow);
     querySelector("#apply").onClick.listen(apply);
@@ -29,7 +40,6 @@ class BackupPage {
     dbSettings = new SettingEditor(querySelector("#db-settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
     inProgress(false);
-    load();
     refresh = new Timer.periodic(new Duration(seconds: 30), (e) {
       if (isInProgress) {                                                                            
         load();
@@ -38,6 +48,7 @@ class BackupPage {
   }
   
   load() {
+    inProgress(true);
     var url = api.url("rest/backup/${type}", "backup-test.json");
     UListElement listElem = querySelector("#backups");
     listElem.children.clear();
@@ -117,7 +128,7 @@ class BackupPage {
       });
     }
     
-    inProgress(true == data['inProgress']);
+    inProgress(false);
   }
   
   // Dart's DateFormat cannot seem to handle date strings that do not have a delimiter
@@ -172,7 +183,6 @@ class BackupPage {
   }
   
   backupNow(e) {
-    msg.success(getString('message.backupInitiated'));
     postOrPut('POST', 'message.backupCompleted');
   }
   
@@ -181,6 +191,9 @@ class BackupPage {
   }
   
   postOrPut(String method, String successMessage) {
+    inProgress(true);
+    msg.success("");
+    msg.error("");
     var meta = new Map<String, Object>();
     meta['dbSettings'] = dbSettings.parseForm();
     meta['ftpSettings'] = ftpSettings.parseForm();
@@ -195,8 +208,10 @@ class BackupPage {
         load();
       } else if (req.status == 408) {
         msg.success(getString('message.backupTimeout'));
+        inProgress(false);
       } else {
         msg.error(getString('message.backupError'));
+        inProgress(false);
       }
     });      
   }
@@ -204,6 +219,8 @@ class BackupPage {
   showContent(Tabs tabs, String selectedId) {
     // custom tab listener because we can to show portions of a single div
     // for both types of backups
+    msg.success("");
+    msg.error("");
     type = selectedId;    
     var backupElem = querySelector("#backup");
     var display = (selectedId == 'local' || selectedId == 'ftp' ? '' : 'none');
