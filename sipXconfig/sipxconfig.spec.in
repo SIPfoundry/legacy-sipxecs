@@ -301,7 +301,8 @@ if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logr
 # automatically, but others did not so we do it here. This was to fix systems
 # that installed 4.6 update 9 or below but harmless for any other machines.
 if grep -q :on <<<`/sbin/chkconfig sipxconfig --list 2>&1`; then
-    /sbin/chkconfig sipxconfig reset
+    /sbin/chkconfig --del sipxconfig
+    /sbin/chkconfig sipxconfig off
 fi
 
 %triggerin -- freeswitch
