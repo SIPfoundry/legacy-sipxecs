@@ -14,6 +14,7 @@
   </officeAddress>
   <branchAddress/>
   <imId>myId</imId>
+  <imDisplayName>myId</imDisplayName>
   <emailAddress>john.doe@example.com</emailAddress>
   <useBranchAddress>false</useBranchAddress>
   <salutation>Prof</salutation>

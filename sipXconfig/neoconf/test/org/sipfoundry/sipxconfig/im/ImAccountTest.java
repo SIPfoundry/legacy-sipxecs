@@ -65,7 +65,10 @@ public class ImAccountTest extends TestCase {
         ImAccount imAccount = new ImAccount(user);
 
         user.setUserName("joe");
-        assertEquals("joe", imAccount.getImDisplayName());
+        assertNull(imAccount.getImDisplayName());
+
+        user.setImId("joe im id");
+        assertEquals("joe im id", imAccount.getImDisplayName());
 
         user.setFirstName("first");
         user.setLastName("last");
@@ -96,8 +99,12 @@ public class ImAccountTest extends TestCase {
         ImAccount imAccount = new ImAccount(user);
 
         user.setUserName("jane");
-        assertEquals("jane", imAccount.getImDisplayName());
+        assertNull(imAccount.getImDisplayName());
         assertNull(user.getImDisplayName());
+
+        user.setImId("jane im id");
+        assertEquals("jane im id", imAccount.getImDisplayName());
+        assertEquals("jane im id", user.getImDisplayName());
 
         imAccount.setImDisplayName("Jane User");
         assertEquals("Jane User", imAccount.getImDisplayName());

@@ -86,7 +86,6 @@ public class ContactInformationResourceTest extends TestCase {
         StringWriter writer = new StringWriter();
         representation.write(writer);
         String generated = writer.toString();
-        System.out.println(generated);
         String expected = IOUtils.toString(getClass().getResourceAsStream("contact-information.rest.test.xml"));
         assertEquals(expected, generated);
     }

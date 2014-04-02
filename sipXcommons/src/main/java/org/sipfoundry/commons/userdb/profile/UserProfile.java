@@ -227,7 +227,7 @@ public class UserProfile {
     }
 
     public String getImDisplayName() {
-        return m_imDisplayName;
+        return m_imDisplayName != null ? m_imDisplayName : m_imId;
     }
 
     public void setImDisplayName(String imDisplayName) {
@@ -449,9 +449,9 @@ public class UserProfile {
     public void setEmailAddressAliases(String emailAddressAliases) {
         m_emailAddressAliases = emailAddressAliases;
         if (emailAddressAliases != null) {
-            m_emailAddressAliasesSet = new LinkedHashSet(Arrays.asList(m_emailAddressAliases.split(";")));
+            m_emailAddressAliasesSet = new LinkedHashSet<String>(Arrays.asList(m_emailAddressAliases.split(";")));
         } else {
-            m_emailAddressAliasesSet = new LinkedHashSet(0);
+            m_emailAddressAliasesSet = new LinkedHashSet<String>(0);
         }
     }
 
