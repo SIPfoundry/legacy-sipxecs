@@ -503,7 +503,10 @@ a:link
 {
 	color: #55829B;
 }
-
+a:visited
+{
+	color: #55829B;
+}
 ul.htabs, ul.vtabs
 {
 	list-style:none;
