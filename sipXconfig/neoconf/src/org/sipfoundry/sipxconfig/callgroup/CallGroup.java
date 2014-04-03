@@ -41,6 +41,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
     private boolean m_userForward = true;
     private String m_sipPassword;
     private boolean m_useFwdTimers;
+    private Integer m_fallbackExpire = AbstractRing.DEFAULT_EXPIRATION;
 
     public CallGroup() {
         generateSipPassword();
@@ -137,6 +138,14 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
         m_sipPassword = sipPassword;
     }
 
+    public Integer getFallbackExpire() {
+        return m_fallbackExpire;
+    }
+
+    public void setFallbackExpire(Integer expire) {
+        m_fallbackExpire = expire;
+    }
+
     /**
      * Inserts a new ring for a specific user
      *
@@ -189,7 +198,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
             }
         } else if (StringUtils.isNotBlank(m_fallbackDestination)) {
             String falback = SipUri.fix(m_fallbackDestination, domainName);
-            String fallbackContact = String.format("<%s?expires=%s>;%s", falback, AbstractRing.DEFAULT_EXPIRATION,
+            String fallbackContact = String.format("<%s?expires=%s>;%s", falback, m_fallbackExpire,
                     forkQueueValue.getSerial());
             mappings.add(new AliasMapping(m_name, fallbackContact, ALIAS_RELATION));
         }

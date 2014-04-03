@@ -39,6 +39,18 @@
             validators="spring-validators:validPhoneOrAor"
             displayName="message:label.fallbackDestination"/>
         </tr>
+        <tr jwcid="@common/FieldPanel"
+          for="callgroup:fallbackExpire"
+          label="message:label.fallbackExpire"
+          description="message:description.falbackExpire"
+          field="component:fallbackExpire">
+          <td jwcid="fallbackExpire@TextField"
+            id="callgroup:fallbackExpire"
+            value="ognl:callGroup.fallbackExpire"
+            translator="translator:integer"
+            validators="spring-validators:required"
+            displayName="message:label.fallbackExpire"/>
+        </tr>
 	    </span>
       <tr jwcid="@common/FieldPanel"
         for="callgroup:userForward"
