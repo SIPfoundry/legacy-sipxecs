@@ -247,6 +247,6 @@ class State
   def notify(cdr)
     cdr.retire
     @retired_calls[cdr.call_id] = @generation
-    @cdr_queue << cdr  if !filter_cdr_user(cdr) && !filter_cdr_chained(cdr) && all_fields_valid(cdr)
+    @cdr_queue << cdr  if !filter_cdr_user(cdr) && !filter_cdr_chained(cdr)
   end
 end
