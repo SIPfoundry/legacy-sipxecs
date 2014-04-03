@@ -25,7 +25,7 @@ public class Phonebook extends BeanWithId implements NamedObject {
     private boolean m_showOnPhone = true;
     private Set<Group> m_members = new TreeSet<Group>();
     private Set<Group> m_consumers = new TreeSet<Group>();
-    private final Set<Group> m_consumersOld = new TreeSet<Group>();
+    private final Set<Group> m_previousConsumers = new TreeSet<Group>();
     private Collection<PhonebookEntry> m_entries = new ArrayList<PhonebookEntry>();
     private User m_user;
 
@@ -43,7 +43,7 @@ public class Phonebook extends BeanWithId implements NamedObject {
     }
 
     public void replaceConsumers(Collection<Group> groups) {
-        m_consumersOld.addAll(m_consumers);
+        m_previousConsumers.addAll(m_consumers);
         m_consumers.clear();
         m_consumers.addAll(groups);
     }
@@ -109,7 +109,7 @@ public class Phonebook extends BeanWithId implements NamedObject {
         m_user = user;
     }
 
-    public Set<Group> getConsumersOld() {
-        return m_consumersOld;
+    public Set<Group> getPreviousConsumers() {
+        return m_previousConsumers;
     }
 }
