@@ -906,6 +906,9 @@ SipRegistrarServer::applyUpdatesToDirectory(
             // Check that the primary is known -- either this registrar, or a peer registrar.
             if (!primary.isNull() && primary.compareTo(myPrimary) != 0)
             {
+              //
+              // record primary is NULL and it is not equal to me
+              //
                peer = mRegistrar.getPeer(primary);
                if (peer == NULL)
                {
@@ -918,6 +921,13 @@ SipRegistrarServer::applyUpdatesToDirectory(
                                 errorMsg->data());
 
                   error_found = true;
+               }
+               else
+               {
+                 //
+                 // Set the initial maxUpdate number to the last update we have received from this peer
+                 //
+                 maxUpdateNumber = peer->receivedFrom();
                }
             }
             else
@@ -960,8 +970,6 @@ SipRegistrarServer::applyUpdatesToDirectory(
    }
    else
    {
-      maxUpdateNumber = peer->receivedFrom(); // in case there are no updates (should not happen)
-
       UtlSListIterator updateIter(updates);
       RegistrationBinding* reg;
 
