@@ -8,10 +8,7 @@
     <property name="aliasManager" ref="aliasManager" />
   </bean>
 
-  <bean id="callGroupContextUserDelete" factory-bean="callGroupContextImpl" factory-method="createUserDeleteListener" />
-
-  <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
-    depends-on="callGroupContextUserDelete">
+  <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.callgroup.CallGroupContext" />
     <property name="target">
       <ref local="callGroupContextImpl" />

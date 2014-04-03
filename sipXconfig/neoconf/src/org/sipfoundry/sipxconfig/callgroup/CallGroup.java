@@ -40,6 +40,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
     private boolean m_voicemailFallback = true;
     private boolean m_userForward = true;
     private String m_sipPassword;
+    private boolean m_useFwdTimers;
 
     public CallGroup() {
         generateSipPassword();
@@ -118,6 +119,14 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
 
     public void setUserForward(boolean userForward) {
         m_userForward = userForward;
+    }
+
+    public boolean getUseFwdTimers() {
+        return m_useFwdTimers;
+    }
+
+    public void setUseFwdTimers(boolean useFwdTimers) {
+        m_useFwdTimers = useFwdTimers;
     }
 
     public String getSipPassword() {
@@ -258,5 +267,18 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
     @Override
     public boolean isReplicationEnabled() {
         return isEnabled();
+    }
+
+    @Override
+    public List<AbstractRing> getRings() {
+        List<AbstractRing> rings = super.getRings();
+        if (m_userForward && m_useFwdTimers) {
+            for (AbstractRing ring : rings) {
+                if (ring instanceof UserRing) {
+                    ring.setExpiration(((UserRing) ring).getUser().getEffectiveExpire());
+                }
+            }
+        }
+        return rings;
     }
 }

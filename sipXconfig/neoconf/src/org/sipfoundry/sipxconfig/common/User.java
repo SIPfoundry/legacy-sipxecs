@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
@@ -146,6 +147,41 @@ public class User extends AbstractUser implements Replicable {
         }
 
         return mappings;
+    }
+
+    protected CallSequence getCallSequence() {
+        return getForwardingContext().getCallSequenceForUserId(getId());
+    }
+
+    public int getEffectiveExpire() {
+        int expire = 0;
+        CallSequence sequence = getCallSequence();
+        if (sequence != null) {
+            int timeToSum = sequence.getCfwdTime();
+            List<AbstractRing> rings = sequence.getRings();
+
+            // if no ring defined then return only initial expire
+            if (rings.isEmpty()) {
+                return timeToSum;
+            }
+
+            for (AbstractRing ring : rings) {
+                if (AbstractRing.Type.IMMEDIATE == ring.getType()) {
+                    if (ring.getExpiration() > timeToSum) {
+                        timeToSum = ring.getExpiration();
+                    }
+                } else {
+                    // end "at the same time" cycle
+                    expire = expire + timeToSum;
+                    timeToSum = ring.getExpiration();
+                }
+                // if last ring then sum it up
+                if (rings.lastIndexOf(ring) == rings.size() - 1) {
+                    expire = expire + timeToSum;
+                }
+            }
+        }
+        return expire;
     }
 
     public void setValidUser(boolean vld) {

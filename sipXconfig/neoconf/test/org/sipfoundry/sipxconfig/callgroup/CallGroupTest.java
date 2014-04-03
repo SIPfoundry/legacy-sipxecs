@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.callgroup;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,6 +19,8 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.forwarding.Ring;
 
 public class CallGroupTest extends TestCase {
 
@@ -299,6 +303,73 @@ public class CallGroupTest extends TestCase {
         }
     }
 
+    public void testAccomodateCallForwarding() {
+        // cfwd time 20, if no response 30, at the same time 35, if no response 40
+        CallSequence sequence = new CallSequenceForwarding();
+        User u = new UserWithCallForwarding(sequence);
+        u.setUserName("testUser");
+        sequence.setUser(u);
+        Ring ring1 = new Ring("111", 30, AbstractRing.Type.DELAYED, true);
+        ring1.setUniqueId(111);
+        Ring ring2 = new Ring("222", 35, AbstractRing.Type.IMMEDIATE, true);
+        ring2.setUniqueId(222);
+        Ring ring3 = new Ring("333", 40, AbstractRing.Type.DELAYED, true);
+        ring3.setUniqueId(333);
+        List<AbstractRing> rings = new ArrayList<AbstractRing>();
+        rings.add(0, ring1);
+        rings.add(1, ring2);
+        rings.add(2, ring3);
+        sequence.insertRings(rings);
+        CallGroup group = new CallGroup();
+        group.insertRingForUser(u);
+        List<AbstractRing> calls = group.getRings();
+        assertEquals(1, calls.size());
+        assertEquals(30, calls.get(0).getExpiration());
+        CallGroup group1 = new CallGroup();
+        group1.insertRingForUser(u);
+        group1.setUserForward(true);
+        group1.setUseFwdTimers(true);
+        calls = group1.getRings();
+        // should be 160, that is cfwdtime 20 + 35 + 40
+        assertEquals(95, calls.get(0).getExpiration());
+
+        // no rings, should be cfwdtime 20
+        calls.clear();
+        User u2 = new UserWithCallForwarding(new CallSequenceForwarding());
+        u2.setUserName("testUser2");
+        CallGroup group2 = new CallGroup();
+        group2.insertRingForUser(u2);
+        group2.setUserForward(true);
+        group2.setUseFwdTimers(true);
+        calls = group2.getRings();
+        assertEquals(20, calls.get(0).getExpiration());
+
+        // cfwd time 20, at the same time 10, if no response 40
+        sequence = new CallSequenceForwarding();
+        User u3 = new UserWithCallForwarding(sequence);
+        u3.setUserName("testUser3");
+        sequence.setUser(u3);
+        Ring ring4 = new Ring("444", 10, AbstractRing.Type.IMMEDIATE, true);
+        ring4.setUniqueId(444);
+        Ring ring5 = new Ring("555", 10, AbstractRing.Type.IMMEDIATE, true);
+        ring5.setUniqueId(555);
+        Ring ring6 = new Ring("66", 40, AbstractRing.Type.DELAYED, true);
+        ring6.setUniqueId(66);
+        List<AbstractRing> rings2 = new ArrayList<AbstractRing>();
+        rings2.add(0, ring4);
+        rings2.add(1, ring5);
+        rings2.add(2, ring6);
+        sequence.insertRings(rings2);
+        CallGroup group3 = new CallGroup();
+        group3.insertRingForUser(u3);
+        group3.setUserForward(true);
+        group3.setUseFwdTimers(true);
+        calls.clear();
+        calls = group3.getRings();
+        // should be 60, that is cfwdtime 20 + 40
+        assertEquals(60, calls.get(0).getExpiration());
+    }
+
     private double parseQ(String contact) {
         Scanner scanner = new Scanner(contact);
         scanner.findInLine("q=");
@@ -323,6 +394,26 @@ public class CallGroupTest extends TestCase {
         }
 
         return group;
+    }
+
+    private class UserWithCallForwarding extends User {
+        private CallSequence m_seq;
+
+        public UserWithCallForwarding(CallSequence seq) {
+            m_seq = seq;
+        }
+
+        @Override
+        protected CallSequence getCallSequence() {
+            return m_seq;
+        }
+    }
+
+    private class CallSequenceForwarding extends CallSequence {
+        @Override
+        public int getCfwdTime() {
+            return 20;
+        }
     }
 
 }
