@@ -63,13 +63,13 @@ public class SipXpage implements LegListener
       sipFactory.setPathName("gov.nist");
       Properties properties = new Properties();
 
-
       properties.setProperty("javax.sip.STACK_NAME", "sipXpage");
 
+      String logDir = System.getProperty("log.dir");
       properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
-            "sipxpage_debug.log");
+              logDir + "/sipxpage_debug.log");
       properties.setProperty("gov.nist.javax.sip.SERVER_LOG",
-            "sipxpage_server.log");
+              logDir + "/sipxpage_server.log");
 
       // Drop the client connection after we are done with the transaction.
       properties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS",
