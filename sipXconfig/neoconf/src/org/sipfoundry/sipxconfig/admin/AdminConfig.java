@@ -49,7 +49,7 @@ public class AdminConfig implements ConfigProvider {
             File dir = manager.getLocationDataDirectory(l);
 
             String log4jFileName = "log4j.properties.part";
-            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxconfig"};
+            String[] logLevelKeys = settings.getLogLevelKeys();
             SettingUtil.writeLog4jSetting(adminSettings, dir, log4jFileName, logLevelKeys);
 
             Writer w = new FileWriter(new File(dir, "sipxconfig.properties.ui"));
