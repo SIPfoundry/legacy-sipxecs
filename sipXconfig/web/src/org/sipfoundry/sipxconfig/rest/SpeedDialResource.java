@@ -28,6 +28,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.speeddial.Button;
@@ -73,6 +74,7 @@ public class SpeedDialResource extends UserResource {
         }
 
         SpeedDialBean bean = new SpeedDialBean();
+        bean.setCanSubscribeToPresence(getUser().hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE));
         bean.setButtons(buttons);
         bean.setGroupSpeedDial(groupSpeedDial);
 
@@ -86,21 +88,34 @@ public class SpeedDialResource extends UserResource {
     public void storeRepresentation(Representation entity) throws ResourceException {
         SpeedDialBean bean = fromRepresentation(entity, SpeedDialBean.class);
         // do not update if this was not explicitly requested
-        boolean updatePhones = bean.isUpdatePhones() ? bean.isUpdatePhones() : false;
+        boolean updatePhones = bean.isUpdatePhones() != null ? bean.isUpdatePhones() : false;
         LOG.debug("Saving speed dial:\t" + bean);
 
         if (bean.isGroupSpeedDial()) {
             m_mgr.speedDialSynchToGroup(getUser());
         } else {
             List<SpeedDial> dials = m_mgr.findSpeedDialForUserId(getUser().getId());
+            boolean canSubscribe = getUser().hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE);
             if (!dials.isEmpty()) {
                 SpeedDial dial = dials.get(0);
+                if (!canSubscribe) {
+                    List<Button> existing = dial.getButtons();
+                    for (Button b : bean.getButtons()) {
+                        if (!existing.contains(b)) {
+                            b.setBlf(false);
+                        }
+                    }
+                }
                 dial.setButtons(bean.getButtons());
 
                 m_mgr.saveSpeedDial(dial);
             } else {
                 SpeedDial dial = new SpeedDial();
-
+                if (!canSubscribe) {
+                    for (Button b : bean.getButtons()) {
+                        b.setBlf(false);
+                    }
+                }
                 dial.setUser(getUser());
                 dial.setButtons(bean.getButtons());
 
@@ -134,6 +149,7 @@ public class SpeedDialResource extends UserResource {
         private boolean m_groupSpeedDial;
         // this is a request parameter
         private Boolean m_updatePhones;
+        private Boolean m_canSubscribeToPresence;
 
         public List<Button> getButtons() {
             return m_buttons;
@@ -142,9 +158,9 @@ public class SpeedDialResource extends UserResource {
         public void setButtons(List<Button> buttons) {
             // never set to null, makes further handling harder
             if (buttons != null) {
-                this.m_buttons = buttons;
+                m_buttons = buttons;
             } else {
-                this.m_buttons = Collections.emptyList();
+                m_buttons = Collections.emptyList();
             }
         }
 
@@ -153,7 +169,7 @@ public class SpeedDialResource extends UserResource {
         }
 
         public void setGroupSpeedDial(boolean groupSpeedDial) {
-            this.m_groupSpeedDial = groupSpeedDial;
+            m_groupSpeedDial = groupSpeedDial;
         }
 
         public Boolean isUpdatePhones() {
@@ -165,10 +181,19 @@ public class SpeedDialResource extends UserResource {
             m_updatePhones = updatePhones;
         }
 
+        public Boolean isCanSubscribeToPresence() {
+            return m_canSubscribeToPresence;
+        }
+
+        public void setCanSubscribeToPresence(Boolean canSubscribeToPresence) {
+            m_canSubscribeToPresence = canSubscribeToPresence;
+        }
+
         @Override
         public String toString() {
             return "SpeedDialBean [m_buttons=" + m_buttons + ", m_groupSpeedDial=" + m_groupSpeedDial
-                + ", m_updatePhones=" + m_updatePhones + "]";
+                + ", m_updatePhones=" + m_updatePhones + ", m_canSubscribeToPresence=" + m_canSubscribeToPresence
+                + "]";
         }
     }
 }
