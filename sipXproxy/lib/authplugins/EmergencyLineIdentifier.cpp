@@ -163,9 +163,10 @@ bool DB::findE911LineIdentifier(
 	  if (obj.hasField("elin"))
 	  {
 	    e911 = obj.getStringField("elin");
-	    findE911Location(conn, e911, address, location);
+      if (!e911.empty())
+        findE911Location(conn, e911, address, location);
 	    conn->done();
-	    return true;
+	    return !e911.empty();
 	  }
 	}
   conn->done();
@@ -195,9 +196,11 @@ bool DB::findE911InstrumentIdentifier(
 	  if (obj.hasField("elin"))
 	  {
 	    e911 = obj.getStringField("elin");
-	    findE911Location(conn, e911, address, location);
+
+      if (!e911.empty())
+        findE911Location(conn, e911, address, location);
 	    conn->done();
-	    return true;
+	    return !e911.empty();
 	  }
 	}
   conn->done();
