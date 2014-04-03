@@ -1,5 +1,4 @@
 page_PKGS = \
-	log4j \
 	sipxcommons \
 	dom4j \
 	jain-sip-sdp \
