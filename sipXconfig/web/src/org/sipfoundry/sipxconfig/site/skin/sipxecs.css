@@ -980,6 +980,9 @@ table.component .errorColumnValue
   width : 1%;
 }
 
+#speedDialForm > table td:nth-child(n+4){
+  padding-left:5px;
+}
 
 ul.component-selection
 {
@@ -1702,6 +1705,8 @@ div.autocomplete ul strong.highlight {
 .avatar img {
 	border: 5px solid  #F0F0F0;
 }
+
+
 
 /**
  * For modern browsers
