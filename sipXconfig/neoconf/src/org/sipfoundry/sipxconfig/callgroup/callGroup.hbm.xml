@@ -32,6 +32,7 @@
     <property name="did" />
     <property name="description" />
     <property name="fallbackDestination" />
+    <property name="fallbackExpire" />
     <property name="voicemailFallback" />
     <property name="userForward" />
     <property name="useFwdTimers" />
