@@ -101,7 +101,14 @@ public class SpeedDialResource extends UserResource {
                 if (!canSubscribe) {
                     List<Button> existing = dial.getButtons();
                     for (Button b : bean.getButtons()) {
-                        if (!existing.contains(b)) {
+                        if (existing.contains(b)) {
+                            for (Button be : existing) {
+                                if (be.equals(b)) {
+                                    b.setBlf(be.isBlf());
+                                    break;
+                                }
+                            }
+                        } else {
                             b.setBlf(false);
                         }
                     }
