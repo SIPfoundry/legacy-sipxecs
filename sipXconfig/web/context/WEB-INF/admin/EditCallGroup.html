@@ -51,6 +51,18 @@
           displayName="message:label.userForward"
         />
       </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="callgroup:useFwdTimers"
+        label="message:label.useFwdTimers"
+        description="message:description.useFwdTimers"
+        field="component:useFwdTimers">
+        <td jwcid="useFwdTimers@Checkbox"
+          id="callgroup:useFwdTimers"
+          value="ognl:callGroup.useFwdTimers"
+          displayName="message:label.useFwdTimers"
+          onchange="javascript:this.form.submit();"
+        />
+      </tr>
     </table>
   </fieldset>
   <ul jwcid="formActions@common/FormActions" callback="ognl:callback"

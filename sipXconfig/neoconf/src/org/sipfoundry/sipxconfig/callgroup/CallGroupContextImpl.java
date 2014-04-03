@@ -25,14 +25,15 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.forwarding.CallSequence;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
  * Hibernate implementation of the call group context
  */
-public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
+public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext, DaoEventListener {
     private static final String VALUE = "value";
 
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
@@ -106,15 +107,23 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         removeCallGroups(ids);
     }
 
-    public UserDeleteListener createUserDeleteListener() {
-        return new OnUserDelete();
-    }
-
-    private class OnUserDelete extends UserDeleteListener {
-        @Override
-        protected void onUserDelete(User user) {
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof User) {
+            User user = (User) entity;
             getHibernateTemplate().update(user);
             removeUser(user.getId());
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        if (entity instanceof CallSequence) {
+            CallSequence seq = (CallSequence) entity;
+            User user = seq.getUser();
+            if (user != null) {
+                updateUser(user.getId(), false);
+            }
         }
     }
 
@@ -134,15 +143,21 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
      */
     @Override
     public void removeUser(Integer userId) {
+        updateUser(userId, true);
+    }
+
+    private void updateUser(Integer userId, boolean delete) {
         final HibernateTemplate hibernate = getHibernateTemplate();
         Collection rings = hibernate.findByNamedQueryAndNamedParam("userRingsForUserId", "userId", userId);
         for (Iterator i = rings.iterator(); i.hasNext();) {
             UserRing ring = (UserRing) i.next();
             CallGroup callGroup = ring.getCallGroup();
-            callGroup.removeRing(ring);
+            if (delete) {
+                callGroup.removeRing(ring);
+            }
             hibernate.save(callGroup);
             hibernate.flush();
-            //getDaoEventPublisher().publishSave(callGroup);
+            m_replicationContext.generate(callGroup);
         }
     }
 

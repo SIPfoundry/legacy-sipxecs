@@ -34,6 +34,7 @@
     <property name="fallbackDestination" />
     <property name="voicemailFallback" />
     <property name="userForward" />
+    <property name="useFwdTimers" />
     <property name="sipPassword" />
     <list name="rings" cascade="all-delete-orphan">
       <key column="call_group_id" not-null="true" />

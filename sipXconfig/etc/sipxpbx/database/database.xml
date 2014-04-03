@@ -463,6 +463,7 @@
     <antcall target="add_attendant_dial_regex" />
     <antcall target="live-attendant" />
     <antcall target="live-attendant-night" />
+    <antcall target="callgroup-usefwdtimers" />
   </target>
 
   <target name="plugin-patches">
@@ -1396,6 +1397,9 @@
   </target>
   <target name="live-attendant-night" unless="live-attendant-night">
     <db-patch patch="live-attendant-night"/>
+  </target>
+  <target name="callgroup-usefwdtimers" unless="callgroup-usefwdtimers">
+    <db-patch patch="callgroup-usefwdtimers" />
   </target>
 
   <!--
