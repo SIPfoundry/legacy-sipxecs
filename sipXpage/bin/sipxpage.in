@@ -27,6 +27,7 @@ start() {
   Command="$JavaCmd \
     -Dprocname=sipxpage \
     -Dconf.dir=@SIPX_CONFDIR@ \
+    -Dlog.dir=@SIPX_LOGDIR@ \
     ${SIPXPAGE_OPTS} \
     org.sipfoundry.sipxpage.SipXpage \
     $Args"

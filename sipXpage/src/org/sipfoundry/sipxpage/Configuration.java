@@ -30,7 +30,6 @@ public class Configuration
    }
 
    String traceLevel ;         // The NIST SIP stack trace level (optional)
-   String logFile ;           // The file to log into
    String ipAddress ;		   // The IP address (dotted quad string)
    int udpSipPort ;           // The SIP Listen port for UDP
    int tcpSipPort ;           // The SIP Listen port for TCP
@@ -47,7 +46,6 @@ public class Configuration
 
    void internal()
    {
-      logFile = "./sipxpage.log" ;
       ipAddress = "10.1.1.151" ;
       udpSipPort = 5050 ;
       tcpSipPort = 5050 ;
@@ -125,7 +123,6 @@ public class Configuration
       String prop = null ;
       try
       {
-         logFile = props.getProperty(prop="log.file") ;
          ipAddress = props.getProperty(prop="sip.address") ;
          udpSipPort = Integer.parseInt(props.getProperty(prop="sip.udpPort")) ;
          tcpSipPort = Integer.parseInt(props.getProperty(prop="sip.tcpPort")) ;
