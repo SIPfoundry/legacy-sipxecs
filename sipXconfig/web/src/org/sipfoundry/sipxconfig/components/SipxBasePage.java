@@ -20,7 +20,7 @@ public abstract class SipxBasePage extends BasePage {
     protected static final String IE8 = "MSIE 8";
     protected static final String IE9 = "MSIE 9";
     protected static final String IE10 = "MSIE 10";
-    protected static final String IE11 = "rv:11.0";
+    protected static final String IE11 = "rv:11.";
     protected static final String CHROME = "Chrome";
     protected static final String SAFARI = "Safari/";
     protected static final String OPERA_OLD = "Opera/";
