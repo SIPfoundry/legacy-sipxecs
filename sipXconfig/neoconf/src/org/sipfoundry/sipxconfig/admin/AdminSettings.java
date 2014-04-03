@@ -43,6 +43,7 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String CORS_DOMAIN_SETTING = "configserver-config/corsDomains";
 
     private PasswordPolicy m_passwordPolicy;
+    private String[] m_logLevelKeys;
 
     @Override
     public String getBeanId() {
@@ -142,6 +143,11 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
         m_passwordPolicy = passwordPolicy;
     }
 
+    @Required
+    public void setLogLevelKeys(String[] logLevelKeys) {
+        m_logLevelKeys = logLevelKeys;
+    }
+
     public class AdminSettingsDefaults {
         @SettingEntry(path = "configserver-config/password-policy")
         public String getDefaultPolicy() {
@@ -156,5 +162,9 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
 
     public PasswordPolicy getPasswordPolicy() {
         return m_passwordPolicy;
+    }
+
+    public String[] getLogLevelKeys() {
+        return m_logLevelKeys;
     }
 }

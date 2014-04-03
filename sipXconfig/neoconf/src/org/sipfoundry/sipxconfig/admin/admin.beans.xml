@@ -26,6 +26,11 @@
   </bean>
   <bean id="adminSettings" class="org.sipfoundry.sipxconfig.admin.AdminSettings" parent="settingsBean">
   	<property name="passwordPolicy" ref="passwordPolicyImpl"/>
+  	<property name="logLevelKeys">
+      <list>
+        <value>log4j.logger.org.sipfoundry.sipxconfig</value>
+      </list>
+    </property>
   </bean>
 
   <bean id="adminConfig" class="org.sipfoundry.sipxconfig.admin.AdminConfig">
