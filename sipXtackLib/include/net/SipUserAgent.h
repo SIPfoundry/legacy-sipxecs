@@ -693,6 +693,10 @@ public:
                                 int port                   ///< destination port
        );
 
+    void setStaticNATAddress(const UtlString& address);
+
+    const UtlString& getStaticNATAddress() const;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -752,6 +756,7 @@ protected:
     void setInviteTransactionTimeoutSeconds(int expiresSeconds);
 
     void garbageCollection();
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -786,6 +791,7 @@ private:
     OsRWMutex mSipInputProcessorMutex;
     // The local address and port.
     UtlString mLocalHostAddress;
+    UtlString mStaticNATAddress;
     int mLocalUdpHostPort;
     int mLocalTcpHostPort;
     int mLocalTlsHostPort;
@@ -868,5 +874,16 @@ private:
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline void SipUserAgent::setStaticNATAddress(const UtlString& address)
+{
+  mStaticNATAddress = address;
+}
+
+inline const UtlString& SipUserAgent::getStaticNATAddress() const
+{
+  return mStaticNATAddress;
+}
+
 
 #endif  // _SipUserAgent_h_

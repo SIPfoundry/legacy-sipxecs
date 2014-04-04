@@ -167,6 +167,8 @@ class SipRouter : public OsServerTask
    void ensureCanonicalDomain(Url& url) const;
 
    UtlBoolean isRelayAllowed() const;
+
+   SipUserAgent* getUserAgent() const;
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -250,6 +252,11 @@ class SipRouter : public OsServerTask
 inline UtlBoolean SipRouter::isRelayAllowed() const
 {
   return mRelayAllowed;
+}
+
+inline SipUserAgent* SipRouter::getUserAgent() const
+{
+  return mpSipUserAgent;
 }
 
 
