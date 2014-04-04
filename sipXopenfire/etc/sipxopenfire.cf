@@ -89,7 +89,7 @@ bundle agent sipxopenfire_config {
       "$(sipx.OPENFIRE_HOME)/conf/log4j.properties"
         comment => "configure sipXopenfire log4j $(this.promiser)",
         create => "true",
-        perms => m("644"),
+        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         edit_line => sipxopenfire_log4j_properties_contents;
         
       "$(sipx.OPENFIRE_HOME)/lib/log4j.xml"
