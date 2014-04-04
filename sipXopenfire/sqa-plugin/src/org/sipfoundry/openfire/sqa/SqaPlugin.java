@@ -34,6 +34,7 @@ import javax.xml.bind.JAXBException;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.user.PresenceEventDispatcher;
+import org.jivesoftware.util.JiveProperties;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sqaclient.SQAEvent;
 import org.sipfoundry.sqaclient.SQAWatcher;
@@ -50,12 +51,11 @@ public class SqaPlugin implements Plugin {
         try {
             String configurationPath = System.getProperty("conf.dir");
             String libPath = System.getProperty("lib.dir");
-            String presence = System.getProperty("openfire.presence");
+            String presence = JiveProperties.getInstance().getProperty("openfire.presence", "true");
             if (isBlank(configurationPath) || isBlank(libPath) || isBlank(presence)) {
                 System.getProperties().load(new FileInputStream(new File("/tmp/sipx.properties")));
                 configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
                 libPath = System.getProperty("lib.dir", "/lib");
-                presence = System.getProperty("openfire.presence", "true");
             }
 
             UnfortunateLackOfSpringSupportFactory.initialize();

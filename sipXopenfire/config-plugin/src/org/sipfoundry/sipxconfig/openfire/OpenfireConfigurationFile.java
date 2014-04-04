@@ -73,9 +73,7 @@ public class OpenfireConfigurationFile {
     private static void writePropertyConfig(Writer w, OpenfireSettings settings,
             SortedMap<String, Object> map) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
-
         config.writeSettings(settings.getOfProperty());
-
         for (Map.Entry<String, Object> property : map.entrySet()) {
             config.write(property.getKey(), property.getValue());
         }
@@ -137,6 +135,8 @@ public class OpenfireConfigurationFile {
         }
         props.put("locale", m_localizationContext.getCurrentLanguage());
         props.put("log.debug.enabled", false);
+        props.put("enable.presence", settings.isPresenceEnabled());
+
 
         addBoshProps(props, settings);
 

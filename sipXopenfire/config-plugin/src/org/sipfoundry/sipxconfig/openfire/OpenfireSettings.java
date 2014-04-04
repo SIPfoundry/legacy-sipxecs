@@ -199,7 +199,7 @@ public class OpenfireSettings extends PersistableSettings implements DeployConfi
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) ImManager.FEATURE, (Feature) Rls.FEATURE);
+        return Arrays.asList((Feature) ImManager.FEATURE);
     }
 
     @Override
