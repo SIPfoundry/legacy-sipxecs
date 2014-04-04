@@ -23,7 +23,6 @@ import java.io.Writer;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
@@ -31,7 +30,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -40,7 +38,6 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.springframework.beans.factory.annotation.Required;
@@ -82,8 +79,7 @@ public class OpenfireConfiguration implements ConfigProvider {
             enableIm(dir);
             OpenfireSettings settings = m_openfire.getSettings();
             boolean consoleEnabled = (Boolean) settings.getSettingTypedValue("settings/console");
-            boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence")
-                    && manager.getFeatureManager().isFeatureEnabled(Rls.FEATURE);
+            boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence");
             ConfigUtils.enableCfengineClass(dir, "ofconsole.cfdat", consoleEnabled, "ofconsole");
 
             Setting openfireSettings = settings.getSettings().getSetting("settings");
@@ -100,7 +96,7 @@ public class OpenfireConfiguration implements ConfigProvider {
             try {
                 boolean isWsEnabled = m_featureManager.isFeatureEnabled(WebSocket.FEATURE, location);
                 Address addr = m_configManager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
-                write(wtr, presenceEnabled, isWsEnabled, location.getAddress(), m_websocket.getSettings()
+                write(wtr, isWsEnabled, location.getAddress(), m_websocket.getSettings()
                         .getWebSocketPort(), addr.toString());
             } finally {
                 IOUtils.closeQuietly(wtr);
@@ -109,7 +105,7 @@ public class OpenfireConfiguration implements ConfigProvider {
             Writer ofproperty = new FileWriter(new File(dir, "openfire.properties.part"));
             try {
                 m_config.writeOfPropertyConfig(ofproperty, m_openfire.getSettings());
-                writeLdapProps(ofproperty, manager);
+                writeLdapProps(ofproperty);
             } finally {
                 IOUtils.closeQuietly(ofproperty);
             }
@@ -123,7 +119,7 @@ public class OpenfireConfiguration implements ConfigProvider {
         }
     }
 
-    protected void writeLdapProps(Writer ofproperty, ConfigManager manager) throws IOException {
+    protected void writeLdapProps(Writer ofproperty) throws IOException {
         m_config.writeOfLdapPropertyConfig(ofproperty, m_openfire.getSettings());
     }
 
@@ -142,10 +138,9 @@ public class OpenfireConfiguration implements ConfigProvider {
         m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE));
     }
 
-    private static void write(Writer wtr, boolean presence, boolean wsEnabled, String wsAddress, int wsPort,
+    private static void write(Writer wtr, boolean wsEnabled, String wsAddress, int wsPort,
             String adminRestUrl) throws IOException {
         LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
-        config.write("openfire.presence", presence);
         if (wsEnabled) {
             config.write("websocket.address", wsAddress);
             config.write("websocket.port", wsPort);
