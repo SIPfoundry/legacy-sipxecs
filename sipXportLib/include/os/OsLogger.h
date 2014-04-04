@@ -1134,11 +1134,11 @@ namespace Os
   #define OS_LOG_EMERGENCY(facility, data) OS_LOG_PUSH(Os::LogFilter::emergency, facility, data)
 
 
-    #define OS_LOG_AND_ASSERT(condition, facility, ...)                  \
+    #define OS_LOG_AND_ASSERT(condition, facility, data)                 \
     {                                                                    \
         if (!(condition))                                                \
         {                                                                \
-            Os::Logger::instance().log(facility, PRI_CRIT, __VA_ARGS__); \
+            OS_LOG_PUSH(PRI_CRIT, facility, data);                       \
             assert(condition);                                           \
         }                                                                \
     }
