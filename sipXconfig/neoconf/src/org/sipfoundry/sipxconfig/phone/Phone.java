@@ -126,14 +126,14 @@ public abstract class Phone extends Device implements Replicable {
      */
     protected abstract LineInfo getLineInfo(Line line);
 
-    public String getAdditionalPhoneSettings() {
+    public static String getAdditionalPhoneSettings() {
         return null;
     }
 
     public void setAdditionalPhoneSettings(String additionalSettings) {
     }
 
-    public List<String> getLinePaths() {
+    public static List<String> getLinePaths() {
         return null;
     }
 
@@ -316,7 +316,7 @@ public abstract class Phone extends Device implements Replicable {
         return line;
     }
 
-    public Collection< ? extends PhoneModel> getModelIdsForSelection(String beanId) {
+    public static Collection< ? extends PhoneModel> getModelIdsForSelection(String beanId) {
         return null;
     }
 
