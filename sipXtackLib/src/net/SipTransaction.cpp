@@ -946,6 +946,21 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 #          endif
         }
 
+        //
+        // Check if the current destination address
+        // is pointing towards our firewall public binding.  If it is, point
+        // it to the local binding.  This avoids hair-pinning socket connections
+        // through the firewall and back to the internal network.
+        //
+        if(!toAddress.isNull() && !userAgent.getStaticNATAddress().isNull() && toAddress.compareTo(userAgent.getStaticNATAddress()) == 0)
+        {
+          UtlString localAddress;
+          int localPort;
+          userAgent.getLocalAddress(&localAddress, &localPort);
+          OS_LOG_INFO(FAC_SIP, "SipTransaction::prepareRequestForSend - Avoiding hair-pinned connection through the NAT device.  Sending directly to " << localAddress.data() << " instead of " << toAddress.data());
+          toAddress = localAddress;
+        }
+
         UtlString toField;
         request.getToField(&toField);
 #ifdef TEST_PRINT

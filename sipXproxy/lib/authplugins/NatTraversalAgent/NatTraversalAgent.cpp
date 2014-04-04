@@ -554,6 +554,8 @@ void NatTraversalAgent::announceAssociatedSipRouter( SipRouter* sipRouter )
          publicTransportAlias += ":";
          publicTransportAlias += portNumericForm;
          mpSipRouter->addHostAlias( publicTransportAlias );
+         assert(mpSipRouter->getUserAgent());
+         mpSipRouter->getUserAgent()->setStaticNATAddress(mNatTraversalRules.getPublicTransportInfo().getAddress());
       }
 
       // launch thread that will maintain NAT keep alives
