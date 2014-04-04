@@ -249,7 +249,7 @@ bundle edit_line sipxopenfire_log4j_xml_contents {
 body replace_with loglevel(x)
 {
   replace_value => "$(x)";
-  occurrences => "first";
+  occurrences => "all";
 }
 
 body select_region rootSection
