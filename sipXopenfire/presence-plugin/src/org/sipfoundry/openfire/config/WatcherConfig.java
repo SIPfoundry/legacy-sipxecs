@@ -5,7 +5,10 @@
  */
 package org.sipfoundry.openfire.config;
 
+import org.apache.log4j.Logger;
+
 public class WatcherConfig {
+    private static Logger logger = Logger.getLogger(WatcherConfig.class);
     private String sipxProxyDomain;
     private int sipxProxyPort = 5060;
     private String userName;
@@ -13,7 +16,6 @@ public class WatcherConfig {
     private boolean enableCallWatcher;
     private boolean enableParsing;
     private String sipxProxyTransport;
-    private String logLevel = "INFO";
     private String watcherAddress;
     private int watcherPort;
     private String resourceList;
@@ -33,12 +35,7 @@ public class WatcherConfig {
     }
 
     public String getLogLevel() {
-        return logLevel;
-    }
-
-    public void setLogLevel(String logLevel)
-    {
-        this.logLevel = logLevel;
+        return logger.getLevel().toString();
     }
 
     /**
