@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
  *
  */
 public class Group extends ValueStorage implements Comparable<Group>, NamedObject, Replicable {
+    private static final String E911_SETTING_PATH = "e911/location";
     private String m_name;
     private String m_description;
     private String m_resource;
@@ -241,6 +242,17 @@ public class Group extends ValueStorage implements Comparable<Group>, NamedObjec
             props.put(MY_BUDDY_GROUP, mybudygrp);
         }
         return props;
+    }
+
+    public void setE911LocationId(Integer id) {
+        if (id != null && id < 0) {
+            return;
+        }
+        if (id == null) {
+            setSettingValue(E911_SETTING_PATH, null);
+        } else {
+            setSettingValue(E911_SETTING_PATH, id.toString());
+        }
     }
 
     @Override
