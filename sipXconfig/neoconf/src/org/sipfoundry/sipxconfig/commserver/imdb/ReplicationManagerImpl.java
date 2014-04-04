@@ -689,8 +689,10 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
         if (entity.getIdentity(sipDomain) != null) {
             top.put(IDENTITY, entity.getIdentity(sipDomain));
         }
-        for (String key : entity.getMongoProperties(sipDomain).keySet()) {
-            top.put(key, entity.getMongoProperties(sipDomain).get(key));
+        Map<String, Object> mongoProps = entity.getMongoProperties(sipDomain);
+
+        for (Map.Entry<String, Object> property : mongoProps.entrySet()) {
+            top.put(property.getKey(), property.getValue());
         }
         if (entity.isValidUser()) {
             top.put(VALID_USER, true);
