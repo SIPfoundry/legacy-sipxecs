@@ -24,7 +24,7 @@ if test -d ../.git; then
 fi
 
 VERSION=$1
-VER_REV=`git describe --abbrev=5 --match="v${VERSION}" HEAD`
+VER_REV=`git describe --abbrev=5 --match="v4.6.0" HEAD`
 if [ "$?" != "0" ]; then
     echo "Could not find tag v$VERSION" 1>&2
     exit 1
