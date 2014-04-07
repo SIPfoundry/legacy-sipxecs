@@ -70,8 +70,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
     private static final String QUERY_PHONE_BY_SERIAL_NUMBER = "phoneWithSerialNumber";
     private static final String ALARM_PHONE_ADDED = "ALARM_PHONE_ADDED Phone with serial %s was added to the system.";
-    private static final String ALARM_PHONE_CHANGED = "ALARM_PHONE_CHANGED Phone with id: %d, serial: %s was changed.";
-    private static final String ALARM_PHONE_DELETED = "ALARM_PHONE_DELETED Phone with id: %d, serial: %s was deleted.";
+    private static final String ALARM_PHONE_CHANGED = "ALARM_PHONE_CHANGED Phone with id %d serial %s was changed.";
+    private static final String ALARM_PHONE_DELETED = "ALARM_PHONE_DELETED Phone with id %d serial %s was deleted.";
 
     private static final String USER_ID = "userId";
     private static final String VALUE = "value";
