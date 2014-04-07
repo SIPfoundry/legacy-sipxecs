@@ -247,7 +247,7 @@
       </list>
     </property>
   </bean>
-  <alias name="voicemailPrefsResource" alias="/my/feed/vmprefs" />
+  <alias name="voicemailPrefsResource" alias="/my/vmprefs" />
 
   <bean id="contactInformationResource" class="org.sipfoundry.sipxconfig.rest.ContactInformationResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />

@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenuItem;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantManager;
 
@@ -55,6 +56,7 @@ public class PersonalAttendantResource extends UserResource {
         AttendantBean settings = new AttendantBean();
         User user = getUser();
 
+        settings.setPersonalAttendantPermission(user.hasPermission(PermissionName.PERSONAL_AUTO_ATTENDANT));
         settings.setDepositVM(user.isDepositVoicemail());
         settings.setPlayVMDefaultOptions(user.getPlayVmDefaultOptions());
         settings.setOperator((String) user.getSettingTypedValue(AbstractUser.OPERATOR_SETTING));
@@ -81,49 +83,51 @@ public class PersonalAttendantResource extends UserResource {
     // PUT
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
-        AttendantBean settings = fromRepresentation(entity, AttendantBean.class);
-        LOG.debug("Got attendant prefs:\t" + settings);
-        User user = getUser();
+        if (Boolean.TRUE == getUser().hasPermission(PermissionName.PERSONAL_AUTO_ATTENDANT)) {
+            AttendantBean settings = fromRepresentation(entity, AttendantBean.class);
+            LOG.debug("Got attendant prefs:\t" + settings);
+            User user = getUser();
 
-        if (settings.getDepositVM() != null) {
-            user.setDepositVoicemail(settings.getDepositVM());
-        }
-        if (settings.getPlayVMDefaultOptions() != null) {
-            user.setPlayVmDefaultOptions(settings.getPlayVMDefaultOptions());
-        }
-        if (settings.getOperator() != null) {
-            user.setOperator(settings.getOperator());
-        }
-
-        PersonalAttendant attendant = m_mgr.loadPersonalAttendantForUser(user);
-        Map<String, String> menuMap = settings.getMenu();
-
-        if (menuMap != null) {
-            AttendantMenu menu = new AttendantMenu();
-            for (Map.Entry<String, String> entry : menuMap.entrySet()) {
-                DialPad dial = DialPad.getByName(entry.getKey());
-                menu.addMenuItem(dial, AttendantMenuAction.TRANSFER_OUT, entry.getValue());
+            if (settings.getDepositVM() != null) {
+                user.setDepositVoicemail(settings.getDepositVM());
             }
-            attendant.setMenu(menu);
-        }
-        if (settings.getLanguage() != null) {
-            attendant.setLanguage(settings.getLanguage());
-        }
-        if (settings.getLanguage() != null) {
-            attendant.setOverrideLanguage(settings.getOverrideLanguage());
-        }
+            if (settings.getPlayVMDefaultOptions() != null) {
+                user.setPlayVmDefaultOptions(settings.getPlayVMDefaultOptions());
+            }
+            if (settings.getOperator() != null) {
+                user.setOperator(settings.getOperator());
+            }
 
-        // try to be smart and don't save what's not present in the request
-        if (menuMap != null || settings.getLanguage() != null || settings.getLanguage() != null) {
-            LOG.debug("Saving attendant prefs:\t" + attendant);
+            PersonalAttendant attendant = m_mgr.loadPersonalAttendantForUser(user);
+            Map<String, String> menuMap = settings.getMenu();
 
-            m_mgr.storePersonalAttendant(attendant);
-        }
-        if (settings.getDepositVM() != null || settings.getPlayVMDefaultOptions() != null
-            || settings.getOperator() != null) {
-            LOG.debug("Saving user");
+            if (menuMap != null) {
+                AttendantMenu menu = new AttendantMenu();
+                for (Map.Entry<String, String> entry : menuMap.entrySet()) {
+                    DialPad dial = DialPad.getByName(entry.getKey());
+                    menu.addMenuItem(dial, AttendantMenuAction.TRANSFER_OUT, entry.getValue());
+                }
+                attendant.setMenu(menu);
+            }
+            if (settings.getLanguage() != null) {
+                attendant.setLanguage(settings.getLanguage());
+            }
+            if (settings.getLanguage() != null) {
+                attendant.setOverrideLanguage(settings.getOverrideLanguage());
+            }
 
-            getCoreContext().saveUser(user);
+            // try to be smart and don't save what's not present in the request
+            if (menuMap != null || settings.getLanguage() != null || settings.getLanguage() != null) {
+                LOG.debug("Saving attendant prefs:\t" + attendant);
+
+                m_mgr.storePersonalAttendant(attendant);
+            }
+            if (settings.getDepositVM() != null || settings.getPlayVMDefaultOptions() != null
+                || settings.getOperator() != null) {
+                LOG.debug("Saving user");
+
+                getCoreContext().saveUser(user);
+            }
         }
     }
 
@@ -139,6 +143,7 @@ public class PersonalAttendantResource extends UserResource {
         private Map<String, String> m_menu;
         private String m_language;
         private Boolean m_overrideLanguage;
+        private Boolean m_personalAttendantPermission;
 
         public Boolean getDepositVM() {
             return m_depositVM;
@@ -188,11 +193,21 @@ public class PersonalAttendantResource extends UserResource {
             m_overrideLanguage = overrideLanguage;
         }
 
+        @SuppressWarnings("unused")
+        public Boolean getPersonalAttendantPermission() {
+            return m_personalAttendantPermission;
+        }
+
+        public void setPersonalAttendantPermission(Boolean personalAttendantPermission) {
+            m_personalAttendantPermission = personalAttendantPermission;
+        }
+
         @Override
         public String toString() {
             return "AttendantBean [m_depositVM=" + m_depositVM + ", m_playVMDefaultOptions="
                 + m_playVMDefaultOptions + ", m_operator=" + m_operator + ", m_menu=" + m_menu + ", m_language="
-                + m_language + ", m_overrideLanguage=" + m_overrideLanguage + "]";
+                + m_language + ", m_overrideLanguage=" + m_overrideLanguage + ", m_personalAttendantPermission="
+                + m_personalAttendantPermission + "]";
         }
     }
 }
