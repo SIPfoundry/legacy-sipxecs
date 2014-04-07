@@ -5,7 +5,7 @@ type=SingleWithThreshold
 ptype=RegExp
 pattern=total number of votes is even
 desc=<%= MONGO_FAILED_ELECTION[:minThreshold] %> Failed election within a 60 second interval.
-action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_FAILED_ELECTION '%s'
+action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_FAILED_ELECTION %s
 window=60
 thresh=<%= MONGO_FAILED_ELECTION[:minThreshold] %>
 <% 
@@ -16,7 +16,7 @@ type=SingleWithThreshold
 ptype=RegExp
 pattern=couldn't connect to (\S+)
 desc=<%= MONGO_MEMBER_DOWN[:minThreshold] %> attempts to connect to replica set node $1 within a 60 second interval failed.
-action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_MEMBER_DOWN '%s'
+action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_MEMBER_DOWN %s
 window=60
 thresh=<%= MONGO_MEMBER_DOWN[:minThreshold] %>
 <% 
@@ -27,7 +27,7 @@ type=Single
 ptype=RegExp
 pattern=replSet error fatal, stopping replication
 desc=Fatal replica set error, stopping replication
-action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_FATAL_REPLICATION_STOP '%s'
+action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_FATAL_REPLICATION_STOP %s
 <% 
   end
   if MONGO_NODE_STATE_CHANGED[:groupName] != 'disabled'
@@ -36,7 +36,7 @@ type=Single
 ptype=RegExp
 pattern=replSet member (\S+) is now in state (\S+)
 desc=Replica set node $1 is now in state $2
-action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_NODE_STATE_CHANGED '%s'
+action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_NODE_STATE_CHANGED %s
 <% 
   end
   if MONGO_CANNOT_SEE_MAJORITY[:groupName] != 'disabled'
@@ -45,7 +45,7 @@ type=Single
 ptype=RegExp
 pattern=replSet can't see a majority, will not try to elect self
 desc=Replica set error, node cannot see majority
-action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_CANNOT_SEE_MAJORITY '%s'
+action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_CANNOT_SEE_MAJORITY %s
 <% 
   end
 %>

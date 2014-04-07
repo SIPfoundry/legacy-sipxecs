@@ -5,7 +5,7 @@ type=Single
 ptype=RegExp
 pattern=Ban (\S+)
 desc=Ip $1 considered DoS attacker was banned by security service
-action=shellcmd @SIPX_BINDIR@/sipxtrap SECURITY_IP_BANNED '%s'
+action=shellcmd @SIPX_BINDIR@/sipxtrap SECURITY_IP_BANNED %s
 <% 
   end
   if SECURITY_IP_UNBANNED[:groupName] != 'disabled'
@@ -14,7 +14,7 @@ type=Single
 ptype=RegExp
 pattern=Unban (\S+)
 desc=Ip $1 was unbanned by security service
-action=shellcmd @SIPX_BINDIR@/sipxtrap SECURITY_IP_UNBANNED '%s'
+action=shellcmd @SIPX_BINDIR@/sipxtrap SECURITY_IP_UNBANNED %s
 <% 
   end 
 %>
