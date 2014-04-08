@@ -56,7 +56,7 @@ public class SipxFilterChainProxy extends FilterChainProxy {
         if (request.getLocalPort() == port && request instanceof HttpServletRequest) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             requestToFilter = new AuthorizedServletRequest(httpRequest);
-            LOG.debug("Internal request port: " + port);
+            LOG.trace("Internal request port: " + port);
         }
         if (request.getLocalPort() == authPort && request instanceof HttpServletRequest
             && response instanceof HttpServletResponse) {
@@ -87,7 +87,7 @@ public class SipxFilterChainProxy extends FilterChainProxy {
                     + "x-requested-with";
             }
             httpResponse.setHeader("Access-Control-Allow-Headers", allowedHeaders);
-            LOG.debug("Internal request authPort: " + port);
+            LOG.trace("Internal request authPort: " + port);
         }
         super.doFilter(requestToFilter, response, chain);
     }
@@ -105,14 +105,14 @@ public class SipxFilterChainProxy extends FilterChainProxy {
 
     private List<String> getAllowedCorsDomains() {
         String domains = m_adminCtx.getSettings().getCorsDomains();
-        LOG.debug(String.format("Stored domains: [%s]", domains));
+        LOG.trace(String.format("Stored domains: [%s]", domains));
         List<String> allowedDomains;
         if (domains != null) {
             allowedDomains = Arrays.asList(domains.split(","));
         } else {
             allowedDomains = Collections.emptyList();
         }
-        LOG.debug("Allowed CORS domains: " + allowedDomains);
+        LOG.trace("Allowed CORS domains: " + allowedDomains);
 
         return allowedDomains;
     }
