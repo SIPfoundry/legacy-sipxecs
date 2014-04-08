@@ -549,11 +549,19 @@ void NatTraversalAgent::announceAssociatedSipRouter( SipRouter* sipRouter )
          UtlString publicTransportAlias;
          char portNumericForm[24];
          sprintf( portNumericForm, "%d", mNatTraversalRules.getPublicTransportInfo().getPort() );
-
          publicTransportAlias = mNatTraversalRules.getPublicTransportInfo().getAddress();
          publicTransportAlias += ":";
          publicTransportAlias += portNumericForm;
          mpSipRouter->addHostAlias( publicTransportAlias );
+         
+         UtlString securePublicTransportAlias;
+         char securePortNumericForm[24];
+         sprintf( securePortNumericForm, "%d", mNatTraversalRules.getSecurePublicTransportInfo().getPort() );
+         securePublicTransportAlias = mNatTraversalRules.getSecurePublicTransportInfo().getAddress();
+         securePublicTransportAlias += ":";
+         securePublicTransportAlias += securePortNumericForm;
+         mpSipRouter->addHostAlias( securePublicTransportAlias );
+         
          assert(mpSipRouter->getUserAgent());
          mpSipRouter->getUserAgent()->setStaticNATAddress(mNatTraversalRules.getPublicTransportInfo().getAddress());
       }
