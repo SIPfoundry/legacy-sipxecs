@@ -1202,7 +1202,7 @@ private:
   {
     if (!_isAlive)
     {
-      OS_LOG_ERROR(FAC_NET, "StateQueueClient::sendNoResponse: Connection is not alive.");
+      OS_LOG_WARNING(FAC_NET, "StateQueueClient::sendNoResponse: Connection is not alive.");
       return false;
     }
 
@@ -1232,6 +1232,7 @@ private:
 
     if (!_isAlive && request.getType() != StateQueueMessage::Ping)
     {
+      OS_LOG_WARNING(FAC_NET, "StateQueueClient::sendAndReceive: Connection is not alive.");
       //
       // Only allow ping requests to get through when connection is not alive
       //
@@ -1241,7 +1242,7 @@ private:
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
     {
-      OS_LOG_ERROR(FAC_NET, "StateQueueClient::sendNoResponse: Unable to retrieve a TCP connection for pool.");
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::sendAndReceive: Unable to retrieve a TCP connection for pool.");
       return false;
     }
 
