@@ -52,7 +52,7 @@ public class HotelingLocator implements BeanFactoryAware {
              * see above comment. Only one manager is supported for now.
              */
             if (managers.size() > 1) {
-                LOG.error("Multiple hoteling managers declared, but only one is supported!");
+                LOG.warn("Multiple hoteling managers declared, but only one is supported!");
             }
             for (String key : managers.keySet()) {
                 m_hotelingManager = managers.get(key);
