@@ -462,6 +462,11 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
          {
              isAcceptable = TRUE;
          }
+         else if (mRemoteViaPort == tempHostPort && (   hostName.compareTo(mRemoteHostName, UtlString::ignoreCase) == 0
+                 || hostName.compareTo(mRemoteSocketAddress, UtlString::ignoreCase) == 0))
+         {
+           isAcceptable = TRUE;
+         }
          else if (   mRemoteViaPort == tempHostPort
                   && hostName.compareTo(mRemoteViaAddress, UtlString::ignoreCase) == 0)
          {
