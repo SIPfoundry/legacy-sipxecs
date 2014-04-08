@@ -18,7 +18,8 @@ class ArchiveBase
        '@localstatedir@/sipxdata/mediaserver/data/moh',
        '@localstatedir@/sipxdata/mediaserver/data/prompts',
        '@localstatedir@/sipxdata/mediaserver/data/ivrscript',
-       '@localstatedir@/sipxdata/sipxpage/music'
+       '@localstatedir@/sipxdata/sipxpage/music',
+       '/var/cfengine/ppkeys'
     ];
   end
 
@@ -59,7 +60,8 @@ class Backup < ArchiveBase
          '@localstatedir@/sipxdata/mediaserver/data/moh',
          '@localstatedir@/sipxdata/mediaserver/data/prompts',
          '@localstatedir@/sipxdata/mediaserver/data/ivrscript',
-         '@localstatedir@/sipxdata/sipxpage/music'
+         '@localstatedir@/sipxdata/sipxpage/music',
+         '/var/cfengine/ppkeys'
       ];
     end
     attachments = @attachments.find_all{|d|
@@ -184,6 +186,9 @@ class Restore < ArchiveBase
     # exclude certdb because we don't need it but it's in <= 4.4.0 backups
     cmd "tar --exclude certdb -zxvf #{params[:file]} -C @localstatedir@/.. var/sipxdata" or
       raise "Could not restore file uploads"
+      
+    cmd "tar -zxvf #{params[:file]} -C / var/cfengine" or
+      raise "Could not restore cfengine keys"
     
     new_fqdn = nil
       
