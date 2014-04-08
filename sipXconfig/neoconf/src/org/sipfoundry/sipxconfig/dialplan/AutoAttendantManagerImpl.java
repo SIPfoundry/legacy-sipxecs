@@ -437,7 +437,7 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport<AutoAttend
     }
 
     public void checkLiveAttendant() {
-        LOG.debug("Check live attendant expiration");
+        LOG.trace("Check live attendant expiration");
         // hibernate query to load all Live AA rules enabled and night on disable
         // check if current time after expiration time, if so then re enable rule
         Collection<AttendantRule> rules = getHibernateTemplate().findByNamedQuery("disabledLiveAaRules");

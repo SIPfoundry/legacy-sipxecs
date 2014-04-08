@@ -791,7 +791,11 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
                if( !tmpRecordRouteUrl.getUrlParameter( SIPX_DONE_URI_PARAM, dummyValue ) )
                {
                   tmpRecordRouteUrl.setHostAddress( replacementAddress );
-                  tmpRecordRouteUrl.setHostPort( replacementPort );
+                  //
+                  // No need to reset the port.  This assures that if a record route is using TLS, that it does
+                  // not revert back to 5060.  
+                  //
+                  //tmpRecordRouteUrl.setHostPort( replacementPort );
                   tmpRecordRouteUrl.setUrlParameter( SIPX_DONE_URI_PARAM, NULL );
 
                   tmpRecordRouteUrl.toString( tmpRecordRoute );
@@ -805,7 +809,11 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
               // TLS does hop-by-hop record routing so we need to consider multiple record routes for TLS
               //
               tmpRecordRouteUrl.setHostAddress( replacementAddress );
-              tmpRecordRouteUrl.setHostPort( replacementPort );
+              //
+              // No need to reset the port.  This assures that if a record route is using TLS, that it does
+              // not revert back to 5060.  
+              //
+              //tmpRecordRouteUrl.setHostPort( replacementPort );
               tmpRecordRouteUrl.toString( tmpRecordRoute );
             }
             message.insertHeaderField( SIP_RECORD_ROUTE_FIELD, tmpRecordRoute.data(), writeRecordRouteIndex );
