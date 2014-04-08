@@ -1201,11 +1201,17 @@ private:
   bool sendNoResponse(const StateQueueMessage& request)
   {
     if (!_isAlive)
+    {
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::sendNoResponse: Connection is not alive.");
       return false;
+    }
 
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
+    {
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::sendNoResponse: Unable to retrieve a TCP connection for pool.");
       return false;
+    }
 
     if (!conn->isConnected() && !conn->connect(_serviceAddress, _servicePort))
     {
@@ -1235,7 +1241,7 @@ private:
     BlockingTcpClient::Ptr conn;
     if (!_clientPool.dequeue(conn))
     {
-      OS_LOG_ERROR(FAC_NET, "Unable to retrieve a TCP connection for pool.");
+      OS_LOG_ERROR(FAC_NET, "StateQueueClient::sendNoResponse: Unable to retrieve a TCP connection for pool.");
       return false;
     }
 
