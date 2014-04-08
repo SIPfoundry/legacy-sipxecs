@@ -48,6 +48,7 @@ public class VoicemailPreferencesResource extends UserResource {
         MailboxPreferences prefs = new MailboxPreferences(getUser());
         VMPreferencesBean bean = new VMPreferencesBean();
 
+        bean.setVoicemailPermission(getUser().hasVoicemailPermission());
         bean.setGreeting(prefs.getActiveGreeting());
         if (prefs.isEmailNotificationEnabled()) {
             bean.setEmail(prefs.getEmailAddress());
@@ -70,42 +71,44 @@ public class VoicemailPreferencesResource extends UserResource {
     // PUT
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
-        VMPreferencesBean bean = JacksonConvert.fromRepresentation(entity, VMPreferencesBean.class);
-        MailboxPreferences prefs = new MailboxPreferences(getUser());
+        if (Boolean.TRUE == getUser().hasVoicemailPermission()) {
+            VMPreferencesBean bean = JacksonConvert.fromRepresentation(entity, VMPreferencesBean.class);
+            MailboxPreferences prefs = new MailboxPreferences(getUser());
 
-        LOG.debug("Saving VM settings bean:\t" + bean);
+            LOG.debug("Saving VM settings bean:\t" + bean);
 
-        if (bean.getGreeting() != null) {
-            prefs.setActiveGreeting(bean.getGreeting());
-        }
-        if (bean.getEmail() != null) {
-            prefs.setEmailAddress(bean.getEmail());
-        }
-        if (bean.getEmailAttachType() != null) {
-            prefs.setAttachVoicemailToEmail(bean.getEmailAttachType());
-        }
-        if (bean.getEmailFormat() != null) {
-            prefs.setEmailFormat(bean.getEmailFormat());
-        }
-        if (bean.getEmailIncludeAudioAttachment() != null) {
-            prefs.setIncludeAudioAttachment(bean.getEmailIncludeAudioAttachment());
-        }
-        if (bean.getAltEmail() != null) {
-            prefs.setAlternateEmailAddress(bean.getAltEmail());
-        }
-        if (bean.getAltEmailAttachType() != null) {
-            prefs.setVoicemailToAlternateEmailNotification(bean.getAltEmailAttachType());
-        }
-        if (bean.getAltEmailFormat() != null) {
-            prefs.setAlternateEmailFormat(bean.getAltEmailFormat());
-        }
-        if (bean.getAltEmailIncludeAudioAttachment() != null) {
-            prefs.setIncludeAudioAttachmentAlternateEmail(bean.getAltEmailIncludeAudioAttachment());
-        }
+            if (bean.getGreeting() != null) {
+                prefs.setActiveGreeting(bean.getGreeting());
+            }
+            if (bean.getEmail() != null) {
+                prefs.setEmailAddress(bean.getEmail());
+            }
+            if (bean.getEmailAttachType() != null) {
+                prefs.setAttachVoicemailToEmail(bean.getEmailAttachType());
+            }
+            if (bean.getEmailFormat() != null) {
+                prefs.setEmailFormat(bean.getEmailFormat());
+            }
+            if (bean.getEmailIncludeAudioAttachment() != null) {
+                prefs.setIncludeAudioAttachment(bean.getEmailIncludeAudioAttachment());
+            }
+            if (bean.getAltEmail() != null) {
+                prefs.setAlternateEmailAddress(bean.getAltEmail());
+            }
+            if (bean.getAltEmailAttachType() != null) {
+                prefs.setVoicemailToAlternateEmailNotification(bean.getAltEmailAttachType());
+            }
+            if (bean.getAltEmailFormat() != null) {
+                prefs.setAlternateEmailFormat(bean.getAltEmailFormat());
+            }
+            if (bean.getAltEmailIncludeAudioAttachment() != null) {
+                prefs.setIncludeAudioAttachmentAlternateEmail(bean.getAltEmailIncludeAudioAttachment());
+            }
 
-        User user = getUser();
-        prefs.updateUser(user);
-        getCoreContext().saveUser(user);
+            User user = getUser();
+            prefs.updateUser(user);
+            getCoreContext().saveUser(user);
+        }
     }
 
     private static class VMPreferencesBean {
@@ -118,6 +121,7 @@ public class VoicemailPreferencesResource extends UserResource {
         private AttachType m_altEmailAttachType;
         private MailFormat m_altEmailFormat;
         private Boolean m_altEmailIncludeAudioAttachment;
+        private Boolean m_voicemailPermission;
 
         public ActiveGreeting getGreeting() {
             return m_greeting;
@@ -156,7 +160,7 @@ public class VoicemailPreferencesResource extends UserResource {
         }
 
         public void setEmailIncludeAudioAttachment(Boolean emailIncludeAudioAttachment) {
-            this.m_emailIncludeAudioAttachment = emailIncludeAudioAttachment;
+            m_emailIncludeAudioAttachment = emailIncludeAudioAttachment;
         }
 
         public String getAltEmail() {
@@ -191,13 +195,23 @@ public class VoicemailPreferencesResource extends UserResource {
             m_altEmailIncludeAudioAttachment = altEmailIncludeAudioAttachment;
         }
 
+        @SuppressWarnings("unused")
+        public Boolean getVoicemailPermission() {
+            return m_voicemailPermission;
+        }
+
+        public void setVoicemailPermission(Boolean hasVoicemailPermission) {
+            m_voicemailPermission = hasVoicemailPermission;
+        }
+
         @Override
         public String toString() {
             return "VMPreferencesBean [m_greeting=" + m_greeting + ", m_email=" + m_email + ", m_emailAttachType="
                 + m_emailAttachType + ", m_emailFormat=" + m_emailFormat + ", m_emailIncludeAudioAttachment="
                 + m_emailIncludeAudioAttachment + ", m_altEmail=" + m_altEmail + ", m_altEmailAttachType="
                 + m_altEmailAttachType + ", m_altEmailFormat=" + m_altEmailFormat
-                + ", m_altEmailIncludeAudioAttachment=" + m_altEmailIncludeAudioAttachment + "]";
+                + ", m_altEmailIncludeAudioAttachment=" + m_altEmailIncludeAudioAttachment
+                + ", m_voicemailPermission=" + m_voicemailPermission + "]";
         }
     }
 }
