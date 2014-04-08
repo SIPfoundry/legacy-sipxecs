@@ -33,9 +33,11 @@ bundle agent apache_config {
   vars:
     apache_2_2::
       "ssl_mutex" string => "SSLMutex default";
+      "require_all_granted" string => "";
 
     !apache_2_2::
       "ssl_mutex" string => "Mutex sysvsem default";
+      "require_all_granted" string => "Require all granted";
 
     any::
       "ssl_web" slist => {
