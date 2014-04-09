@@ -186,9 +186,12 @@ class Restore < ArchiveBase
     # exclude certdb because we don't need it but it's in <= 4.4.0 backups
     cmd "tar --exclude certdb -zxvf #{params[:file]} -C @localstatedir@/.. var/sipxdata" or
       raise "Could not restore file uploads"
-      
-    cmd "tar -zxvf #{params[:file]} -C / var/cfengine" or
-      raise "Could not restore cfengine keys"
+    
+    begin  
+      cmd "tar -zxvf #{params[:file]} -C / var/cfengine"
+    rescue Exception => e
+      puts "Cannot restore cfengine files (4.4 backup maybe)"
+    end  
     
     new_fqdn = nil
       
