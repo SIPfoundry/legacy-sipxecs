@@ -30,6 +30,8 @@ public class UserSession {
      */
     private boolean m_navigationVisible = true;
 
+    private Integer m_userId;
+
     /**
      * user that is currently logged in
      */
@@ -46,11 +48,13 @@ public class UserSession {
     }
 
     public Integer getUserId() {
-        UserDetailsImpl userDetails = getUserDetails();
-        if (userDetails == null) {
-            return null;
+        if (m_userId == null) {
+            UserDetailsImpl userDetails = getUserDetails();
+            if (userDetails != null) {
+                m_userId = userDetails.getUserId();
+            }
         }
-        return userDetails.getUserId();
+        return m_userId;
     }
 
     /**

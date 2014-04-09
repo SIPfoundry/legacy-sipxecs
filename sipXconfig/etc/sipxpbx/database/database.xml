@@ -466,6 +466,7 @@
     <antcall target="callgroup-usefwdtimers" />
     <antcall target="callgroup-fallback-expire" />
     <antcall target="update-polycom-version" />
+    <antcall target="config-change" />
   </target>
 
   <target name="plugin-patches">
@@ -1408,6 +1409,11 @@
   </target>
   <target name="update-polycom-version" unless="update-polycom-version">
     <db-patch patch="update-polycom-version" />
+  </target>
+  <target name="config-change" unless="config-change">
+    <db-patch patch="user-ip-address"/>
+    <db-patch patch="config-change"/>
+    <plsql-patch patch="system-audit-cleanup"/>
   </target>
 
   <!--

@@ -29,7 +29,9 @@ bin_SCRIPTS = \
 	mongodb-status \
 	mongodb-analyzer \
 	mongodb-admin \
-	sipxtrap
+	sipxtrap \
+	system-audit-cleanup \
+	system-audit-cleanup.rb
 
 libexecdir = $(SIPX_LIBEXECDIR)
 libexec_SCRIPTS = \

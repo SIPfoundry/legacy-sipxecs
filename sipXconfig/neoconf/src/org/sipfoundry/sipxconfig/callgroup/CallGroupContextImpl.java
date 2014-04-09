@@ -80,7 +80,11 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         if (StringUtils.isNotBlank(did) && did.equals(extension)) {
             throw new DidInUseException(huntGroupTypeName, did);
         }
-        getHibernateTemplate().saveOrUpdate(callGroup);
+        if (callGroup.isNew()) {
+            getHibernateTemplate().save(callGroup);
+        } else {
+            getHibernateTemplate().merge(callGroup);
+        }
         // activate call groups every time the call group is saved
         m_replicationContext.generate(callGroup);
     }

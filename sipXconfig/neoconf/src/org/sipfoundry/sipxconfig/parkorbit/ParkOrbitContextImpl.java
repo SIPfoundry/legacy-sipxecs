@@ -48,11 +48,13 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.support.DataAccessUtils;
 
 public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext, BeanFactoryAware,
         FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
+    private static final String PARK_ORBIT_BY_NAME = "parkOrbitByName";
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private SettingDao m_settingDao;
@@ -79,7 +81,11 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         }
 
         getDaoEventPublisher().publishSave(parkOrbit);
-        getHibernateTemplate().saveOrUpdate(parkOrbit);
+        if (parkOrbit.isNew()) {
+            getHibernateTemplate().save(parkOrbit);
+        } else {
+            getHibernateTemplate().merge(parkOrbit);
+        }
     }
 
     public void removeParkOrbits(Collection ids) {
@@ -104,7 +110,11 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     public void setDefaultMusicOnHold(String music) {
         BackgroundMusic backgroundMusic = getBackgroundMusic();
         backgroundMusic.setMusic(music);
-        getHibernateTemplate().saveOrUpdate(backgroundMusic);
+        if (backgroundMusic.isNew()) {
+            getHibernateTemplate().save(backgroundMusic);
+        } else {
+            getHibernateTemplate().merge(backgroundMusic);
+        }
     }
 
     private BackgroundMusic getBackgroundMusic() {
@@ -243,5 +253,12 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+    }
+
+    @Override
+    public ParkOrbit loadParkOrbitByName(String name) {
+        List<ParkOrbit> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                PARK_ORBIT_BY_NAME, VALUE, name);
+        return (ParkOrbit) DataAccessUtils.singleResult(conferences);
     }
 }

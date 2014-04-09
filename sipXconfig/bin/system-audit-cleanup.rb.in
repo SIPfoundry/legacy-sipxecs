@@ -1,0 +1,18 @@
+class SystemAuditCleanup
+
+  def initialize
+    @pguser = "postgres"
+    @db = "SIPXCONFIG"
+    @sql = "select system_audit_cleanup();"
+  end
+
+  def run()
+    cmd "psql -U #{@pguser} #{@db} -c \"#{@sql}\""
+  end
+
+  def cmd(cmd)
+    puts cmd if @verbose
+    rc = system(cmd)
+    return rc
+  end
+end

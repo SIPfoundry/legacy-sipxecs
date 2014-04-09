@@ -27,8 +27,10 @@ import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.dialplan.MappingRule;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public class CallGroup extends AbstractCallSequence implements Replicable {
+public class CallGroup extends AbstractCallSequence implements Replicable, SystemAuditable {
     private static final int SIP_PASSWORD_LEN = 10;
     private static final String ALIAS_RELATION = "callgroup";
     private boolean m_enabled;
@@ -289,5 +291,15 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
             }
         }
         return rings;
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.HUNT_GROUP;
     }
 }

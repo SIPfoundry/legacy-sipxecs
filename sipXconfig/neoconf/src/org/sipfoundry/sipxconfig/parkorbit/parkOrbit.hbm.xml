@@ -46,4 +46,8 @@
     <![CDATA[select orbit.id from ParkOrbit orbit where orbit.name = :value or orbit.extension = :value]]>
   </query>
 
+    <query name="parkOrbitByName">
+    <![CDATA[select orbit from ParkOrbit orbit where orbit.name = :value]]>
+  </query>
+
 </hibernate-mapping>

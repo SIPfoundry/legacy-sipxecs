@@ -60,12 +60,14 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 import org.sipfoundry.sipxconfig.time.NtpManager;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
-public abstract class AbstractUser extends BeanWithGroups {
+public abstract class AbstractUser extends BeanWithGroups implements SystemAuditable {
     public static final int VOICEMAIL_PIN_LEN = 4;
     public static final int PASSWORD_LEN = 8;
     public static final String GROUP_RESOURCE_ID = "user";
@@ -909,5 +911,15 @@ public abstract class AbstractUser extends BeanWithGroups {
 
     public void setTimeManager(NtpManager timeManager) {
         m_timeManager = timeManager;
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getUserName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.USER;
     }
 }

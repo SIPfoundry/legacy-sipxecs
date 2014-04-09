@@ -87,7 +87,11 @@ public class GatewayContextImpl extends SipxHibernateDaoSupport implements Gatew
         // Find if we are about to save a new gateway
         boolean isNew = gateway.isNew();
         // Store the updated gateway
-        hibernate.saveOrUpdate(gateway);
+        if (isNew) {
+            hibernate.save(gateway);
+        } else {
+            hibernate.merge(gateway);
+        }
         hibernate.flush();
 
         if (isNew) {

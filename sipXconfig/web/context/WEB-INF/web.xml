@@ -58,6 +58,10 @@
   </listener>
   <!-- END AXIS -->
 
+  <listener>
+    <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
+  </listener>
+
   <!-- START CXF -->
   <servlet>
     <servlet-name>CXFServlet</servlet-name>

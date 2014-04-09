@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.systemaudit" default-lazy="false">
+
+  <class name="ConfigChange" table="config_change">
+    <id name="id" column="config_change_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">config_change_seq</param>
+      </generator>
+    </id>
+    <property name="dateTime" column="date_time" />
+    <many-to-one name="userIpAddress" column="user_ip_address_id" unique="true"
+			class="org.sipfoundry.sipxconfig.common.UserIpAddress" foreign-key="user_ip_address_id" lazy="proxy"/>
+    <property name="configChangeType" column="config_change_type"
+            type="org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType$UserType" />
+    <property name="configChangeAction" column="config_change_action"
+            type="org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction$UserType" />
+    <property name="details" column="details" />
+    <bag name="values" inverse="true" table="config_change_value" cascade="all">
+      <key column="config_change_id" />
+      <one-to-many class="ConfigChangeValue" />
+    </bag>
+  </class>
+
+  <class name="ConfigChangeValue" table="config_change_value">
+    <id name="id" column="config_change_value_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">config_change_value_seq</param>
+      </generator>
+    </id>
+    <property name="propertyName" column="property_name" />
+    <property name="valueBefore" column="value_before" />
+    <property name="valueAfter" column="value_after" />
+    <many-to-one name="configChange" column="config_change_id" class="ConfigChange" />
+  </class>
+
+</hibernate-mapping>

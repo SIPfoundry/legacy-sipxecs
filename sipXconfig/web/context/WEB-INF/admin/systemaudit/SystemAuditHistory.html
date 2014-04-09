@@ -1,0 +1,43 @@
+<span jwcid="@common/ErrorMsg" />
+<form jwcid="systemAuditHistory">
+    <fieldset>
+        <table>
+            <tr jwcid="startDate@common/DateTimeEditor" datetime="ognl:startDate"
+                label="message:filter.startDate"
+                onchange="literal:javascript:this.form.submit();" />
+            <tr jwcid="endDate@common/DateTimeEditor" datetime="ognl:endDate"
+                label="message:filter.endDate"
+                onchange="literal:javascript:this.form.submit();" />
+            <tr jwcid="@common/FieldPanel" field="component:type"
+                label="message:filter.type">
+                <span jwcid="type@PropertySelection" model="ognl:typeModel"
+                    value="ognl:type" onchange="literal:javascript:this.form.submit();" />
+            </tr>
+			<tr jwcid="@common/FieldPanel" field="component:action"
+				label="message:filter.action">
+				<span jwcid="action@PropertySelection" model="ognl:actionModel"
+					value="ognl:action"
+					onchange="literal:javascript:this.form.submit();" />
+			</tr>
+			<tr jwcid="@common/FieldPanel" field="component:user"
+				label="message:filter.user">
+				<td jwcid="user@TextField" value="ognl:user"
+					displayName="message:filter.user" />
+			</tr>
+			<tr jwcid="@common/FieldPanel" field="component:details"
+                label="message:filter.details">
+                <td jwcid="details@TextField" value="ognl:details"
+                    displayName="message:filter.details" />
+            </tr>
+			<tr>
+				<td>
+					<ul class="component-submit">
+						<li><input jwcid="@Submit" value="message:button.filter" /></li>
+					</ul>
+				</td>
+			</tr>
+		</table>
+    </fieldset>
+    <span jwcid="configChangeTable" class="component"
+        source="ognl:tableModel" />
+</form>

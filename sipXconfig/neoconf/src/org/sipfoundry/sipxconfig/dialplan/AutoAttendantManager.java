@@ -32,6 +32,8 @@ public interface AutoAttendantManager extends DialingRuleProvider, AliasOwner {
 
     AutoAttendant getAutoAttendantBySystemName(String systemName);
 
+    AutoAttendant getAutoAttendantByName(String attendantName);
+
     List<AutoAttendant> getAutoAttendants();
 
     void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds);

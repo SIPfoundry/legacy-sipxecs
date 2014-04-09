@@ -34,11 +34,14 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
  */
-public abstract class DialingRule extends BeanWithId implements NamedObject, IDialingRule, DeployConfigOnEdit {
+public abstract class DialingRule extends BeanWithId implements NamedObject,
+        IDialingRule, DeployConfigOnEdit, SystemAuditable {
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
     public static final String GATEWAY_EXPIRES_PATTERN = "expires=%s";
     public static final String GATEWAY_EXPIRES_VALUE = "7200";
@@ -321,5 +324,14 @@ public abstract class DialingRule extends BeanWithId implements NamedObject, IDi
 
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) DialPlanContext.FEATURE);
+    }
+
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.DIALING_RULE;
     }
 }

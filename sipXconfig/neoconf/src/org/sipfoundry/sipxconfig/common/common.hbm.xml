@@ -71,6 +71,16 @@
     </id>
     <property name="cronString" />
     <property name="enabled" />
+  </class>
+
+  <class name="UserIpAddress" table="user_ip_address">
+	<id name="id" column="user_ip_address_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_ip_address_seq</param>
+      </generator>
+    </id>
+	<property name="userName" column="user_name" />
+    <property name="ipAddress" column="ip_address" />
   </class>  
 
   <query name="userByAlias">
@@ -128,4 +138,8 @@
     <![CDATA[select u from User u where u.userName = :value]]>
   </query>
   
+  <query name="userIpAddressByUserIdAndIpAddress">
+    <![CDATA[select u from UserIpAddress u where u.userName = :userName and ((u.ipAddress = :ipAddress) or (u.ipAddress is null and :ipAddress is null))]]>
+  </query>
+
 </hibernate-mapping>

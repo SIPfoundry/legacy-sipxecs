@@ -165,14 +165,15 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
         if (schedule.isNew()) {
             // check if new object
             checkForDuplicateNames(schedule);
+            getHibernateTemplate().save(schedule);
         } else {
             // on edit action - check if the name for this schedule was modified
             // if the name was changed then perform duplicate name checking
             if (isNameChanged(schedule)) {
                 checkForDuplicateNames(schedule);
             }
+            getHibernateTemplate().merge(schedule);
         }
-        getHibernateTemplate().saveOrUpdate(schedule);
         List<Ring> rings = getRingsForScheduleId(schedule.getId());
         Collection<CallSequence> css = new HashSet<CallSequence>();
         if (rings != null) {

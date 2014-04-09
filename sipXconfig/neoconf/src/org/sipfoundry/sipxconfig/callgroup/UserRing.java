@@ -9,9 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.callgroup;
 
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class UserRing extends AbstractRing {
+public class UserRing extends AbstractRing implements NamedObject {
     private CallGroup m_callGroup;
     private User m_user;
 
@@ -47,5 +48,20 @@ public class UserRing extends AbstractRing {
     public boolean isFirst() {
         AbstractRing ring = getCallGroup().getRings().get(0);
         return ring == this;
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return m_user.getEntityIdentifier();
+    }
+
+    @Override
+    public String getName() {
+        return (String) getUserPart();
+    }
+
+    @Override
+    public void setName(String name) {
+        // Do nothing
     }
 }

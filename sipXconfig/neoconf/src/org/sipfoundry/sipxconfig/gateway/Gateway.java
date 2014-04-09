@@ -31,11 +31,13 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * Gateway
  */
-public class Gateway extends Device implements Replicable, DeployConfigOnEdit {
+public class Gateway extends Device implements Replicable, DeployConfigOnEdit, SystemAuditable {
     public static final String LINEID = ";sipxecs-lineid=";
     public static final String UID = "~~gw";
     private String m_name;
@@ -384,5 +386,15 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit {
     @Override
     public boolean isReplicationEnabled() {
         return isEnabled();
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.GATEWAY;
     }
 }
