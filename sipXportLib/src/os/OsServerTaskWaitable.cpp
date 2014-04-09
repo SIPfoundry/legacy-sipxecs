@@ -28,7 +28,6 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 
-const int OsServerTaskWaitable::sFdLimit = getdtablesize() - FD_HEADROOM;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -45,6 +44,15 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
    mPipeReadingFd(-1),          // Initialize to invalid state.
    mPipeWritingFd(-1)
 {
+   //
+   // The limit we allow for fd's returned by pipe().
+   // fdLimit allows us to enforce some headroom in fd allocation
+   // between the fd's assigned by SipClient's and getdtablesize().
+   // OsResourceLimit can change the size of allowable fd's so we need to
+   // compute it here as opposed to computing it as a static variable.
+   //
+   int fdSetSize = getdtablesize() - FD_HEADROOM;
+
    // Create the pipe which is used to signal that a message is available.
    int filedes[2];
    int ret = pipe(filedes);
@@ -52,7 +60,7 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
    if (ret == 0)
    {
       // Check if fd's are too large.
-      if (filedes[0] <= sFdLimit && filedes[1] <= sFdLimit)
+      if (filedes[0] <= fdSetSize && filedes[1] <= fdSetSize)
       {
          // Everything is OK.
          mPipeReadingFd = filedes[0];
@@ -70,8 +78,8 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
          mPipeWritingFd = -1;
          Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                        "OsServerTaskWaitable::_ "
-                       "pipe() returned %d -> %d, which exceeds sFdLimit = %d",
-                       filedes[1], filedes[0], sFdLimit);
+                       "pipe() returned %d -> %d, which exceeds fdSetSize = %d",
+                       filedes[1], filedes[0], fdSetSize);
       }
    }
    else
