@@ -66,8 +66,8 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
          mPipeReadingFd = filedes[0];
          mPipeWritingFd = filedes[1];
          Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
-                       "OsServerTaskWaitable::_ pipe() opened %d -> %d",
-                       mPipeWritingFd, mPipeReadingFd);
+                       "OsServerTaskWaitable::_ pipe() opened %d -> %d.  getdtablesize() = %d",
+                       mPipeWritingFd, mPipeReadingFd, fdSetSize + FD_HEADROOM);
       }
       else
       {
@@ -89,7 +89,7 @@ OsServerTaskWaitable::OsServerTaskWaitable(const UtlString& name,
       Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
                     "OsServerTaskWaitable::_ "
                     "pipe() returned %d, errno = %d, getdtablesize() = %d",
-                    ret, errno, getdtablesize());
+                    ret, errno, fdSetSize + FD_HEADROOM);
    }
 }
 
