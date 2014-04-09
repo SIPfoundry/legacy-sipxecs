@@ -16,7 +16,10 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-public abstract class PersistableSettings extends BeanWithSettings {
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
+
+public abstract class PersistableSettings extends BeanWithSettings implements SystemAuditable {
 
     public abstract String getBeanId();
 
@@ -25,5 +28,14 @@ public abstract class PersistableSettings extends BeanWithSettings {
      * @param ignore
      */
     public void setBeanId(String ignore) {
+    }
+
+    public String getEntityIdentifier() {
+        return getClass().getName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.SETTINGS;
     }
 }

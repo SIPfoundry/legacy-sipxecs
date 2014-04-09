@@ -87,7 +87,11 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport<AutoAttend
         checkRegEx(aa.getAllowDial(), "&error.invalid.allowDialExpression");
 
         clearUnsavedValueStorage(aa.getValueStorage());
-        getHibernateTemplate().saveOrUpdate(aa);
+        if (aa.isNew()) {
+            getHibernateTemplate().save(aa);
+        } else {
+            getHibernateTemplate().merge(aa);
+        }
         getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(aa);
     }
@@ -192,7 +196,11 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport<AutoAttend
         if (attendant.equals(specialMode.getAttendant())) {
             specialMode.setAttendant(null);
             specialMode.setEnabled(false);
-            getHibernateTemplate().saveOrUpdate(specialMode);
+            if (specialMode.isNew()) {
+                getHibernateTemplate().save(specialMode);
+            } else {
+                getHibernateTemplate().merge(specialMode);
+            }
         }
 
         getHibernateTemplate().delete(attendant);
@@ -246,7 +254,11 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport<AutoAttend
         }
         attendant = createSystemAttendant(attendantId);
         attendant.addGroup(getDefaultAutoAttendantGroup());
-        getHibernateTemplate().saveOrUpdate(attendant);
+        if (attendant.isNew()) {
+            getHibernateTemplate().save(attendant);
+        } else {
+            getHibernateTemplate().merge(attendant);
+        }
         getDaoEventPublisher().publishSave(attendant);
         return attendant;
     }
@@ -301,7 +313,11 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport<AutoAttend
         }
 
         specialMode.setAttendant(null);
-        getHibernateTemplate().saveOrUpdate(specialMode);
+        if (specialMode.isNew()) {
+            getHibernateTemplate().save(specialMode);
+        } else {
+            getHibernateTemplate().merge(specialMode);
+        }
         getDaoEventPublisher().publishSave(specialMode);
     }
 
@@ -329,7 +345,11 @@ public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport<AutoAttend
         } else {
             specialMode.setAttendant(aa);
         }
-        getHibernateTemplate().saveOrUpdate(specialMode);
+        if (specialMode.isNew()) {
+            getHibernateTemplate().save(specialMode);
+        } else {
+            getHibernateTemplate().merge(specialMode);
+        }
         getDaoEventPublisher().publishSave(specialMode);
     }
 

@@ -159,7 +159,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     @Override
     public void savePhonebook(Phonebook phonebook) {
         checkDuplicates(getHibernateTemplate(), Phonebook.class, phonebook, NAME, new DuplicatePhonebookName());
-        getHibernateTemplate().saveOrUpdate(phonebook);
+        if (phonebook.isNew()) {
+            getHibernateTemplate().save(phonebook);
+        } else {
+            getHibernateTemplate().merge(phonebook);
+        }
         getDaoEventPublisher().publishSave(phonebook);
     }
 

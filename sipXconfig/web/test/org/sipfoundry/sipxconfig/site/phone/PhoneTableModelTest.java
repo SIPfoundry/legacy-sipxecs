@@ -14,11 +14,12 @@ import junit.framework.TestCase;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public class PhoneTableModelTest extends TestCase {
 
     public void testOrderByFromSortColumEmpty() {
-        String[] orderBy = PhoneTableModel.orderByFromSortColum(null);
+        String[] orderBy = TapestryUtils.orderByFromSortColum(null);
         assertEquals(0, orderBy.length);
     }
 
@@ -31,11 +32,11 @@ public class PhoneTableModelTest extends TestCase {
         columnCtrl.andReturn("modelId");
         columnCtrl.replay();
 
-        String[] orderBy = PhoneTableModel.orderByFromSortColum(column);
+        String[] orderBy = TapestryUtils.orderByFromSortColum(column);
         assertEquals(1, orderBy.length);
         assertEquals("bongo", orderBy[0]);
 
-        orderBy = PhoneTableModel.orderByFromSortColum(column);
+        orderBy = TapestryUtils.orderByFromSortColum(column);
         assertEquals(2, orderBy.length);
         assertEquals("beanId", orderBy[0]);
         assertEquals("modelId", orderBy[1]);

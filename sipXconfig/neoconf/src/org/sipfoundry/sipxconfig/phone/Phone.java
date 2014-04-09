@@ -35,11 +35,13 @@ import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.sip.SipService;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * Base class for managed phone subclasses
  */
-public abstract class Phone extends Device implements Replicable {
+public abstract class Phone extends Device implements Replicable, SystemAuditable {
     public static final Log LOG = LogFactory.getLog(Phone.class);
 
     public static final String URI_IN_PREFIX = "~~in~";
@@ -385,5 +387,15 @@ public abstract class Phone extends Device implements Replicable {
     @Override
     public boolean isReplicationEnabled() {
         return true;
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getSerialNumber();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.PHONE;
     }
 }

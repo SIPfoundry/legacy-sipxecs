@@ -85,7 +85,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         validateRule(rule);
         DialPlan dialPlan = getDialPlan();
         dialPlan.addRule(position, rule);
-        getHibernateTemplate().saveOrUpdate(dialPlan);
+        if (dialPlan.isNew()) {
+            getHibernateTemplate().save(dialPlan);
+        } else {
+            getHibernateTemplate().merge(dialPlan);
+        }
         getDaoEventPublisher().publishSave(dialPlan);
         m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
     }
@@ -98,12 +102,12 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (rule.isNew()) {
             DialPlan dialPlan = getDialPlan();
             dialPlan.addRule(rule);
-            getHibernateTemplate().saveOrUpdate(rule);
-            getHibernateTemplate().saveOrUpdate(dialPlan);
+            getHibernateTemplate().save(rule);
+            getHibernateTemplate().merge(dialPlan);
             getDaoEventPublisher().publishSave(dialPlan);
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         } else {
-            getHibernateTemplate().saveOrUpdate(rule);
+            getHibernateTemplate().merge(rule);
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         }
         getDaoEventPublisher().publishSave(rule);
@@ -217,7 +221,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
         DialPlan dialPlan = getDialPlan();
         dialPlan.removeRules(selectedRows);
-        getHibernateTemplate().saveOrUpdate(dialPlan);
+        if (dialPlan.isNew()) {
+            getHibernateTemplate().save(dialPlan);
+        } else {
+            getHibernateTemplate().merge(dialPlan);
+        }
         getDaoEventPublisher().publishSave(dialPlan);
         for (DialingRule rule : rulesToDelete) {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
@@ -234,7 +242,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
             rules.add(ruleDup);
         }
         getDaoEventPublisher().publishSave(dialPlan);
-        getHibernateTemplate().saveOrUpdate(dialPlan);
+        if (dialPlan.isNew()) {
+            getHibernateTemplate().save(dialPlan);
+        } else {
+            getHibernateTemplate().merge(dialPlan);
+        }
     }
 
     public List<DialingRule> getGenerationRules(Location location) {
@@ -250,7 +262,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void setOperator(AutoAttendant attendant) {
         DialPlan dialPlan = getDialPlan();
         dialPlan.setOperator(attendant);
-        getHibernateTemplate().saveOrUpdate(dialPlan);
+        if (dialPlan.isNew()) {
+            getHibernateTemplate().save(dialPlan);
+        } else {
+            getHibernateTemplate().merge(dialPlan);
+        }
     }
 
     /**
@@ -307,7 +323,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void moveRules(Collection<Integer> selectedRows, int step) {
         DialPlan dialPlan = getDialPlan();
         dialPlan.moveRules(selectedRows, step);
-        getHibernateTemplate().saveOrUpdate(dialPlan);
+        if (dialPlan.isNew()) {
+            getHibernateTemplate().save(dialPlan);
+        } else {
+            getHibernateTemplate().merge(dialPlan);
+        }
         getDaoEventPublisher().publishSave(dialPlan);
     }
 
@@ -317,7 +337,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void removeEmptyRules() {
         DialPlan dialPlan = getDialPlan();
         if (dialPlan.removeEmptyRules()) {
-            getHibernateTemplate().saveOrUpdate(dialPlan);
+            if (dialPlan.isNew()) {
+                getHibernateTemplate().save(dialPlan);
+            } else {
+                getHibernateTemplate().merge(dialPlan);
+            }
             getDaoEventPublisher().publishSave(dialPlan);
         }
     }

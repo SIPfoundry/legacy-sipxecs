@@ -17,8 +17,10 @@ import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployConfigOnEdit {
+public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployConfigOnEdit, SystemAuditable {
 
     private String m_name;
     private String m_extension;
@@ -83,5 +85,15 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) ParkOrbitContext.FEATURE);
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.CALL_PARK;
     }
 }

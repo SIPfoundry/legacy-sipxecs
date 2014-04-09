@@ -53,6 +53,8 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.setup.SetupListener;
 import org.sipfoundry.sipxconfig.setup.SetupManager;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -87,6 +89,7 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
             + "-i %s/.cfagent/ppkeys/localhost.nopass.priv root@%s";
     private String m_remoteHostsFile = "%s/.ssh/known_hosts";
     private boolean m_flag;
+    private SystemAuditManager m_systemAuditManager;
 
     @Override
     public synchronized void configureEverywhere(Feature... features) {
@@ -139,6 +142,10 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
     public void sendProfiles(Collection<Location> locations) {
         regenerateMongo(locations);
         configureAllFeatures(locations);
+
+        for (Location location : locations) {
+            m_systemAuditManager.onConfigChangeAction(location, ConfigChangeAction.SEND_PROFILE, null, null, null);
+        }
     }
 
     public synchronized boolean hasWork() {
@@ -537,5 +544,10 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         }
         // TODO Auto-generated method stub
         return getRegisteredLocations();
+    }
+
+    @Required
+    public void setSystemAuditManager(SystemAuditManager systemAuditManager) {
+        m_systemAuditManager = systemAuditManager;
     }
 }

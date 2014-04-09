@@ -50,7 +50,11 @@ public class BeanWithSettingsDaoImpl<T extends BeanWithSettings> extends SipxHib
 
     @Override
     public void upsert(T object) {
-        getHibernateTemplate().saveOrUpdate(object);
+        if (object.isNew()) {
+            getHibernateTemplate().save(object);
+        } else {
+            getHibernateTemplate().merge(object);
+        }
         getHibernateTemplate().flush();
     }
 

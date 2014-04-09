@@ -61,6 +61,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String VALUE = "value";
     /** nothing special about this name */
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
+    private static final String QUERY_IP_ADDRESS = "ipAddress";
     private static final String SQL_QUERY_USER_IDS_BY_NAME_OR_ALIAS = "select distinct u.user_id from users u "
             + "left outer join user_alias alias  " + "on u.user_id=alias.user_id  "
             + "left outer join value_storage vs on vs.value_storage_id=u.value_storage_id  "
@@ -299,6 +300,20 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     @Override
     public User loadUser(Integer id) {
         return load(User.class, id);
+    }
+
+    @Override
+    public UserIpAddress getUserIpAddress(String userName, String ipAddress) {
+        String queryString = "userIpAddressByUserIdAndIpAddress";
+
+        List<UserIpAddress> userIpAddressList = getHibernateTemplate()
+                .findByNamedQueryAndNamedParam(queryString,
+                        new String[] {USERNAME_PROP_NAME, QUERY_IP_ADDRESS},
+                        new Object[] {userName, ipAddress});
+
+        UserIpAddress userIpAddress = DaoUtils.requireOneOrZero(
+                userIpAddressList, queryString);
+        return userIpAddress;
     }
 
     @Override

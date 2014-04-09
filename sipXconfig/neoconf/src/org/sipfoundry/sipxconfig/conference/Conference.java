@@ -48,8 +48,10 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public class Conference extends BeanWithSettings implements Replicable, DeployConfigOnEdit {
+public class Conference extends BeanWithSettings implements Replicable, DeployConfigOnEdit, SystemAuditable {
     public static final String BEAN_NAME = "conferenceConference";
 
     /**
@@ -466,5 +468,15 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     @Override
     public boolean isReplicationEnabled() {
         return isEnabled();
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.CONFERENCE;
     }
 }

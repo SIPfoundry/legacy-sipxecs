@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="configChangeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContext" />
+    <property name="target" ref="configChangeContextImpl" />
+  </bean>
+
+  <bean id="configChangeContextImpl" class="org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContextImpl" parent="abstractDaoImpl">
+    <property name="settingDao" ref="settingDao" />
+  </bean>
+
+  <bean id="systemAuditManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.systemaudit.SystemAuditManager" />
+    <property name="target" ref="SystemAuditManagerImpl" />
+  </bean>
+
+  <bean id="SystemAuditManagerImpl" class="org.sipfoundry.sipxconfig.systemaudit.SystemAuditManagerImpl">
+    <property name="generalAuditHandler" ref="generalAuditHandler" />
+  	<property name="featureAuditHandler" ref="featureAuditHandler" />
+  	<property name="loginLogoutAuditHandler" ref="loginLogoutAuditHandler" />
+  </bean>
+
+  <bean id="abstractSystemAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.AbstractSystemAuditHandler" abstract="true">
+    <property name="configChangeContext" ref="configChangeContext" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+  <bean id="generalAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.GeneralAuditHandler" parent="abstractSystemAuditHandler">
+    <property name="userProfileService" ref="userProfileService" />
+  </bean>
+  <bean id="featureAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.FeatureAuditHandler" parent="abstractSystemAuditHandler">
+    <property name="featureManager" ref="featureManager" />
+  </bean>
+  <bean id="loginLogoutAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.LoginLogoutAuditHandler" parent="abstractSystemAuditHandler"/>
+
+</beans>

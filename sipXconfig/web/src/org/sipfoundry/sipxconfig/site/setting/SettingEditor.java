@@ -290,12 +290,12 @@ public abstract class SettingEditor extends BaseComponent {
         return LocalizationUtils.getSettingLabel(this, setting);
     }
 
-    static IPropertySelectionModel enumModelForType(EnumSetting enumType) {
+    public static IPropertySelectionModel enumModelForType(EnumSetting enumType) {
         Map<String, String> enums = enumType.getEnums();
         return new NamedValuesSelectionModel(enums);
     }
 
-    static IPropertySelectionModel localizedModelForType(Setting setting, EnumSetting enumType,
+    public static IPropertySelectionModel localizedModelForType(Setting setting, EnumSetting enumType,
             MessageSource messageSource, Locale locale) {
         Map<String, String> enums = enumType.getEnums();
         int size = enums.size();

@@ -227,4 +227,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasOwner, Replica
     int getDisabledUsersCount();
 
     int getPhantomUsersCount();
+
+    UserIpAddress getUserIpAddress(String userName, String ipAddress);
 }

@@ -15,7 +15,6 @@ import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_ENABLED;
-import static org.sipfoundry.sipxconfig.common.AbstractUser.IM_ACCOUNT;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -290,4 +289,5 @@ public class User extends AbstractUser implements Replicable {
     public void setDepositVoicemail(boolean value) {
         setSettingTypedValue(VM_ENABLED_SETTING_PATH, value);
     }
+
 }

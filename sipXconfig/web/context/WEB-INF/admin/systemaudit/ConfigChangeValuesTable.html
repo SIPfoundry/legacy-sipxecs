@@ -1,0 +1,16 @@
+<table jwcid="configChangeValueTable@common/Table" id="configChangeValue:list"
+  columns="* propertyName,valueBefore,valueAfter"
+  usePager="true"
+  source="ognl:source"
+  row="ognl:configChangeValue"
+  initialSortColumn="propertyName">
+	<span jwcid="propertyNameColumnValue@Block"> <span
+		jwcid="@Insert" value="ognl:propertyName" />
+	</span>
+	<span jwcid="valueBeforeColumnValue@Block"> <span
+		jwcid="@Insert" value="ognl:valueBefore" />
+	</span>
+	<span jwcid="valueAfterColumnValue@Block"> <span
+		jwcid="@Insert" value="ognl:valueAfter" />
+	</span>
+</table>

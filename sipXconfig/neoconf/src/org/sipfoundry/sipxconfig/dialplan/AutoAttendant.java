@@ -29,9 +29,11 @@ import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 import org.springframework.beans.factory.annotation.Required;
 
-public class AutoAttendant extends BeanWithGroups implements NamedObject, DeployConfigOnEdit {
+public class AutoAttendant extends BeanWithGroups implements NamedObject, DeployConfigOnEdit, SystemAuditable {
     public static final Log LOG = LogFactory.getLog(AutoAttendant.class);
     public static final String BEAN_NAME = "autoAttendant";
     public static final String OPERATOR_ID = "operator";
@@ -283,6 +285,16 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
         attendant.setSettingValue(ONFAIL_TRANSFER_PROMPT, getSettingValue(ONFAIL_TRANSFER_PROMPT));
         attendant.setSettingValue(ON_TRANSFER_PLAY_PROMPT, getSettingValue(ON_TRANSFER_PLAY_PROMPT));
         attendant.setGroupsAsList(getGroupsAsList());
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getSystemId();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.AUTO_ATTENDANT;
     }
 
 }

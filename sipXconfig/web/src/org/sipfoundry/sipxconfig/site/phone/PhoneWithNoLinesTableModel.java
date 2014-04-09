@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.contrib.table.model.ITableColumn;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
@@ -31,7 +32,7 @@ public class PhoneWithNoLinesTableModel extends PhoneTableModel {
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
-        String[] orderBy = orderByFromSortColum(objSortColumn);
+        String[] orderBy = TapestryUtils.orderByFromSortColum(objSortColumn);
         List page = getPhoneContext().loadPhonesWithNoLinesByPage(firstRow, pageSize, orderBy,
                 orderAscending);
         return page.iterator();

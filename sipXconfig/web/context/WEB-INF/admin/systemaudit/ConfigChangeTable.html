@@ -1,0 +1,40 @@
+<table jwcid="configChangeTable@common/Table" id="configChange:list"
+	columns="* dateTime,userIpAddress:userIpAddress.userName,configChangeType,configChangeAction,details"
+	usePager="true" 
+	source="ognl:source" 
+	row="ognl:configChange"
+	initialSortColumn="dateTime"
+	initialSortOrder="false">
+	<span jwcid="dateTimeColumnValue@Block"> <span
+        jwcid="@Insert" value="ognl:configChange.dateTime" format="ognl:dateFormat" />
+    </span>
+	<span jwcid="userIpAddressColumnValue@Block"> 
+		<span jwcid="@If" condition="ognl:user != null" renderTag="false">
+			<img jwcid="@Image" image="ognl:userIcon" align="absmiddle" title="ognl:userIconTitle" />
+			<span jwcid="@If"
+				condition="ognl:userListener != null" renderTag="false"> <a
+					href="#" jwcid="userNameLink@DirectLink" listener="ognl:userListener"
+					parameters="ognl:user.id"> <span
+						jwcid="@Insert"
+						value="ognl:configChange.userIpAddress.userName" />
+				</a>
+			</span>
+		</span>
+		<span jwcid="@Else" renderTag="false">
+		  <span jwcid="@Insert" value="ognl:configChange.userIpAddress.userName" />
+		</span>
+	</span>
+	<span jwcid="configChangeTypeColumnValue@Block"> <span
+		jwcid="@Insert" value="ognl:configChangeType" />
+	</span>
+	<span jwcid="configChangeActionColumnValue@Block"> <a
+		jwcid="viewConfigChangeLink@DirectLink"
+		listener="listener:viewConfigChange" parameters="ognl:{configChange,configChangeType,configChangeAction,details}">
+			<span jwcid="@Insert" value="ognl:configChangeAction" />
+	</a>
+	</span>
+	<span jwcid="detailsColumnValue@Block"> <span
+        jwcid="@Insert" value="ognl:details" />
+    </span>
+
+</table>

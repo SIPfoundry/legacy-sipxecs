@@ -66,5 +66,10 @@ public class AbstractRingTest extends TestCase {
         protected Object getUserPart() {
             return m_userPart;
         }
+        
+        @Override
+        public String getEntityIdentifier() {
+            return "";
+        }
     }
 }

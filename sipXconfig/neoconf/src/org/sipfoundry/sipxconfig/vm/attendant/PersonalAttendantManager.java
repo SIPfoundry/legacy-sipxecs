@@ -47,7 +47,11 @@ public abstract class PersonalAttendantManager extends HibernateDaoSupport {
     }
 
     public final void storePersonalAttendant(PersonalAttendant pa) {
-        getHibernateTemplate().saveOrUpdate(pa);
+        if (pa.isNew()) {
+            getHibernateTemplate().save(pa);
+        } else {
+            getHibernateTemplate().merge(pa);
+        }
     }
 
     public final void clearPersonalAttendants() {

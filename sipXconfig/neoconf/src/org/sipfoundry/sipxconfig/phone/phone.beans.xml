@@ -63,6 +63,7 @@
       <ref local="phoneRestartManagerImpl" />
     </property>
     <property name="jobContext" ref="jobContext" />
+    <property name="systemAuditManager" ref="systemAuditManager" />
   </bean>
 
   <bean id="phoneProfileManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
