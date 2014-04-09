@@ -78,7 +78,8 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
                 Setting settings = bridge.getSettings();
                 Setting bridgeSettings = settings.getSetting("bridge-configuration");
                 String log4jFileName = "log4j-bridge.properties.part";
-                String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxbridge"};
+                String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxbridge",
+                                         "log4j.logger.org.sipfoundry.commons" };
                 SettingUtil.writeLog4jSetting(bridgeSettings, dir, log4jFileName, logLevelKeys);
 
                 // strange object for profile location to be compatible with device module

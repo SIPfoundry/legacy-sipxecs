@@ -54,7 +54,6 @@ import org.sipfoundry.sipxrelay.SymmitronClient;
 public class Gateway {
 
     private static Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
-    private static Logger commonsLogger = Logger.getLogger("org.sipfoundry.commons");
 
     private static String configurationFile = "file:///etc/sipxpbx/sipxbridge.xml";
     private static String domainConfigFile = "file:///etc/sipxpbx/domain-config";

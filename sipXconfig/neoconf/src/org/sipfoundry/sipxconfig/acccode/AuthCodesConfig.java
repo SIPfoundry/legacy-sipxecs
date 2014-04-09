@@ -58,8 +58,7 @@ public class AuthCodesConfig implements ConfigProvider, PostConfigListener {
             }
 
             String log4jFileName = "log4j-acccode.properties.part";
-            String[] logLevelKeys = {"log4j.logger.org",
-                                     "log4j.logger.com"};
+            String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxacccode"};
             SettingUtil.writeLog4jSetting(acccodeSettings, dir, log4jFileName, logLevelKeys);
 
             Writer flat = new FileWriter(new File(dir, "sipxacccode.properties.part"));
