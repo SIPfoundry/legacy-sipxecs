@@ -48,9 +48,4 @@ public class UserRing extends AbstractRing {
         AbstractRing ring = getCallGroup().getRings().get(0);
         return ring == this;
     }
-
-    @Override
-    public String getEntityIdentifier() {
-        return m_user.getEntityIdentifier();
-    }
 }

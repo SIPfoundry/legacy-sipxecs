@@ -20,13 +20,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * Single holder of domain name
  */
-public class Domain extends BeanWithId implements DeployConfigOnEdit, Cloneable, SystemAuditable {
+public class Domain extends BeanWithId implements DeployConfigOnEdit, Cloneable {
     private static final int SECRET_SIZE = 18;
 
     private String m_name;
@@ -142,15 +140,5 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit, Cloneable,
 
     public void setNetworkName(String networkName) {
         m_networkName = networkName;
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.DOMAIN;
     }
 }

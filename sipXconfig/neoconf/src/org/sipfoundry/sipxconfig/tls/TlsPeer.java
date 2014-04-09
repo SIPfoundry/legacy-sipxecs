@@ -15,10 +15,8 @@ import java.util.Collections;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public class TlsPeer extends BeanWithUserPermissions implements DeployConfigOnEdit, SystemAuditable {
+public class TlsPeer extends BeanWithUserPermissions implements DeployConfigOnEdit {
     private String m_name;
 
     public String getName() {
@@ -32,15 +30,5 @@ public class TlsPeer extends BeanWithUserPermissions implements DeployConfigOnEd
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) TlsPeerManager.FEATURE);
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.TLS_PEER;
     }
 }

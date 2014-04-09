@@ -13,9 +13,8 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sipfoundry.sipxconfig.common.NamedObject;
 
-public class Button implements Serializable, NamedObject {
+public class Button implements Serializable {
     private String m_label;
     private String m_number;
     private boolean m_blf;
@@ -75,14 +74,5 @@ public class Button implements Serializable, NamedObject {
     @Override
     public String toString() {
         return "Button [m_label=" + m_label + ", m_number=" + m_number + ", m_blf=" + m_blf + "]";
-    }
-
-    @Override
-    public String getName() {
-        return m_label + "=" + m_number;
-    }
-
-    @Override
-    public void setName(String name) {
     }
 }

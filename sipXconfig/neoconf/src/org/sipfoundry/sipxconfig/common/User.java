@@ -293,5 +293,4 @@ public class User extends AbstractUser implements Replicable {
     public void setDepositVoicemail(boolean value) {
         setSettingTypedValue(VM_ENABLED_SETTING_PATH, value);
     }
-
 }

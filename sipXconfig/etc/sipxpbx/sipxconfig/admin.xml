@@ -156,12 +156,4 @@
       <value>1</value>
     </setting>
   </group>
-  <group name="config-change-audit">
-    <setting name="keep-changes">
-      <type>
-        <integer min="1" max="365" />
-      </type>
-      <value>30</value>
-    </setting>
-  </group>
 </model>

@@ -86,10 +86,4 @@ public class Ring extends AbstractRing {
             formatter.format(VALID_TIME_PARAM, m_schedule.calculateValidTime());
         }
     }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getCallSequence().getUser().getEntityIdentifier() + "->" + getNumber();
-    }
-
 }

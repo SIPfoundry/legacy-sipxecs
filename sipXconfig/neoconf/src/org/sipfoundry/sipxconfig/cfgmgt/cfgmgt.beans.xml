@@ -15,7 +15,6 @@
     <property name="jobContext" ref="jobContext"/>    
     <property name="cfDataDir" value="${sysdir.var}/cfdata"/>
     <property name="uploadDir" value="${sysdir.var}/cfupload"/>
-    <property name="systemAuditManager" ref="systemAuditManager"/>
   </bean>
   <alias alias="configManager" name="configManagerImpl"/>
   <alias alias="configCommands" name="configManagerImpl"/>  

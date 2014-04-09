@@ -149,11 +149,9 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
                 new DuplicateSerialNumberException(serialNumber));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         isNew = phone.isNew();
+        hibernate.saveOrUpdate(phone);
         if (isNew) {
-            hibernate.save(phone);
             LOG.error(String.format(ALARM_PHONE_ADDED, phone.getSerialNumber()));
-        } else {
-            hibernate.merge(phone);
         }
         getDaoEventPublisher().publishSave(phone);
     }
@@ -173,11 +171,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     @Override
     public void storeLine(Line line) {
         line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
-        if (line.isNew()) {
-            getHibernateTemplate().save(line);
-        } else {
-            getHibernateTemplate().merge(line);
-        }
+        getHibernateTemplate().saveOrUpdate(line);
         getDaoEventPublisher().publishSave(line);
     }
 

@@ -30,8 +30,6 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * User labeled storage of settings.
@@ -39,7 +37,7 @@ import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
  * @author dhubler
  *
  */
-public class Group extends ValueStorage implements Comparable<Group>, NamedObject, Replicable, SystemAuditable {
+public class Group extends ValueStorage implements Comparable<Group>, NamedObject, Replicable {
     private static final String E911_SETTING_PATH = "e911/location";
     private String m_name;
     private String m_description;
@@ -262,15 +260,5 @@ public class Group extends ValueStorage implements Comparable<Group>, NamedObjec
     @Override
     public boolean isReplicationEnabled() {
         return true;
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getResource() + "/" + getName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.GROUP;
     }
 }

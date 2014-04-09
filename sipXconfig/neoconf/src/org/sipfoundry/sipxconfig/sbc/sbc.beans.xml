@@ -96,7 +96,6 @@
       <ref local="sbcRestartManager" />
     </property>
     <property name="jobContext" ref="jobContext" />
-    <property name="systemAuditManager" ref="systemAuditManager" />
   </bean>
 
   <bean id="sbcProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">

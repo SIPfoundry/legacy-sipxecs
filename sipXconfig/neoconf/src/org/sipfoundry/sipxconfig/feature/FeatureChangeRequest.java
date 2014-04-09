@@ -32,18 +32,6 @@ public class FeatureChangeRequest {
     private Map<Location, Set<LocationFeature>> m_enableByLocation;
     private Map<Location, Set<LocationFeature>> m_disableByLocation;
 
-    /**
-     * In these maps we keep only the features that are requested to be
-     * enabled/disabled and are not currently enabled/disabled. These are not
-     * available by default, you need to populate them when you need them (see
-     * ConfigChange)
-     */
-    private Set<GlobalFeature> m_newlyEnable;
-    private Set<GlobalFeature> m_newlyDisable;
-    private Map<Location, Set<LocationFeature>> m_newlyEnabledByLocation;
-    private Map<Location, Set<LocationFeature>> m_newlyDisabledByLocation;
-
-
     public FeatureChangeRequest(Set<GlobalFeature> enable, Set<GlobalFeature> disable,
             Map<Location, Set<LocationFeature>> enableByLocation,
             Map<Location, Set<LocationFeature>> disableByLocation) {
@@ -184,39 +172,6 @@ public class FeatureChangeRequest {
         Collection locations = CollectionUtils.collect(select, findAndFilter);
         return (Collection<Location>) locations;
     }
-
-    public Map<Location, Set<LocationFeature>> getNewlyEnabledByLocation() {
-        return m_newlyEnabledByLocation;
-    }
-
-    public void setNewlyEnabledByLocation(Map<Location, Set<LocationFeature>> newlyEnabledByLocation) {
-        this.m_newlyEnabledByLocation = newlyEnabledByLocation;
-    }
-
-    public Map<Location, Set<LocationFeature>> getNewlyDisabledByLocation() {
-        return m_newlyDisabledByLocation;
-    }
-
-    public void setNewlyDisabledByLocation(Map<Location, Set<LocationFeature>> newlyDisabledByLocation) {
-        this.m_newlyDisabledByLocation = newlyDisabledByLocation;
-    }
-
-    public Set<GlobalFeature> getNewlyEnable() {
-        return m_newlyEnable;
-    }
-
-    public void setNewlyEnable(Set<GlobalFeature> newlyEnable) {
-        this.m_newlyEnable = newlyEnable;
-    }
-
-    public Set<GlobalFeature> getNewlyDisable() {
-        return m_newlyDisable;
-    }
-
-    public void setNewlyDisable(Set<GlobalFeature> newlyDisable) {
-        this.m_newlyDisable = newlyDisable;
-    }
-
 
     static class LocationByFeature implements Transformer, Predicate {
         private LocationFeature m_feature;

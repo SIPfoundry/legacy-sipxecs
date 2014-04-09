@@ -18,7 +18,6 @@ bundle agent sipxconfig {
   methods:
     primary::
       "any" usebundle => "sipxconfig_running";
-      "any" usebundle => "system_audit_cleanup";
     primary.apache::
       "any" usebundle => "sipxconfig_apache";
     sipxlogwatcher::
@@ -128,19 +127,4 @@ bundle edit_line sipx_log4j_properties_contents {
   delete_lines:
     any::
       ".*";
-}
-
-# Install system_audit cleanup
-bundle agent system_audit_cleanup {
-  vars:
-	# execute it every day after midnight
-	"cron" string => "20 0 * * * $(sipx.SIPX_BINDIR)/system_audit_cleanup &>> $(sipx.SIPX_LOGDIR)/system_audit_cleanup.log";
-	"cron_id" string => ".*/system_audit_cleanup .*"; #regex
-
-  methods:
-	primary::
-	  "any" usebundle => add_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)", "$(cron)");
-
-	!primary::
-	  "any" usebundle => remove_crontab("$(cron_id)", "$(sipx.SIPXPBXUSER)");
 }

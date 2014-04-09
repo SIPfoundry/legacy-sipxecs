@@ -18,10 +18,8 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public class Phonebook extends BeanWithId implements NamedObject, SystemAuditable {
+public class Phonebook extends BeanWithId implements NamedObject {
     private String m_name;
     private String m_description;
     private boolean m_showOnPhone = true;
@@ -113,15 +111,5 @@ public class Phonebook extends BeanWithId implements NamedObject, SystemAuditabl
 
     public Set<Group> getPreviousConsumers() {
         return m_previousConsumers;
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.PHONE_BOOK;
     }
 }

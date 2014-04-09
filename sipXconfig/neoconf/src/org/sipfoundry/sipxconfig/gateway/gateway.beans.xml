@@ -85,7 +85,6 @@
       <ref local="gatewayRestartManagerImpl" />
     </property>
     <property name="jobContext" ref="jobContext" />
-    <property name="systemAuditManager" ref="systemAuditManager" />
   </bean>
 
   <bean id="gatewayProfileManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

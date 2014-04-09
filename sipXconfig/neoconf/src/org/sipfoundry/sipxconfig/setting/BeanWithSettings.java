@@ -12,9 +12,6 @@ package org.sipfoundry.sipxconfig.setting;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public abstract class BeanWithSettings extends BeanWithId {
-
-    private static final String EMPTY_STRING = "";
-
     private ModelFilesContext m_modelFilesContext;
     private Setting m_settings;
     private BeanWithSettingsModel m_model2;
@@ -94,14 +91,7 @@ public abstract class BeanWithSettings extends BeanWithId {
         if (getSettings() != null) {
             return getSettings().getSetting(path).getValue();
         }
-        return EMPTY_STRING;
-    }
-
-    public String getSettingDefaultValue(String path) {
-        if (getSettings() != null) {
-            return getSettings().getSetting(path).getDefaultValue();
-        }
-        return EMPTY_STRING;
+        return "";
     }
 
     public Object getSettingTypedValue(String path) {

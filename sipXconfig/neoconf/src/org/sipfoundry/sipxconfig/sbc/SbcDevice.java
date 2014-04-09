@@ -14,11 +14,9 @@ import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SbcDevice extends Device implements NamedObject, SystemAuditable {
+public class SbcDevice extends Device implements NamedObject {
     private String m_address;
 
     private int m_port;
@@ -107,15 +105,5 @@ public class SbcDevice extends Device implements NamedObject, SystemAuditable {
             route.append(getPort());
         }
         return route.toString();
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.SBC_DEVICE;
     }
 }

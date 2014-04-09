@@ -465,7 +465,6 @@
     <antcall target="live-attendant-night" />
     <antcall target="callgroup-usefwdtimers" />
     <antcall target="callgroup-fallback-expire" />
-    <antcall target="config-change" />
   </target>
 
   <target name="plugin-patches">
@@ -1405,11 +1404,6 @@
   </target>
   <target name="callgroup-fallback-expire" unless="callgroup-fallback-expire">
     <db-patch patch="callgroup-fallback-expire" />
-  </target>
-  <target name="config-change" unless="config-change">
-    <db-patch patch="user-ip-address"/>
-    <db-patch patch="config-change"/>
-    <plsql-patch patch="system-audit-cleanup"/>
   </target>
 
   <!--

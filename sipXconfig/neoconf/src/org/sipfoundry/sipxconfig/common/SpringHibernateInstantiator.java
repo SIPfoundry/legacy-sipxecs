@@ -17,14 +17,11 @@ import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.map.LazyMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.Type;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -42,7 +39,6 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     private SessionFactory m_sessionFactory;
     private Map m_beanNamesCache;
     private Map<String, EntityDecorator> m_decorators;
-    private SystemAuditManager m_systemAuditManager;
 
     /**
      * This implementation only supports BeanWithId objects with integer ids
@@ -100,7 +96,6 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         if (decorator != null) {
             decorator.onSave(entity, id);
         }
-        m_systemAuditManager.onConfigChangeAction(entity, ConfigChangeAction.ADDED, null, null, null);
         return super.onSave(entity, id, state, propertyNames, types);
     }
 
@@ -140,7 +135,6 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         m_beanFactory = (ListableBeanFactory) beanFactory;
         Transformer transformer = new ClassToBeanName(m_beanFactory);
         m_beanNamesCache = LazyMap.decorate(new HashMap(), transformer);
-        m_systemAuditManager = (SystemAuditManager) m_beanFactory.getBean("systemAuditManager");
     }
 
     public BeanFactory getBeanFactory() {
@@ -150,21 +144,4 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
     }
-
-    @Override
-    public boolean onFlushDirty(Object obj, Serializable id, Object[] newValues, Object[] oldValues,
-            String[] properties, Type[] types) throws CallbackException {
-
-        m_systemAuditManager.onConfigChangeAction(obj, ConfigChangeAction.MODIFIED, properties, oldValues,
-                newValues);
-
-        return super.onFlushDirty(obj, id, oldValues, newValues, properties, types);
-    }
-
-    @Override
-    public void onCollectionUpdate(Object collection, Serializable key) throws CallbackException {
-        m_systemAuditManager.onConfigChangeCollectionUpdate(collection, key);
-        super.onCollectionUpdate(collection, key);
-    }
-
 }

@@ -33,11 +33,9 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 import org.sipfoundry.sipxconfig.common.event.KeepsOriginalCopy;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class Location extends BeanWithId implements KeepsOriginalCopy<Location>, DeployConfigOnEdit,
-        Comparable<Location>, SystemAuditable {
+        Comparable<Location> {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     public static final int PROCESS_MONITOR_PORT = 8092;
@@ -455,15 +453,5 @@ public class Location extends BeanWithId implements KeepsOriginalCopy<Location>,
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.SERVER;
     }
 }

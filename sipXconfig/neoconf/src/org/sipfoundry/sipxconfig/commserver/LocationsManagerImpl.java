@@ -121,7 +121,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             if (location.hasFqdnOrIpChangedOnSave() && isFqdnOrIpInUseExceptThis(location)) {
                 throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
             }
-            getHibernateTemplate().merge(location);
+            getHibernateTemplate().update(location);
         }
     }
 
@@ -189,7 +189,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
                 // profiles finishes
                 continue;
             }
-            getHibernateTemplate().merge(location);
+            getHibernateTemplate().update(location);
         }
     }
 

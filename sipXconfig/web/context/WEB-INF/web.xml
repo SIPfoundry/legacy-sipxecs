@@ -57,10 +57,6 @@
   </listener>
   <!-- END AXIS -->
 
-  <listener>
-    <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
-  </listener>
-
   <servlet>
     <servlet-name>skin</servlet-name>
     <servlet-class>org.sipfoundry.sipxconfig.site.skin.SkinServlet</servlet-class>

@@ -16,13 +16,11 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.rls.Rls;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * Collection of speeddial buttons associated with the user.
  */
-public class SpeedDial extends SpeedDialButtons implements DeployConfigOnEdit, SystemAuditable {
+public class SpeedDial extends SpeedDialButtons implements DeployConfigOnEdit {
     private User m_user;
 
     public User getUser() {
@@ -70,15 +68,5 @@ public class SpeedDial extends SpeedDialButtons implements DeployConfigOnEdit, S
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) Rls.FEATURE);
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return m_user.getEntityIdentifier();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.SPEED_DIAL;
     }
 }

@@ -16,8 +16,6 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.job.JobContext;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class ProfileManagerImpl implements ProfileManager {
@@ -28,8 +26,6 @@ public class ProfileManagerImpl implements ProfileManager {
     private RestartManager m_restartManager;
 
     private DeviceSource m_deviceSource;
-
-    private SystemAuditManager m_systemAuditManager;
 
     public final void generateProfiles(Collection<Integer> devices, boolean restart, Date restartTime) {
         for (Integer id : devices) {
@@ -43,8 +39,6 @@ public class ProfileManagerImpl implements ProfileManager {
         if (restart) {
             restartDevice(id, restartTime);
         }
-
-        m_systemAuditManager.onConfigChangeAction(d, ConfigChangeAction.SEND_PROFILE, null, null, null);
     }
 
     public final void restartDevices(Collection<Integer> devices, Date restartTime) {
@@ -88,10 +82,5 @@ public class ProfileManagerImpl implements ProfileManager {
     @Required
     public void setDeviceSource(DeviceSource deviceSource) {
         m_deviceSource = deviceSource;
-    }
-
-    @Required
-    public void setSystemAuditManager(SystemAuditManager systemAuditManager) {
-        m_systemAuditManager = systemAuditManager;
     }
 }

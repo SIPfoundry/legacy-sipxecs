@@ -13,11 +13,9 @@ package org.sipfoundry.sipxconfig.branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 
-public class Branch extends BeanWithId implements NamedObject, SystemAuditable {
+public class Branch extends BeanWithId implements NamedObject {
     private String m_name;
     private String m_description;
     private Address m_address = new Address();
@@ -75,15 +73,5 @@ public class Branch extends BeanWithId implements NamedObject, SystemAuditable {
 
     public void setTimeZone(String timeZone) {
         m_timeZone = timeZone;
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.BRANCH;
     }
 }

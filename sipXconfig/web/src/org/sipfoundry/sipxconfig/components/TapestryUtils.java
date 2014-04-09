@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.AbstractPage;
@@ -372,34 +371,5 @@ public final class TapestryUtils {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Translates table column to array of phone properties. It is safe to call with null - emtpy
-     * array is returned in such case
-     *
-     * HACK: this is dangerously dependend on relation between the table column name and the
-     * properties names
-     *
-     * @param objSortColumn column object
-     * @return array of strings by which we need to sort the table
-     */
-    public static String[] orderByFromSortColum(ITableColumn objSortColumn) {
-        if (objSortColumn == null) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-
-        String[] orderBy = new String[] {
-            objSortColumn.getColumnName()
-        };
-
-        // fix for modelId case
-        if ("modelId".equals(orderBy[0])) {
-            return new String[] {
-                "beanId", orderBy[0]
-            };
-        }
-
-        return orderBy;
     }
 }

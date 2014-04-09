@@ -19,14 +19,12 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 import static org.sipfoundry.sipxconfig.common.SipUri.DEFAULT_SIP_PORT;
 import static org.sipfoundry.sipxconfig.common.SipUri.formatIgnoreDefaultPort;
 import static org.sipfoundry.sipxconfig.common.SipUri.parsePort;
 
-public class Line extends BeanWithGroups implements SystemAuditable {
+public class Line extends BeanWithGroups {
     private static final String COMMA = ",";
     private static final String EQUALS = "=";
 
@@ -190,15 +188,5 @@ public class Line extends BeanWithGroups implements SystemAuditable {
             // passed collection is not copied
             model.setGroups(m_phone.getGroups());
         }
-    }
-
-    @Override
-    public String getEntityIdentifier() {
-        return getAuthenticationUserName();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.LINE;
     }
 }

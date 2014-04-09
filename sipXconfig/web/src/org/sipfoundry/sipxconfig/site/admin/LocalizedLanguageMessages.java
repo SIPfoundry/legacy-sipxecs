@@ -40,7 +40,7 @@ public class LocalizedLanguageMessages extends AbstractMessages {
     /**
      * Looks up the name of a language specified by the
      */
-    public String findMessage(String key) {
+    protected String findMessage(String key) {
         String languageId = key;
         if (key.contains(".")) {
             languageId = key.substring(key.lastIndexOf('.') + 1);

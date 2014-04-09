@@ -94,11 +94,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
 
     @Override
     public void storeValueStorage(ValueStorage storage) {
-        if (storage.isNew()) {
-            getHibernateTemplate().save(storage);
-        } else {
-            getHibernateTemplate().merge(storage);
-        }
+        getHibernateTemplate().saveOrUpdate(storage);
     }
 
     @Override
@@ -117,11 +113,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
                 throw new UserException("&msg.error.renameAdminGroup");
             }
         }
-        if (group.isNew()) {
-            getHibernateTemplate().save(group);
-        } else {
-            getHibernateTemplate().merge(group);
-        }
+        getHibernateTemplate().saveOrUpdate(group);
     }
 
     @Override
