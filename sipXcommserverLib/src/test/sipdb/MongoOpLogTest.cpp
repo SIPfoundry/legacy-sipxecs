@@ -232,19 +232,24 @@ public:
 
     mongoOpLog.run();
 
-    sleep(1);
+    int step = 0;
+    while (_allNr < 7 && step < 10)
+    {
+      sleep(1);
+      step++;
+    }
 
-    // TEST: Check that insert callback was called at least 3 times
-    CPPUNIT_ASSERT(_insertNr >= 2);
+    // TEST: Check that insert callback was called at least 1 time
+    CPPUNIT_ASSERT(_insertNr >= 1);
 
-    // TEST: Check that delete callback was called at least 3 times
-    CPPUNIT_ASSERT(_deleteNr >= 1);
+    // TEST: Check that delete callback was called 2 times
+    CPPUNIT_ASSERT(_deleteNr == 2);
 
-    // TEST: Check that update callback was called at least 3 times
+    // TEST: Check that update callback was called at least 1 time
     CPPUNIT_ASSERT(_updateNr >= 1);
 
-    // TEST: Check that all callback was called at least 3 times
-    CPPUNIT_ASSERT(_allNr >= 5);
+    // TEST: Check that all callback was called 7 times
+    CPPUNIT_ASSERT(_allNr == 7);
   }
 
   void test_DataAddedAfterStartingMongoOpLog()
@@ -267,8 +272,6 @@ public:
     mongoOpLog.registerCallback(MongoOpLog::Update, boost::bind(&MongoOpLogTest::OpLogCallBackUpdate, this, _1));
 
     mongoOpLog.run();
-
-    sleep(1);
 
     DbData dbData(dbTestData[0].pName, dbTestData[0].pValue, dbTestData[0].pId);
 
@@ -300,20 +303,24 @@ public:
 
     deleteDbData();
 
+    int step = 0;
+    while (_allNr < 7 && step < 10)
+    {
+      sleep(1);
+      step++;
+    }
 
-    sleep(1);
+    // TEST: Check that insert callback was called at least 1 time
+    CPPUNIT_ASSERT(_insertNr >= 1);
 
-    // TEST: Check that insert callback was called at least 3 times
-    CPPUNIT_ASSERT(_insertNr >= 2);
+    // TEST: Check that delete callback was called 2 times
+    CPPUNIT_ASSERT(_deleteNr == 2);
 
-    // TEST: Check that delete callback was called at least 3 times
-    CPPUNIT_ASSERT(_deleteNr >= 1);
-
-    // TEST: Check that update callback was called at least 3 times
+    // TEST: Check that update callback was called at least 1 time
     CPPUNIT_ASSERT(_updateNr >= 1);
 
-    // TEST: Check that all callback was called at least 3 times
-    CPPUNIT_ASSERT(_allNr >= 5);
+    // TEST: Check that all callback was called 7 times
+    CPPUNIT_ASSERT(_allNr == 7);
   }
 
 

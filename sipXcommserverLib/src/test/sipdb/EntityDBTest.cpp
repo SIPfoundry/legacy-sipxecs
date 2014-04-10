@@ -318,7 +318,9 @@ public:
     EntityRecord entityRecord;
 
     // find the Entity Record in test.EntityDBTest database filtered by the given identity
-    _db->findByIdentity(std::string(entityRecordTestData[0].pIdentity), entityRecord);
+    bool ret = _db->findByIdentity(std::string(entityRecordTestData[0].pIdentity), entityRecord);
+    // TEST: check that return code is true
+    CPPUNIT_ASSERT(true == ret);
 
     // TEST: Check entity record parameters
     testEntityRecordParameters(entityRecord);
@@ -329,7 +331,10 @@ public:
     EntityRecord entityRecord;
 
     // find the Entity Record in test.EntityDBTest database filtered by the given user id
-    _db->findByUserId(std::string(entityRecordTestData[0].pUserId), entityRecord);
+    bool ret = _db->findByUserId(std::string(entityRecordTestData[0].pUserId), entityRecord);
+    // TEST: check that return code is true
+    CPPUNIT_ASSERT(true == ret);
+
 
     // TEST: Check entity record parameters
     testEntityRecordParameters(entityRecord);
@@ -340,7 +345,9 @@ public:
     EntityRecord entityRecord;
 
     // find the Entity Record in test.EntityDBTest database filtered by the given url
-    _db->findByIdentityOrAlias(Url(gEntityRecordTestUri), entityRecord);
+    bool ret = _db->findByIdentityOrAlias(Url(gEntityRecordTestUri), entityRecord);
+    // TEST: check that return code is true
+    CPPUNIT_ASSERT(true == ret);
 
     // TEST: Check entity record parameters
     testEntityRecordParameters(entityRecord);
