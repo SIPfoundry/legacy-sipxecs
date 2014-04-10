@@ -190,15 +190,17 @@ class EntityDBTest: public CppUnit::TestCase
   CPPUNIT_TEST_SUITE_END();
 
   EntityDB* _db;
-  EntityRecord _entityRecord;
   const MongoDB::ConnectionInfo _info;
   std::string _entityDbName;
   std::string _oplogDbName;
+  EntityRecord _entityRecord;
 public:
   EntityDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
               _entityDbName(gTestEntityDbName),
               _oplogDbName(gLocalOplogDbName)
   {
+    // Initialise Entity record structure
+    setEntityRecord(_entityRecord);
   }
 
   // this function is called before the run of each test
@@ -214,11 +216,8 @@ public:
     pConn->get()->remove(_entityDbName, mongo::Query());
     pConn->done();
 
-    // Initialise Entity record structure
-    setEntityRecord();
-
     // Insert Entity record entry in test.EntityDBTest
-    updateEntityRecord();
+    updateEntityRecord(_entityRecord);
   }
 
   void tearDown()
@@ -227,46 +226,46 @@ public:
     _db = 0;
   }
 
-  void updateEntityRecord()
+  void updateEntityRecord(EntityRecord& entityRecord)
   {
 
-    mongo::BSONObj query = BSON(_entityRecord.identity_fld() << _entityRecord.identity());
+    mongo::BSONObj query = BSON(entityRecord.identity_fld() << entityRecord.identity());
 
 
     mongo::BSONObjBuilder bsonObjBuilder;
-    bsonObjBuilder << _entityRecord.userId_fld() << _entityRecord.userId() <<                                           // "uid"
-        _entityRecord.identity_fld() << _entityRecord.identity() <<                                       // "ident"
-        _entityRecord.realm_fld() << _entityRecord.realm() <<                                             // "rlm"
-        _entityRecord.password_fld() << _entityRecord.password() <<                                       // "pstk"
-        _entityRecord.pin_fld() << _entityRecord.pin() <<                                                 // "pntk"
-        _entityRecord.authType_fld() << _entityRecord.authType() <<                                       // "authtp"
-        _entityRecord.location_fld() << _entityRecord.location() <<                                       // "loc"
+    bsonObjBuilder << entityRecord.userId_fld() << entityRecord.userId() <<                                           // "uid"
+        entityRecord.identity_fld() << entityRecord.identity() <<                                       // "ident"
+        entityRecord.realm_fld() << entityRecord.realm() <<                                             // "rlm"
+        entityRecord.password_fld() << entityRecord.password() <<                                       // "pstk"
+        entityRecord.pin_fld() << entityRecord.pin() <<                                                 // "pntk"
+        entityRecord.authType_fld() << entityRecord.authType() <<                                       // "authtp"
+        entityRecord.location_fld() << entityRecord.location() <<                                       // "loc"
 
-        _entityRecord.callerId_fld() << _entityRecord.callerId().id <<                                    // "clrid"
-        _entityRecord.callerIdEnforcePrivacy_fld() << _entityRecord.callerId().enforcePrivacy <<          // "blkcid"
-        _entityRecord.callerIdIgnoreUserCalleId_fld() << _entityRecord.callerId().ignoreUserCalleId <<    // "ignorecid"
-        _entityRecord.callerIdTransformExtension_fld() << _entityRecord.callerId().transformExtension <<  // "trnsfrmext"
-        _entityRecord.callerIdExtensionLength_fld() << _entityRecord.callerId().extensionLength <<        // "kpdgts"
-        _entityRecord.callerIdExtensionPrefix_fld() << _entityRecord.callerId().extensionPrefix <<        // "pfix"
-        _entityRecord.callForwardTime_fld() << _entityRecord.callForwardTime() <<                         // "cfwdtm"
+        entityRecord.callerId_fld() << entityRecord.callerId().id <<                                    // "clrid"
+        entityRecord.callerIdEnforcePrivacy_fld() << entityRecord.callerId().enforcePrivacy <<          // "blkcid"
+        entityRecord.callerIdIgnoreUserCalleId_fld() << entityRecord.callerId().ignoreUserCalleId <<    // "ignorecid"
+        entityRecord.callerIdTransformExtension_fld() << entityRecord.callerId().transformExtension <<  // "trnsfrmext"
+        entityRecord.callerIdExtensionLength_fld() << entityRecord.callerId().extensionLength <<        // "kpdgts"
+        entityRecord.callerIdExtensionPrefix_fld() << entityRecord.callerId().extensionPrefix <<        // "pfix"
+        entityRecord.callForwardTime_fld() << entityRecord.callForwardTime() <<                         // "cfwdtm"
 
-        _entityRecord.permission_fld() << _entityRecord.permissions();                                    // "prm"
+        entityRecord.permission_fld() << entityRecord.permissions();                                    // "prm"
 
 
     // build aliases
     mongo::BSONArrayBuilder bsonArrayBuilderAliases;
-    for (std::vector<EntityRecord::Alias>::iterator iter = _entityRecord._aliases.begin();
-      iter != _entityRecord._aliases.end(); iter++)
+    for (std::vector<EntityRecord::Alias>::iterator iter = entityRecord._aliases.begin();
+      iter != entityRecord._aliases.end(); iter++)
     {
       mongo::BSONObjBuilder bsonObjBuilderAlias;
 
-      bsonObjBuilderAlias << _entityRecord.aliasesId_fld() << iter->id;                                // "id"
-      bsonObjBuilderAlias << _entityRecord.aliasesContact_fld() << iter->contact;                      // "cnt"
-      bsonObjBuilderAlias << _entityRecord.aliasesRelation_fld() << iter->relation;                    // "rln"
+      bsonObjBuilderAlias << entityRecord.aliasesId_fld() << iter->id;                                // "id"
+      bsonObjBuilderAlias << entityRecord.aliasesContact_fld() << iter->contact;                      // "cnt"
+      bsonObjBuilderAlias << entityRecord.aliasesRelation_fld() << iter->relation;                    // "rln"
 
       bsonArrayBuilderAliases.append(bsonObjBuilderAlias.obj());
     }
-    bsonObjBuilder.append(_entityRecord.aliases_fld(), bsonArrayBuilderAliases.arr());                   // "als"
+    bsonObjBuilder.append(entityRecord.aliases_fld(), bsonArrayBuilderAliases.arr());                   // "als"
 
     mongo::BSONObj update;
     update = BSON(gMongoSetOperator << bsonObjBuilder.obj());
@@ -276,20 +275,20 @@ public:
 
     //client->insert(_info.getNS(), update);
     client->update(_entityDbName, query, update, true, false);
-    client->ensureIndex(_entityDbName, BSON( _entityRecord.identity_fld() << 1 ));
+    client->ensureIndex(_entityDbName, BSON(entityRecord.identity_fld() << 1 ));
 
     conn->done();
   }
 
-  void setEntityRecord()
+  void setEntityRecord(EntityRecord& entityRecord)
   {
-    _entityRecord._userId = entityRecordTestData[0].pUserId;
-    _entityRecord._identity = entityRecordTestData[0].pIdentity;
-    _entityRecord._realm = entityRecordTestData[0].pRealm;
-    _entityRecord._password = entityRecordTestData[0].pPassword;
-    _entityRecord._pin = entityRecordTestData[0].pPin;
-    _entityRecord._authType = entityRecordTestData[0].pAuthType;
-    _entityRecord._location = entityRecordTestData[0].pLocation;
+    entityRecord._userId = entityRecordTestData[0].pUserId;
+    entityRecord._identity = entityRecordTestData[0].pIdentity;
+    entityRecord._realm = entityRecordTestData[0].pRealm;
+    entityRecord._password = entityRecordTestData[0].pPassword;
+    entityRecord._pin = entityRecordTestData[0].pPin;
+    entityRecord._authType = entityRecordTestData[0].pAuthType;
+    entityRecord._location = entityRecordTestData[0].pLocation;
 
     for (int i = 0; i < 3; i++)
     {
@@ -298,7 +297,7 @@ public:
       alias.relation = entityRecordAliasTestData[i].pRelation;
       alias.contact = entityRecordAliasTestData[i].pContact;
 
-      _entityRecord._aliases.push_back(alias);
+      entityRecord._aliases.push_back(alias);
     }
   }
 
