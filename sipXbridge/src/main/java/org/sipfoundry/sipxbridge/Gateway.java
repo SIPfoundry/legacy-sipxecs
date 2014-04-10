@@ -307,6 +307,8 @@ public class Gateway {
              * Add the file handler.
              */
             log.addHandler(fileHandler);
+            Gateway.logAppender = new SipFoundryAppender(
+                    new SipFoundryLayout(), Gateway.getLogFile(),true);
 
         } catch (Exception ex) {
             throw new SipXbridgeException("Error initializing logging", ex);
