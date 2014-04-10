@@ -17,8 +17,8 @@ import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_ENABLED;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -198,10 +198,7 @@ public class User extends AbstractUser implements Replicable {
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(UID, getUserName());
         props.put(CONTACT, getContactUri(domain));
-        String[] groups = getGroupsNames().split(" ");
-        List<String> grList = new ArrayList<String>();
-        Collections.addAll(grList, groups);
-        props.put(GROUPS, grList);
+        props.put(GROUPS, Arrays.asList(getGroupsNames().split(" ")));
         props.put(TIMEZONE, getTimezone().getID());
         props.put(VOICEMAIL_ENABLED, isDepositVoicemail());
         props.put(TIMESTAMP, System.currentTimeMillis());
