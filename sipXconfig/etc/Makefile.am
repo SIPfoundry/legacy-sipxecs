@@ -16,6 +16,7 @@ emptydirs = \
 	$(DESTDIR)@SIPX_CONFDIR@/database/plugin.d/v12 \
 	$(DESTDIR)@SIPX_VARDIR@/mrtg/thresh \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/web-cert \
+	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/acd/audio \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/profile/tftproot \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/profile/docroot \
 	$(DESTDIR)@SIPX_LOGDIR@ \

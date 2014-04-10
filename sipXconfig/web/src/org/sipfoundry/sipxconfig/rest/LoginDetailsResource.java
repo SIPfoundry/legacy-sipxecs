@@ -49,10 +49,9 @@ public class LoginDetailsResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
         boolean ldapAuth = m_ldapManager.getSystemSettings().isEnableOpenfireConfiguration();
-        String pin = getUser().getPintoken();
 
         return new LoginDetails(variant.getMediaType(), new Representable(user.getUserName(), user.getImId(),
-            ldapAuth, user.getSipPassword(), pin));
+            ldapAuth, user.getSipPassword()));
     }
 
     @Required
@@ -67,14 +66,12 @@ public class LoginDetailsResource extends UserResource {
         private final String m_imId;
         private final boolean m_ldapImAuth;
         private final String m_sipPassword;
-        private final String m_pin;
 
-        public Representable(String userName, String imId, boolean ldapAuth, String sipPassword, String pin) {
+        public Representable(String userName, String imId, boolean ldapAuth, String sipPassword) {
             m_userName = userName;
             m_imId = imId;
             m_ldapImAuth = ldapAuth;
             m_sipPassword = sipPassword;
-            m_pin = pin;
         }
 
         public String getUserName() {
@@ -91,10 +88,6 @@ public class LoginDetailsResource extends UserResource {
 
         public String getSipPassword() {
             return m_sipPassword;
-        }
-
-        public String getPin() {
-            return m_pin;
         }
     }
 

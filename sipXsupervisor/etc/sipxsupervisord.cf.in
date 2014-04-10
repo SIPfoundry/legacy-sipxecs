@@ -60,7 +60,8 @@ bundle server access_rules {
         "@SIPX_IVRDATADIR@/moh",
         "@SIPX_IVRDATADIR@/ivrscript",
         "@SIPX_VARDIR@/parkserver/music",
-        "@SIPX_VARDIR@/sipxpage/music"
+        "@SIPX_VARDIR@/sipxpage/music",
+        "@SIPX_VARDIR@/configserver/phone/acd/audio"
      };
   access:
     "$(export_dirs)"

@@ -220,6 +220,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/*.war
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXconfig/plugins
 %dir %attr(775,sipx,sipx) %{phonedir}
+%dir %attr(775,sipx,sipx) %{phonedir}/acd/audio
 %dir %attr(775,sipx,sipx) %{phonedir}/profile
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/docroot
 %dir %attr(775,sipx,sipx) %{phonedir}/profile/tftproot
