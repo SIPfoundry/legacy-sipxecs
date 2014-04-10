@@ -203,7 +203,7 @@ public class BridgeConfiguration {
      * @return the logLevel (a log4j level)
      */
     public String getLogLevel() {
-        return SipFoundryLayout.getSipFoundryLogLevel().toString();
+        return SipFoundryLayout.getSipFoundryLogLevel(this.getClass()).toString();
     }
 
     /**

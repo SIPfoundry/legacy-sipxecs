@@ -26,7 +26,6 @@ import org.apache.log4j.spi.LoggingEvent;
 public class SipFoundryLayout extends Layout {
     
     public static final Long LOG4J_MONITOR_FILE_DELAY = 30000L;
-    public static final String LOG4J_SIPFOUNDRY_KEY = "log4j.logger.org.sipfoundry";
     
     static Long lineNumber = 0L;
     SimpleDateFormat dateFormat;
@@ -106,9 +105,9 @@ public class SipFoundryLayout extends Layout {
      * Returns to logLevel set for log4j.logger.org.sipfoundry.
      * If it is null, then it will return the log level of the root logger.
      */
-    public static Level getSipFoundryLogLevel()
+    public static Level getSipFoundryLogLevel(Class clazz)
     {
-        Level logLevel = Logger.getLogger(LOG4J_SIPFOUNDRY_KEY).getLevel();
+        Level logLevel = Logger.getLogger(clazz).getLevel();
         if (logLevel == null){
             logLevel = Logger.getRootLogger().getLevel();
         }

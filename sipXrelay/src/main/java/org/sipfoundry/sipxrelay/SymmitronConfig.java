@@ -116,7 +116,7 @@ public class SymmitronConfig {
 	 * @return the logLevel
 	 */
 	public String getLogLevel() {
-		return SipFoundryLayout.getSipFoundryLogLevel().toString();
+		return SipFoundryLayout.getSipFoundryLogLevel(this.getClass()).toString();
 	}
 
 	public void setPublicAddress(String publicAddress) {

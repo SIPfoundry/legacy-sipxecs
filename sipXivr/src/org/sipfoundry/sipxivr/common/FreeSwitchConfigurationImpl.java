@@ -27,7 +27,7 @@ public class FreeSwitchConfigurationImpl implements FreeSwitchConfigurationInter
 
     @Override
     public String getLogLevel() {
-        return SipFoundryLayout.getSipFoundryLogLevel().toString();
+        return SipFoundryLayout.getSipFoundryLogLevel(this.getClass()).toString();
     }
 
     public void setLogFile(String logFile) {

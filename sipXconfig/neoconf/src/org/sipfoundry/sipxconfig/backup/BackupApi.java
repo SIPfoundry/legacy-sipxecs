@@ -117,7 +117,9 @@ public class BackupApi extends Resource {
             File planFile = m_backupManager.getPlanFile(backup);
             Map<String, List<String>> backups = new HashMap<String, List<String>>();
             try {
-                backups = m_backupRunner.list(planFile);
+                if (m_backupType != BackupType.ftp || !settings.isFtpEmpty()) {
+                    backups = m_backupRunner.list(planFile);
+                }
             } catch (Exception ex) {
                 LOG.error("Cannot retrieve backups list ", ex);
             }
