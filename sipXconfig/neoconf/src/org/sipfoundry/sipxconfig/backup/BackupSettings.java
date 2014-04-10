@@ -14,6 +14,8 @@
  */
 package org.sipfoundry.sipxconfig.backup;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
@@ -107,6 +109,20 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     @JsonIgnore
     public String getFtpUrl() {
         return (String) getSettingTypedValue("ftp/url");
+    }
+
+    @JsonIgnore
+    public String getFtpUser() {
+        return (String) getSettingTypedValue("ftp/user");
+    }
+
+    @JsonIgnore
+    public String getFtpPassword() {
+        return (String) getSettingTypedValue("ftp/password");
+    }
+
+    public boolean isFtpEmpty() {
+        return isEmpty(getFtpUrl()) && isEmpty(getFtpUser()) && isEmpty(getFtpPassword());
     }
 
     @JsonIgnore
