@@ -67,7 +67,7 @@ public class LoginDetailsResourceTest extends TestCase {
 
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.loadUser(m_user.getId());
-        expectLastCall().andReturn(m_user);
+        expectLastCall().andReturn(m_user).times(2);
         m_ldapManager = createMock(LdapManager.class);
         LdapSystemSettings settings = new LdapSystemSettings();
         settings.setEnableOpenfireConfiguration(false);
@@ -85,12 +85,20 @@ public class LoginDetailsResourceTest extends TestCase {
         LoginDetailsResource resource = new LoginDetailsResource();
         setContexts(resource);
         assertEqualsXML(resource, "logindetails.rest.test.xml");
+
+        LoginDetailsResourceWithPin resourceWithPin = new LoginDetailsResourceWithPin();
+        setContexts(resourceWithPin);
+        assertEqualsXML(resourceWithPin, "logindetailswithpin.rest.test.xml");
     }
 
     public void testRepresentJson() throws Exception {
         LoginDetailsResource resource = new LoginDetailsResource();
         setContexts(resource);
         assertEqualsJSON(resource, "logindetails.rest.test.json");
+
+        LoginDetailsResourceWithPin resourceWithPin = new LoginDetailsResourceWithPin();
+        setContexts(resourceWithPin);
+        assertEqualsJSON(resourceWithPin, "logindetailswithpin.rest.test.json");
     }
 
     protected void assertEqualsXML(LoginDetailsResource resource, String fileName) throws Exception {
