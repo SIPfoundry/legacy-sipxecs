@@ -189,41 +189,46 @@ class EntityDBTest: public CppUnit::TestCase
   CPPUNIT_TEST(testEntityDB_tailFunction);
   CPPUNIT_TEST_SUITE_END();
 
-  EntityDB* _db;
+  typedef boost::scoped_ptr<EntityRecord> EntityRecordPtr;
+  typedef boost::scoped_ptr<EntityDB> EntityDBPtr;
+
   const MongoDB::ConnectionInfo _info;
   std::string _entityDbName;
   std::string _oplogDbName;
-  EntityRecord _entityRecord;
+  EntityRecordPtr _entityRecord;
+  MongoDB::ScopedDbConnectionPtr _conn;
+  EntityDBPtr _db;
 public:
   EntityDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
               _entityDbName(gTestEntityDbName),
-              _oplogDbName(gLocalOplogDbName)
+              _oplogDbName(gLocalOplogDbName),
+              _entityRecord(new EntityRecord),
+              _conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString())),
+              _db(new EntityDB(_info, _entityDbName))
   {
+    _conn->get()->dropCollection(_oplogDbName);
+    _conn->get()->remove(_entityDbName, mongo::Query());
+
     // Initialise Entity record structure
-    setEntityRecord(_entityRecord);
+    setEntityRecord(*_entityRecord);
+
+    // Insert Entity record entry in test.EntityDBTest
+    updateEntityRecord(*_entityRecord);
+  }
+
+  ~EntityDBTest()
+  {
+    _conn->done();
   }
 
   // this function is called before the run of each test
   void setUp()
   {
-    MongoDB::ScopedDbConnectionPtr pOpLogConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    pOpLogConn->get()->dropCollection(_oplogDbName);
-    pOpLogConn->done();
 
-    _db = new EntityDB(_info, _entityDbName);
-    MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    //mongo::ScopedDbConnection conn(_info.getConnectionString().toString());
-    pConn->get()->remove(_entityDbName, mongo::Query());
-    pConn->done();
-
-    // Insert Entity record entry in test.EntityDBTest
-    updateEntityRecord(_entityRecord);
   }
 
   void tearDown()
   {
-    delete _db;
-    _db = 0;
   }
 
   void updateEntityRecord(EntityRecord& entityRecord)
@@ -270,14 +275,11 @@ public:
     mongo::BSONObj update;
     update = BSON(gMongoSetOperator << bsonObjBuilder.obj());
 
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    mongo::DBClientBase* client = conn->get();
+    mongo::DBClientBase* client = _conn->get();
 
     //client->insert(_info.getNS(), update);
     client->update(_entityDbName, query, update, true, false);
     client->ensureIndex(_entityDbName, BSON(entityRecord.identity_fld() << 1 ));
-
-    conn->done();
   }
 
   void setEntityRecord(EntityRecord& entityRecord)
@@ -315,9 +317,10 @@ public:
   void testEntityDB_getAll()
   {
     EntityRecord entityRecord;
+    std::string identity(entityRecordTestData[0].pIdentity);
 
     // find the Entity Record in test.EntityDBTest database filtered by the given identity
-    bool ret = _db->findByIdentity(std::string(entityRecordTestData[0].pIdentity), entityRecord);
+    bool ret = _db->findByIdentity(identity, entityRecord);
     // TEST: check that return code is true
     CPPUNIT_ASSERT(true == ret);
 
@@ -328,9 +331,10 @@ public:
   void testEntityDB_findByUserId()
   {
     EntityRecord entityRecord;
+    std::string userId(entityRecordTestData[0].pUserId);
 
     // find the Entity Record in test.EntityDBTest database filtered by the given user id
-    bool ret = _db->findByUserId(std::string(entityRecordTestData[0].pUserId), entityRecord);
+    bool ret = _db->findByUserId(userId, entityRecord);
     // TEST: check that return code is true
     CPPUNIT_ASSERT(true == ret);
 
@@ -343,8 +347,10 @@ public:
   {
     EntityRecord entityRecord;
 
+    Url uri(gEntityRecordTestUri);
+
     // find the Entity Record in test.EntityDBTest database filtered by the given url
-    bool ret = _db->findByIdentityOrAlias(Url(gEntityRecordTestUri), entityRecord);
+    bool ret = _db->findByIdentityOrAlias(uri, entityRecord);
     // TEST: check that return code is true
     CPPUNIT_ASSERT(true == ret);
 
@@ -358,8 +364,10 @@ public:
     EntityDB::Aliases aliases;
     bool isUserIdentity = false;
 
+    Url aliasIdentity(gEntityRecordTestUri);
+
     // find the alias contacts in test.EntityDBTest database filtered by the given url
-    _db->getAliasContacts(Url(gEntityRecordTestUri), aliases, isUserIdentity);
+    _db->getAliasContacts(aliasIdentity, aliases, isUserIdentity);
 
     // TEST: Check that aliases size is 1
     CPPUNIT_ASSERT(aliases.size() == 1);
@@ -383,15 +391,12 @@ public:
     mongo::BSONObj update;
     update = BSON(gMongoSetOperator << bsonObjBuilder.obj());
 
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    mongo::DBClientBase* client = conn->get();
+    mongo::DBClientBase* client = _conn->get();
 
     // create a capped collect in order to work with tailer cursor
     client->createCollection(_oplogDbName, 1024*1024, true, 0, 0);
     client->update(_oplogDbName, query, update, true, false);
     client->ensureIndex(_oplogDbName, BSON(opLog.id_fld() << 1 ));
-
-    conn->done();
   }
 
   void testEntityDB_tailFunction()
