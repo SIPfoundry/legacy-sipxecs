@@ -225,13 +225,13 @@ public class Gateway {
     }
 
     static void parseConfigurationFile() {
-        // Configure log4j
-        PropertyConfigurator.configureAndWatch(Gateway.configurationPath+"/sipXbridge/log4j.properties", 
-                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
-        
         Gateway.setConfigurationPath();
         Gateway.configurationFile = Gateway.configurationPath
                 + "/sipxbridge.xml";
+
+        // Configure log4j
+        PropertyConfigurator.configureAndWatch(Gateway.configurationPath+"/sipxbridge/log4j.properties", 
+                SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
 
         if (!new File(Gateway.configurationFile).exists()) {
             System.err.println(String.format(
