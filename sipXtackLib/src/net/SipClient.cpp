@@ -946,21 +946,23 @@ bool SipClient::preprocessMessage(SipMessage& msg,
                                   const UtlString& msgText,
                                   int msgLength)
 {
-  //
-  // Make sure that the message is valid.  We will check for presence of Call-Id, CSeq, From, To and Via Fields
-  //
-  if (
-    !msg.getHeaderValue(0, SIP_CSEQ_FIELD) ||
-    !msg.getHeaderValue(0, SIP_CALLID_FIELD) ||
-    !msg.getHeaderValue(0, SIP_FROM_FIELD) ||
-    !msg.getHeaderValue(0, SIP_TO_FIELD) ||
-    !msg.getHeaderValue(0, SIP_VIA_FIELD))
-  {
-    return false;
-  }
+  
 
    // Canonicalize short field names.
    msg.replaceShortFieldNames();
+
+   //
+   // Make sure that the message is valid.  We will check for presence of Call-Id, CSeq, From, To and Via Fields
+   //
+   if (
+     !msg.getHeaderValue(0, SIP_CSEQ_FIELD) ||
+     !msg.getHeaderValue(0, SIP_CALLID_FIELD) ||
+     !msg.getHeaderValue(0, SIP_FROM_FIELD) ||
+     !msg.getHeaderValue(0, SIP_TO_FIELD) ||
+     !msg.getHeaderValue(0, SIP_VIA_FIELD))
+   {
+     return false;
+   }
 
    // Get the send address.
    UtlString fromIpAddress;
