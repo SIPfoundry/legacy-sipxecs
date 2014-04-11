@@ -76,12 +76,6 @@ bundle agent sipxcommserverlib_config {
         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
         classes => if_repaired("authorities_repaired");
       
-      "$(sipx.SIPX_CONFDIR)/ssl/authorities/symlinks"
-        comment => "script to create symlinks to certificates",
-        create => "true",
-        perms => m("755"),
-        edit_line => symlink_script;
-
     any::
       "$(sipx.SIPX_CONFDIR)/domain-config"
         comment => "install domain info $(this.promiser)",
@@ -99,7 +93,7 @@ bundle agent sipxcommserverlib_config {
         "find $(sipx.SIPX_CONFDIR)/ssl/authorities/ -type l | xargs rm"
         comment => "remove crt symlinks";
     any::
-        "$(sipx.SIPX_CONFDIR)/ssl/authorities/symlinks"
+        "$(sipx.SIPX_BINDIR)/sipx-ssl-symlinks.sh"
         comment => "create crt symlinks";
 }
 
@@ -132,24 +126,6 @@ bundle edit_line domain_config {
     !part_exists.fqdn_domain::
        "SIP_DOMAIN_ALIASES : $(sys.ipv4)";
        "CONFIG_HOSTS : $(sipx.host).$(sipx.net_domain)";
-
-  delete_lines:
-    any::
-      ".*";
-}
-
-bundle edit_line symlink_script {
-  insert_lines:
-    any::
-"#!/bin/sh";
-"cd $(sipx.SIPX_CONFDIR)/ssl/authorities/";
-"for f in *.crt; do ";
-"  i=`find -L . -samefile $f | wc -l`";
-"  if [ $i -lt 2 ]; then"; 
-"    hash=`openssl x509 -hash -noout -in $f`;";
-"    ln -s $f $hash.0;";
-"  fi; ";
-"done";
 
   delete_lines:
     any::
