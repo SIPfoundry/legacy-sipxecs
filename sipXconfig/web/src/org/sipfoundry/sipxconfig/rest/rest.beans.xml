@@ -367,7 +367,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="ldapManager" ref="ldapManager"/>
   </bean>
-  <alias name="loginDetailsResourceWithPin" alias="/my/logindetailswithpin" />  
+  <alias name="loginDetailsResourceWithPin" alias="/my/logindetailsunite" />  
 
   <bean id="restRedirectorResource" class="org.sipfoundry.sipxconfig.rest.RestRedirectorResource" scope="prototype">
     <property name="addressManager" ref="addressManager"/>
