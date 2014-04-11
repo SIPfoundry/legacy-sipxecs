@@ -116,7 +116,7 @@ public abstract class BackupTable extends BaseComponent {
     }
 
     public String getLocalDownloadDir() {
-        return getDownloadLinkBase() + '/' + getBackupId();
+        return getDownloadLinkBase() + '/' + getSavedBackupId(getBackupId());
     }
 
     public boolean isLocalLink() {
