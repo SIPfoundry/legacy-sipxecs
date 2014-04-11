@@ -863,11 +863,20 @@ int SipClient::run(void* runArg)
 
             // Do preliminary processing of message to log it,
             // clean up its data, and extract any needed source address.
-            preprocessMessage(*msg, readBuffer, res);
-
-            // Dispatch the message.
-            // dispatch() takes ownership of *msg.
-            mpSipUserAgent->dispatch(msg);
+            if (preprocessMessage(*msg, readBuffer, res))
+            {
+              // Dispatch the message.
+              // dispatch() takes ownership of *msg.
+              mpSipUserAgent->dispatch(msg);
+            }
+            else
+            {
+              //
+              // Drop this message silently but log it on debug
+              //
+              OS_LOG_DEBUG( FAC_SIP, "SipClient::preprocessMessage -  Dropping " << res << " bytes of malformed packet." );
+              delete msg;
+            }
 
             // Now that logging is done, remove the parsed bytes and
             // remember any unparsed input for later use.
@@ -933,10 +942,23 @@ int SipClient::run(void* runArg)
 
 // Do preliminary processing of message to log it,
 // clean up its data, and extract any needed source address.
-void SipClient::preprocessMessage(SipMessage& msg,
+bool SipClient::preprocessMessage(SipMessage& msg,
                                   const UtlString& msgText,
                                   int msgLength)
 {
+  //
+  // Make sure that the message is valid.  We will check for presence of Call-Id, CSeq, From, To and Via Fields
+  //
+  if (
+    !msg.getHeaderValue(0, SIP_CSEQ_FIELD) ||
+    !msg.getHeaderValue(0, SIP_CALLID_FIELD) ||
+    !msg.getHeaderValue(0, SIP_FROM_FIELD) ||
+    !msg.getHeaderValue(0, SIP_TO_FIELD) ||
+    !msg.getHeaderValue(0, SIP_VIA_FIELD))
+  {
+    return false;
+  }
+
    // Canonicalize short field names.
    msg.replaceShortFieldNames();
 
@@ -1056,6 +1078,8 @@ void SipClient::preprocessMessage(SipMessage& msg,
            msgText.data(), msgLength);
 
    mpSipUserAgent->executeAllSipInputProcessors(msg, fromIpAddress.data(), portIsValid(fromPort) ? fromPort : defaultPort());
+
+   return true;
 }
 
 // Test whether the socket is ready to read. (Does not block.)

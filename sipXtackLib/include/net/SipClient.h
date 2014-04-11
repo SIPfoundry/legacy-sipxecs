@@ -126,7 +126,7 @@ protected:
     /** Do preliminary processing of a message read from the socket:
      *  log it, clean up its data, and extract any needed source address.
      */
-    void preprocessMessage(SipMessage& msg,
+    bool preprocessMessage(SipMessage& msg,
                            const UtlString& msgText,
                            int msgLength);
 
