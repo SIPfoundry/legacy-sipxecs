@@ -214,6 +214,8 @@ public:
 
     // Insert Entity record entry in test.EntityDBTest
     updateEntityRecord(*_entityRecord);
+
+    sleep(1);
   }
 
   ~EntityDBTest()
