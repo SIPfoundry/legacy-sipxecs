@@ -75,7 +75,7 @@ bundle agent sipxcommserverlib_config {
         file_select => authority_files,
         perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
         classes => if_repaired("authorities_repaired");
-
+      
     any::
       "$(sipx.SIPX_CONFDIR)/domain-config"
         comment => "install domain info $(this.promiser)",
@@ -87,6 +87,14 @@ bundle agent sipxcommserverlib_config {
         # do not call this, it restarts too much,
         # need to get DOMAIN_ALIASES out of the config file
         # classes => if_repaired("restart_sipxecs");
+
+   commands: 
+    authorities_repaired::
+        "find $(sipx.SIPX_CONFDIR)/ssl/authorities/ -type l | xargs rm"
+        comment => "remove crt symlinks";
+    any::
+        "$(sipx.SIPX_BINDIR)/sipx-ssl-symlinks.sh"
+        comment => "create crt symlinks";
 }
 
 body file_select authority_files {

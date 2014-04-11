@@ -66,9 +66,7 @@ public class SipxDigestAuthenticationEntryPoint extends DigestAuthenticationEntr
                 nonceValueBase64);
 
         if (authException instanceof NonceExpiredException) {
-            LOG.debug("Digest Authentication, nonce expired, force username / password prompt");
-            // do not send stale true, force client (could be browser) to prompt again username / password
-            // authenticateHeader = authenticateHeader + ", stale=\"true\"";
+             authenticateHeader = authenticateHeader + ", stale=\"true\"";
         }
 
         if (LOG.isDebugEnabled()) {

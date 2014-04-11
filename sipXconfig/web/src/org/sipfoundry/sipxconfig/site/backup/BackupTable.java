@@ -143,7 +143,9 @@ public abstract class BackupTable extends BaseComponent {
         Map<String, List<String>> backupsMap = new HashMap<String, List<String>>();
         BackupSettings settings = getBackupManager().getSettings();
         try {
-            backupsMap = getBackupRunner().list(planFile);
+            if (getBackupPlan().getType() != BackupType.ftp || !settings.isFtpEmpty()) {
+                backupsMap = getBackupRunner().list(planFile);
+            }
         } catch (Exception ex) {
             LOG.error("Cannot retrieve backups list ", ex);
         }
