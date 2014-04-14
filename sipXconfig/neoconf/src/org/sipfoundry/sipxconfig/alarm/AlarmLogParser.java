@@ -125,7 +125,7 @@ public class AlarmLogParser {
     }
 
     String decodeValue(String encoded) {
-        String[] split = StringUtils.split(encoded, ":");
+        String[] split = StringUtils.split(encoded, ":", 2);
         if (split.length == 2) {
             if (split[0].equals("= STRING")) {
                 String v = split[1].trim();
