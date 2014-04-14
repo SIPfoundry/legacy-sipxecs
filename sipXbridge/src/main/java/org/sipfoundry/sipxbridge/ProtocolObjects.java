@@ -63,7 +63,7 @@ public class ProtocolObjects {
         try {
 
             Properties stackProperties = new Properties();
-            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXbridge");
+            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipxbridge");
             /*
              * At this point we have already added an appender to this logger.
              * Just get the logger for the gateway and give it to the stack.
