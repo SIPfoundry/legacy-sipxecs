@@ -22,5 +22,5 @@ snmptrap -v 2c -c public localhost '' SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotif
          SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.2 s "$here" \
          SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.3 x 0x00000000 \
          SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.4 x 0x00000000 \
-         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.5 s "$2"
+         SIPXECS-ALARM-NOTIFICATION-MIB::alarmAttributes.5 s "${2//:/ }"
 
