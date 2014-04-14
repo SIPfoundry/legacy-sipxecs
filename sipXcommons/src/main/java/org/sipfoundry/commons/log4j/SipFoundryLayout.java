@@ -107,7 +107,7 @@ public class SipFoundryLayout extends Layout {
      */
     public static Level getSipFoundryLogLevel(Class clazz)
     {
-        Level logLevel = Logger.getLogger(clazz).getLevel();
+        Level logLevel = Logger.getLogger(clazz.getPackage().getName()).getLevel();
         if (logLevel == null){
             logLevel = Logger.getRootLogger().getLevel();
         }
