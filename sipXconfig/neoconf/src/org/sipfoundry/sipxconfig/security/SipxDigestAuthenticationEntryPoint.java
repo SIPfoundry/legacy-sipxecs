@@ -66,7 +66,7 @@ public class SipxDigestAuthenticationEntryPoint extends DigestAuthenticationEntr
                 nonceValueBase64);
 
         if (authException instanceof NonceExpiredException) {
-             authenticateHeader = authenticateHeader + ", stale=\"true\"";
+            authenticateHeader = authenticateHeader + ", stale=\"true\"";
         }
 
         if (LOG.isDebugEnabled()) {
