@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+@SuppressWarnings("static-method")
 public class AlarmLogParserTest {
 
     @Test
@@ -31,10 +32,12 @@ public class AlarmLogParserTest {
         assertEquals("lion", parser.decodeValue("= STRING: lion"));
         assertEquals("lion sleeps tonight", parser.decodeValue("= STRING: \"lion sleeps tonight\""));
         assertEquals("lion sleeps: tonight", parser.decodeValue("= STRING: \"lion sleeps: tonight\""));
+        assertEquals("lion sleeps:: tonight", parser.decodeValue("= STRING: \"lion sleeps:: tonight\""));
+        assertEquals(":lion sleeps:: tonight", parser.decodeValue("= STRING: \":lion sleeps:: tonight\""));
     }
 
     @Test
-    public void parseFields() throws IOException {
+    public void parseFields() {
         AlarmLogParser parser = new AlarmLogParser();
         Map<String, String> actual = parser.parseFields("bird", "cat::species = STRING: lion bird::species = STRING: goose bird::color = STRING: gray");
         assertEquals(2, actual.size());
