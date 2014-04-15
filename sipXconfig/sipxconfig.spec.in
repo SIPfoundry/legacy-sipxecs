@@ -272,7 +272,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxpresence/*
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
-%config(noreplace) %{sipxpbxconf}/sipxrelay/log4j.properties
 %config(noreplace) %{sipxpbxconf}/sipxrest/*
 %config(noreplace) %{sipxpbxconf}/sipxrls/*
 %config(noreplace) %{sipxpbxconf}/sipxsaa/*

@@ -54,6 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxacccode.cf
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXacccode
 %attr(644,root,root) %{_datadir}/sipxecs/schema/authcodes.xsd
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxacccode/log4j.properties
 
 %post
 if grep -q :on <<<`/sbin/chkconfig sipxacccode --list 2>&1`; then

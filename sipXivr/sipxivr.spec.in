@@ -64,6 +64,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd
 %attr(644,root,root) %{_datadir}/sipxecs/schema/validusers.xsd
 %config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/mediaserver/data/moh
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxivr/log4j.properties
 
 %post
 if grep -q :on <<<`/sbin/chkconfig sipxivr --list 2>&1`; then

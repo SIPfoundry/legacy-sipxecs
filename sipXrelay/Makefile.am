@@ -13,7 +13,8 @@ SUBDIRS = \
 	
 confdir = @SIPX_CONFDIR@/sipxrelay
 conf_DATA = \
-	sipxrelay.sec.erb	
+	sipxrelay.sec.erb \
+	log4j.properties
 
 initddir = @SIPX_SERVICEDIR@
 initd_SCRIPTS = \

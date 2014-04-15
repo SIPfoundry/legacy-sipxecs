@@ -13,3 +13,13 @@ dist_audio_DATA = \
 cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfinputs_DATA = \
 	sipxpage.cf
+
+EXTRA_DIST = \
+	$(conf_DATA:=.in)
+
+confdir = @SIPX_CONFDIR@/sipxpage
+conf_DATA = \
+	log4j.properties
+
+$(conf_DATA) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)

@@ -55,6 +55,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxbridge.cf
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXbridge
 %attr(644,root,root) %{_datadir}/sipxecs/schema/peeridentities.xsd
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxbridge/log4j.properties
 
 %post
 if grep -q :on <<<`/sbin/chkconfig sipxbridge --list 2>&1`; then

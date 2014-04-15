@@ -54,6 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/java/sipXecs/sipXpage/sipXpage.jar
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata
 %config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/sipxpage
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxpage/log4j.properties
 
 %post
 if grep -q :on <<<`/sbin/chkconfig sipxpage --list 2>&1`; then
