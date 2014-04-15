@@ -102,6 +102,7 @@ class MongoOpLogTest: public CppUnit::TestCase
   int _allNr;
   int _deleteNr;
   const std::string _databaseName;
+  int SECONDS_TO_WAIT;
 public:
   MongoOpLogTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
                     _updateNr(0),
@@ -114,6 +115,7 @@ public:
 
   void setUp()
   {
+    SECONDS_TO_WAIT = 10;
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->dropCollection(_databaseName);
     pConn->done();
@@ -232,11 +234,11 @@ public:
 
     mongoOpLog.run();
 
-    int step = 0;
-    while (_allNr < 7 && step < 10)
+    int seconds = 0;
+    while (_allNr < 7 && seconds < SECONDS_TO_WAIT)
     {
       sleep(1);
-      step++;
+      seconds++;
     }
 
     // TEST: Check that insert callback was called at least 1 time
@@ -303,11 +305,11 @@ public:
 
     deleteDbData();
 
-    int step = 0;
-    while (_allNr < 7 && step < 10)
+    int seconds = 0;
+    while (_allNr < 7 && seconds < SECONDS_TO_WAIT)
     {
       sleep(1);
-      step++;
+      seconds++;
     }
 
     // TEST: Check that insert callback was called at least 1 time

@@ -157,7 +157,7 @@ public:
     SubscribeDB::Subscriptions subscriptions;
 
     int seconds = 0;
-    while (subscriptions.size() < 2)
+    while (subscriptions.size() < 2 && seconds < SECONDS_TO_WAIT)
     {
       subscriptions.clear();
       _db->getAll(subscriptions);
@@ -175,7 +175,7 @@ public:
 
     // wait until 10 seconds to be sure that the thread removed all expired records
     seconds = 0;
-    while (subscriptions.size() != 1)
+    while (subscriptions.size() != 1  && seconds < SECONDS_TO_WAIT)
     {
       subscriptions.clear();
       _db->getAll(subscriptions);
