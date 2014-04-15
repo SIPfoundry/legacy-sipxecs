@@ -774,10 +774,12 @@ public:
   {
     if (!e && !_terminate)
     {
-      if (++_sleepCount <= _currentKeepAliveTicks)
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-      else
+      _sleepCount++;
+
+      if (_sleepCount >= _currentKeepAliveTicks)
+      {
         _sleepCount = 0;
+      }
      
       if (_refreshSignin && (--_currentSigninTick == 0))
       {
