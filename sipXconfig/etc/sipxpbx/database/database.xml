@@ -465,6 +465,7 @@
     <antcall target="live-attendant-night" />
     <antcall target="callgroup-usefwdtimers" />
     <antcall target="callgroup-fallback-expire" />
+    <antcall target="update-polycom-version" />
   </target>
 
   <target name="plugin-patches">
@@ -1404,6 +1405,9 @@
   </target>
   <target name="callgroup-fallback-expire" unless="callgroup-fallback-expire">
     <db-patch patch="callgroup-fallback-expire" />
+  </target>
+  <target name="update-polycom-version" unless="update-polycom-version">
+    <db-patch patch="update-polycom-version" />
   </target>
 
   <!--
