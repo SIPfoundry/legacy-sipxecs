@@ -61,3 +61,4 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx
 %dir %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/imbot
 %attr(755,sipx,sipx) %{_sysconfdir}/sipxpbx/imbot/sipximbot-prompts.properties
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipximbot/log4j.properties

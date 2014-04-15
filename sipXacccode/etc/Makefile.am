@@ -7,3 +7,13 @@ dist_cfinputs_DATA = \
 schemadir = @SIPX_DATADIR@/schema
 dist_schema_DATA = \
 	authcodes.xsd
+
+EXTRA_DIST = \
+	$(conf_DATA:=.in)
+
+confdir = @SIPX_CONFDIR@/sipxacccode
+conf_DATA = \
+	log4j.properties
+
+$(conf_DATA) : % : %.in Makefile
+	@$(call SearchAndReplace,$<,$@)

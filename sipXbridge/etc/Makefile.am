@@ -5,7 +5,8 @@ EXTRA_DIST = \
 
 confdir = @SIPX_CONFDIR@/sipxbridge
 conf_DATA = \
-	sipxbridge.sec.erb
+	sipxbridge.sec.erb \
+	log4j.properties
 
 cfinputsdir = $(SIPX_CFINPUTS)/plugin.d
 dist_cfinputs_DATA = \

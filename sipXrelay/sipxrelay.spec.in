@@ -53,6 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/sipxrelay/sipxrelay.sec.erb
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxrelay
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXbridge
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrelay/log4j.properties
 
 %post
 if grep -q :on <<<`/sbin/chkconfig sipxrelay --list 2>&1`; then

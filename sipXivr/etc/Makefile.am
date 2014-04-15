@@ -15,7 +15,8 @@ schema_DATA = \
 
 confdir = @SIPX_CONFDIR@/sipxivr
 conf_DATA = \
-	sipxivr.sec.erb
+	sipxivr.sec.erb \
+	log4j.properties
 
 $(schema_DATA) : % : %.in Makefile
 	@$(call SearchAndReplace, $<, $@)

@@ -52,6 +52,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXrest
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxrest.cf
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxrest
+%config(noreplace) %{_sysconfdir}/sipxpbx/sipxrest/log4j.properties
 
 %post
 if grep -q :on <<<`/sbin/chkconfig sipxrest --list 2>&1`; then
