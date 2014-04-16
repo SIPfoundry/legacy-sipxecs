@@ -2,7 +2,7 @@
 
 cd @SIPX_CONFDIR@/ssl/authorities/
 for f in *.crt; do
-  i=`find -L . -samefile $f | wc -l`
+  i=`find -L . -samefile "$f" | wc -l`
   if [ $i -lt 2 ]; then 
     hash=`openssl x509 -hash -noout -in $f`
     ln -s $f $hash.0
