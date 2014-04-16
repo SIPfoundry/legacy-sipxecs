@@ -26,6 +26,7 @@ public class VCardRpcServer {
 
     public void start() {
         try {
+            logger.debug("Starting Vcard RPC server ...");
             WebServer webServer = new WebServer(getRpcPort());
             XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
             PropertyHandlerMapping phm = new PropertyHandlerMapping();
@@ -40,7 +41,7 @@ public class VCardRpcServer {
         } catch (XmlRpcException e) {
             logger.info("In VcardRpcServer, XmlRpcException " + e.getMessage());
         } catch (IOException e) {
-            logger.info("In VcardRpcServer, IOException " + e.getMessage());
+            logger.info("In VcardRpcServer, IOException " + e.getMessage(), e);
         } catch (Exception e) {
             logger.info("In VcardRpcServer, Exception " + e.getMessage());
         }

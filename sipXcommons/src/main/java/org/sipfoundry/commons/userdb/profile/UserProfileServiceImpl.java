@@ -31,6 +31,7 @@ import net.coobird.thumbnailator.geometry.Positions;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -132,30 +133,27 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
         return null;
     }
-    
+
     @Override
     public List<UserProfile> getUserProfileByAuthAccountName(String authAccountName) {
         if (authAccountName != null) {
             return m_template.find(new Query(Criteria.where(AUTH_ACCOUNT_NAME).is(authAccountName.toLowerCase())),
-                UserProfile.class,
-                    USER_PROFILE_COLLECTION);
+                    UserProfile.class, USER_PROFILE_COLLECTION);
         }
         return null;
     }
-    
+
     @Override
     public List<UserProfile> getUserProfileByEmail(String email) {
         if (email != null) {
-            Query query = new Query(
-                new Criteria().orOperator(
-                    Criteria.where(PRIMARY_EMAIL).is(email.toLowerCase()),
-                    Criteria.where(ALTERNATE_EMAIL).is(email.toLowerCase()), 
-                    Criteria.where(ALIASES_EMAIL_SET).is(email.toLowerCase())));                        
-            return m_template.find(query, UserProfile.class,
-                    USER_PROFILE_COLLECTION);
+            Query query = new Query(new Criteria().orOperator(Criteria.where(PRIMARY_EMAIL).is(email.toLowerCase()),
+                    Criteria.where(ALTERNATE_EMAIL).is(email.toLowerCase()),
+                    Criteria.where(ALIASES_EMAIL_SET).is(email.toLowerCase())));
+            return m_template.find(query, UserProfile.class, USER_PROFILE_COLLECTION);
         }
         return null;
     }
+
     @Override
     public List<Integer> getUserIdsByAuthAccountName(String authAccountName) {
         List<Integer> ids = new ArrayList<Integer>();
@@ -165,7 +163,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
         return ids;
     }
-    
+
     @Override
     public List<Integer> getUserIdsByEmail(String email) {
         List<Integer> ids = new ArrayList<Integer>();
@@ -183,15 +181,33 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public InputStream getAvatar(String userName) {
+        GridFSDBFile image = getAvatarDBFile(userName);
+        if (image != null) {
+            return image.getInputStream();
+        }
+        return null;
+    }
+
+    @Override
+    public ObjectId getAvatarId(String userName) {
+        GridFSDBFile imageForOutput = getAvatarDBFile(userName);
+        if (imageForOutput != null) {
+            return (ObjectId) getAvatarDBFile(userName).getId();
+        }
+
+        return null;
+    }
+
+    private GridFSDBFile getAvatarDBFile(String userName) {
         GridFS avatarFS = new GridFS(m_template.getDb());
         GridFSDBFile imageForOutput = avatarFS.findOne(String.format(AVATAR_NAME, userName));
         if (imageForOutput != null) {
-            return imageForOutput.getInputStream();
+            return imageForOutput;
         }
         // try default avatar
         imageForOutput = avatarFS.findOne(String.format(AVATAR_NAME, "default"));
         if (imageForOutput != null) {
-            return imageForOutput.getInputStream();
+            return imageForOutput;
         }
         return null;
     }
@@ -285,8 +301,8 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     private List<UserProfile> getUserProfiles(int firstRow, int pageSize, String property, boolean enabled) {
-        return m_template.find(new Query(Criteria.where(property).is(enabled)).skip(firstRow)
-                .limit(pageSize), UserProfile.class, USER_PROFILE_COLLECTION);
+        return m_template.find(new Query(Criteria.where(property).is(enabled)).skip(firstRow).limit(pageSize),
+                UserProfile.class, USER_PROFILE_COLLECTION);
     }
 
     @Override
