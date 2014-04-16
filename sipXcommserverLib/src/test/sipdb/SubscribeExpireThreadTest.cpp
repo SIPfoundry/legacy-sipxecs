@@ -92,22 +92,34 @@ class SubscribeExpireThreadTest: public CppUnit::TestCase
   const MongoDB::ConnectionInfo _info;
   int _timeNow;
   const std::string _databaseName;
-  int SECONDS_TO_WAIT;
+  int MAX_SECONDS_TO_WAIT;
 public:
   SubscribeExpireThreadTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
                                 _databaseName(gDatabaseName)
   {
   }
 
+  void waitUntilDbIsEmpty(MongoDB::ScopedDbConnectionPtr& pConn)
+  {
+    int seconds = 0;
+    while (!pConn->get()->findOne(_databaseName, mongo::BSONObj()).isEmpty() &&
+           seconds < MAX_SECONDS_TO_WAIT)
+    {
+      sleep(1);
+      seconds++;
+    }
+  }
+
   void setUp()
   {
-    SECONDS_TO_WAIT = 10;
+    MAX_SECONDS_TO_WAIT = 10;
 
     _timeNow = (int) OsDateTime::getSecsSinceEpoch();
 
     _db = new SubscribeDB(_info, NULL, _databaseName);
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->remove(_databaseName, mongo::Query());
+    waitUntilDbIsEmpty(pConn);
     pConn->done();
   }
 
@@ -157,7 +169,7 @@ public:
     SubscribeDB::Subscriptions subscriptions;
 
     int seconds = 0;
-    while (subscriptions.size() < 2 && seconds < SECONDS_TO_WAIT)
+    while (subscriptions.size() < 2 && seconds < MAX_SECONDS_TO_WAIT)
     {
       subscriptions.clear();
       _db->getAll(subscriptions);
@@ -175,7 +187,7 @@ public:
 
     // wait until 10 seconds to be sure that the thread removed all expired records
     seconds = 0;
-    while (subscriptions.size() != 1  && seconds < SECONDS_TO_WAIT)
+    while (subscriptions.size() != 1  && seconds < MAX_SECONDS_TO_WAIT)
     {
       subscriptions.clear();
       _db->getAll(subscriptions);

@@ -198,6 +198,7 @@ class EntityDBTest: public CppUnit::TestCase
   EntityRecordPtr _entityRecord;
   MongoDB::ScopedDbConnectionPtr _conn;
   EntityDBPtr _db;
+  int MAX_SECONDS_TO_WAIT;
 public:
   EntityDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
               _entityDbName(gTestEntityDbName),
@@ -206,8 +207,12 @@ public:
               _conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString())),
               _db(new EntityDB(_info, _entityDbName))
   {
+    MAX_SECONDS_TO_WAIT = 10;
+
     _conn->get()->dropCollection(_oplogDbName);
     _conn->get()->remove(_entityDbName, mongo::Query());
+
+    waitUtilDbIsEmpty(_conn);
 
     // Initialise Entity record structure
     setEntityRecord(*_entityRecord);
@@ -215,7 +220,28 @@ public:
     // Insert Entity record entry in test.EntityDBTest
     updateEntityRecord(*_entityRecord);
 
-    sleep(1);
+    waitUtilDbHaveAtLeastOneEntry(_conn);
+  }
+
+  void waitUtilDb(MongoDB::ScopedDbConnectionPtr& pConn, bool empty)
+  {
+    int seconds = 0;
+    while (empty == pConn->get()->findOne(_entityDbName, mongo::BSONObj()).isEmpty() &&
+           seconds < MAX_SECONDS_TO_WAIT)
+    {
+      sleep(1);
+      seconds++;
+    }
+  }
+
+  void waitUtilDbIsEmpty(MongoDB::ScopedDbConnectionPtr& pConn)
+  {
+    waitUtilDb(pConn, false);
+  }
+
+  void waitUtilDbHaveAtLeastOneEntry(MongoDB::ScopedDbConnectionPtr& pConn)
+  {
+    waitUtilDb(pConn, true);
   }
 
   ~EntityDBTest()

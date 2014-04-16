@@ -102,7 +102,7 @@ class MongoOpLogTest: public CppUnit::TestCase
   int _allNr;
   int _deleteNr;
   const std::string _databaseName;
-  int SECONDS_TO_WAIT;
+  int MAX_SECONDS_TO_WAIT;
 public:
   MongoOpLogTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
                     _updateNr(0),
@@ -113,11 +113,23 @@ public:
   {
   }
 
+  void waitUntilDbIsEmpty(MongoDB::ScopedDbConnectionPtr& pConn)
+  {
+    int seconds = 0;
+    while (!pConn->get()->findOne(_databaseName, mongo::BSONObj()).isEmpty() &&
+           seconds < MAX_SECONDS_TO_WAIT)
+    {
+      sleep(1);
+      seconds++;
+    }
+  }
+
   void setUp()
   {
-    SECONDS_TO_WAIT = 10;
+    MAX_SECONDS_TO_WAIT = 10;
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->dropCollection(_databaseName);
+    waitUntilDbIsEmpty(pConn);
     pConn->done();
   }
 
@@ -153,6 +165,7 @@ public:
 
     mongo::BSONObj queryBSONObj;
     pConn->get()->remove(_databaseName, queryBSONObj);
+    waitUntilDbIsEmpty(pConn);
     pConn->done();
   }
 
@@ -235,7 +248,7 @@ public:
     mongoOpLog.run();
 
     int seconds = 0;
-    while (_allNr < 7 && seconds < SECONDS_TO_WAIT)
+    while (_allNr < 7 && seconds < MAX_SECONDS_TO_WAIT)
     {
       sleep(1);
       seconds++;
@@ -306,7 +319,7 @@ public:
     deleteDbData();
 
     int seconds = 0;
-    while (_allNr < 7 && seconds < SECONDS_TO_WAIT)
+    while (_allNr < 7 && seconds < MAX_SECONDS_TO_WAIT)
     {
       sleep(1);
       seconds++;
