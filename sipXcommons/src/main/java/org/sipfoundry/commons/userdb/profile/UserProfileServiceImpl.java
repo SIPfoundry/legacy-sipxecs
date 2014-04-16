@@ -211,7 +211,10 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
         return null;
     }
-
+    @Override
+    public String getAvatarDBFileMD5(String userName) {
+        return getAvatarDBFile(userName).getMD5();
+    }
     @Override
     public void deleteAvatar(String userName) {
         GridFS avatarFS = new GridFS(m_template.getDb());
