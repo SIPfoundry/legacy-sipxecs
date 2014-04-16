@@ -80,4 +80,6 @@ public interface UserProfileService {
     int getDisabledUsersCount();
 
     ObjectId getAvatarId(String userName);
+
+    String getAvatarDBFileMD5(String userName);
 }
