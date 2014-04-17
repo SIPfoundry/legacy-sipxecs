@@ -15,7 +15,9 @@ bin_SCRIPTS = \
 	sipx-backup \
 	sipx-restore \
 	sipx-snapshot \
-	sipx-ssl-symlinks.sh
+	sipx-ssl-symlinks.sh \
+	sipx-remove-ssl-symlinks.sh \
+	sipx-remove-authorities-symlinks.sh
 
 dist_bin_SCRIPTS = \
 	pkg-upgrade \

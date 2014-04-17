@@ -90,7 +90,10 @@ bundle agent sipxcommserverlib_config {
 
    commands: 
     authorities_repaired::
-        "find $(sipx.SIPX_CONFDIR)/ssl/authorities/ -type l | xargs rm"
+        "$(sipx.SIPX_BINDIR)/sipx-remove-authorities-symlinks.sh"
+        comment => "remove auth crt symlinks";
+    ssl_repaired::
+        "$(sipx.SIPX_BINDIR)/sipx-remove-ssl-symlinks.sh"
         comment => "remove crt symlinks";
     any::
         "$(sipx.SIPX_BINDIR)/sipx-ssl-symlinks.sh"

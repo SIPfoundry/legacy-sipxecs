@@ -102,7 +102,7 @@ class Restore < ArchiveBase
     if cmd "tar -zxvf #{params[:file]} -C #{@tmpdir} version"
       v = File.read("#{@tmpdir}/version").split(".")
       dev = (v[0] == '0' and v[1] == '0')
-      pre_mongo = !(dev or (v[0] == '4' and v[1] > '4') or v[0] > '4')
+      pre_mongo = !(dev or (v[0] == '4' and v[1] > '4') or v[0] > '4' or v[0] >= '14')
     else
       raise "Not a known archive, version file is missing."
     end
