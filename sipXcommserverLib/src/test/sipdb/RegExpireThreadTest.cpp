@@ -64,12 +64,13 @@ public:
 
   void setUp()
   {
-    _timeNow = OsDateTime::getSecsSinceEpoch();
     _db = new RegDB(_info, NULL, _databaseName);
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     //mongo::ScopedDbConnection conn(_info.getConnectionString().toString());
     pConn->get()->remove(_databaseName, mongo::Query());
     pConn->done();
+
+    _timeNow = OsDateTime::getSecsSinceEpoch();
   }
 
   void tearDown()

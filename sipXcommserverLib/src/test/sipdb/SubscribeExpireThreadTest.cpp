@@ -78,7 +78,7 @@ SubscriptionTestData subscriptionTestData[] =
       1067,
       1067,
       20,
-      1
+      2
   }
 };
 
@@ -114,13 +114,13 @@ public:
   {
     MAX_SECONDS_TO_WAIT = 10;
 
-    _timeNow = (int) OsDateTime::getSecsSinceEpoch();
-
     _db = new SubscribeDB(_info, NULL, _databaseName);
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->remove(_databaseName, mongo::Query());
     waitUntilDbIsEmpty(pConn);
     pConn->done();
+
+    _timeNow = (int) OsDateTime::getSecsSinceEpoch();
   }
 
   void tearDown()
@@ -163,7 +163,7 @@ public:
   {
     upsertSubscriptionTestData(0);
 
-    // create a new Subscription entry that will expire in 1 second
+    // create a new Subscription entry that will expire in 2 seconds
     upsertSubscriptionTestData(1);
 
     SubscribeDB::Subscriptions subscriptions;
