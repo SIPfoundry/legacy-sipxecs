@@ -64,6 +64,7 @@ Requires: sipxsnom >= %version
 Requires: sipxsupervisor >= %version
 Requires: sipxsqa-server >= %version
 Requires: sipxunidata >= %version
+Requires: sipxcallqueue
 
 Obsoletes: %{name}-doc
 Obsoletes: epel-release
