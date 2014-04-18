@@ -79,5 +79,24 @@ public class RegAdvancedConfigurationTest extends PolycomXmlTestCase {
         expectedPhoneStream.close();
     }
     
-    
+
+    public void testGenerateProfile501VVX600() throws Exception {
+        PolycomPhone phoneVVX600 = new PolycomPhone();
+        ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
+        phoneVVX600.setModelId("polycomVVX600");
+        phoneVVX600.setBeanId("polycomVVX600");
+        phoneVVX600.setPhoneModelSource(phoneModelSource);
+        phoneVVX600.setModel(phoneModelBuilder("polycomVVX600", getClass()));
+        phoneVVX600.setDeviceVersion(PolycomModel.VER_5_0_1);
+        PhoneTestDriver.supplyTestData(phoneVVX600);
+        
+        RegAdvancedConfiguration app = new RegAdvancedConfiguration(phoneVVX600);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-reg-advanced-50-vvx600.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
 }

@@ -36,7 +36,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.XPath;
 import org.dom4j.io.DOMReader;
-import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -51,6 +50,8 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
     static protected PolycomPhone phone40;
     static protected PolycomPhone phone41;
     static protected PolycomPhone phone50;
+    static protected PolycomPhone phone501;
+    static protected PolycomPhone phone502;
     static protected MemoryProfileLocation location;
     static protected VelocityProfileGenerator m_pg;
 
@@ -94,6 +95,24 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         phone50.setModel(model);
         phone50.setDeviceVersion(PolycomModel.VER_5_0_0);
         PhoneTestDriver.supplyTestData(phone50);
+
+        phone501 = new PolycomPhone();
+
+        phone501.setModelId("polycomVVX500");
+        phone501.setBeanId("polycomVVX500");
+        phone501.setPhoneModelSource(phoneModelSource);
+        phone501.setModel(model);
+        phone501.setDeviceVersion(PolycomModel.VER_5_0_1);
+        PhoneTestDriver.supplyTestData(phone501);
+
+        phone502 = new PolycomPhone();
+
+        phone502.setModelId("polycomVVX500");
+        phone502.setBeanId("polycomVVX500");
+        phone502.setPhoneModelSource(phoneModelSource);
+        phone502.setModel(model);
+        phone502.setDeviceVersion(PolycomModel.VER_5_0_2);
+        PhoneTestDriver.supplyTestData(phone502);
         
         location = new MemoryProfileLocation();
 

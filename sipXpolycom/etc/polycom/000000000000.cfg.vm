@@ -55,6 +55,8 @@
       #ModelSpecificAttributes4( "", "5.0.0")
    #elseif($fw == "5.0.1")
       #ModelSpecificAttributes4( "", "5.0.1")
+   #elseif($fw == "5.0.2")
+      #ModelSpecificAttributes4( "", "5.0.2")
    #elseif ($fw == "2.0")
       #ModelSpecificAttributes20("")
    #end

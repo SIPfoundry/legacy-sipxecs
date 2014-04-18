@@ -93,7 +93,7 @@
       </setting>
     </group>
       <group name="numOfDisplayColumns" if="polycomVVX500||polycomVVX600">
-	      <setting name="numOfDisplayColumns" if="5.0.0">
+	      <setting name="numOfDisplayColumns" if="5.0.0||5.0.1||5.0.2">
 	      <type>
 	        <enum>
 	          <option>
@@ -1217,7 +1217,7 @@
         </type>
         <value>768</value>
     </setting>
-    <setting name="allowWithSource" if="5.0.0">
+    <setting name="allowWithSource" if="5.0.0||5.0.1||5.0.2">
       <type>
         <boolean />
       </type>
@@ -1819,6 +1819,18 @@
       </type>
       <value>2222</value>
     </setting>
+    <setting name="videoPortRange.enable" if="5.0.2">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="videoPortRangeStart" if="5.0.2">
+      <type>
+        <integer min="1024" max="65486" />
+      </type>
+      <value>2272</value>
+    </setting>
   </group>
   <group name="tcpIpApp.keepalive.tcp">
     <setting name="idleTransmitInterval">
@@ -1991,7 +2003,7 @@
         <value>0</value>
       </setting>
     </group>
-    <setting name="advancedMissedCalls.addToReceivedList" if="5.0.0">
+    <setting name="advancedMissedCalls.addToReceivedList" if="5.0.0||5.0.1||5.0.2">
       <type>
         <boolean />
       </type>
@@ -2987,7 +2999,7 @@
       </type>
       <value>2</value>
     </setting>
-    <setting name="impossibleMatchHandling.timeOut" if="5.0.0">
+    <setting name="impossibleMatchHandling.timeOut" if="5.0.0||5.0.1||5.0.2">
       <type>
         <integer min="0" max="100" />
       </type>
@@ -5254,13 +5266,13 @@
 		<value>0</value>
       </setting>
     </group>      
-	<group name="mwi" if="5.0.0">
+	<group name="mwi" if="5.0.0||5.0.1||5.0.2">
       <setting name="backLight.disable">
 		<type><boolean /></type>
 		<value>0</value>
       </setting>
 	</group>
-	<group name="keyboard" if="5.0.0">
+	<group name="keyboard" if="5.0.0||5.0.1||5.0.2">
       <setting name="layout.type">
       <type>
         <enum>
@@ -5281,8 +5293,20 @@
 		<value>1</value>
       </setting>
 	</group>
-	<group name="audioVideoToggle" if="5.0.0">
+	<group name="audioVideoToggle" if="5.0.0||5.0.1||5.0.2">
       <setting name="callMode.persistent">
+		<type><boolean /></type>
+		<value>1</value>
+      </setting>
+	</group>
+	<group name="Diags" if="5.0.2">
+	  <setting name="dumpcore.enabled">
+		<type><boolean /></type>
+		<value>1</value>
+      </setting>
+	</group>
+    <group name="prov.autoConfigUpload" if="5.0.2">
+	  <setting name="enabled">
 		<type><boolean /></type>
 		<value>1</value>
       </setting>

@@ -62,6 +62,8 @@ public class RegAdvancedConfiguration extends ProfileContext<PolycomPhone> {
         getDevice().getSettings();
         context.put("lines", getLines());
         context.put("ver5", PolycomModel.VER_5_0_0);
+        context.put("ver501", PolycomModel.VER_5_0_1);
+        context.put("ver502", PolycomModel.VER_5_0_2);
         return context;
     }
 }

@@ -372,7 +372,7 @@ sec.TLS.profile.1.caCert.platform2="0"
           prov.${setting.ProfileName}="$!{setting.Value}"
 #end
 />
-#if ($phone.getDeviceVersion() == $ver5)
+#if ($phone.getDeviceVersion() == $ver5 || $phone.getDeviceVersion() == $ver501 || $phone.getDeviceVersion() == $ver502)
 <keyboard
 #set ($keyboard = $cfg.EndpointSettings.getSetting('keyboard'))
 #foreach ($setting in $cfg.getRecursiveSettings($keyboard))
@@ -389,6 +389,20 @@ sec.TLS.profile.1.caCert.platform2="0"
 #set ($audioVideoToggle = $cfg.EndpointSettings.getSetting('audioVideoToggle'))
 #foreach ($setting in $cfg.getRecursiveSettings($mwi))
           audioVideoToggle.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
+#end
+#if ($phone.getDeviceVersion() == $ver502)
+<Diags
+#set ($diags = $cfg.EndpointSettings.getSetting('Diags'))
+#foreach ($setting in $cfg.getRecursiveSettings($diags))
+          Diags.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
+<prov
+#set ($provautoConfigUpload = $cfg.EndpointSettings.getSetting('prov.autoConfigUpload'))
+#foreach ($setting in $cfg.getRecursiveSettings($provautoConfigUpload))
+          prov.autoConfigUpload.${setting.ProfileName}="$!{setting.Value}"
 #end
 />
 #end

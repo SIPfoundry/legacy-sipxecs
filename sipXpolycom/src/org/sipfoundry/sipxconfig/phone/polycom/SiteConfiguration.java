@@ -64,6 +64,8 @@ public class SiteConfiguration extends ProfileContext<PolycomPhone> {
         getDevice().getSettings();
         context.put("lines", getLineCount());
         context.put("ver5", PolycomModel.VER_5_0_0);
+        context.put("ver501", PolycomModel.VER_5_0_1);
+        context.put("ver502", PolycomModel.VER_5_0_2);
         context.put("cert", m_certificateManager.getSelfSigningAuthorityText());
 
         return context;

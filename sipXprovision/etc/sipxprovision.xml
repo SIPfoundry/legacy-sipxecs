@@ -63,6 +63,9 @@
       <option>
         <value>5.0.1</value>
       </option>
+      <option>
+        <value>5.0.2</value>
+      </option>
     </enum>
   </type>
   <group name="provision-config">
