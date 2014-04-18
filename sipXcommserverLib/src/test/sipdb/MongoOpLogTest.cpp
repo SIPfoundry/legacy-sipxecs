@@ -113,7 +113,7 @@ public:
   {
   }
 
-  void waitUntilDbIsEmpty(MongoDB::ScopedDbConnectionPtr& pConn)
+  void waitUntilDbDataIsRemoved(MongoDB::ScopedDbConnectionPtr& pConn)
   {
     int seconds = 0;
     while (!pConn->get()->findOne(_databaseName, mongo::BSONObj()).isEmpty() &&
@@ -129,7 +129,7 @@ public:
     MAX_SECONDS_TO_WAIT = 10;
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->dropCollection(_databaseName);
-    waitUntilDbIsEmpty(pConn);
+    waitUntilDbDataIsRemoved(pConn);
     pConn->done();
   }
 
@@ -137,7 +137,21 @@ public:
   {
   }
 
-  void updateDbData(DbData& dbData)
+  void waitUntilDbDataIsUpdated(MongoDB::ScopedDbConnectionPtr& pConn, DbData& dbData)
+  {
+    int seconds = 0;
+    mongo::BSONObj bSONObj = BSON(dbData.name_fld() << dbData.getName() <<
+                                  dbData.value_fld() << dbData.getValue());
+
+    while (pConn->get()->findOne(_databaseName, bSONObj).isEmpty() &&
+           seconds < MAX_SECONDS_TO_WAIT)
+    {
+      sleep(1);
+      seconds++;
+    }
+  }
+
+  void updateDbDataWaitUntilReadVerified(DbData& dbData)
   {
 
     mongo::BSONObj query = BSON(dbData.id_fld() << dbData.getId());
@@ -156,16 +170,18 @@ public:
     client->update(_databaseName, query, update, true, false);
     client->ensureIndex(_databaseName, BSON(dbData.id_fld() << 1 ));
 
+    waitUntilDbDataIsUpdated(pConn, dbData);
+
     pConn->done();
   }
 
-  void deleteDbData()
+  void deleteDbDataWaitUntilReadVerified()
   {
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 
     mongo::BSONObj queryBSONObj;
     pConn->get()->remove(_databaseName, queryBSONObj);
-    waitUntilDbIsEmpty(pConn);
+    waitUntilDbDataIsRemoved(pConn);
     pConn->done();
   }
 
@@ -200,33 +216,33 @@ public:
 
     DbData dbData(dbTestData[0].pName, dbTestData[0].pValue, dbTestData[0].pId);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[1].pName);
     dbData.setId(dbTestData[1].pId);
     dbData.setValue(dbTestData[1].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[2].pName);
     dbData.setId(dbTestData[2].pId);
     dbData.setValue(dbTestData[2].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[3].pName);
     dbData.setId(dbTestData[3].pId);
     dbData.setValue(dbTestData[3].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[4].pName);
     dbData.setId(dbTestData[4].pId);
     dbData.setValue(dbTestData[4].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
-    deleteDbData();
+    deleteDbDataWaitUntilReadVerified();
 
 //    mongo::mutex::scoped_lock lk(mongo::OpTime::m);
 //    unsigned long long timestamp = mongo::OpTime::now(lk).asDate();
@@ -290,33 +306,33 @@ public:
 
     DbData dbData(dbTestData[0].pName, dbTestData[0].pValue, dbTestData[0].pId);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[1].pName);
     dbData.setId(dbTestData[1].pId);
     dbData.setValue(dbTestData[1].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[2].pName);
     dbData.setId(dbTestData[2].pId);
     dbData.setValue(dbTestData[2].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[3].pName);
     dbData.setId(dbTestData[3].pId);
     dbData.setValue(dbTestData[3].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
     dbData.setName(dbTestData[4].pName);
     dbData.setId(dbTestData[4].pId);
     dbData.setValue(dbTestData[4].pValue);
 
-    updateDbData(dbData);
+    updateDbDataWaitUntilReadVerified(dbData);
 
-    deleteDbData();
+    deleteDbDataWaitUntilReadVerified();
 
     int seconds = 0;
     while (_allNr < 7 && seconds < MAX_SECONDS_TO_WAIT)
