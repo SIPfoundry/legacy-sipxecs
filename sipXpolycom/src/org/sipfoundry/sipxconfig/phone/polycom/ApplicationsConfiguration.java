@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import java.util.Map;
+
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 
 /**
@@ -25,5 +27,14 @@ public class ApplicationsConfiguration extends ProfileContext {
 
     public ApplicationsConfiguration(PolycomPhone device) {
         super(device, device.getTemplateDir() + "/applications.cfg.vm");
+    }
+
+    @Override
+    public Map<String, Object> getContext() {
+        Map<String, Object> context = super.getContext();
+        getDevice().getSettings();
+        context.put("ver416", PolycomModel.VER_4_1_6);
+
+        return context;
     }
 }

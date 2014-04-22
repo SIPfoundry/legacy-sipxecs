@@ -112,4 +112,14 @@ public class SiteConfigurationTest extends PolycomXmlTestCase {
         EasyMock.verify(m_certificateManager);
         expectedPhoneStream.close();
     }
+    public void testGenerateProfile416() throws Exception {
+        SiteConfiguration app = new SiteConfiguration(phone416, m_certificateManager);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-site-416.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+        EasyMock.verify(m_certificateManager);
+        expectedPhoneStream.close();
+    }
 }

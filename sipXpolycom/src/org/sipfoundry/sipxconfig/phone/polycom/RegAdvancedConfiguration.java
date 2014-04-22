@@ -35,7 +35,7 @@ public class RegAdvancedConfiguration extends ProfileContext<PolycomPhone> {
     }
 
     public Collection<Setting> getLines() {
-        PolycomPhone phone = (PolycomPhone) getDevice();
+        PolycomPhone phone = getDevice();
         List<Line> lines = phone.getLines();
 
         // Phones with no configured lines will register under the sipXprovision special user.
@@ -64,6 +64,7 @@ public class RegAdvancedConfiguration extends ProfileContext<PolycomPhone> {
         context.put("ver5", PolycomModel.VER_5_0_0);
         context.put("ver501", PolycomModel.VER_5_0_1);
         context.put("ver502", PolycomModel.VER_5_0_2);
+        context.put("ver416", PolycomModel.VER_4_1_6);
         return context;
     }
 }

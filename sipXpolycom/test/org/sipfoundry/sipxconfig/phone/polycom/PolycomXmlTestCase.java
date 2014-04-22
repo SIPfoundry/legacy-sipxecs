@@ -52,6 +52,7 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
     static protected PolycomPhone phone50;
     static protected PolycomPhone phone501;
     static protected PolycomPhone phone502;
+    static protected PolycomPhone phone416;
     static protected MemoryProfileLocation location;
     static protected VelocityProfileGenerator m_pg;
 
@@ -113,7 +114,16 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         phone502.setModel(model);
         phone502.setDeviceVersion(PolycomModel.VER_5_0_2);
         PhoneTestDriver.supplyTestData(phone502);
-        
+
+        phone416 = new PolycomPhone();
+
+        phone416.setModelId("polycomVVX500");
+        phone416.setBeanId("polycomVVX500");
+        phone416.setPhoneModelSource(phoneModelSource);
+        phone416.setModel(model);
+        phone416.setDeviceVersion(PolycomModel.VER_4_1_6);
+        PhoneTestDriver.supplyTestData(phone416);
+
         location = new MemoryProfileLocation();
 
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
@@ -214,11 +224,11 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
 
     /**
      * Builds a PolycomModel bean for the specified Model ID.
-     * 
+     *
      * This method is not specific to Codec Options testing. It could be used generally for other
      * PolycomPhone testing. (Though are definitely some bean properties that are not being
      * populated.)
-     * 
+     *
      * @throws DocumentException
      */
     public static PolycomModel phoneModelBuilder(String phoneModelId, Class klass) throws Exception {

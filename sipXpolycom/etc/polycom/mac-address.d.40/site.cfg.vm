@@ -392,7 +392,7 @@ sec.TLS.profile.1.caCert.platform2="0"
 #end
 />
 #end
-#if ($phone.getDeviceVersion() == $ver502)
+#if ($phone.getDeviceVersion() == $ver502 || $phone.getDeviceVersion() == $ver416)
 <Diags
 #set ($diags = $cfg.EndpointSettings.getSetting('Diags'))
 #foreach ($setting in $cfg.getRecursiveSettings($diags))

@@ -23,6 +23,14 @@
       mb.idleDisplay.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
+#if ($phone.getDeviceVersion() == $ver416)
+<mb.idleRefresh
+#set ($idleRefresh = $cfg.EndpointSettings.getSetting('mb').getSetting('idleRefresh'))
+#foreach ($setting in $cfg.getRecursiveSettings($idleRefresh))
+          mb.idleRefresh.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
+#end
   </mb>
 #if ($phone.model.isSupported("desktopIntegration"))
 <apps>

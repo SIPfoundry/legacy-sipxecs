@@ -92,31 +92,39 @@
         <value>40</value>
       </setting>
     </group>
-      <group name="numOfDisplayColumns" if="polycomVVX500||polycomVVX600">
-	      <setting name="numOfDisplayColumns" if="5.0.0||5.0.1||5.0.2">
-	      <type>
-	        <enum>
-	          <option>
-	            <label>1</label>
-	            <value>1</value>
-	          </option>
-	          <option>
-	            <label>2</label>
-	            <value>2</value>
-	          </option>
-	          <option>
-	            <label>3</label>
-	            <value>3</value>
-	          </option>
-	          <option>
-	            <label>4</label>
-	            <value>4</value>
-	          </option>
-	        </enum>
-	      </type>
-	      <value></value>
-	      </setting>
-      </group>
+    <group name="IdleViewPreferenceRemoteCalls" if="4.1.6">
+      <setting name="IdleViewPreferenceRemoteCalls">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="numOfDisplayColumns" if="polycomVVX500||polycomVVX600">
+	    <setting name="numOfDisplayColumns" if="5.0.0||5.0.1||5.0.2||4.1.6">
+	    <type>
+	      <enum>
+	        <option>
+	          <label>1</label>
+	          <value>1</value>
+	        </option>
+	        <option>
+	          <label>2</label>
+	          <value>2</value>
+	        </option>
+	        <option>
+	          <label>3</label>
+	          <value>3</value>
+	        </option>
+	        <option>
+	          <label>4</label>
+	          <value>4</value>
+	        </option>
+	      </enum>
+	    </type>
+	    <value></value>
+	    </setting>
+    </group>
     <group name="pictureFrame" if="video">
       <setting name="folder">
         <type>
@@ -1819,13 +1827,13 @@
       </type>
       <value>2222</value>
     </setting>
-    <setting name="videoPortRange.enable" if="5.0.2">
+    <setting name="videoPortRange.enable" if="4.1.6||5.0.2">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="videoPortRangeStart" if="5.0.2">
+    <setting name="videoPortRangeStart" if="4.1.6||5.0.2">
       <type>
         <integer min="1024" max="65486" />
       </type>
@@ -2133,6 +2141,8 @@
       <setting name="poll" copy-of="so" unless="pre_3.2.0_model"/>
       <setting name="push" copy-of="so" unless="pre_3.2.0_model"/>
       <setting name="wmgr" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="em" copy-of="so" if="4.1.6"/>
+      <setting name="pwr" copy-of="so" if="4.1.6"/>
     </group>
     <group name="device.syslog" advanced="yes">
       <setting name="serverName.set" hidden="yes">
@@ -2674,6 +2684,14 @@
           <boolean />
         </type>
         <value>1</value>
+      </setting>
+    </group>
+    <group name="idleRefresh" if="4.1.6">
+    <setting name="onFailure">
+        <type>
+          <integer min="60" max="6553500"/>
+        </type>
+        <value>60</value>
       </setting>
     </group>
   </group>
@@ -5299,15 +5317,22 @@
 		<value>1</value>
       </setting>
 	</group>
-	<group name="Diags" if="5.0.2">
+	<group name="Diags" if="4.1.6||5.0.2">
 	  <setting name="dumpcore.enabled">
 		<type><boolean /></type>
 		<value>1</value>
       </setting>
 	</group>
-    <group name="prov.autoConfigUpload" if="5.0.2">
+    <group name="prov.autoConfigUpload" if="4.1.6||5.0.2">
 	  <setting name="enabled">
 		<type><boolean /></type>
 		<value>1</value>
       </setting>
 	</group>
+    <group name="lineKey" if="4.1.6">
+	  <setting name="reassignment.enabled">
+		<type><boolean /></type>
+		<value>0</value>
+      </setting>
+	</group>
+	

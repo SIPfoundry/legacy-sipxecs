@@ -55,5 +55,39 @@ public class ApplicationsConfigurationTest extends PolycomXmlTestCase {
         expectedPhoneStream.close();
     }
 
-    
+    public void testGenerateProfile501() throws Exception {
+
+        ApplicationsConfiguration app = new ApplicationsConfiguration(phone501);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-applications.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
+
+    public void testGenerateProfile502() throws Exception {
+
+        ApplicationsConfiguration app = new ApplicationsConfiguration(phone502);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-applications.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
+
+    public void testGenerateProfile416() throws Exception {
+
+        ApplicationsConfiguration app = new ApplicationsConfiguration(phone416);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-applications-416.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
 }

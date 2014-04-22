@@ -27,6 +27,8 @@
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_5"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+  <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_6"
+    class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_0"
     class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
   <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_1"
@@ -551,6 +553,7 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_2"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_3"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_5"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_6"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_0"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_1"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_2"/>
@@ -583,6 +586,7 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_2"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_3"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_5"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_6"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_0"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_1"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_2"/>
@@ -639,6 +643,7 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_4"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_5"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_6"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_0"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_1"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_2"/>
@@ -667,6 +672,7 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_4"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_5"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_6"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_0"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_1"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_2"/>
@@ -695,6 +701,7 @@
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_X"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_4"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_5"/>
+        <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_4_1_6"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_0"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_1"/>
         <ref local="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.VER_5_0_2"/>
