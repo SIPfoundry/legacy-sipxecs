@@ -8,10 +8,10 @@
       <value />
     </setting>
     <setting name="enablePrefix">
-      <value>*87</value>
+      <value>*67</value>
     </setting>
     <setting name="disablePrefix">
-      <value>*88</value>
+      <value>*68</value>
     </setting>
     <setting name="expireTime">
       <type>
