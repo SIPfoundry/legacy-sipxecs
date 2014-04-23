@@ -17,9 +17,9 @@ import org.sipfoundry.sipxconfig.acccode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.acccode.AuthCodeSettings;
 import org.sipfoundry.sipxconfig.acccode.AuthCodes;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.NameInUseException;
 import org.sipfoundry.sipxconfig.common.SameExtensionException;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
@@ -67,55 +67,35 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
                 authCode.getInternalUser().getSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL.getPath()));
     }
 
-    public void saveAuthCode() throws Exception {
-        loadDataSet("tls/auth_code.db.xml");
-
+    public void testCheckAuthCode() throws Exception {
+        loadDataSet("authcode/auth_code.db.xml");
         assertEquals(2, m_authCodeManager.getAuthCodes().size());
 
-        AuthCode authCode = m_authCodeManager.newAuthCode();
-        m_authCodeManager.saveAuthCode(authCode);
-
-        assertEquals(3, m_authCodeManager.getAuthCodes().size());
-        assertEquals("~~ac~3", authCode.getInternalUser().getUserName());
-
-        AuthCode authCode1 = m_authCodeManager.getAuthCodeByCode("12345");
-        m_authCodeManager.saveAuthCode(authCode1);
-        assertEquals("~~ac~4", authCode1.getInternalUser().getUserName());
-
-        AuthCode authCode2 = m_authCodeManager.getAuthCodeByCode("67890");
-        try {
-            m_authCodeManager.saveAuthCode(authCode2);
-            fail();
-        } catch (UserException ex) {
-
-        }
-
         // check alias
+        boolean exCaught = false;
         User user = m_coreContext.newUser();
-        user.setAliasesString("*81");
+        user.setAliasesString("*82");
         user.setUserName("user1");
         user.setPin("123");
         user.setPintoken("123");
         try {
             m_coreContext.saveUser(user);
-            fail();
-        } catch (UserException e) {
-            assertEquals("The user ID or alias \"*81\" duplicates an existing alias for a user or service",
-                    e.getMessage());
+        } catch (NameInUseException e) {
+            exCaught = true;
         }
-
+        assertTrue(exCaught);
     }
 
     public void testAuthCodesSettings() {
         AuthCodeSettings settings = m_authCodes.getSettings();
-        settings.setAuthCodeAliases("*81");
-        settings.setAuthCodePrefix("*81");
+        settings.setAuthCodeAliases("*82");
+        settings.setAuthCodePrefix("*82");
         try {
             m_authCodes.saveSettings(settings);
             fail();
         } catch (SameExtensionException e) {
         }
-        settings.setAuthCodePrefix("*812");
+        settings.setAuthCodePrefix("*821");
         m_authCodes.saveSettings(settings);
     }
 

@@ -135,6 +135,7 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport<AuthCode> imple
         return requireOneOrZero(codes, query);
     }
 
+    @Override
     public AuthCode newAuthCode() {
         AuthCode code = new AuthCode();
         InternalUser internaluser = m_coreContext.newInternalUser();
@@ -142,6 +143,7 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport<AuthCode> imple
         internaluser.setSettingTypedValue(PermissionName.VOICEMAIL.getPath(), false);
         internaluser.setSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL.getPath(), false);
         code.setInternalUser(internaluser);
+
         return code;
     }
 
