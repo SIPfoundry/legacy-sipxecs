@@ -52,7 +52,7 @@ public abstract class Home extends SipxBasePage implements PageBeginRenderListen
     public void pageBeginRender(PageEvent event) {
         // TODO this implementation is wrong, redirection should not be done from Tapestry but
         // at Spring level in SipxSimpleUrlAuthenticationSuccessHandler!
-        // Right now we're redirecting twice on success authentication, once to Home and again to unite web
+        // Right now we're redirecting twice on success authentication, once  to Home and again to unite web
         if (!getUserSession().isAdmin()) {
             Setting adminSettings = getAdminContext().getSettings().getSettings();
             Setting oldPortal = adminSettings.getSetting("user-portal/old-portal");
