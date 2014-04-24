@@ -21,7 +21,7 @@ AC_SUBST(UPSTREAM)
 AC_ARG_VAR(UPSTREAM_URL, [Where to find sipXecs distribution. Default: http://download.sipfoundry.org/pub/sipXecs])
 if test -z "$UPSTREAM_URL"; then
   # This repo matches the release branch code slightly more closely then last release
-  UPSTREAM_URL=http://download.sipfoundry.org/pub/release-${PACKAGE_VERSION}-stable/${PACKAGE_VERSION}
+  UPSTREAM_URL=http://download.sipfoundry.org/pub/${PACKAGE_VERSION}-stable
 else
   UPSTREAM_URL=`echo $UPSTREAM_URL | sed 's|/$||g'`
 fi
