@@ -2033,11 +2033,24 @@ class CallControlManager implements SymmitronResetHandler {
         Request referRequest = transactionContext.getReferRequest();
         Dialog peerDialog = DialogContext.getPeerDialog(dialog);
         DialogContext peerDialogContext = DialogContext.get(peerDialog);
+        Boolean hasForwardedResponse = false;
+        
+        //
+        // Early media flags.  We send it by default.  
+        // If early media is not allowed, we will be sending 180 without SDP for all alerting/progress responses
+        //
+        Boolean allowEarlyMedia = false; // this must be configurable
+        Boolean isRinging = response.getStatusCode() >= 180 && response.getStatusCode() < 200;
+        Boolean sendMedia = true;
+        Boolean hasSDP = response.getContentLength().getContentLength() != 0 &&
+            cth.getContentType().equalsIgnoreCase("application") && 
+            cth.getContentSubType().equalsIgnoreCase("sdp") && 
+            response.getRawContent() != null;
 
+        if (isRinging && !allowEarlyMedia)
+            sendMedia = false;
 
-        if (response.getRawContent() != null
-                && cth.getContentType().equalsIgnoreCase("application")
-                && cth.getContentSubType().equalsIgnoreCase("sdp")) {
+        if (sendMedia && hasSDP) {
 
             /*
              * The incoming media session.
@@ -2090,8 +2103,15 @@ class CallControlManager implements SymmitronResetHandler {
                             transactionContext.getServerTransaction());
                     forwardedResponse.setHeader(contact);
 
-                    transactionContext.getServerTransaction().sendResponse(forwardedResponse);
+                    //
+                    // Set the to-tag for early/confirmed dialogs
+                    //
+                    ToHeader newToHeader = (ToHeader) forwardedResponse.getHeader(ToHeader.NAME);
+                    String toTag = transactionContext.createToTag();
+                    newToHeader.setTag(toTag);
 
+                    transactionContext.getServerTransaction().sendResponse(forwardedResponse);
+                    hasForwardedResponse = true;
 
                 } else {
                     if ( logger.isDebugEnabled() ) logger.debug("not forwarding response peerDat.transaction  = "
@@ -2103,7 +2123,44 @@ class CallControlManager implements SymmitronResetHandler {
                         .debug("Processing ReferRedirection: Could not find RtpSession for referred dialog");
             }
 
-        } else if (response.getRawContent() != null) {
+        } else if (!sendMedia && isRinging) {
+            //
+            // We got a progress/alerting response.  Sending 180 because early media is disabled.
+            //
+            logger.debug("Early media is disabled by config.  Sending 180 for all progress responses");
+            if (transactionContext.getServerTransaction() != null
+                        && transactionContext.getServerTransaction().getState() != TransactionState.TERMINATED) {
+
+                Response forwardedResponse = SipUtilities.createResponse(transactionContext.getServerTransaction(), 180);
+                //
+                // Set the to-tag for early/confirmed dialogs
+                //
+                ToHeader newToHeader = (ToHeader) forwardedResponse.getHeader(ToHeader.NAME);
+                String toTag = transactionContext.createToTag();
+                newToHeader.setTag(toTag);
+
+                //
+                // Set contact header
+                //
+                ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
+                String contactUser;
+                if (responseContactHeader != null) {
+                    SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
+                    contactUser = contactURI.getUser();
+                }
+                else {
+                    contactUser = Gateway.SIPXBRIDGE_USER;
+                }
+                ContactHeader contact = SipUtilities.createContactHeader(
+                            ((TransactionExt) transactionContext.getServerTransaction()).getSipProvider(),
+                            peerDialogContext.getItspInfo(), contactUser,
+                            transactionContext.getServerTransaction());
+                forwardedResponse.setHeader(contact);
+
+                transactionContext.getServerTransaction().sendResponse(forwardedResponse);
+                hasForwardedResponse = true;
+            }
+        } else if (response.getRawContent() != null && !hasSDP) {
             /*
              * Got content but it was not SDP.
              */
@@ -2132,7 +2189,7 @@ class CallControlManager implements SymmitronResetHandler {
         /*
          * SDP was returned from the transfer target.
          */
-        if (response.getContentLength().getContentLength() != 0) {
+        if (hasSDP && sendMedia) {
             if (transactionContext.getDialogPendingSdpAnswer() != null
                     && DialogContext.get(transactionContext.getDialogPendingSdpAnswer()).getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
                 Dialog dialogToAck = transactionContext.getDialogPendingSdpAnswer();
@@ -2156,7 +2213,10 @@ class CallControlManager implements SymmitronResetHandler {
 
             DialogContext.get(dialog).sendAck(ackRequest);
             b2bua.sendByeToMohServer();
-        } else {
+        } else if (!hasForwardedResponse){
+            //
+            // Stateless relay?
+            //
             ServerTransaction stx = transactionContext.getServerTransaction();
             if ( stx.getState() != TransactionState.TERMINATED ) {
                Response newResponse = SipUtilities.createResponse(stx, response.getStatusCode() );
