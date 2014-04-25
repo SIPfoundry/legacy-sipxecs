@@ -3,5 +3,10 @@
   "imId": "johnim",
   "ldapImAuth": false,
   "sipPassword": "12345678",
-  "pin": "userpin"
+  "pin": "userpin",
+  "im-locations": [
+    {
+      "fqdn": "location2.example.com"
+    }
+  ]
 }}

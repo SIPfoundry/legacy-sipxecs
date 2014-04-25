@@ -366,6 +366,7 @@
   <bean id="loginDetailsResourceWithPin" class="org.sipfoundry.sipxconfig.rest.LoginDetailsResourceWithPin" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="ldapManager" ref="ldapManager"/>
+    <property name="configManager" ref="configManager"/>
   </bean>
   <alias name="loginDetailsResourceWithPin" alias="/my/logindetailsunite" />  
 

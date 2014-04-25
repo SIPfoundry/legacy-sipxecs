@@ -32,8 +32,13 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -45,6 +50,9 @@ public class LoginDetailsResourceTest extends TestCase {
     private User m_user;
     private CoreContext m_coreContext;
     private LdapManager m_ldapManager;
+    private ConfigManager m_configManager;
+    private LocationsManager m_locationsManager;
+    private FeatureManager m_featureManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -73,7 +81,30 @@ public class LoginDetailsResourceTest extends TestCase {
         settings.setEnableOpenfireConfiguration(false);
         m_ldapManager.getSystemSettings();
         expectLastCall().andReturn(settings).times(2);
-        replay(m_coreContext, m_ldapManager);
+        m_configManager = createMock(ConfigManager.class);
+        m_locationsManager = createMock(LocationsManager.class);
+        m_featureManager = createMock(FeatureManager.class);
+        m_configManager.getLocationManager();
+        expectLastCall().andReturn(m_locationsManager).times(1);
+        Location location1 = new Location();
+        location1.setFqdn("location1.example.com");
+        Location location2 = new Location();
+        location2.setFqdn("location2.example.com");
+        Location location3 = new Location();
+        location3.setFqdn("location3.example.com");
+        Location[] locations = new Location[] {location1, location2, location3};
+        m_locationsManager.getLocations();
+        expectLastCall().andReturn(locations).times(1);
+        m_configManager.getFeatureManager();
+        expectLastCall().andReturn(m_featureManager).times(1);
+        m_featureManager.isFeatureEnabled(ImManager.FEATURE, location1);
+        expectLastCall().andReturn(false).times(1);
+        m_featureManager.isFeatureEnabled(ImManager.FEATURE, location2);
+        expectLastCall().andReturn(true).times(1);
+        m_featureManager.isFeatureEnabled(ImManager.FEATURE, location3);
+        expectLastCall().andReturn(false).times(1);
+
+        replay(m_coreContext, m_ldapManager, m_locationsManager, m_configManager, m_featureManager);
     }
 
     @Override
@@ -87,6 +118,7 @@ public class LoginDetailsResourceTest extends TestCase {
         assertEqualsXML(resource, "logindetails.rest.test.xml");
 
         LoginDetailsResourceWithPin resourceWithPin = new LoginDetailsResourceWithPin();
+        resourceWithPin.setConfigManager(m_configManager);
         setContexts(resourceWithPin);
         assertEqualsXML(resourceWithPin, "logindetailswithpin.rest.test.xml");
     }
@@ -97,6 +129,7 @@ public class LoginDetailsResourceTest extends TestCase {
         assertEqualsJSON(resource, "logindetails.rest.test.json");
 
         LoginDetailsResourceWithPin resourceWithPin = new LoginDetailsResourceWithPin();
+        resourceWithPin.setConfigManager(m_configManager);
         setContexts(resourceWithPin);
         assertEqualsJSON(resourceWithPin, "logindetailswithpin.rest.test.json");
     }
