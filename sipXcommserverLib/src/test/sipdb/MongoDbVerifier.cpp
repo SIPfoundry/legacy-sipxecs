@@ -20,7 +20,7 @@ void MongoDbVerifier::wait(mongo::BSONObj bSONObj, bool empty)
 {
   int totalTimeMs = 0;
   int sleepTimeMs = _timeToWaitBetweenRetriesMs;
-  while (empty == _conn->get()->findOne(_dbName, mongo::BSONObj()).isEmpty() &&
+  while (empty == _conn->get()->findOne(_dbName, bSONObj).isEmpty() &&
       totalTimeMs < _maxTimeToWaitMs)
   {
     usleep(sleepTimeMs * 1000);
