@@ -21,6 +21,8 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.createMock;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -84,25 +86,18 @@ public class LoginDetailsResourceTest extends TestCase {
         m_configManager = createMock(ConfigManager.class);
         m_locationsManager = createMock(LocationsManager.class);
         m_featureManager = createMock(FeatureManager.class);
-        m_configManager.getLocationManager();
-        expectLastCall().andReturn(m_locationsManager).times(1);
         Location location1 = new Location();
         location1.setFqdn("location1.example.com");
         Location location2 = new Location();
         location2.setFqdn("location2.example.com");
         Location location3 = new Location();
         location3.setFqdn("location3.example.com");
-        Location[] locations = new Location[] {location1, location2, location3};
-        m_locationsManager.getLocations();
-        expectLastCall().andReturn(locations).times(1);
+        List<Location> locations = new ArrayList<Location>();
+        locations.add(location2);
         m_configManager.getFeatureManager();
         expectLastCall().andReturn(m_featureManager).times(1);
-        m_featureManager.isFeatureEnabled(ImManager.FEATURE, location1);
-        expectLastCall().andReturn(false).times(1);
-        m_featureManager.isFeatureEnabled(ImManager.FEATURE, location2);
-        expectLastCall().andReturn(true).times(1);
-        m_featureManager.isFeatureEnabled(ImManager.FEATURE, location3);
-        expectLastCall().andReturn(false).times(1);
+        m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE);
+        expectLastCall().andReturn(locations).times(1);
 
         replay(m_coreContext, m_ldapManager, m_locationsManager, m_configManager, m_featureManager);
     }

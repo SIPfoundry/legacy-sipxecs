@@ -42,13 +42,11 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
     public Representation represent(Variant variant) throws ResourceException {
         LoginDetails details = (LoginDetails) super.represent(variant);
         Representable representable = details.getObject();
-        Location[] locations = m_configManager.getLocationManager().getLocations();
-        List<LocationRepresentable> imLocations = new ArrayList<LocationRepresentable>();
         FeatureManager featureManager = m_configManager.getFeatureManager();
+        List<Location> locations = featureManager.getLocationsForEnabledFeature(ImManager.FEATURE);
+        List<LocationRepresentable> imLocations = new ArrayList<LocationRepresentable>();
         for (Location location : locations) {
-            if (featureManager.isFeatureEnabled(ImManager.FEATURE, location)) {
-                imLocations.add(new LocationRepresentable(location.getFqdn()));
-            }
+            imLocations.add(new LocationRepresentable(location.getFqdn()));
         }
         Collections.shuffle(imLocations);
         RepresentableWithPin representableWithPin = new RepresentableWithPin(representable.getUserName(),
