@@ -27,17 +27,19 @@ TESTS = \
 	SubscribeExpireThreadTest \
 	MongoOpLogTest
 
-check_PROGRAMS = $(TESTS)	  
+check_PROGRAMS = $(TESTS)
+
+COMMON_SOURCES=MongoDbVerifier.cpp
 
 RegDBTest_SOURCES = RegDBTest.cpp
 RegBindingTest_SOURCES = RegBindingTest.cpp
 SubscriptionTest_SOURCES = SubscriptionTest.cpp
 EntityRecordTest_SOURCES = EntityRecordTest.cpp
 MongoDBTest_SOURCES = MongoDBTest.cpp
-EntityDBTest_SOURCES = EntityDBTest.cpp
+EntityDBTest_SOURCES = $(COMMON_SOURCES) EntityDBTest.cpp
 SubscribeDBTest_SOURCES = SubscribeDBTest.cpp
 ResultSetTest_SOURCES = ResultSetTest.cpp
 DbHelperTest_SOURCES = DbHelperTest.cpp
 RegExpireThreadTest_SOURCES = RegExpireThreadTest.cpp
-SubscribeExpireThreadTest_SOURCES = SubscribeExpireThreadTest.cpp
-MongoOpLogTest_SOURCES = MongoOpLogTest.cpp
+SubscribeExpireThreadTest_SOURCES = $(COMMON_SOURCES) SubscribeExpireThreadTest.cpp
+MongoOpLogTest_SOURCES = $(COMMON_SOURCES) MongoOpLogTest.cpp

@@ -11,6 +11,8 @@
 
 #include <boost/function.hpp>
 
+#include "MongoDbVerifier.h"
+
 
 using namespace std;
 
@@ -113,23 +115,14 @@ public:
   {
   }
 
-  void waitUntilDbDataIsRemoved(MongoDB::ScopedDbConnectionPtr& pConn)
-  {
-    int seconds = 0;
-    while (!pConn->get()->findOne(_databaseName, mongo::BSONObj()).isEmpty() &&
-           seconds < MAX_SECONDS_TO_WAIT)
-    {
-      sleep(1);
-      seconds++;
-    }
-  }
-
   void setUp()
   {
     MAX_SECONDS_TO_WAIT = 10;
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->dropCollection(_databaseName);
-    waitUntilDbDataIsRemoved(pConn);
+
+    MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
+    _mongoDbVerifier.waitUtilEmpty();
     pConn->done();
   }
 
@@ -143,12 +136,8 @@ public:
     mongo::BSONObj bSONObj = BSON(dbData.name_fld() << dbData.getName() <<
                                   dbData.value_fld() << dbData.getValue());
 
-    while (pConn->get()->findOne(_databaseName, bSONObj).isEmpty() &&
-           seconds < MAX_SECONDS_TO_WAIT)
-    {
-      sleep(1);
-      seconds++;
-    }
+    MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
+    _mongoDbVerifier.waitUtilHaveOneEntry(bSONObj);
   }
 
   void updateDbDataWaitUntilReadVerified(DbData& dbData)
@@ -181,7 +170,10 @@ public:
 
     mongo::BSONObj queryBSONObj;
     pConn->get()->remove(_databaseName, queryBSONObj);
-    waitUntilDbDataIsRemoved(pConn);
+
+    MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
+    _mongoDbVerifier.waitUtilEmpty();
+
     pConn->done();
   }
 
@@ -263,6 +255,7 @@ public:
 
     mongoOpLog.run();
 
+    // wait until _all callback is called 7 times or until max seconds to wait
     int seconds = 0;
     while (_allNr < 7 && seconds < MAX_SECONDS_TO_WAIT)
     {
@@ -334,6 +327,7 @@ public:
 
     deleteDbDataWaitUntilReadVerified();
 
+    // wait until _all callback is called 7 times or until max seconds to wait
     int seconds = 0;
     while (_allNr < 7 && seconds < MAX_SECONDS_TO_WAIT)
     {

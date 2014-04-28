@@ -10,6 +10,8 @@
 
 #include <boost/format.hpp>
 
+#include "MongoDbVerifier.h"
+
 
 using namespace std;
 
@@ -99,17 +101,6 @@ public:
   {
   }
 
-  void waitUntilDbIsEmpty(MongoDB::ScopedDbConnectionPtr& pConn)
-  {
-    int seconds = 0;
-    while (!pConn->get()->findOne(_databaseName, mongo::BSONObj()).isEmpty() &&
-           seconds < MAX_SECONDS_TO_WAIT)
-    {
-      sleep(1);
-      seconds++;
-    }
-  }
-
   void setUp()
   {
     MAX_SECONDS_TO_WAIT = 10;
@@ -117,7 +108,10 @@ public:
     _db = new SubscribeDB(_info, NULL, _databaseName);
     MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
     pConn->get()->remove(_databaseName, mongo::Query());
-    waitUntilDbIsEmpty(pConn);
+
+    MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
+    _mongoDbVerifier.waitUtilEmpty();
+
     pConn->done();
 
     _timeNow = (int) OsDateTime::getSecsSinceEpoch();

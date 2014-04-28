@@ -9,6 +9,8 @@
 
 #include <boost/format.hpp>
 
+#include "MongoDbVerifier.h"
+
 
 using namespace std;
 
@@ -199,20 +201,22 @@ class EntityDBTest: public CppUnit::TestCase
   MongoDB::ScopedDbConnectionPtr _conn;
   EntityDBPtr _db;
   int MAX_SECONDS_TO_WAIT;
+  MongoDbVerifier _mongoDbVerifier;
 public:
   EntityDBTest() : _info(MongoDB::ConnectionInfo(mongo::ConnectionString(mongo::HostAndPort(gLocalHostAddr)))),
               _entityDbName(gTestEntityDbName),
               _oplogDbName(gLocalOplogDbName),
               _entityRecord(new EntityRecord),
               _conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString())),
-              _db(new EntityDB(_info, _entityDbName))
+              _db(new EntityDB(_info, _entityDbName)),
+              _mongoDbVerifier(_conn, _entityDbName, MAX_SECONDS_TO_WAIT * 1000)
   {
     MAX_SECONDS_TO_WAIT = 10;
 
     _conn->get()->dropCollection(_oplogDbName);
     _conn->get()->remove(_entityDbName, mongo::Query());
 
-    waitUtilDbIsEmpty(_conn);
+    _mongoDbVerifier.waitUtilEmpty();
 
     // Initialise Entity record structure
     setEntityRecord(*_entityRecord);
@@ -220,28 +224,7 @@ public:
     // Insert Entity record entry in test.EntityDBTest
     updateEntityRecord(*_entityRecord);
 
-    waitUtilDbHaveAtLeastOneEntry(_conn);
-  }
-
-  void waitUtilDb(MongoDB::ScopedDbConnectionPtr& pConn, bool empty)
-  {
-    int seconds = 0;
-    while (empty == pConn->get()->findOne(_entityDbName, mongo::BSONObj()).isEmpty() &&
-           seconds < MAX_SECONDS_TO_WAIT)
-    {
-      sleep(1);
-      seconds++;
-    }
-  }
-
-  void waitUtilDbIsEmpty(MongoDB::ScopedDbConnectionPtr& pConn)
-  {
-    waitUtilDb(pConn, false);
-  }
-
-  void waitUtilDbHaveAtLeastOneEntry(MongoDB::ScopedDbConnectionPtr& pConn)
-  {
-    waitUtilDb(pConn, true);
+    _mongoDbVerifier.waitUtilHaveOneEntry();
   }
 
   ~EntityDBTest()
