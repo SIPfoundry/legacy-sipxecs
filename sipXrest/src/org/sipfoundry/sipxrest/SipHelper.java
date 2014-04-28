@@ -220,9 +220,9 @@ public class SipHelper {
         if (dialog == null) {
             return;
         }
-        logger.debug("Tearinging Down Dialog : " + dialog.getCallId());
+        logger.debug("Tearinging Down Dialog (any state) with call id: " + dialog.getCallId() + " and state: " + dialog.getState());
         try {
-            if (dialog.getState() == DialogState.CONFIRMED) {
+            if (dialog.getState() != null && (dialog.getState().equals(DialogState.CONFIRMED) || dialog.getState().equals(DialogState.TERMINATED))) {
                 Request request = dialog.createRequest(Request.BYE);
                 if (byeUri != null) {
                     request.setRequestURI(byeUri);
@@ -235,7 +235,7 @@ public class SipHelper {
                 SipProvider provider = ((DialogExt) dialog).getSipProvider();
                 ClientTransaction ctx = provider.getNewClientTransaction(request);
                 dialog.sendRequest(ctx);
-            } else if (dialog.getState() != DialogState.TERMINATED) {
+            } else {
                 dialog.delete();
             }
         } catch (Exception e) {
