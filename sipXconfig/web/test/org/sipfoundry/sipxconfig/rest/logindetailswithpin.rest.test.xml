@@ -4,4 +4,9 @@
   <ldapImAuth>false</ldapImAuth>
   <sipPassword>12345678</sipPassword>
   <pin>userpin</pin>
+  <im-locations>
+    <im-location>
+      <fqdn>location2.example.com</fqdn>
+    </im-location>
+  </im-locations>
 </login-details>

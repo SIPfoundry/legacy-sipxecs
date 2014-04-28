@@ -167,6 +167,9 @@ SipRedirectorRegDB::lookUp(
    {
       UtlString userforwardParam;
       requestUriCopy.getUrlParameter("sipx-userforward", userforwardParam);
+      
+      UtlString expiresParam;
+      requestUriCopy.getUrlParameter("sipx-expires", expiresParam);
 
       if ((!userforwardParam.isNull()) && (userforwardParam.compareTo("false", UtlString::ignoreCase) ) == 0)
       {
@@ -182,6 +185,12 @@ SipRedirectorRegDB::lookUp(
           foundUserCfwdTimer = entityDb->findByIdentity(identity.str(), entity);
           if (foundUserCfwdTimer)
             userCfwdTimer << entity.callForwardTime();
+      }
+      
+      if (userCfwdTimer.str().empty() && !expiresParam.isNull())
+      {
+        userCfwdTimer << expiresParam.data();
+        foundUserCfwdTimer = true;
       }
    }
 
