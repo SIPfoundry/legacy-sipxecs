@@ -216,7 +216,7 @@ public:
     _conn->get()->dropCollection(_oplogDbName);
     _conn->get()->remove(_entityDbName, mongo::Query());
 
-    _mongoDbVerifier.waitUtilEmpty();
+    _mongoDbVerifier.waitUntilEmpty();
 
     // Initialise Entity record structure
     setEntityRecord(*_entityRecord);
@@ -224,7 +224,7 @@ public:
     // Insert Entity record entry in test.EntityDBTest
     updateEntityRecord(*_entityRecord);
 
-    _mongoDbVerifier.waitUtilHaveOneEntry();
+    _mongoDbVerifier.waitUntilHaveOneEntry();
   }
 
   ~EntityDBTest()

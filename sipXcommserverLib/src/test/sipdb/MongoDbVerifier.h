@@ -28,9 +28,9 @@ public:
                 int timeToWaitBetweenRetriesMs = 1000);
   ~MongoDbVerifier();
 
-  void waitUtilEmpty(mongo::BSONObj bSONObj = mongo::BSONObj());
-  void waitUtilHaveOneEntry(mongo::BSONObj bSONObj = mongo::BSONObj());
-  void waitUtilReachNumberOfEntries(mongo::BSONObj bSONObj, unsigned long long numberOfEntries);
+  void waitUntilEmpty(mongo::BSONObj bSONObj = mongo::BSONObj());
+  void waitUntilHaveOneEntry(mongo::BSONObj bSONObj = mongo::BSONObj());
+  void waitUntilReachNumberOfEntries(mongo::BSONObj bSONObj, unsigned long long numberOfEntries);
 private:
   //! Disabled copy constructor
   MongoDbVerifier(const MongoDbVerifier& rhs);

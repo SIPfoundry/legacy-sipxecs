@@ -28,7 +28,7 @@ void MongoDbVerifier::wait(mongo::BSONObj bSONObj, bool empty)
   }
 }
 
-void MongoDbVerifier::waitUtilReachNumberOfEntries(mongo::BSONObj bSONObj, unsigned long long numberOfEntries)
+void MongoDbVerifier::waitUntilReachNumberOfEntries(mongo::BSONObj bSONObj, unsigned long long numberOfEntries)
 {
   int totalTimeMs = 0;
   int sleepTimeMs = _timeToWaitBetweenRetriesMs;
@@ -40,12 +40,12 @@ void MongoDbVerifier::waitUtilReachNumberOfEntries(mongo::BSONObj bSONObj, unsig
   }
 }
 
-void MongoDbVerifier::waitUtilEmpty(mongo::BSONObj bSONObj)
+void MongoDbVerifier::waitUntilEmpty(mongo::BSONObj bSONObj)
 {
   wait(bSONObj, false);
 }
 
-void MongoDbVerifier::waitUtilHaveOneEntry(mongo::BSONObj bSONObj)
+void MongoDbVerifier::waitUntilHaveOneEntry(mongo::BSONObj bSONObj)
 {
   wait(bSONObj, true);
 }

@@ -122,7 +122,7 @@ public:
     pConn->get()->dropCollection(_databaseName);
 
     MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
-    _mongoDbVerifier.waitUtilEmpty();
+    _mongoDbVerifier.waitUntilEmpty();
     pConn->done();
   }
 
@@ -137,7 +137,7 @@ public:
                                   dbData.value_fld() << dbData.getValue());
 
     MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
-    _mongoDbVerifier.waitUtilHaveOneEntry(bSONObj);
+    _mongoDbVerifier.waitUntilHaveOneEntry(bSONObj);
   }
 
   void updateDbDataWaitUntilReadVerified(DbData& dbData)
@@ -172,7 +172,7 @@ public:
     pConn->get()->remove(_databaseName, queryBSONObj);
 
     MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
-    _mongoDbVerifier.waitUtilEmpty();
+    _mongoDbVerifier.waitUntilEmpty();
 
     pConn->done();
   }

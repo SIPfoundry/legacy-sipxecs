@@ -110,7 +110,7 @@ public:
     pConn->get()->remove(_databaseName, mongo::Query());
 
     MongoDbVerifier _mongoDbVerifier(pConn, _databaseName, MAX_SECONDS_TO_WAIT * 1000);
-    _mongoDbVerifier.waitUtilEmpty();
+    _mongoDbVerifier.waitUntilEmpty();
 
     pConn->done();
 
