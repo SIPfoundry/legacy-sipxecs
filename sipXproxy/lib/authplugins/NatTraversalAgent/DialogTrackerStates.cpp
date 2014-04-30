@@ -186,7 +186,7 @@ bool WaitingForInvite::InviteRequest( DialogTracker& impl, SipMessage& request, 
       {
          // request contains an SDP offer.  Check if the SDP or the or the actual
          // location of the two endpoints impose the use of a media relay.
-         if( impl.doesEndpointsLocationImposeMediaRelay() )
+         if( impl.doesEndpointsLocationImposeMediaRelay(request) )
          {
             Os::Logger::instance().log(FAC_NAT,PRI_DEBUG,"'%s:%s' - Media relay required",
                   impl.name(), impl.GetCurrentState()->name() );

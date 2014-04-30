@@ -297,9 +297,9 @@ ssize_t DialogTracker::getTimerTickCounter( void ) const
    return mTimerTickCounter;
 }
 
-bool DialogTracker::doesEndpointsLocationImposeMediaRelay( void ) const
+bool DialogTracker::doesEndpointsLocationImposeMediaRelay( const SipMessage& request ) const
 {
-   return pOwningSessionContext->doesEndpointsLocationImposeMediaRelay();
+  return pOwningSessionContext->doesEndpointsLocationImposeMediaRelay(request);
 }
 
 bool DialogTracker::allocateMediaRelaySession( tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort )

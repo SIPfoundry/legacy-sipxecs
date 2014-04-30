@@ -399,8 +399,19 @@ bool SessionContext::removeDialogTrackerFromListAndDelete( const UtlString& tag 
   return ( mDialogTrackersMap.destroy( &tag ) == TRUE );
 }
 
-bool SessionContext::doesEndpointsLocationImposeMediaRelay( void ) const
+bool SessionContext::doesEndpointsLocationImposeMediaRelay( const SipMessage& request ) const
 {
+  
+  //
+  // If the request is a result of a hairpin from sipXbridge, media relay is not required.
+  // sipXbridge will handle all media relay requirement
+  //
+  if (mpNatTraversalRules->isBridgeHairPin(request))
+  {
+    OS_LOG_INFO(FAC_SIP, "SessionContext::doesEndpointsLocationImposeMediaRelay - detected bridge hairpin.  Backing off ...");
+    return false;
+  }
+  
    // The need to use a media relay for the session will be
    // determined by the location of the caller and callee.
    //  IF both the caller and callee are 'PUBLIC' then no media relay is used
