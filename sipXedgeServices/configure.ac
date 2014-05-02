@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(sipXedgeServices, 14.04, https://github.com/SIPFoundry)
+AC_INIT(sipXedgeServices, 14.10, https://github.com/SIPFoundry)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([applications/webrtc])
 AC_PATH_PROG([BASH], [bash])
