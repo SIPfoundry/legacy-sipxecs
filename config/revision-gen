@@ -24,7 +24,7 @@ if test -d ../.git; then
 fi
 
 VERSION=$1
-if [ $VERSION == "14.04" ]; then
+if [ $VERSION == "14.10" ]; then
     VERSION="4.6.0"
 fi
 VER_REV=`git describe --abbrev=5 --match="v${VERSION}" HEAD`
