@@ -23,6 +23,7 @@
 #include "utl/UtlSList.h"
 #include "xmlparser/tinyxml.h"
 #include "NatTraversalAgentDataTypes.h"
+#include "net/SipMessage.h"
 
 // DEFINES
  //XML tags
@@ -130,6 +131,12 @@ public:
    bool isPartOfLocalTopology(const UtlString& host,
                               bool checkIpSubnets = true,
                               bool checkDnsWidlcards = true ) const;
+   
+   void setBridgeAddress(const std::string& bridgeAddress);
+   
+   const std::string& getBridgeAddress() const;
+   
+   bool isBridgeHairPin(const SipMessage& request) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -188,6 +195,7 @@ private:
    int            mStunRefreshIntervalInSecs;
    StunClient*    mpStunClient;
    bool           mbXmlRpcOverSecureTransport;
+   std::string _bridgeAddress;
 
    void initializeNatTraversalInfo( void );
 
@@ -195,10 +203,22 @@ private:
    UtlString     getStunServer( void ) const;
 
    int           getStunRefreshIntervalInSecs( void ) const;
+   
+   bool initializeBridgeInfo();
 
    void announceStunResolvedPublicIpAddress( const UtlString& discoveredPublicIpAddress );
 };
 
 /* ============================ INLINE METHODS ============================ */
 
+
+inline void NatTraversalRules::setBridgeAddress(const std::string& bridgeAddress)
+{
+  _bridgeAddress = bridgeAddress;
+}
+   
+inline const std::string& NatTraversalRules::getBridgeAddress() const
+{
+  return _bridgeAddress;
+}
 #endif  // _NatTraversalRules_h_

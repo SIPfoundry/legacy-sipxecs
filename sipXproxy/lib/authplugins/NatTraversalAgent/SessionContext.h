@@ -39,7 +39,7 @@ public:
     * Determines whether or not a media relay needs to be employed in the media session
     * between the caller and the callee baed o ntheir relative location in the network.
     */
-   virtual bool doesEndpointsLocationImposeMediaRelay( void ) const = 0;
+   virtual bool doesEndpointsLocationImposeMediaRelay( const SipMessage& request ) const = 0;
 
    /**
     * Requests the allocation of a media relay session on the Smmitron.
@@ -191,7 +191,7 @@ public:
    // See SessionContextInterfaceForDialogTracker //
    // for method comments.                        //
    // /////////////////////////////////////////// //
-   virtual bool doesEndpointsLocationImposeMediaRelay( void ) const;
+   virtual bool doesEndpointsLocationImposeMediaRelay( const SipMessage& request ) const;
    virtual bool allocateMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
                                            tMediaRelayHandle& relayHandle,
                                            int& callerRelayRtpPort,

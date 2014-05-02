@@ -152,7 +152,7 @@ public:
    void restoreSdpBodyOfRetransmittedResponse( SipMessage& response );
 
    // Media Relay use determination method
-   bool doesEndpointsLocationImposeMediaRelay( void ) const;
+   bool doesEndpointsLocationImposeMediaRelay( const SipMessage& request ) const;
 
    /**
     * Performs the necessary actions and modifications to ensure that SDP Offer

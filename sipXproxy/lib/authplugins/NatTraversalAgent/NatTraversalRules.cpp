@@ -14,14 +14,17 @@
 // APPLICATION INCLUDES
 #include "utl/UtlSListIterator.h"
 #include "os/OsLogger.h"
+#include "os/OsFS.h"
 #include "net/Url.h"
 #include "NatTraversalRules.h"
 #include "os/OsTime.h"
+#include "sipXecsService/SipXecsService.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define STUN_QUERY_TIMEOUT_IN_MILLISECS (5000)
+const char* BRIDGE_CONFIG_SETTINGS_FILE = "sipxbridge.xml";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 // Constructor
@@ -94,6 +97,9 @@ OsStatus NatTraversalRules::loadRules(const UtlString& configFileName )
    {
       initializeNatTraversalInfo();
    }
+   
+   initializeBridgeInfo();
+   
    return currentStatus;
 }
 
@@ -665,4 +671,61 @@ void NatTraversalRules::StunClient::requestShutdown( void )
 {
    mTimerMutex.release();
    OsTask::requestShutdown();
+}
+
+bool NatTraversalRules::isBridgeHairPin(const SipMessage& request) const
+{
+  if (_bridgeAddress.empty())
+    return false;
+  
+  UtlString topRoute;
+  if( !request.getRouteUri( 0, &topRoute ) )
+    return false;
+  
+  if (topRoute.index(_bridgeAddress.c_str()) == UTL_NOT_FOUND)
+    return false;
+
+  UtlString bottomVia;
+  if (request.getViaFieldSubField(&bottomVia, BOTTOM_SUBFIELD))
+  {
+    return bottomVia.index(_bridgeAddress.c_str()) != UTL_NOT_FOUND;
+  }
+  
+  return false;
+}
+
+bool NatTraversalRules::initializeBridgeInfo()
+{
+  OsPath configPath = SipXecsService::Path(SipXecsService::ConfigurationDirType, BRIDGE_CONFIG_SETTINGS_FILE);
+  
+  TiXmlDocument doc;
+  if (!doc.LoadFile(configPath.data()))
+    return false;
+
+  TiXmlHandle hDoc(&doc);
+  TiXmlElement* docRoot = hDoc.FirstChildElement().Element();
+  if (!docRoot)
+    return false;
+  TiXmlHandle docRootHandle(docRoot);
+
+  TiXmlElement* bridgeConfig = docRootHandle.FirstChild( "bridge-configuration" ).Element();
+  if (!bridgeConfig)
+    return false;
+  
+  TiXmlElement* localAddressNode = bridgeConfig->FirstChildElement("local-address");
+  if (!(localAddressNode && localAddressNode->FirstChild()))
+    return false;
+
+  TiXmlElement* localPortNode = bridgeConfig->FirstChildElement("local-port");
+  if (!(localPortNode && localPortNode->FirstChild()))
+    return false;
+  
+  std::ostringstream lanAddress;
+  lanAddress << localAddressNode->FirstChild()->Value() << ":" << localPortNode->FirstChild()->Value();
+  
+  _bridgeAddress = lanAddress.str();
+  
+  OS_LOG_INFO(FAC_SIP, "NatTraversalRules::initializeBridgeInfo - Setting Bridge address to " <<  _bridgeAddress);
+  
+  return true;
 }
