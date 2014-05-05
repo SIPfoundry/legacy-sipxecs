@@ -172,7 +172,7 @@ ISO_RM_LIST = \
 
 # JV believes erlang list can be dramatically reduced but we haven't investigated
 ISO_ADD_EPEL = \
-  fail2ban-0.8.11* \
+  fail2ban-0.8.10* \
   js-* \
   gperftools-libs-2.0-11* \
   gtest-1* \
@@ -180,6 +180,7 @@ ISO_ADD_EPEL = \
   libev-4.* \
   libmcrypt-* \
   libmongodb-2.4* \
+  monit-5.1* \
   mongodb-2.4* \
   mongodb-server-2.4* \
   openpgm-5* \
@@ -257,6 +258,7 @@ ISO_ADD_OS = \
   boost-thread-* \
   boost-wave-* \
   bzip2-libs-* \
+  c-ares-1.* \
   ca-certificates-* \
   cairo-1.* \
   centos-release-* \
@@ -265,6 +267,7 @@ ISO_ADD_OS = \
   chkconfig-* \
   classpathx-jaf-1* \
   classpathx-mail-1* \
+  compat-expat1-* \
   compat-readline5-* \
   coreutils-* \
   coreutils-libs-* \
