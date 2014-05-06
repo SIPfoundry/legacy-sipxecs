@@ -685,6 +685,8 @@ public:
                                 UtlString& address,
                                 int port,
                                 OsSocket::IpProtocolSocketType protocol);
+    
+    bool relayStatelessAck(SipMessage& request);
 
     /** Send a UDP message symmetrically, that is, so the source port is
      *  the SipUserAgent's UDP listening port. */
