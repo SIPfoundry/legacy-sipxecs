@@ -1440,6 +1440,72 @@ UtlBoolean SipUserAgent::sendStatelessAck(SipMessage& ackRequest,
     return sendSucceeded;
 }
 
+bool SipUserAgent::relayStatelessAck(SipMessage& request)
+{
+  
+  // Try to get top-most route
+  UtlString routeUri;
+  
+  if (request.getRouteUri(0, &routeUri))
+  {
+    UtlString routeAddress;
+    int routePort;
+    UtlString routeProtocol;
+
+    SipMessage::parseAddressFromUri(routeUri.data(),
+                                    &routeAddress, &routePort, &routeProtocol);
+
+    if (!routeAddress.isNull())
+    {
+      if (routeAddress != mLocalHostAddress && routeAddress != mStaticNATAddress)
+      {
+        //
+        // It doesn't route back to US.  We can relay
+        //  
+        OsSocket::IpProtocolSocketType protocol;
+        SipMessage::convertProtocolStringToEnum(routeProtocol.data(), protocol);
+        
+        if (routePort <= 0)
+          routePort = 5060;
+        
+        // Decrement max-forwards
+        int maxForwards;
+        if(!request.getMaxForwards(maxForwards))
+        {
+            request.setMaxForwards(getMaxForwards() - 1);
+        }
+        else
+        {
+            request.setMaxForwards(maxForwards - 1);
+        }
+        
+        OS_LOG_INFO(FAC_SIP, "SipUserAgent::relayStatelessAck address=" << routeAddress.data() << ":" << routePort);
+        
+        // Send using the correct protocol
+        if(protocol == OsSocket::UDP)
+        {
+           sendUdp(&request, routeAddress.data(), routePort);
+        }
+        else if(protocol == OsSocket::TCP)
+        {
+           sendTcp(&request, routeAddress.data(), routePort);
+        }
+     #ifdef SIP_TLS
+        else if(protocol == OsSocket::SSL_SOCKET)
+        {
+           sendTls(&request, routeAddress.data(), routePort);
+        }
+     #endif
+        
+        return true;
+      }
+    }
+  }
+
+  
+  return false;
+}
+
 UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
                                               const UtlString& address,
                                               int port,
@@ -1787,6 +1853,32 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          // New transaction for incoming request
          else
          {
+            UtlString method;
+            message->getRequestMethod(&method);
+            
+            if(method.compareTo(SIP_ACK_METHOD) == 0 && relationship != SipTransaction::MESSAGE_2XX_ACK_PROXY)
+            {
+              Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+                                 "SipUserAgent[%s]::dispatch received ACK without transaction",
+                                 getName().data());
+               
+              int maxForwards;
+
+              // Check the ACK max-forwards has not gone too many hops
+              if(message->getMaxForwards(maxForwards) &&
+                maxForwards <= 0 )
+              {
+                delete message;
+                return;
+              }
+               
+               if (relayStatelessAck(*message))
+               {
+                 delete message;
+                 return;
+               }
+               
+            }
              // Should create a server transaction
             transaction = new SipTransaction(message, FALSE /* incoming */, isUaTransaction);
 
@@ -1794,8 +1886,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             transaction->markBusy();
             mSipTransactions.addTransaction(transaction);
 
-            UtlString method;
-            message->getRequestMethod(&method);
+            
 
             if(method.compareTo(SIP_ACK_METHOD) == 0)
             {
