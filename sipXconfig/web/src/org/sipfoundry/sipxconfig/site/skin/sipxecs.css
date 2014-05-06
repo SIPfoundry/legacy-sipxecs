@@ -785,8 +785,10 @@ fieldset#loginForm legend {
 .popup {
   z-index: 1001;
   position: fixed;
-  left: 10%;
-  top: 10%;
+  left: 50%;
+  top: 20%;
+  width: 375px;
+  margin-left: -175px;
   background-color: #fff;
   border: 1px solid #ccc;
 }
