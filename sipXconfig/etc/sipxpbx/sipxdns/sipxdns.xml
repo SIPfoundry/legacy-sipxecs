@@ -21,6 +21,13 @@
       </setting>
     </group>
   </group>
+  <group name="acl">
+    <setting name="ips">
+      <type>
+        <string multiLine="yes" maxLen="1000"/>
+      </type>
+    </setting>
+  </group>
   <group name="sys" advanced="yes">       
     <setting name="unmanaged">
       <type>

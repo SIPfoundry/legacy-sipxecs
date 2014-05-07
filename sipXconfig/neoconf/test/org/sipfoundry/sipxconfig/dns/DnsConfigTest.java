@@ -220,7 +220,7 @@ public class DnsConfigTest {
 
 
         StringWriter actual = new StringWriter();
-        m_config.writeNamedConfig(actual, d, Arrays.asList(v0, v1, v2), forwarders, Arrays.asList(r0, r1, r2));
+        m_config.writeNamedConfig(actual, d, Arrays.asList(v0, v1, v2), forwarders, Arrays.asList(r0, r1, r2), "127.0.0.0/8;");
         String expected = IOUtils.toString(getClass().getResourceAsStream("named.expected.yml"));
         assertEquals(expected, actual.toString());
     }

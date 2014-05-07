@@ -406,6 +406,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     @Override
     public void saveSettings(DnsSettings settings) {
+        settings.validate();
         m_settingsDao.upsert(settings);
     }
 

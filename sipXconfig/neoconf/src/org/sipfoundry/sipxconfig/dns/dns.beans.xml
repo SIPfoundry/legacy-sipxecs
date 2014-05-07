@@ -4,6 +4,8 @@
 
   <bean id="dnsSettings" class="org.sipfoundry.sipxconfig.dns.DnsSettings" scope="prototype" parent="settingsBean">
     <property name="unmanagedDefault" value="${sysdir.src}"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="sbcManager" ref="sbcManager"/>
   </bean>
   
   <bean id="dnsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
