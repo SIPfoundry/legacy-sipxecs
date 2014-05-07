@@ -20,9 +20,9 @@ commons_PKGS = \
 	commons-digester \
 	commons-lang \
 	xmlrpc-client \
-	org.springframework.beans \
-	org.springframework.context \
-	org.springframework.core \
+	spring-beans \
+	spring-context \
+	spring-core \
 	org.springframework.transaction \
 	spring-data-mongodb \
 	spring-data-commons \

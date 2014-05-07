@@ -1,10 +1,11 @@
-include $(top_srcdir)/config/utility.am
-EXTRA_DIST = \
-	$(bin_SCRIPTS:=.in)
+include config/utility.am
+include config/project.am
 
-bin_SCRIPTS = preflight
+@PACKAGE@_EXTRA_DIST = \
+	README \
+	LICENSE
 
-$(bin_SCRIPTS) : % : %.in Makefile
-	@$(call SearchAndReplace,$<,$@)
-
-CLEANFILES = $(bin_SCRIPTS)
+SUBDIRS = \
+	src \
+	bin \
+	etc

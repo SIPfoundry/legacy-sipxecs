@@ -4,7 +4,7 @@ cisco_PKGS = \
 	commons-io \
 	commons-collections \
 	commons-logging \
-	org.springframework.beans \
+	spring-beans \
 	sipxcommons \
 	sipxconfig-neoconf \
 	velocity

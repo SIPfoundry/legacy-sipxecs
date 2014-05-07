@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:task="http://www.springframework.org/schema/task"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+  
   <!-- prototype, call ldapManager.getAttrMap for system's current attribute mapping  -->
   <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap" scope="prototype">
     <property name="userToLdap">
@@ -148,19 +150,9 @@
     <property name="userProfileService" ref="userProfileService" />
   </bean>
   
-  <bean id="ldapScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask" lazy-init="false">
-    <property name="delay" value="60000"/> 
-    <property name="period" value="60000"/>
-    <property name="timerTask" ref="disableLdapUsersTimer"/>
-  </bean>
-  
-  <bean id="ldapTimerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean" lazy-init="false">
-    <property name="scheduledTimerTasks">
-      <list>        
-        <ref bean="ldapScheduledTask"/>
-      </list>
-    </property>
-  </bean> 
+  <task:scheduled-tasks>
+	<task:scheduled ref="disableLdapUsersTimer" method="disableDeleteUsers" fixed-delay="60000" /> 
+  </task:scheduled-tasks>
   
   <bean id="disableLdapUsersTask" class="org.sipfoundry.sipxconfig.bulk.ldap.DisableLdapUsersTask" scope="prototype">
     <property name="userProfileService" ref="userProfileService" />

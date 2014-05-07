@@ -5,8 +5,8 @@ cfg_PKGS = \
 	commons-lang \
 	commons-io \
 	dom4j \
-	org.springframework.beans \
-	org.springframework.core \
+	spring-beans \
+	spring-core \
 	org.springframework.transaction \
 	xercesImpl \
 	sipxconfig-neoconf \
@@ -52,13 +52,12 @@ plugin_PKGS = \
 	commons-digester \
 	commons-logging \
 	commons-beanutils-core \
-	org.springframework.context- \
+	spring-context \
 	spring-data-commons \
 	org.springframework.transaction \
-	org.springframework.core \
-	org.springframework.beans \
-	org.springframework.expression \
-	org.springframework.asm
+	spring-core \
+	spring-beans \
+	spring-expression
 
 provider_PKGS = \
 	sipxcommons \
@@ -88,13 +87,12 @@ provider_PKGS_RT = \
 	dnsjava \
 	dom4j \
 	not-yet-commons-ssl \
-	org.springframework.context \
-	org.springframework.context.support \
+	spring-context \
+	spring-context-support \
 	org.springframework.transaction \
-	org.springframework.core \
-	org.springframework.beans \
-	org.springframework.expression \
-	org.springframework.asm \
+	spring-core \
+	spring-beans \
+	spring-expression \
 	spring-data-commons \
 	spring-data-mongodb \
 	thumbnailator \

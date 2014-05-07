@@ -44,13 +44,12 @@ sipxconfig_neoconf_PKGS = \
 	org.restlet \
 	org.restlet.ext.json \
 	org.restlet.ext.spring \
-	org.springframework.aop \
-	org.springframework.asm \
-	org.springframework.beans \
-	org.springframework.context \
-	org.springframework.context.support \
-	org.springframework.core \
-	org.springframework.expression \
+	spring-aop \
+	spring-beans \
+	spring-context \
+	spring-context-support \
+	spring-core \
+	spring-expression \
 	org.springframework.jdbc \
 	org.springframework.orm \
 	org.springframework.transaction \

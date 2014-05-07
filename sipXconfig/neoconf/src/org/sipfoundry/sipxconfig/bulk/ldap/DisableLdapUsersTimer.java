@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,15 +30,14 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 
-public class DisableLdapUsersTimer extends TimerTask implements BeanFactoryAware {
+public class DisableLdapUsersTimer implements BeanFactoryAware {
     public static final Log LOG = LogFactory.getLog(DisableLdapUsersTimer.class);
     private BeanFactory m_beanFactory;
     private UserProfileService m_userProfileService;
     private ExecutorService m_executor = Executors.newSingleThreadExecutor();
     private AdminContext m_adminContext;
 
-    @Override
-    public void run() {
+    public void disableDeleteUsers() {
         try {
             if (!m_adminContext.isDelete() && !m_adminContext.isDisable()) {
                 return;

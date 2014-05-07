@@ -1,8 +1,8 @@
 audiocodes_PKGS = \
 	sipxconfig-neoconf \
-	org.springframework.context \
-	org.springframework.core \
-	org.springframework.bean \
+	spring-context \
+	spring-core \
+	spring-beans \
 	commons-lang \
 	commons-io \
 	easymock \

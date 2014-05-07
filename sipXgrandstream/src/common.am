@@ -5,7 +5,7 @@ grandstream_PKGS = \
 	commons-io \
 	commons-collections \
 	commons-codec \
-	org.springframework.beans \
+	spring-beans \
 	sipxcommons \
 	sipxconfig-neoconf \
 	velocity

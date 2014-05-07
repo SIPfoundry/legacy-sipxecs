@@ -4,13 +4,12 @@ event_PKGS = \
 	commons-io \
 	commons-codec \
 	log4j \	
-	org.springframework.beans \
-	org.springframework.context \
-	org.springframework.aop \
-	org.springframework.asm \
-	org.springframework.core \
+	spring-beans \
+	spring-context \
+	spring-aop \
+	spring-core \
 	org.springframework.transaction \
-	org.springframework.expression \
+	spring-expression \
 	org.springframework.web \
 	org.springframework.web.servlet \
 	mongo \

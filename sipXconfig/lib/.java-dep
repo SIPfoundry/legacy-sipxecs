@@ -22,9 +22,9 @@ sipXconfig_dependency() {
        jaxen \
        junit \
        org.restlet \
-       org.springframework.context \
-       org.springframework.context.support \
-       org.springframework.core \
+       spring-context \
+       spring-context-support \
+       spring-core \
        org.springframework.orm \
        org.springframework.transaction \
        sipxcommons \

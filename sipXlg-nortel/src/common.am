@@ -3,9 +3,9 @@ lgnortel_PKGS = \
 	commons-lang \
 	commons-io \
 	commons-collections \
-	org.springframework.beans \
-	org.springframework.context \
-	org.springframework.core \
+	spring-beans \
+	spring-context \
+	spring-core \
 	sipxcommons \
 	sipxconfig-neoconf \
 	velocity

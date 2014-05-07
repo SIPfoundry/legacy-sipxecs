@@ -5,8 +5,8 @@ cfg_PKGS = \
 	commons-lang \
 	commons-io \
 	dom4j \
-	org.springframework.beans \
-	org.springframework.core \
+	spring-beans \
+	spring-core \
 	org.springframework.transaction \
 	xercesImpl \
 	sipxconfig-neoconf \
@@ -28,11 +28,10 @@ recording_PKGS = \
 	mongo \
 	spring-data-mongodb \
 	spring-data-commons \
-	org.springframework.core \
-	org.springframework.asm \
-	org.springframework.beans \
-	org.springframework.context \
+	spring-core \
+	spring-beans \
+	spring-context \
 	org.springframework.transaction \
-	org.springframework.expression \
+	spring-expression \
 	commons-lang \
 	jetty
