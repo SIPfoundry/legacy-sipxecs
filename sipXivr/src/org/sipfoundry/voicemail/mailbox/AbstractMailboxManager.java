@@ -307,13 +307,21 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     }
 
     protected String getGreetingTypeName(GreetingType type) {
+        return getGreetingTypeName(type, m_audioFormat);
+    }
+
+    protected String getAltGreetingTypeName(GreetingType type) {
+        return getGreetingTypeName(type, m_altAudioFormat);
+    }
+
+    private String getGreetingTypeName(GreetingType type, String audioFormat) {
         switch (type) {
         case STANDARD:
-            return String.format("standard.%s", m_audioFormat);
+            return String.format("standard.%s", audioFormat);
         case OUT_OF_OFFICE:
-            return String.format("outofoffice.%s", m_audioFormat);
+            return String.format("outofoffice.%s", audioFormat);
         case EXTENDED_ABSENCE:
-            return String.format("extendedabs.%s", m_audioFormat);
+            return String.format("extendedabs.%s", audioFormat);
         default:
             return null;
         }
@@ -348,7 +356,15 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     }
 
     public String getNameFile() {
-        return String.format("name.%s", m_audioFormat);
+        return getNameFile(m_audioFormat);
+    }
+
+    public String getAltNameFile() {
+        return getNameFile(m_altAudioFormat);
+    }
+
+    private String getNameFile(String audioFormat) {
+        return String.format("name.%s", audioFormat);
     }
 
     public String getPromptFile() {
