@@ -98,7 +98,10 @@ OsStatus NatTraversalRules::loadRules(const UtlString& configFileName )
       initializeNatTraversalInfo();
    }
    
-   initializeBridgeInfo();
+   if (!initializeBridgeInfo())
+   {
+     OS_LOG_WARNING(FAC_SIP, "NatTraversalRules::loadRules - unable to initialize bridge information.  Bridge hairpin detection will be disabled");
+   }
    
    return currentStatus;
 }
@@ -700,25 +703,41 @@ bool NatTraversalRules::initializeBridgeInfo()
   
   TiXmlDocument doc;
   if (!doc.LoadFile(configPath.data()))
+  {
+    OS_LOG_WARNING(FAC_SIP, "NatTraversalRules::initializeBridgeInfo - Unable to load file " << configPath.data());
     return false;
+  }
 
   TiXmlHandle hDoc(&doc);
   TiXmlElement* docRoot = hDoc.FirstChildElement().Element();
   if (!docRoot)
+  {
+    OS_LOG_ERROR(FAC_SIP, "NatTraversalRules::initializeBridgeInfo - unable to parse root document from " << configPath.data());
     return false;
+  }
   TiXmlHandle docRootHandle(docRoot);
 
   TiXmlElement* bridgeConfig = docRootHandle.FirstChild( "bridge-configuration" ).Element();
   if (!bridgeConfig)
+  {
+    OS_LOG_ERROR(FAC_SIP, "NatTraversalRules::initializeBridgeInfo - unable to parse bridge-configuration from " << configPath.data());
     return false;
+  }
   
   TiXmlElement* localAddressNode = bridgeConfig->FirstChildElement("local-address");
   if (!(localAddressNode && localAddressNode->FirstChild()))
+  {
+    OS_LOG_ERROR(FAC_SIP, "NatTraversalRules::initializeBridgeInfo - unable to parse local-address from " << configPath.data());
     return false;
+  }
+
 
   TiXmlElement* localPortNode = bridgeConfig->FirstChildElement("local-port");
   if (!(localPortNode && localPortNode->FirstChild()))
+  {
+    OS_LOG_ERROR(FAC_SIP, "NatTraversalRules::initializeBridgeInfo - unable to parse local-port from " << configPath.data());
     return false;
+  }
   
   std::ostringstream lanAddress;
   lanAddress << localAddressNode->FirstChild()->Value() << ":" << localPortNode->FirstChild()->Value();
