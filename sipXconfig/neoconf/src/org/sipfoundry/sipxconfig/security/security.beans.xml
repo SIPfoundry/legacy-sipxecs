@@ -46,6 +46,7 @@
       </list>
     </property>
     <property name="authenticationEventPublisher" ref="defaultAuthenticationEventPublisher" />
+    <property name="eraseCredentialsAfterAuthentication" value="false"/>
   </bean>
 
   <bean id="defaultAuthenticationEventPublisher" class="org.springframework.security.authentication.DefaultAuthenticationEventPublisher" />
