@@ -42,7 +42,8 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         //This is the password that user uses to authenticate to this REST service
-        String password = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        Object passwordObj = SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        String password = (passwordObj != null ? passwordObj.toString() : null);
 
         LoginDetails details = (LoginDetails) super.represent(variant);
         Representable representable = details.getObject();
