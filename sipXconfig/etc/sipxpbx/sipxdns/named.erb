@@ -16,11 +16,14 @@ logging {
     null; 
   }; 
 };
-
+<% unless acl.nil?%>
+acl corpnets { <%= acl %> };<% end%>
 options {
   directory  "/var/named";
   dump-file "/var/named/data/cache_dump.db";
-  statistics-file "/var/named/data/named_stats.txt";
+  statistics-file "/var/named/data/named_stats.txt";<% unless acl.nil?%>
+  allow-query { any; };
+  allow-recursion { corpnets; };<% end%>
   forwarders { <% 
     forwarders.each {|forwarder| 
 %>

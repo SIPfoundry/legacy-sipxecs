@@ -49,6 +49,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.im.ImManager;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.region.Region;
 import org.sipfoundry.sipxconfig.region.RegionManager;
@@ -64,6 +65,7 @@ public class DnsConfig implements ConfigProvider {
     private static final String VIEW_NAME = "%s.view";
     private static final String QUALIFIED = "%s.";
     private static final String QUALIFIED_HOST = "%s.%s.";
+    private static final String DNS_SETTING_PREFIX = "sipxdns_";
     private static final Log LOG = LogFactory.getLog(DnsConfig.class);
     private DnsManager m_dnsManager;
     private RegionManager m_regionManager;
@@ -71,7 +73,7 @@ public class DnsConfig implements ConfigProvider {
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(DnsManager.FEATURE, LocationsManager.FEATURE, ProxyManager.FEATURE, Registrar.FEATURE,
-                ImManager.FEATURE, RegionManager.FEATURE_ID)) {
+                ImManager.FEATURE, RegionManager.FEATURE_ID, NatTraversal.FEATURE)) {
             return;
         }
 
@@ -120,7 +122,8 @@ public class DnsConfig implements ConfigProvider {
         File gdir = manager.getGlobalDataDirectory();
         Writer named = new FileWriter(new File(gdir, "named.yaml"));
         try {
-            writeNamedConfig(named, Domain.getDomain(), views, settings.getDnsForwarders(), regions);
+            writeNamedConfig(named, Domain.getDomain(), views, settings.getDnsForwarders(), regions,
+                    settings.getFormattedAcl());
         } finally {
             IOUtils.closeQuietly(named);
         }
@@ -193,11 +196,12 @@ public class DnsConfig implements ConfigProvider {
     }
 
     void writeNamedConfig(Writer w, Domain d, Collection<DnsView> views, Collection<Address> forwarders,
-            Collection<Region> regionList) throws IOException {
+            Collection<Region> regionList, String acl) throws IOException {
         YamlConfiguration c = new YamlConfiguration(w);
         Map<Integer, Region> regions = idToObjectMap(regionList);
         Collection< ? > forwarderIps = CollectionUtils.collect(forwarders, Address.GET_IP);
         c.write(YML_DOMAIN, d.getName());
+        c.write("acl", acl);
         c.writeArray("forwarders", forwarderIps);
         c.startArray("views");
         for (DnsView view : views) {
@@ -247,7 +251,8 @@ public class DnsConfig implements ConfigProvider {
             }
         });
         config.writeList("dnsviews", zones);
-        config.writeSettings("sipxdns_", settings.getSettings());
+        config.writeSettings(DNS_SETTING_PREFIX, settings.getSettings().getSetting("named-config"));
+        config.writeSettings(DNS_SETTING_PREFIX, settings.getSettings().getSetting("sys"));
     }
 
     void writeZoneConfig(Writer w, Domain domain, List<Location> all, List<Address> dns,

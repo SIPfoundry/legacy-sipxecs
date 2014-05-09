@@ -16,16 +16,22 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.util.IPAddressUtil;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -39,16 +45,39 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
     private static final String DNS_UNMANAGED_SERVER_1 = "sys/unmanaged_servers/unmanaged_1";
     private static final String DNS_UNMANAGED_SERVER_2 = "sys/unmanaged_servers/unmanaged_2";
     private static final String DNS_UNMANAGED_SERVER_3 = "sys/unmanaged_servers/unmanaged_3";
+    private static final String ACL_IPS = "acl/ips";
+    private static final String SEMICOLON = ";";
     private boolean m_unmanagedDefault;
+    private LocationsManager m_locationsManager;
+    private SbcManager m_sbcManager;
 
     public DnsSettings() {
         addDefaultBeanSettingHandler(new Defaults());
+    }
+
+    public void validate() {
+        validateAclList(getAcl());
     }
 
     public class Defaults {
         @SettingEntry(path = "sys/unmanaged")
         public boolean unmanaged() {
             return m_unmanagedDefault;
+        }
+
+        @SettingEntry(path = ACL_IPS)
+        public String acl() {
+            List<String> ips = new LinkedList<String>();
+            List<Location> locations = m_locationsManager.getLocationsList();
+            for (Location location : locations) {
+                ips.add(location.getAddress());
+            }
+            SbcRoutes sbcRoutes = m_sbcManager.getRoutes();
+            for (String subnet : sbcRoutes.getSubnets()) {
+                ips.add(subnet);
+            }
+            ips.add("127.0.0.0/8");
+            return StringUtils.join(ips, ",");
         }
     }
 
@@ -64,6 +93,18 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
 
     public List<Address> getDnsForwarders() {
         return SettingUtil.getAddresses(DnsManager.DNS_ADDRESS, getSettings(), FORWARDERS);
+    }
+
+    public String getAcl() {
+        return (String) getSettingTypedValue(ACL_IPS);
+    }
+
+    public String getFormattedAcl() {
+        Set<String> ips = IPAddressUtil.getIpsSet(getAcl());
+        if (ips.size() > 0) {
+            return StringUtils.join(ips, SEMICOLON) + SEMICOLON;
+        }
+        return StringUtils.EMPTY;
     }
 
     public void setDnsForwarder(String ip, int index) {
@@ -85,6 +126,12 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
         return servers;
     }
 
+    private void validateAclList(String aclList) {
+        if (!IPAddressUtil.validateIpList(aclList)) {
+            throw new UserException("&msg.invalidcidr", aclList);
+        }
+    }
+
     private void addDnsServer(String setting, List<String> servers) {
         String server = getSettingValue(setting);
         if (StringUtils.isNotBlank(server)) {
@@ -99,5 +146,13 @@ public class DnsSettings extends PersistableSettings implements DeployConfigOnEd
 
     public void setUnmanagedDefault(boolean unmanagedDefault) {
         m_unmanagedDefault = unmanagedDefault;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    public void setSbcManager(SbcManager sbcManager) {
+        m_sbcManager = sbcManager;
     }
 }

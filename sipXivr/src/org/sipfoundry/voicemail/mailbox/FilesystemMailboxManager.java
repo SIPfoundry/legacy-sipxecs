@@ -385,7 +385,12 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
 
     @Override
     public File getRecordedName(String username) {
-        return new File(getUserDirectory(username), getNameFile());
+        File name = new File(getUserDirectory(username), getNameFile());
+        if (!name.exists()) {
+            // check if name was recorded with alternate audio encoding
+            name = new File(getUserDirectory(username), getAltNameFile());
+        }
+        return name;
     }
 
     @Override
@@ -422,6 +427,16 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     @Override
     public String getGreetingPath(User user, GreetingType type) {
         String greetingTypeName = getGreetingTypeName(type);
+        String greetingPath = getGreetingPath(user, greetingTypeName);
+        if (greetingPath == null) {
+            // check if greeting was recorded with alternate audio encoding
+            greetingTypeName = getAltGreetingTypeName(type);
+            greetingPath = getGreetingPath(user, greetingTypeName);
+        }
+        return greetingPath;
+    }
+
+    private String getGreetingPath(User user, String greetingTypeName) {
         if (StringUtils.isNotEmpty(greetingTypeName)) {
             File greeting = new File(getUserDirectory(user.getUserName()), greetingTypeName);
             if (greeting.exists()) {
