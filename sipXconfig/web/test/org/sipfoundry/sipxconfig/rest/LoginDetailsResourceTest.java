@@ -42,7 +42,6 @@ import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
-import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -72,7 +71,7 @@ public class LoginDetailsResourceTest extends TestCase {
         replay(pManager);
         m_user.setPermissionManager(pManager);
 
-        Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
+        Authentication token = new TestAuthenticationTokenWithCredentials(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
 
         m_coreContext = createMock(CoreContext.class);

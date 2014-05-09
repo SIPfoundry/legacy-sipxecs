@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -40,6 +41,9 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
 
     @Override
     public Representation represent(Variant variant) throws ResourceException {
+        //This is the password that user uses to authenticate to this REST service
+        String password = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
         LoginDetails details = (LoginDetails) super.represent(variant);
         Representable representable = details.getObject();
         FeatureManager featureManager = m_configManager.getFeatureManager();
@@ -50,8 +54,8 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         }
         Collections.shuffle(imLocations);
         RepresentableWithPin representableWithPin = new RepresentableWithPin(representable.getUserName(),
-            representable.getImId(), representable.isLdapImAuth(), representable.getSipPassword(), getUser()
-                .getPintoken(), imLocations);
+            representable.getImId(), representable.isLdapImAuth(), representable.getSipPassword(),
+            password, imLocations);
 
         return new LoginDetailsWithPin(details.getMediaType(), representableWithPin);
     }
