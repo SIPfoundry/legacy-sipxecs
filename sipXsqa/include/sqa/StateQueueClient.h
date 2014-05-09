@@ -403,6 +403,7 @@ public:
         {
 
           boost::system::error_code ec;
+          ReadTimer timer(this);
           _pSocket->read_some(boost::asio::buffer((char*)&remoteVersion, sizeof(remoteVersion)), ec);
           if (ec)
           {
@@ -434,6 +435,7 @@ public:
         {
 
           boost::system::error_code ec;
+          ReadTimer timer(this);
           _pSocket->read_some(boost::asio::buffer((char*)&remoteKey, sizeof(remoteKey)), ec);
           if (ec)
           {
@@ -463,6 +465,7 @@ public:
       }
 
       boost::system::error_code ec;
+      ReadTimer timer(this);
       _pSocket->read_some(boost::asio::buffer((char*)&remoteLen, sizeof(remoteLen)), ec);
       if (ec)
       {
