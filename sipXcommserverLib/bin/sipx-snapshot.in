@@ -423,6 +423,9 @@ function marshal_configuration_information () {
    /etc/hosts
    /etc/crontab
    /etc/sendmail.cf
+   /etc/yum.conf
+   /etc/yum
+   /etc/yum.repos.d
    @SIPX_RUNDIR@
    @SIPX_VARDIR@/cfdata
    @SIPX_CFINPUTS@
@@ -434,12 +437,14 @@ function marshal_configuration_information () {
    @OPENFIRE_HOME@/logs/nohup.out
    @OPENFIRE_HOME@/conf
    /var/named
-   /var/log/yum.log
+   /var/lib/pgsql/data/pg_log
+   /var/log/httpd
+   /var/log/maillog
    /var/log/messages
    /var/log/mongodb
-   /etc/yum.conf
-   /etc/yum
-   /etc/yum.repos.d
+   /var/log/mysqld.log
+   /var/log/tomcat6
+   /var/log/yum.log
 EOF
 
   #recurse into directories;

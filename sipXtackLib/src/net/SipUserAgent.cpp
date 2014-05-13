@@ -1462,8 +1462,6 @@ bool SipUserAgent::relayStatelessAck(SipMessage& request)
         //
         // It doesn't route back to US.  We can relay
         //  
-        OsSocket::IpProtocolSocketType protocol;
-        SipMessage::convertProtocolStringToEnum(routeProtocol.data(), protocol);
         
         if (routePort <= 0)
           routePort = 5060;
@@ -1481,8 +1479,13 @@ bool SipUserAgent::relayStatelessAck(SipMessage& request)
         
         OS_LOG_INFO(FAC_SIP, "SipUserAgent::relayStatelessAck address=" << routeAddress.data() << ":" << routePort);
         
+        OsSocket::IpProtocolSocketType protocol = OsSocket::UDP;
+        
+        if (!routeProtocol.isNull())
+          SipMessage::convertProtocolStringToEnum(routeProtocol.data(), protocol);
+        
         // Send using the correct protocol
-        if(protocol == OsSocket::UDP)
+        if(protocol == OsSocket::UDP || protocol == OsSocket::UNKNOWN)
         {
            sendUdp(&request, routeAddress.data(), routePort);
         }

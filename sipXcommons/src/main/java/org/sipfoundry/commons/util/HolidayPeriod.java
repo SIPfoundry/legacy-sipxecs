@@ -19,52 +19,46 @@ package org.sipfoundry.commons.util;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
+/**
+ * if startDate is empty we default it to today
+ * if endDate is empty we default it to startDate + 1 day
+ */
 public class HolidayPeriod {
-
     private Date m_startDate;
     private Date m_endDate;
 
-    public HolidayPeriod() {
-        super();
-        m_startDate = getToday();
-        m_endDate = getTomorow();
-    }
-
-    private Calendar getStartOfDayCalendar() {
+    //The default starting date is today
+    private Date getDefaultStartDate() {
         Calendar cal = new GregorianCalendar();
+        cal.setTime(new Date());
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        return cal;
-    }
-
-    private Date getToday() {
-        Calendar cal = getStartOfDayCalendar();
         return cal.getTime();
     }
 
-    private Date getTomorow() {
-        Calendar cal = getStartOfDayCalendar();
+    //By default we set a period of 1 day holiday given the starting date
+    private Date getDefaultEndDate(Date startDate) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(startDate);
         cal.add(Calendar.DATE, 1);
         return cal.getTime();
     }
 
     public Date getStartDate() {
-        return m_startDate;
+        return m_startDate == null ? getDefaultStartDate() : m_startDate;
     }
 
     public void setStartDate(Date startDate) {
-        this.m_startDate = startDate;
+        m_startDate = startDate;
     }
 
     public Date getEndDate() {
-        return m_endDate;
+        return m_endDate == null ? getDefaultEndDate(getStartDate()) : m_endDate;
     }
 
     public void setEndDate(Date endDate) {
-        this.m_endDate = endDate;
+        m_endDate = endDate;
     }
-
 }
