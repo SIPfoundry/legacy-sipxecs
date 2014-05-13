@@ -1485,7 +1485,7 @@ bool SipUserAgent::relayStatelessAck(SipMessage& request)
           SipMessage::convertProtocolStringToEnum(routeProtocol.data(), protocol);
         
         // Send using the correct protocol
-        if(protocol == OsSocket::UDP || OsSocket::UNKNOWN)
+        if(protocol == OsSocket::UDP || protocol == OsSocket::UNKNOWN)
         {
            sendUdp(&request, routeAddress.data(), routePort);
         }
