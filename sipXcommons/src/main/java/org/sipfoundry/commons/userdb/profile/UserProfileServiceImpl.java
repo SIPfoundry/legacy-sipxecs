@@ -55,6 +55,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     private static final String AVATAR_NAME = "avatar_%s.png";
     private static final int LIMIT_DISABLE = 500;
     private static final int LIMIT_DELETE = 50;
+    private static String m_defaultId = "";
     private MongoTemplate m_template;
 
     @Override
@@ -207,13 +208,15 @@ public class UserProfileServiceImpl implements UserProfileService {
         // try default avatar
         imageForOutput = avatarFS.findOne(String.format(AVATAR_NAME, "default"));
         if (imageForOutput != null) {
+            m_defaultId = imageForOutput.getId().toString();
             return imageForOutput;
         }
         return null;
     }
     @Override
     public String getAvatarDBFileMD5(String userName) {
-        return getAvatarDBFile(userName).getMD5();
+        GridFSDBFile avatar = getAvatarDBFile(userName);
+        return avatar != null ? avatar.getMD5() : null;
     }
     @Override
     public void deleteAvatar(String userName) {
@@ -320,5 +323,9 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     private Long countUsers(boolean active) {
         return m_template.count(new Query(Criteria.where("m_enabled").is(active)), USER_PROFILE_COLLECTION);
+    }
+
+    public static String getDefaultId() {
+        return m_defaultId;
     }
 }
