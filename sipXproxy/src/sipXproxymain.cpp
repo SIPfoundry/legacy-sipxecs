@@ -90,7 +90,6 @@ int proxy()
     int proxyUdpPort;
     int proxyTlsPort;
     UtlString bindIp;
-    int maxForwards;    
     UtlString domainName;
     UtlString proxyRecordRoute;
     UtlString routeName;
@@ -139,6 +138,7 @@ int proxy()
     }
     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIPX_PROXY_TLS_PORT : %d", proxyTlsPort);
 
+    int maxForwards = SIP_DEFAULT_MAX_FORWARDS;
     osServiceOptions.getOption("SIPX_PROXY_MAX_FORWARDS", maxForwards);
     if(maxForwards <= 0) maxForwards = SIP_DEFAULT_MAX_FORWARDS;
     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIPX_PROXY_MAX_FORWARDS : %d", maxForwards);
