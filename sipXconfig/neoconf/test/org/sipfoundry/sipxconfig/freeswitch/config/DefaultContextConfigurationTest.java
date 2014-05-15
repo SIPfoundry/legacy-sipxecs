@@ -13,7 +13,6 @@ import static org.easymock.classextension.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -91,14 +90,14 @@ public class DefaultContextConfigurationTest {
         return bridge;
     }
     
-    List<FreeswitchExtension> getExtensions() {
+    static List<FreeswitchExtension> getExtensions() {
         FreeswitchExtension extension = new FreeswitchExtension() {
-
             @Override
             protected Setting loadSettings() {
-                // TODO Auto-generated method stub
                 return null;
-            }};
+            }
+        };
+
         extension.setName("sales");
         FreeswitchCondition condition = new FreeswitchCondition();
         condition.setField("destination_number");
@@ -123,7 +122,7 @@ public class DefaultContextConfigurationTest {
         mc.andReturn(null);
         mc.replay();
         m_configuration.setFeatureManager(mgr);
-        m_configuration.write(actual, location, bridge, false, extensions, false);
+        m_configuration.write(actual, location, bridge, false, extensions, false, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-no-conferences.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -140,7 +139,7 @@ public class DefaultContextConfigurationTest {
         mc.replay();
         m_configuration.setFeatureManager(mgr);
         List<FreeswitchExtension> extensions = getExtensions();
-        m_configuration.write(actual, location, bridge, false, extensions, true);
+        m_configuration.write(actual, location, bridge, false, extensions, true, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context_freeswitch_extensions.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -157,7 +156,7 @@ public class DefaultContextConfigurationTest {
         m_configuration.setFeatureManager(mgr);
         Bridge bridge = createBridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
-        m_configuration.write(actual, location, bridge, false, extensions, false);
+        m_configuration.write(actual, location, bridge, false, extensions, false, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -174,7 +173,7 @@ public class DefaultContextConfigurationTest {
         m_configuration.setFeatureManager(mgr);
         Bridge bridge = new Bridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
-        m_configuration.write(actual, location, bridge, true, extensions, false);
+        m_configuration.write(actual, location, bridge, true, extensions, false, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-authcodes.test.xml"));
         assertEquals(expected, actual.toString());
     }
@@ -200,8 +199,25 @@ public class DefaultContextConfigurationTest {
         m_configuration.setFeatureManager(mgr);
         Bridge bridge = new Bridge();
         List<FreeswitchExtension> extensions = Collections.emptyList();
-        m_configuration.write(actual, manila, bridge, false, extensions, false);
+        m_configuration.write(actual, manila, bridge, false, extensions, false, false);
         String expected = IOUtils.toString(getClass().getResourceAsStream("default_context-vms.test.xml"));
+        assertEquals(expected, actual.toString());
+    }
+
+    @Test
+    public void testIgnoreDisplayUpdatesConfig() throws Exception {
+        StringWriter actual = new StringWriter();
+        Location location = TestHelper.createDefaultLocation();
+        IMocksControl mc = EasyMock.createControl();
+        FeatureManager mgr = mc.createMock(FeatureManager.class);
+        mgr.getLocationsForEnabledFeature(Ivr.FEATURE);
+        mc.andReturn(null);
+        mc.replay();
+        m_configuration.setFeatureManager(mgr);
+        Bridge bridge = new Bridge();
+        List<FreeswitchExtension> extensions = getExtensions();
+        m_configuration.write(actual, location, bridge, false, extensions, true, true);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("default_context_ignore_display_updates.test.xml"));
         assertEquals(expected, actual.toString());
     }
 }
