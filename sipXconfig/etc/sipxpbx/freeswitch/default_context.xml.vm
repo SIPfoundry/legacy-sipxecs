@@ -3,6 +3,9 @@
 #if(${conference.enabled})
   <extension name="${conference.extension}">
     <condition field="destination_number" expression="^${conference.name}${dollar}">
+#if ($ignoreDisplayUpdates)
+      <action application="set" data="ignore_display_updates=true"/>
+#end
       <action application="set" data="supplied_pin=${dollar}{sip_h_X-ConfPin}"/>
       <action application="conference" data="${conference.dialString}"/>
     </condition>
@@ -11,6 +14,9 @@
 #end
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR${dollar}">
+#if ($ignoreDisplayUpdates)
+      <action application="set" data="ignore_display_updates=true"/>
+#end
       <action application="socket" data="${location.address}:8084 async full"/>
 #foreach($other in $locations)
       <action application="redirect" data="sip:IVR@${other.address}:15060;${sip_req_params}"/>
@@ -20,6 +26,9 @@
 #if ($acccode)
   <extension name="ACC">
     <condition field="destination_number" expression="^ACC${dollar}">
+#if ($ignoreDisplayUpdates)
+      <action application="set" data="ignore_display_updates=true"/>
+#end
       <action application="socket" data="${location.address}:8184 async full"/>
     </condition>
   </extension>
@@ -28,6 +37,9 @@
   <extension name="${extension.name}">
 #foreach($condition in $extension.conditions)
     <condition field="${condition.field}" expression="${condition.escapedExpression}">
+#if ($ignoreDisplayUpdates)
+      <action application="set" data="ignore_display_updates=true"/>
+#end
 #foreach($action in $condition.actions)
       <action application="${action.application}"#if( $action.data ) data="${action.data}"#end/>
 #end
@@ -36,12 +48,15 @@
   </extension>
 #end
 #if ($blindTransfer)
-  <extension name="going-in"> 
-    <condition> 
-      <action application="set" data="transfer_ringback=$${us-ring}"/> 
-      <action application="bridge" data="sofia/${domainName}/${destination_number}@${domainName}"/> 
-      <action application="answer"/> 
-    </condition> 
+  <extension name="going-in">
+    <condition>
+#if ($ignoreDisplayUpdates)
+      <action application="set" data="ignore_display_updates=true"/>
+#end
+      <action application="set" data="transfer_ringback=$${us-ring}"/>
+      <action application="bridge" data="sofia/${domainName}/${destination_number}@${domainName}"/>
+      <action application="answer"/>
+    </condition>
   </extension>
 #end
 </context>
