@@ -5320,13 +5320,13 @@
 	<group name="Diags" if="4.1.6||5.0.2">
 	  <setting name="dumpcore.enabled">
 		<type><boolean /></type>
-		<value>1</value>
+		<value>0</value>
       </setting>
 	</group>
     <group name="prov.autoConfigUpload" if="4.1.6||5.0.2">
 	  <setting name="enabled">
 		<type><boolean /></type>
-		<value>1</value>
+		<value>0</value>
       </setting>
 	</group>
     <group name="lineKey" if="4.1.6">
