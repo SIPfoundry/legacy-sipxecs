@@ -40,11 +40,13 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
         Bridge bridge = m_conferenceContext.getBridgeByServer(location.getFqdn());
         boolean authCodes = m_featureManager.isFeatureEnabled(AuthCodes.FEATURE, location);
         List<FreeswitchExtension> extensions = m_freeswitchExtensionCollector.getExtensions();
-        write(writer, location, bridge, authCodes, extensions, settings.isBlindTransferEnabled());
+        write(writer, location, bridge, authCodes, extensions, settings.isBlindTransferEnabled(),
+            settings.isIgnoreDisplayUpdatesEnabled());
     }
 
     void write(Writer writer, Location location, Bridge bridge, boolean authCodes,
-            List<FreeswitchExtension> extensions, boolean blindTransfer) throws IOException {
+        List<FreeswitchExtension> extensions, boolean blindTransfer, boolean ignoreDisplayUpdates)
+        throws IOException {
         VelocityContext context = new VelocityContext();
         if (bridge != null) {
             Set<Conference> conferences = bridge.getConferences();
@@ -55,6 +57,9 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
         }
         if (blindTransfer) {
             context.put("blindTransfer", true);
+        }
+        if (ignoreDisplayUpdates) {
+            context.put("ignoreDisplayUpdates", true);
         }
         context.put("domainName", Domain.getDomain().getName());
         List<FreeswitchExtension> freeswitchExtensions = new ArrayList<FreeswitchExtension>();

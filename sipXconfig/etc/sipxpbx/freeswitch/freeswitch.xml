@@ -74,6 +74,12 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="IGNORE_DISPLAY_UPDATES">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="FREESWITCH_SIP_DEBUG">
       <type>
         <boolean>

@@ -68,7 +68,7 @@ class NatMaintainer : public OsTask
 {
 
 public:
-   NatMaintainer( SipRouter* sipRouter, RegDB* pRegDb, SubscribeDB* pSubscribeDb );
+   NatMaintainer( SipRouter* sipRouter, RegDB* pRegDb, SubscribeDB* pSubscribeDb, const UtlString& externalAddress, int externalPort );
    virtual ~NatMaintainer();
    /// Start running the NatMaintainer task.
    virtual int run( void* runArg );
