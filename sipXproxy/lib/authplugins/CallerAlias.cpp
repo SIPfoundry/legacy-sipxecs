@@ -227,6 +227,13 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                {
                   newFromUrl.setFieldParameter("tag", originalFromTag.data());
                }
+
+               /// Get the URL user identity if present
+               UtlString originalFromUserId;
+               fromUrl.getUserId(originalFromUserId);
+               // set this as a uri parameter in the new From
+               newFromUrl.setUrlParameter(SIP_SIPX_FROM, originalFromUserId.data());
+
                UtlString newFromFieldValue;
                newFromUrl.toString(newFromFieldValue);
                    

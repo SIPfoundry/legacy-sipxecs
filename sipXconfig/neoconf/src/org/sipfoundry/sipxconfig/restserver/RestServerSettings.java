@@ -16,11 +16,13 @@
  */
 package org.sipfoundry.sipxconfig.restserver;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -46,7 +48,7 @@ public class RestServerSettings extends PersistableSettings implements DeployCon
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) RestServer.FEATURE);
+        return Arrays.asList((Feature) RestServer.FEATURE, (Feature) ProxyManager.FEATURE);
     }
 
     @Override

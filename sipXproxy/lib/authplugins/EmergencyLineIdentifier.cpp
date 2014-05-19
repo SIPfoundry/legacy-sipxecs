@@ -300,6 +300,13 @@ AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlStri
       UtlString from;
       request.getFromField(&from);
       Url fromUrl(from);
+
+      /// Get the URL user identity if present
+      UtlString originalFromUserId;
+      fromUrl.getUserId(originalFromUserId);
+      // set this as a uri parameter in the new From
+      fromUrl.setUrlParameter(SIP_SIPX_FROM, originalFromUserId.data());
+
       fromUrl.setUserId(identifier);
       UtlString newFromFieldValue;
       fromUrl.toString(newFromFieldValue);

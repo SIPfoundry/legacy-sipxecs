@@ -66,20 +66,28 @@ public:
     return true;
   }
   
-  void enqueue(const T& data)
+  bool enqueue(const T& data)
   {
     _mutex.lock();
     if (_maxQueueSize && _queue.size() > _maxQueueSize)
     {
       _mutex.unlock();
-      return;
+      return false;
     }
     _queue.push(data);
     _mutex.unlock();
     _semaphore.signal();
+
+    return true;
   }
 
+  void clear()
+  {
+    std::queue<T> empty;
 
+    mutex_lock lock(_mutex);
+    std::swap(_queue, empty);
+  }
 
 };
 
