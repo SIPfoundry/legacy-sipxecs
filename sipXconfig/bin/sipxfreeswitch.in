@@ -16,8 +16,8 @@
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:@FREESWITCH_PREFIX@/bin
 DESC="FreeSwitch Voice Switching System"
 NAME=freeswitch
-DAEMON=@FREESWITCH_PREFIX@/bin/$NAME
-FS_CLI=@FREESWITCH_PREFIX@/bin/fs_cli
+DAEMON=$NAME
+FS_CLI=fs_cli
 DAEMON_ARGS="\
   -conf @SIPX_CONFDIR@/freeswitch/conf \
   -db @SIPX_VARDIR@/tmp/freeswitch \
