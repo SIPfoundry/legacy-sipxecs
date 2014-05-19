@@ -85,6 +85,7 @@ public:
   {
     std::queue<T> empty;
 
+    mutex_lock lock(_mutex);
     std::swap(_queue, empty);
   }
 
