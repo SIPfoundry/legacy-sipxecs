@@ -88,7 +88,7 @@ bundle edit_line sipxfreeswitch_modules {
     "mods_part" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/modules.conf.xml.part";
 
   classes:
-    "fs_g729" expression => fileexists("$(sipx.FREESWITCH_PREFIX)/mod/mod_com_g729.so");
+    "fs_g729" expression => fileexists("/usr/lib64/mod/mod_com_g729.so");
     "has_mods_part" expression => fileexists("$(mods_part)");
 
   insert_lines:
@@ -184,7 +184,7 @@ bundle agent sipxfreeswitch_setup {
 bundle agent sipxfreeswitch_running {
   vars:
     any::
-      "service_command" string => "$(sipx.FREESWITCH_PREFIX)/bin/freeswitch";
+      "service_command" string => "freeswitch";
 
   methods:
     any::
