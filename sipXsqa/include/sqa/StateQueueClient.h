@@ -226,16 +226,12 @@ public:
                                       int timeoutMs,
                                       int requestedEvents)
     {
-      struct pollfd fds[1];
       int error = 0;
       bool ret = false;
-
       int nativeSocket = _pSocket->native();
 
-      memset(fds, 0, sizeof(struct pollfd));
+      struct pollfd fds[1] = {nativeSocket, requestedEvents, 0};
 
-      fds[0].fd = nativeSocket;
-      fds[0].events = requestedEvents;
 
       int pollResult = poll(fds, sizeof(fds) / sizeof(fds[0]), timeoutMs);
       if (1 == pollResult)
