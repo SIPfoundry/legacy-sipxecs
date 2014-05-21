@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <!-- Main plugin class -->
+    <class>org.sipfoundry.openfire.plugin.MongoSyncPlugin</class>
+
+    <!-- Plugin meta-data -->
+    <name>MongoDB watcher</name>
+    <description>Uses mongo oplog to watch for DB changes</description>
+    <author>eZuce Inc</author>
+
+    <version>1.0</version>
+    <date>04/11/2013</date>
+    <parentPlugin>hazelcast</parentPlugin>
+    <url>http://www.sipfoundry.org</url>
+    <minServerVersion>3.8.1</minServerVersion>
+    <licenseType>agpl</licenseType>
+
+    <adminconsole/>
+</plugin>

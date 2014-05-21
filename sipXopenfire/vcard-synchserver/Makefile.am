@@ -21,4 +21,4 @@ synchserver_DEPS = \
 
 $(synchserver_JAR) : javac-synchserver Manifest.txt Makefile
 	jar cfm $@ Manifest.txt \
-	  $(call JarInclude,$(vcardsynchserver_JAVAROOT),.)
+	  $(call JarInclude,$(vcardsynchserver_JAVAROOT)/classes,.)
