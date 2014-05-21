@@ -222,6 +222,57 @@ public:
       }
     }
 
+    bool timedWaitUntilDataAvailable(boost::function<void(const boost::system::error_code&)> onTimeoutCb,
+                                      int timeout,
+                                      int requestedEvents,
+                                      const char* callerFunctionName)
+    {
+      struct pollfd fds[1];
+
+      int nativeSocket = _pSocket->native();
+
+      fds[0].fd = nativeSocket;
+      fds[0].events = requestedEvents;
+
+      int rc = poll(fds, 1, timeout);
+      if (0 < rc)
+      {
+        if (fds[0].revents & requestedEvents)
+        {
+          return true;
+        }
+      }
+      else if(0 == rc)
+      { // timeout
+        const boost::system::error_code e;
+
+        onTimeoutCb(e);
+      }
+      else if (-1 == rc)
+      {
+        OS_LOG_INFO(FAC_NET, "BlockingTcpClient::" << callerFunctionName << " this:" << this << " error occurred in poll");
+      }
+
+      return false;
+    }
+
+    bool timedWaitUntilReadDataAvailable()
+    {
+      // check for normal or out-of-band
+      return timedWaitUntilDataAvailable(boost::bind(&BlockingTcpClient::onReadTimeout, this, _1),
+                                          _readTimeout,
+                                          POLLIN | POLLPRI,
+                                          __FUNCTION__);
+    }
+
+    bool timedWaitUntilWriteDataAvailable()
+    {
+      return timedWaitUntilDataAvailable(boost::bind(&BlockingTcpClient::onWriteTimeout, this, _1),
+                                        _writeTimeout,
+                                        POLLOUT,
+                                        __FUNCTION__);
+    }
+
     bool connect(const std::string& serviceAddress, const std::string& servicePort)
     {
       //
@@ -328,7 +379,11 @@ public:
       bool ok = false;
       
       {
-        WriteTimer timer(this);
+        if (false == timedWaitUntilWriteDataAvailable())
+        {
+          return false;
+        }
+
         //ok = boost::asio::write(*_pSocket, boost::asio::buffer(packet.c_str(), packet.size()),  boost::asio::transfer_all(), ec) > 0;
         ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
       }
@@ -355,7 +410,11 @@ public:
       char responseBuff[len];
       boost::system::error_code ec;
       {
-        ReadTimer timer(this);
+        if (false == timedWaitUntilReadDataAvailable())
+        {
+          return false;
+        }
+
         _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
       }
 
@@ -403,7 +462,11 @@ public:
         {
 
           boost::system::error_code ec;
-          ReadTimer timer(this);
+          if (false == timedWaitUntilReadDataAvailable())
+          {
+            return 0;
+          }
+
           _pSocket->read_some(boost::asio::buffer((char*)&remoteVersion, sizeof(remoteVersion)), ec);
           if (ec)
           {
@@ -435,7 +498,11 @@ public:
         {
 
           boost::system::error_code ec;
-          ReadTimer timer(this);
+          if (false == timedWaitUntilReadDataAvailable())
+          {
+            return 0;
+          }
+
           _pSocket->read_some(boost::asio::buffer((char*)&remoteKey, sizeof(remoteKey)), ec);
           if (ec)
           {
@@ -465,7 +532,11 @@ public:
       }
 
       boost::system::error_code ec;
-      ReadTimer timer(this);
+      if (false == timedWaitUntilReadDataAvailable())
+      {
+        return 0;
+      }
+
       _pSocket->read_some(boost::asio::buffer((char*)&remoteLen, sizeof(remoteLen)), ec);
       if (ec)
       {
@@ -594,7 +665,11 @@ public:
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
         int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
+        int recvTimeoutMs = readTimeout;// milliseconds
+        int sendTimeoutMs = writeTimeout;// milliseconds
         _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+        _zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
+        _zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
       }
 
       for (std::size_t i = 0; i < _poolSize; i++)
@@ -668,7 +743,11 @@ public:
       {
         _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
         int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
+        int recvTimeoutMs = readTimeout;// milliseconds
+        int sendTimeoutMs = writeTimeout;// milliseconds
         _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+        _zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
+        _zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
       }
 
       for (std::size_t i = 0; i < _poolSize; i++)
@@ -1129,7 +1208,9 @@ private:
     {
       if (!zmq_receive(_zmqSocket, id))
       {
-        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
+        // this function will fail quite often because of the timeout set on zmq socket
+
+        //OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
         return false;
       }
 
