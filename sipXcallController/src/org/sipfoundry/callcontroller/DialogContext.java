@@ -365,7 +365,7 @@ public class DialogContext {
                     logger.debug("status line = " + statusLine);
 
                     if (!StringUtils.isEmpty(statusLine)) {
-                        ringing = containsIgnoreCase(statusLine, "180 Ringing");
+                        ringing = containsIgnoreCase(statusLine, SipHelper.RINGING_MESSAGE);
                         this.setStatus(SipHelper.getCallId(request), request.getMethod(),
                                 statusLine);
                         logger.debug("Ringing received " + ringing);

@@ -69,9 +69,12 @@ class SipListenerImpl implements SipListener {
                 serverTransaction.sendResponse(response);
                 SubscriptionStateHeader subscriptionState =
                         (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
-                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
+                boolean terminated = subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED);
+                String content = new String(request.getRawContent());
+                boolean ringing = containsIgnoreCase(content, SipStackBean.RINGING_MESSAGE);
+                LOG.debug("Send BYE - Ringing " + ringing + " Subscription state terminated " + terminated);
+                if (ringing || terminated) {
                     Dialog dialog = requestEvent.getDialog();
-                    String content = new String(request.getRawContent());
                     ReasonHeader busyHeader = null;
                     if (containsIgnoreCase(content, SipStackBean.BUSY_MESSAGE)) {
                         busyHeader = m_stackBean.createBusyReasonHeader(request.getSIPVersion());
