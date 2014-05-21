@@ -39,6 +39,7 @@ import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxrest.RestServer;
 import org.sipfoundry.sipxrest.SipHelper;
@@ -357,20 +358,22 @@ public class DialogContext {
                 logger.debug("got a NOTIFY");
                 SubscriptionStateHeader subscriptionState = (SubscriptionStateHeader) request
                         .getHeader(SubscriptionStateHeader.NAME);
+                boolean ringing = false;
                 if (request.getContentLength().getContentLength() != 0) {
                     String statusLine = new String(request.getRawContent());
                     logger.debug("dialog = " + dialog);
                     logger.debug("status line = " + statusLine);
 
-                    if (!statusLine.equals("")) {
+                    if (!StringUtils.isEmpty(statusLine)) {
+                        ringing = containsIgnoreCase(statusLine, "180 Ringing");
                         this.setStatus(SipHelper.getCallId(request), request.getMethod(),
                                 statusLine);
+                        logger.debug("Ringing received " + ringing);
                     }
                 }
-                logger.debug("Is subscription state terminated: " +
-                    subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED));
-                if (subscriptionState.getState().equalsIgnoreCase(
-                        SubscriptionStateHeader.TERMINATED)) {
+                boolean terminated = subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED);
+                logger.debug("Is subscription state terminated: " + terminated);
+                if (ringing || terminated) {
                     String content = new String(request.getRawContent());
                     ReasonHeader busyHeader = null;
                     if (containsIgnoreCase(content, SipHelper.BUSY_MESSAGE)) {
@@ -382,6 +385,7 @@ public class DialogContext {
                         byeUri = context.getRequest(dialog).getRequestURI();
                         logger.debug("BYE URI is: " + byeUri);
                     }
+                    logger.debug("Send BYE - Ringing " + ringing + " Subscription state terminated " + terminated);
                     SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog, busyHeader, byeUri);
                 }
             } else {
