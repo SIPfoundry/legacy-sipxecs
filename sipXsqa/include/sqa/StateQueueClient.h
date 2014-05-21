@@ -223,37 +223,58 @@ public:
     }
 
     bool timedWaitUntilDataAvailable(boost::function<void(const boost::system::error_code&)> onTimeoutCb,
-                                      int timeout,
-                                      int requestedEvents,
-                                      const char* callerFunctionName)
+                                      int timeoutMs,
+                                      int requestedEvents)
     {
       struct pollfd fds[1];
+      int error = 0;
+      bool ret = false;
 
       int nativeSocket = _pSocket->native();
+
+      memset(fds, 0, sizeof(struct pollfd));
 
       fds[0].fd = nativeSocket;
       fds[0].events = requestedEvents;
 
-      int rc = poll(fds, 1, timeout);
-      if (0 < rc)
+      int pollResult = poll(fds, sizeof(fds) / sizeof(fds[0]), timeoutMs);
+      if (1 == pollResult)
       {
-        if (fds[0].revents & requestedEvents)
+        if (fds[0].revents & POLLERR)
         {
-          return true;
+          error = errno;
+        }
+        else if (fds[0].revents & requestedEvents)
+        {
+          ret = true;
+        }
+        else
+        {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                        << " unexpected return from poll(): pollResult = " << pollResult
+                        << ", fds[0].revents =" << fds[0].revents);
         }
       }
-      else if(0 == rc)
+      else if(0 == pollResult)
       { // timeout
         const boost::system::error_code e;
 
         onTimeoutCb(e);
+        error = ETIMEDOUT;
       }
-      else if (-1 == rc)
+      else
       {
-        OS_LOG_INFO(FAC_NET, "BlockingTcpClient::" << callerFunctionName << " this:" << this << " error occurred in poll");
+        error = errno;
       }
 
-      return false;
+      if (0 != error)
+      {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                      << " (" << nativeSocket << ", " << timeoutMs << " ms) error: " <<
+                      error << "=" <<  strerror(error));
+      }
+
+      return ret;
     }
 
     bool timedWaitUntilReadDataAvailable()
@@ -261,16 +282,14 @@ public:
       // check for normal or out-of-band
       return timedWaitUntilDataAvailable(boost::bind(&BlockingTcpClient::onReadTimeout, this, _1),
                                           _readTimeout,
-                                          POLLIN | POLLPRI,
-                                          __FUNCTION__);
+                                          POLLIN | POLLPRI);
     }
 
     bool timedWaitUntilWriteDataAvailable()
     {
       return timedWaitUntilDataAvailable(boost::bind(&BlockingTcpClient::onWriteTimeout, this, _1),
                                         _writeTimeout,
-                                        POLLOUT,
-                                        __FUNCTION__);
+                                        POLLOUT);
     }
 
     bool connect(const std::string& serviceAddress, const std::string& servicePort)
@@ -381,6 +400,8 @@ public:
       {
         if (false == timedWaitUntilWriteDataAvailable())
         {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                      << " timedWaitUntilWriteDataAvailable failed");
           return false;
         }
 
@@ -412,6 +433,8 @@ public:
       {
         if (false == timedWaitUntilReadDataAvailable())
         {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                      << " timedWaitUntilReadDataAvailable failed");
           return false;
         }
 
@@ -464,6 +487,9 @@ public:
           boost::system::error_code ec;
           if (false == timedWaitUntilReadDataAvailable())
           {
+            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                        << " timedWaitUntilReadDataAvailable failed: "
+                        << "Unable to read version");
             return 0;
           }
 
@@ -500,6 +526,9 @@ public:
           boost::system::error_code ec;
           if (false == timedWaitUntilReadDataAvailable())
           {
+            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                        << " timedWaitUntilReadDataAvailable failed: "
+                        << "Unable to read secret key");
             return 0;
           }
 
@@ -534,6 +563,9 @@ public:
       boost::system::error_code ec;
       if (false == timedWaitUntilReadDataAvailable())
       {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                    << " timedWaitUntilReadDataAvailable failed: "
+                    << "Unable to read secret packet length");
         return 0;
       }
 
