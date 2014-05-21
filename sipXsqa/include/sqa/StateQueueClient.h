@@ -936,6 +936,8 @@ public:
           {
             if (pong.getType() == StateQueueMessage::Pong)
             {
+              // reinitialize service address and service port for StateQueueClient class
+              // they were only updated for BlockingTcpClient class
               setServiceAddressAndPort();
 
               OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
