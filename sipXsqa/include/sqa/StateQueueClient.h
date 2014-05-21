@@ -341,7 +341,7 @@ public:
       //
       // Initialize State Queue Agent Publisher if an address is provided
       //
-      if (_serviceAddress.empty() || _servicePort.empty())
+      //if (_serviceAddress.empty() || _servicePort.empty())
       {
         std::string sqaControlAddress;
         std::string sqaControlPort;
@@ -697,13 +697,7 @@ public:
 
       if (_type != Publisher)
       {
-        _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
-        int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
-        int recvTimeoutMs = readTimeout;// milliseconds
-        int sendTimeoutMs = writeTimeout;// milliseconds
-        _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
-        _zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
-        _zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
+        createZmqSocket();
       }
 
       for (std::size_t i = 0; i < _poolSize; i++)
@@ -775,13 +769,7 @@ public:
   {
       if (_type != Publisher)
       {
-        _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
-        int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
-        int recvTimeoutMs = readTimeout;// milliseconds
-        int sendTimeoutMs = writeTimeout;// milliseconds
-        _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
-        _zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
-        _zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
+        createZmqSocket();
       }
 
       for (std::size_t i = 0; i < _poolSize; i++)
@@ -828,6 +816,28 @@ public:
     terminate();
   }
 
+  void createZmqSocket()
+  {
+    _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
+    int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
+    int recvTimeoutMs = SQA_CONN_READ_TIMEOUT;// milliseconds
+    int sendTimeoutMs = SQA_CONN_WRITE_TIMEOUT;// milliseconds
+    _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+    _zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
+    _zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
+  }
+
+  void destroyZmqSocket()
+  {
+    if (_zmqSocket)
+    {
+      _zmqSocket->close();
+
+      delete _zmqSocket;
+      _zmqSocket = 0;
+    }
+  }
+
   const std::string& getLocalAddress()
   {
     return _localAddress;
@@ -846,11 +856,7 @@ public:
     delete _zmqContext;
     _zmqContext = 0;
 
-    if (_zmqSocket)
-    {
-      delete _zmqSocket;
-      _zmqSocket = 0;
-    }
+    destroyZmqSocket();
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::terminate() waiting for event thread to exit.");
     if (_pEventThread)
@@ -919,6 +925,10 @@ public:
           {
             if (pong.getType() == StateQueueMessage::Pong)
             {
+              BlockingTcpClient::Ptr pClient = *_clientPointers.begin();
+              _serviceAddress = pClient->_serviceAddress;
+              _servicePort = pClient->_servicePort;
+
               OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
               //
               // Reset it back to the default value
@@ -1052,10 +1062,11 @@ private:
     return sendAndReceive(request, response);
   }
 
-  void eventLoop()
+  void subscribeForEvents()
   {
     std::string publisherAddress;
     const int retryTime = 1000;
+
     while(!_terminate)
     {
       if (signin(publisherAddress))
@@ -1070,57 +1081,70 @@ private:
       }
     }
 
-    bool firstHit = true;
-    if (!_terminate)
+    while (!_terminate)
     {
-      while (!_terminate)
+      if (subscribe(_zmqEventId, publisherAddress))
       {
-        if (subscribe(_zmqEventId, publisherAddress))
+        break;
+      }
+      else
+      {
+        OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
+            << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
+        boost::this_thread::sleep(boost::posix_time::milliseconds(retryTime));
+      }
+    }
+  }
+
+  void eventLoop()
+  {
+    bool firstHit = true;
+
+    subscribeForEvents();
+
+    assert(_type != Publisher);
+
+    while (!_terminate)
+    {
+      if (false == _isAlive)
+      {
+        OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop connection is not alive, closing socket, resubscribe");
+
+        destroyZmqSocket();
+        createZmqSocket();
+
+        subscribeForEvents();
+      }
+
+      std::string id;
+      std::string data;
+      int count = 0;
+      if (readEvent(id, data, count))
+      {
+        if (_terminate)
+          break;
+
+        OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
+        OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
+
+        if (_type == Worker)
+        {
+          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
+          do_pop(firstHit, count, id, data);
+        }else if (_type == Watcher)
+        {
+          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
+          do_watch(firstHit, count, id, data);
+        }
+      }
+      else
+      {
+        if (_terminate)
         {
           break;
         }
-        else
-        {
-          OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
-              << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
-          boost::this_thread::sleep(boost::posix_time::milliseconds(retryTime));
-        }
       }
-
-      assert(_type != Publisher);
-
-      while (!_terminate)
-      {
-        std::string id;
-        std::string data;
-        int count = 0;
-        if (readEvent(id, data, count))
-        {
-          if (_terminate)
-            break;
-
-          OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
-          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
-
-          if (_type == Worker)
-          {
-            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
-            do_pop(firstHit, count, id, data);
-          }else if (_type == Watcher)
-          {
-            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
-            do_watch(firstHit, count, id, data);
-          }
-        }
-        else
-        {
-          if (_terminate)
-          {
-            break;
-          }
-        }
-        firstHit = false;
-      }
+      firstHit = false;
     }
 
     if (_type == Watcher)
@@ -1131,8 +1155,6 @@ private:
     {
       do_pop(firstHit, 0, SQA_TERMINATE_STRING, SQA_TERMINATE_STRING);
     }
-
-    _zmqSocket->close();
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop TERMINATED.");
   }
