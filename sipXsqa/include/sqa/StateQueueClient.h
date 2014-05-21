@@ -224,7 +224,7 @@ public:
 
     bool timedWaitUntilDataAvailable(boost::function<void(const boost::system::error_code&)> onTimeoutCb,
                                       int timeoutMs,
-                                      int requestedEvents)
+                                      short int requestedEvents)
     {
       int error = 0;
       bool ret = false;
@@ -399,6 +399,8 @@ public:
           OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
                       << " timedWaitUntilWriteDataAvailable failed: "
                       << "Unable to send request");
+
+          _isConnected = false;
           return false;
         }
 
@@ -433,6 +435,8 @@ public:
           OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
                       << " timedWaitUntilReadDataAvailable failed: "
                       << "Unable to receive response");
+
+          _isConnected = false;
           return false;
         }
 
@@ -488,6 +492,8 @@ public:
             OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
                         << " timedWaitUntilReadDataAvailable failed: "
                         << "Unable to read version");
+
+            _isConnected = false;
             return 0;
           }
 
@@ -527,6 +533,8 @@ public:
             OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
                         << " timedWaitUntilReadDataAvailable failed: "
                         << "Unable to read secret key");
+
+            _isConnected = false;
             return 0;
           }
 
@@ -564,6 +572,8 @@ public:
         OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
                     << " timedWaitUntilReadDataAvailable failed: "
                     << "Unable to read secret packet length");
+
+        _isConnected = false;
         return 0;
       }
 
@@ -775,14 +785,13 @@ public:
 
         if (_localAddress.empty())
           _localAddress = pClient->getLocalAddress();
-        
-        _serviceAddress = pClient->_serviceAddress;
-        _servicePort = pClient->_servicePort;
 
         BlockingTcpClient::Ptr client(pClient);
         _clientPointers.push_back(client);
         _clientPool.enqueue(client);
       }
+
+      setServiceAddressAndPort();
 
       _houseKeepingTimer.async_wait(boost::bind(&StateQueueClient::keepAliveLoop, this, boost::asio::placeholders::error));
       _pIoServiceThread = new boost::thread(boost::bind(&boost::asio::io_service::run, &_ioService));
@@ -810,6 +819,13 @@ public:
   ~StateQueueClient()
   {
     terminate();
+  }
+
+  void setServiceAddressAndPort()
+  {
+    BlockingTcpClient::Ptr pClient = *_clientPointers.begin();
+    _serviceAddress = pClient->_serviceAddress;
+    _servicePort = pClient->_servicePort;
   }
 
   void createZmqSocket()
@@ -887,7 +903,6 @@ public:
     return false;
   }
 
-
   void keepAliveLoop(const boost::system::error_code& e)
   {
     if (!e && !_terminate)
@@ -921,9 +936,7 @@ public:
           {
             if (pong.getType() == StateQueueMessage::Pong)
             {
-              BlockingTcpClient::Ptr pClient = *_clientPointers.begin();
-              _serviceAddress = pClient->_serviceAddress;
-              _servicePort = pClient->_servicePort;
+              setServiceAddressAndPort();
 
               OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
               //
