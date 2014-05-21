@@ -67,6 +67,8 @@ public class SipHelper {
 
     public static final String BUSY_MESSAGE = "Busy Here";
 
+    public static final String RINGING_MESSAGE = "180 Ringing";
+
     SipHelper(AbstractSipListener abstractListener) {
         this.abstractListener = abstractListener;
     }
