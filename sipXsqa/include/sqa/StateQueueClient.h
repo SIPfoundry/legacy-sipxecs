@@ -401,7 +401,8 @@ public:
         if (false == timedWaitUntilWriteDataAvailable())
         {
           OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
-                      << " timedWaitUntilWriteDataAvailable failed");
+                      << " timedWaitUntilWriteDataAvailable failed: "
+                      << "Unable to send request");
           return false;
         }
 
@@ -434,7 +435,8 @@ public:
         if (false == timedWaitUntilReadDataAvailable())
         {
           OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
-                      << " timedWaitUntilReadDataAvailable failed");
+                      << " timedWaitUntilReadDataAvailable failed: "
+                      << "Unable to receive response");
           return false;
         }
 
