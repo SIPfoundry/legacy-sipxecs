@@ -337,7 +337,7 @@ public:
       //
       // Initialize State Queue Agent Publisher if an address is provided
       //
-      //if (_serviceAddress.empty() || _servicePort.empty())
+      if (_serviceAddress.empty() || _servicePort.empty())
       {
         std::string sqaControlAddress;
         std::string sqaControlPort;
