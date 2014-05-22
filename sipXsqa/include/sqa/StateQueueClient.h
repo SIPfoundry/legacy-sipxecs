@@ -823,6 +823,11 @@ public:
 
   void setServiceAddressAndPort()
   {
+    if (_terminate)
+    {
+      return;
+    }
+
     BlockingTcpClient::Ptr pClient = *_clientPointers.begin();
     _serviceAddress = pClient->_serviceAddress;
     _servicePort = pClient->_servicePort;
