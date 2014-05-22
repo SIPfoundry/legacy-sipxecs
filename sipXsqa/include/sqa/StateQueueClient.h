@@ -837,11 +837,13 @@ public:
   {
     _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
     int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
-    int recvTimeoutMs = SQA_CONN_READ_TIMEOUT;// milliseconds
-    int sendTimeoutMs = SQA_CONN_WRITE_TIMEOUT;// milliseconds
+    //int recvTimeoutMs = SQA_CONN_READ_TIMEOUT;// milliseconds
+    //int sendTimeoutMs = SQA_CONN_WRITE_TIMEOUT;// milliseconds
     _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
-    _zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
-    _zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
+    // WARNING: at one test it worked only with this fix; later it worked also without
+    // this fix
+    //_zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
+    //_zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
   }
 
   void destroyZmqSocket()
@@ -1122,15 +1124,17 @@ private:
 
     while (!_terminate)
     {
-      if (false == _isAlive)
-      {
-        OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop connection is not alive, closing socket, resubscribe");
-
-        destroyZmqSocket();
-        createZmqSocket();
-
-        subscribeForEvents();
-      }
+      // WARNING: at one test it worked only with this fix; later it worked also without
+      // this fix
+//      if (false == _isAlive)
+//      {
+//        OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop connection is not alive, closing socket, resubscribe");
+//
+//        destroyZmqSocket();
+//        createZmqSocket();
+//
+//        subscribeForEvents();
+//      }
 
       std::string id;
       std::string data;
