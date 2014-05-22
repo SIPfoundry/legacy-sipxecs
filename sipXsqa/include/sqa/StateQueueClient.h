@@ -222,6 +222,72 @@ public:
       }
     }
 
+    bool timedWaitUntilDataAvailable(boost::function<void(const boost::system::error_code&)> onTimeoutCb,
+                                      int timeoutMs,
+                                      short int requestedEvents)
+    {
+      int error = 0;
+      bool ret = false;
+      int nativeSocket = _pSocket->native();
+
+      struct pollfd fds[1] = {nativeSocket, requestedEvents, 0};
+
+
+      int pollResult = poll(fds, sizeof(fds) / sizeof(fds[0]), timeoutMs);
+      if (1 == pollResult)
+      {
+        if (fds[0].revents & POLLERR)
+        {
+          error = errno;
+        }
+        else if (fds[0].revents & requestedEvents)
+        {
+          ret = true;
+        }
+        else
+        {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                        << " unexpected return from poll(): pollResult = " << pollResult
+                        << ", fds[0].revents =" << fds[0].revents);
+        }
+      }
+      else if(0 == pollResult)
+      { // timeout
+        const boost::system::error_code e;
+
+        onTimeoutCb(e);
+        error = ETIMEDOUT;
+      }
+      else
+      {
+        error = errno;
+      }
+
+      if (0 != error)
+      {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                      << " (" << nativeSocket << ", " << timeoutMs << " ms) error: " <<
+                      error << "=" <<  strerror(error));
+      }
+
+      return ret;
+    }
+
+    bool timedWaitUntilReadDataAvailable()
+    {
+      // check for normal or out-of-band
+      return timedWaitUntilDataAvailable(boost::bind(&BlockingTcpClient::onReadTimeout, this, _1),
+                                          _readTimeout,
+                                          POLLIN | POLLPRI);
+    }
+
+    bool timedWaitUntilWriteDataAvailable()
+    {
+      return timedWaitUntilDataAvailable(boost::bind(&BlockingTcpClient::onWriteTimeout, this, _1),
+                                        _writeTimeout,
+                                        POLLOUT);
+    }
+
     bool connect(const std::string& serviceAddress, const std::string& servicePort)
     {
       //
@@ -271,7 +337,7 @@ public:
       //
       // Initialize State Queue Agent Publisher if an address is provided
       //
-      if (_serviceAddress.empty() || _servicePort.empty())
+      //if (_serviceAddress.empty() || _servicePort.empty())
       {
         std::string sqaControlAddress;
         std::string sqaControlPort;
@@ -328,7 +394,16 @@ public:
       bool ok = false;
       
       {
-        WriteTimer timer(this);
+        if (false == timedWaitUntilWriteDataAvailable())
+        {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                      << " timedWaitUntilWriteDataAvailable failed: "
+                      << "Unable to send request");
+
+          _isConnected = false;
+          return false;
+        }
+
         //ok = boost::asio::write(*_pSocket, boost::asio::buffer(packet.c_str(), packet.size()),  boost::asio::transfer_all(), ec) > 0;
         ok = _pSocket->write_some(boost::asio::buffer(packet.c_str(), packet.size()), ec) > 0;
       }
@@ -355,7 +430,16 @@ public:
       char responseBuff[len];
       boost::system::error_code ec;
       {
-        ReadTimer timer(this);
+        if (false == timedWaitUntilReadDataAvailable())
+        {
+          OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                      << " timedWaitUntilReadDataAvailable failed: "
+                      << "Unable to receive response");
+
+          _isConnected = false;
+          return false;
+        }
+
         _pSocket->read_some(boost::asio::buffer((char*)responseBuff, len), ec);
       }
 
@@ -403,7 +487,16 @@ public:
         {
 
           boost::system::error_code ec;
-          ReadTimer timer(this);
+          if (false == timedWaitUntilReadDataAvailable())
+          {
+            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                        << " timedWaitUntilReadDataAvailable failed: "
+                        << "Unable to read version");
+
+            _isConnected = false;
+            return 0;
+          }
+
           _pSocket->read_some(boost::asio::buffer((char*)&remoteVersion, sizeof(remoteVersion)), ec);
           if (ec)
           {
@@ -435,7 +528,16 @@ public:
         {
 
           boost::system::error_code ec;
-          ReadTimer timer(this);
+          if (false == timedWaitUntilReadDataAvailable())
+          {
+            OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                        << " timedWaitUntilReadDataAvailable failed: "
+                        << "Unable to read secret key");
+
+            _isConnected = false;
+            return 0;
+          }
+
           _pSocket->read_some(boost::asio::buffer((char*)&remoteKey, sizeof(remoteKey)), ec);
           if (ec)
           {
@@ -465,7 +567,16 @@ public:
       }
 
       boost::system::error_code ec;
-      ReadTimer timer(this);
+      if (false == timedWaitUntilReadDataAvailable())
+      {
+        OS_LOG_ERROR(FAC_NET, "BlockingTcpClient::" << __FUNCTION__ << " this:" << this
+                    << " timedWaitUntilReadDataAvailable failed: "
+                    << "Unable to read secret packet length");
+
+        _isConnected = false;
+        return 0;
+      }
+
       _pSocket->read_some(boost::asio::buffer((char*)&remoteLen, sizeof(remoteLen)), ec);
       if (ec)
       {
@@ -592,9 +703,7 @@ public:
 
       if (_type != Publisher)
       {
-        _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
-        int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
-        _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+        createZmqSocket();
       }
 
       for (std::size_t i = 0; i < _poolSize; i++)
@@ -666,9 +775,7 @@ public:
   {
       if (_type != Publisher)
       {
-        _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
-        int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
-        _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+        createZmqSocket();
       }
 
       for (std::size_t i = 0; i < _poolSize; i++)
@@ -678,14 +785,13 @@ public:
 
         if (_localAddress.empty())
           _localAddress = pClient->getLocalAddress();
-        
-        _serviceAddress = pClient->_serviceAddress;
-        _servicePort = pClient->_servicePort;
 
         BlockingTcpClient::Ptr client(pClient);
         _clientPointers.push_back(client);
         _clientPool.enqueue(client);
       }
+
+      setServiceAddressAndPort();
 
       _houseKeepingTimer.async_wait(boost::bind(&StateQueueClient::keepAliveLoop, this, boost::asio::placeholders::error));
       _pIoServiceThread = new boost::thread(boost::bind(&boost::asio::io_service::run, &_ioService));
@@ -715,6 +821,42 @@ public:
     terminate();
   }
 
+  void setServiceAddressAndPort()
+  {
+    if (_terminate)
+    {
+      return;
+    }
+
+    BlockingTcpClient::Ptr pClient = *_clientPointers.begin();
+    _serviceAddress = pClient->_serviceAddress;
+    _servicePort = pClient->_servicePort;
+  }
+
+  void createZmqSocket()
+  {
+    _zmqSocket = new zmq::socket_t(*_zmqContext,ZMQ_SUB);
+    int linger = SQA_LINGER_TIME_MILLIS; // milliseconds
+    //int recvTimeoutMs = SQA_CONN_READ_TIMEOUT;// milliseconds
+    //int sendTimeoutMs = SQA_CONN_WRITE_TIMEOUT;// milliseconds
+    _zmqSocket->setsockopt(ZMQ_LINGER, &linger, sizeof(int));
+    // WARNING: at one test it worked only with this fix; later it worked also without
+    // this fix
+    //_zmqSocket->setsockopt(ZMQ_RCVTIMEO, &recvTimeoutMs, sizeof(int));
+    //_zmqSocket->setsockopt(ZMQ_SNDTIMEO, &sendTimeoutMs, sizeof(int));
+  }
+
+  void destroyZmqSocket()
+  {
+    if (_zmqSocket)
+    {
+      _zmqSocket->close();
+
+      delete _zmqSocket;
+      _zmqSocket = 0;
+    }
+  }
+
   const std::string& getLocalAddress()
   {
     return _localAddress;
@@ -733,11 +875,7 @@ public:
     delete _zmqContext;
     _zmqContext = 0;
 
-    if (_zmqSocket)
-    {
-      delete _zmqSocket;
-      _zmqSocket = 0;
-    }
+    destroyZmqSocket();
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::terminate() waiting for event thread to exit.");
     if (_pEventThread)
@@ -772,7 +910,6 @@ public:
     return false;
   }
 
-
   void keepAliveLoop(const boost::system::error_code& e)
   {
     if (!e && !_terminate)
@@ -806,6 +943,10 @@ public:
           {
             if (pong.getType() == StateQueueMessage::Pong)
             {
+              // reinitialize service address and service port for StateQueueClient class
+              // they were only updated for BlockingTcpClient class
+              setServiceAddressAndPort();
+
               OS_LOG_DEBUG(FAC_NET, "Keep-alive response received from " << _serviceAddress << ":" << _servicePort);
               //
               // Reset it back to the default value
@@ -939,10 +1080,11 @@ private:
     return sendAndReceive(request, response);
   }
 
-  void eventLoop()
+  void subscribeForEvents()
   {
     std::string publisherAddress;
     const int retryTime = 1000;
+
     while(!_terminate)
     {
       if (signin(publisherAddress))
@@ -957,57 +1099,72 @@ private:
       }
     }
 
-    bool firstHit = true;
-    if (!_terminate)
+    while (!_terminate)
     {
-      while (!_terminate)
+      if (subscribe(_zmqEventId, publisherAddress))
       {
-        if (subscribe(_zmqEventId, publisherAddress))
+        break;
+      }
+      else
+      {
+        OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
+            << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
+        boost::this_thread::sleep(boost::posix_time::milliseconds(retryTime));
+      }
+    }
+  }
+
+  void eventLoop()
+  {
+    bool firstHit = true;
+
+    subscribeForEvents();
+
+    assert(_type != Publisher);
+
+    while (!_terminate)
+    {
+      // WARNING: at one test it worked only with this fix; later it worked also without
+      // this fix
+//      if (false == _isAlive)
+//      {
+//        OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop connection is not alive, closing socket, resubscribe");
+//
+//        destroyZmqSocket();
+//        createZmqSocket();
+//
+//        subscribeForEvents();
+//      }
+
+      std::string id;
+      std::string data;
+      int count = 0;
+      if (readEvent(id, data, count))
+      {
+        if (_terminate)
+          break;
+
+        OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
+        OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
+
+        if (_type == Worker)
+        {
+          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
+          do_pop(firstHit, count, id, data);
+        }else if (_type == Watcher)
+        {
+          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
+          do_watch(firstHit, count, id, data);
+        }
+      }
+      else
+      {
+        if (_terminate)
         {
           break;
         }
-        else
-        {
-          OS_LOG_ERROR(FAC_NET, "StateQueueClient::eventLoop "
-              << "Is unable to SUBSCRIBE to SQA service @ " << publisherAddress);
-          boost::this_thread::sleep(boost::posix_time::milliseconds(retryTime));
-        }
       }
-
-      assert(_type != Publisher);
-
-      while (!_terminate)
-      {
-        std::string id;
-        std::string data;
-        int count = 0;
-        if (readEvent(id, data, count))
-        {
-          if (_terminate)
-            break;
-
-          OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
-          OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
-
-          if (_type == Worker)
-          {
-            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop popping data: " << id);
-            do_pop(firstHit, count, id, data);
-          }else if (_type == Watcher)
-          {
-            OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop watching data: " << id);
-            do_watch(firstHit, count, id, data);
-          }
-        }
-        else
-        {
-          if (_terminate)
-          {
-            break;
-          }
-        }
-        firstHit = false;
-      }
+      firstHit = false;
     }
 
     if (_type == Watcher)
@@ -1018,8 +1175,6 @@ private:
     {
       do_pop(firstHit, 0, SQA_TERMINATE_STRING, SQA_TERMINATE_STRING);
     }
-
-    _zmqSocket->close();
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop TERMINATED.");
   }
@@ -1129,7 +1284,9 @@ private:
     {
       if (!zmq_receive(_zmqSocket, id))
       {
-        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
+        // this function will fail quite often because of the timeout set on zmq socket
+
+        //OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
         return false;
       }
 
