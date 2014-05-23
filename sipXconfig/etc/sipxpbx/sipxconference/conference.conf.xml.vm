@@ -76,7 +76,7 @@
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
 #if(${conference.isVideoConference()})
-      <param name="member-flags" value="video-bridge"/>
+      <param name="member-flags" value="${conference.getVideoFlag()}"/>
 #else
       <param name="member-flags" value="waste"/>
 #end

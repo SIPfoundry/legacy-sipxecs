@@ -132,8 +132,8 @@
       <param name="rate" value="8000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
-      <param name="member-flags" value="video-bridge"/>
-      <param name="conference-flags" value="waste-bandwidth | video-bridge | video-floor-only"/>
+      <param name="member-flags" value="video-floor-only"/>
+      <param name="conference-flags" value="waste-bandwidth | video-floor-only"/>
       <param name="sound-prefix" value="/audioDirectory"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
