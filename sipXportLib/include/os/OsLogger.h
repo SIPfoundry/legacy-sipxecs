@@ -828,9 +828,9 @@ namespace Os
   class LoggerBase : public LoggerSingleton<LoggerBase<TFilter, TChannel> >
   {
   public:
-	// we need to use a recursive_mutex because the log function may
+    // we need to use a recursive_mutex because the log function may
     // be called recursively (may be called again from signal handler
-    // function before current log function terminates
+    // function before current log function terminates)
     typedef boost::recursive_mutex mutex;
     typedef boost::lock_guard<mutex> mutex_lock;
 
