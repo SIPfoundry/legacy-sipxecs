@@ -230,7 +230,7 @@ public:
       bool ret = false;
       int nativeSocket = _pSocket->native();
 
-      struct pollfd fds[1] = {nativeSocket, requestedEvents, 0};
+      struct pollfd fds[1] = {{nativeSocket, requestedEvents, 0}};
 
 
       int pollResult = poll(fds, sizeof(fds) / sizeof(fds[0]), timeoutMs);
