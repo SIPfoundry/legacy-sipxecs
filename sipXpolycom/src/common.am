@@ -5,8 +5,8 @@ polycom_PKGS = \
 	commons-io \
 	commons-collections \
 	commons-logging \
-	org.springframework.beans \
-	org.springframework.core \
+	spring-beans \
+	spring-core \
 	org.springframework.transaction \
 	org.springframework.jdbc \
 	sipxcommons \

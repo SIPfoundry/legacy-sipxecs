@@ -6,8 +6,8 @@ cfg_PKGS = \
 	commons-io \
 	commons-logging \
 	dom4j \
-	org.springframework.beans \
-	org.springframework.core \
+	spring-beans \
+	spring-core \
 	org.springframework.transaction \
 	xercesImpl \
 	sipxconfig-neoconf \

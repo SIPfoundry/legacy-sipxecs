@@ -2,9 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:security="http://www.springframework.org/schema/security"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
   http://www.springframework.org/schema/security
-  http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+  http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
   <!-- ======================== FILTER CHAIN ======================= -->
 
@@ -37,12 +37,12 @@
   <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
     <property name="providers">
       <list>
-        <ref local="testAuthenticationProvider" />
-        <ref local="ldapAuthProvider" />
-        <ref local="userAuthenticationProvider" />
-        <ref local="sharedSecretUserAuthenticationProvider" />
-        <ref local="locationAuthenticationProvider" />
-        <ref local="anonymousAuthenticationProvider"/>
+        <ref bean="testAuthenticationProvider" />
+        <ref bean="ldapAuthProvider" />
+        <ref bean="userAuthenticationProvider" />
+        <ref bean="sharedSecretUserAuthenticationProvider" />
+        <ref bean="locationAuthenticationProvider" />
+        <ref bean="anonymousAuthenticationProvider"/>
       </list>
     </property>
     <property name="authenticationEventPublisher" ref="defaultAuthenticationEventPublisher" />

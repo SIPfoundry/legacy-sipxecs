@@ -3,7 +3,7 @@ unidata_PKGS = \
 	commons-lang \
 	commons-io \
 	commons-collections \
-	org.springframework.beans \
+	spring-beans \
 	sipxcommons \
 	sipxconfig-neoconf \
 	velocity

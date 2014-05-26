@@ -255,15 +255,20 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
         StringBuilder flags = new StringBuilder();
         flags.append("waste-bandwidth");
         if (isVideoConference()) {
-            flags.append(" | video-bridge");
-        }
-        if ((Boolean) getSettingTypedValue(VIDEO_TOGGLE_FLOOR)) {
-            flags.append(" | video-floor-only");
-        }
-        if (!(Boolean) getSettingTypedValue(QUICKSTART)) {
+            flags.append(" | ");
+            flags.append(getVideoFlag());
+        } if (!(Boolean) getSettingTypedValue(QUICKSTART)) {
             flags.append(" | wait-mod");
         }
         return flags.toString();
+    }
+
+    public String getVideoFlag() {
+        if ((Boolean) getSettingTypedValue(VIDEO_TOGGLE_FLOOR)) {
+            return "video-floor-only";
+        } else {
+            return "video-bridge";
+        }
     }
 
     /**

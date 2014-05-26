@@ -23,16 +23,16 @@ ivr_PKGS = \
 	commons-fileupload \
 	xmlrpc-client \
 	xmlrpc-server \
-	org.springframework.beans \
+	spring-beans \
 	org.springframework.web \
-	org.springframework.context \
-	org.springframework.context.support \
-	org.springframework.core \
+	org.springframework.web.servlet \
+	spring-context \
+	spring-context-support \
+	spring-core \
 	org.springframework.jdbc \
 	org.springframework.transaction \
-	org.springframework.expression \
-	org.springframework.aop \
-	org.springframework.asm \
+	spring-expression \
+	spring-aop \
 	spring-data-commons \
 	spring-data-mongodb \
 	joda-time

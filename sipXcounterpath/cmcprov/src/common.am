@@ -7,10 +7,10 @@ cmcprov_PKGS = \
 	commons-collections \
 	spring-security-config \
 	spring-security-core \
-	org.springframework.beans \
+	spring-beans \
 	org.springframework.web \
-	org.springframework.context \
-	org.springframework.core \
+	spring-context \
+	spring-core \
 	sipxcommons \
 	sipxconfig-neoconf \
 	velocity \

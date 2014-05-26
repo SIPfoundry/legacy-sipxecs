@@ -3,9 +3,9 @@ mitel_PKGS = \
 	commons-lang \
 	commons-io \
 	commons-collections \
-	org.springframework.beans \
-	org.springframework.core \
-	org.springframework.context \
+	spring-beans \
+	spring-core \
+	spring-context \
 	sipxcommons \
 	sipxconfig-neoconf \
 	velocity
