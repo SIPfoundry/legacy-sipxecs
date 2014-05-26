@@ -828,9 +828,15 @@ namespace Os
   class LoggerBase : public LoggerSingleton<LoggerBase<TFilter, TChannel> >
   {
   public:
-    typedef boost::shared_mutex mutex_read_write;
-    typedef boost::shared_lock<boost::shared_mutex> mutex_read_lock;
-    typedef boost::lock_guard<boost::shared_mutex> mutex_write_lock;
+	// we need to use a recursive_mutex because the log function may
+    // be called recursively (may be called again from signal handler
+    // function before current log function terminates
+    typedef boost::recursive_mutex mutex;
+    typedef boost::lock_guard<mutex> mutex_lock;
+
+    //typedef boost::shared_mutex mutex_read_write;
+    //typedef boost::shared_lock<boost::shared_mutex> mutex_read_lock;
+    //typedef boost::lock_guard<boost::shared_mutex> mutex_write_lock;
     typedef boost::function<std::string()> TaskCallBack;
 
     LoggerBase() :
@@ -849,13 +855,15 @@ namespace Os
 
     bool open(const char* logFile)
     {
-      mutex_write_lock lock(_mutex);
+      //mutex_write_lock lock(_mutex);
+      mutex_lock lock(_mutex);
       return _pChannel->open(logFile);
     }
 
     bool reopen()
     {
-      mutex_write_lock lock(_mutex);
+      //mutex_write_lock lock(_mutex);
+      mutex_lock lock(_mutex);
       _pChannel->close();
       return _pChannel->open(_pChannel->path());
     }
@@ -1004,7 +1012,8 @@ namespace Os
 
     void log_(int facility, int level, const std::string& taskName, const std::string& msg, std::ostream* pAlternateChannel = 0)
     {
-      mutex_write_lock lock(_mutex);
+      //mutex_write_lock lock(_mutex);
+      mutex_lock lock(_mutex);
       //
       // Create the header
       //
@@ -1092,7 +1101,8 @@ namespace Os
     TChannel* _pChannel;
     TFilter* _pFilter;
     TLogRotate _logRotateStrategy;
-    mutex_read_write _mutex;
+    //mutex_read_write _mutex;
+    mutex _mutex;
     unsigned _flushRate;
     TaskCallBack getCurrentTask;
     bool _enableConsoleOutput;
