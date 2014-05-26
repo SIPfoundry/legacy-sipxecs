@@ -27,7 +27,7 @@ VERSION=$1
 if [ $VERSION == "14.10" ]; then
     VERSION="4.6.0"
 fi
-if [ $VERSION == "1.5.12" ]; then
+if [ $VERSION == "1.4.4" ]; then
     VERSION="1.0.7"
 fi
 VER_REV=`git describe --abbrev=5 --match="v${VERSION}" HEAD`

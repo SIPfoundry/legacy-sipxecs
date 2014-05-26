@@ -27,7 +27,6 @@ Requires: freeswitch-application-db
 Requires: freeswitch-application-directory
 Requires: freeswitch-application-distributor
 Requires: freeswitch-application-easyroute
-Requires: freeswitch-application-enum
 Requires: freeswitch-application-esf
 Requires: freeswitch-application-expr
 Requires: freeswitch-application-fifo
