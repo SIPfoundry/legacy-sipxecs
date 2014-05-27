@@ -850,6 +850,8 @@ public:
   {
     if (_zmqSocket)
     {
+      // this function verifies if the socket was already closed and close it
+      // only if it was not
       _zmqSocket->close();
 
       delete _zmqSocket;
@@ -1194,6 +1196,7 @@ private:
       do_pop(firstHit, 0, SQA_TERMINATE_STRING, SQA_TERMINATE_STRING);
     }
 
+    // WARNING: This should not be removed. zmq_term will block until all sockets are closed
     _zmqSocket->close();
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop TERMINATED.");
@@ -1304,9 +1307,7 @@ private:
     {
       if (!zmq_receive(_zmqSocket, id))
       {
-        // this function will fail quite often because of the timeout set on zmq socket
-
-        //OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
+        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
         return false;
       }
 
