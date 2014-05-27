@@ -50,7 +50,12 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 
   doDaemonize(argc, argv);
 
-  registrerSignalHandlers();
+  if (OsTaskBase::blockSignals() != OS_SUCCESS)
+  {
+    fprintf(stderr, "Unable to block signals\n");
+  }
+
+  registerSignalHandlers();
 
   OsMsgQShared::setQueuePreference(_appData._queuePreference);
 
@@ -151,7 +156,7 @@ void SipXApplication::doDaemonize(int argc, char** pArgv)
   }
 }
 
-void  SipXApplication::registrerSignalHandlers()
+void  SipXApplication::registerSignalHandlers()
 {
   Os::UnixSignals::instance().registerSignalHandler(SIGHUP , boost::bind(&SipXApplication::handleSIGHUP, this));
   Os::UnixSignals::instance().registerSignalHandler(SIGPIPE, boost::bind(&SipXApplication::handleSIGPIPE, this));
@@ -400,6 +405,17 @@ void SipXApplication::initLogger()
 
 bool& SipXApplication::terminationRequested()
 {
+  static bool initialized = false;
+  if (!initialized)
+  {
+    if (OsTaskBase::unBlockSignals() != OS_SUCCESS)
+    {
+      OS_LOG_ERROR(FAC_KERNEL, "Unable to unblock signals");
+    }
+
+    initialized = true;
+  }
+
   return Os::UnixSignals::instance().isTerminateSignalReceived();
 }
 

@@ -146,7 +146,7 @@ class SipXApplication
      * Registers signal handlers. Currently are registered signal handlers for the following signals:
      * SIGHUP, SIGPIPE, SIGTERM, SIGINT, SIGQUIT, SIGABRT, SIGUSR1, SIGUSR2
      */
-    void registrerSignalHandlers();
+    void registerSignalHandlers();
 
     /*
      * Parse both command and configuration file.
