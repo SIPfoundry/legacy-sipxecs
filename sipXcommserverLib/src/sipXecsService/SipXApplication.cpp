@@ -50,7 +50,7 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 
   doDaemonize(argc, argv);
 
-  if (OsTaskBase::blockSignals() != OS_SUCCESS)
+  if (OS_SUCCESS != OsTaskBase::blockSignals())
   {
     fprintf(stderr, "Unable to block signals\n");
   }
@@ -408,7 +408,7 @@ bool& SipXApplication::terminationRequested()
   static bool initialized = false;
   if (!initialized)
   {
-    if (OsTaskBase::unBlockSignals() != OS_SUCCESS)
+    if (OS_SUCCESS != OsTaskBase::unBlockSignals())
     {
       OS_LOG_ERROR(FAC_KERNEL, "Unable to unblock signals");
     }
