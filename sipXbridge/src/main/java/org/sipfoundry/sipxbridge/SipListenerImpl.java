@@ -497,15 +497,13 @@ public class SipListenerImpl implements SipListenerExt {
         try {
             if ( method.equals(Request.INVITE)      &&
                  response.getStatusCode() == 200    && 
-                 response.getHeader(ContactHeader.NAME) == null ) {
-                if ( logger.isDebugEnabled() ) logger.debug("Dropping bad response");
-                if (dialog != null && DialogContext.get(dialog) != null) {
-                    DialogContext.get(dialog).getBackToBackUserAgent().tearDown("sipXbridge", ReasonCode.PROTOCOL_ERROR, "Protocol Error - 200 OK with no contact");
-                } else if ( dialog != null ) {
+                 response.getHeader(ContactHeader.NAME) == null &&
+                 (dialog == null || DialogContext.get(dialog) == null)) {
+                if ( logger.isDebugEnabled() ) logger.debug("Dropping bad response. Protocol Error - 200 OK with no contact");
+                if ( dialog != null ) {
                     dialog.delete();
                 }
                 return;
-                
             }
             if (dialog != null && dialog.getApplicationData() == null
                     && method.equals(Request.INVITE)) {
