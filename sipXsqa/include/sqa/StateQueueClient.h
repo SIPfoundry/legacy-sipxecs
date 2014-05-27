@@ -892,6 +892,9 @@ public:
     //        transferred to a network peer, or the socket's linger period
     //        set with the ZMQ_LINGER socket option has expired.
 
+    // We need to have zmq_socket->close called from another thread otherwise
+    // zmq_term will block
+
     delete _zmqContext;
     _zmqContext = 0;
 
