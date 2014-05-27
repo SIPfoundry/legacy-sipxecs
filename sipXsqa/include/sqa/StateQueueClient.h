@@ -230,7 +230,7 @@ public:
       bool ret = false;
       int nativeSocket = _pSocket->native();
 
-      struct pollfd fds[1] = {nativeSocket, requestedEvents, 0};
+      struct pollfd fds[1] = {{nativeSocket, requestedEvents, 0}};
 
 
       int pollResult = poll(fds, sizeof(fds) / sizeof(fds[0]), timeoutMs);
@@ -850,6 +850,8 @@ public:
   {
     if (_zmqSocket)
     {
+      // this function verifies if the socket was already closed and close it
+      // only if it was not
       _zmqSocket->close();
 
       delete _zmqSocket;
@@ -871,11 +873,30 @@ public:
 
      _terminate = true;
 
+    // WARNING: delete _zmqContext will call internally zmq_term
+    // Context termination is performed in the following steps:
+    //
+    // 1. Any blocking operations currently in progress on sockets open
+    //    within context shall return immediately with an error code of
+    //    ETERM. With the exception of zmq_close(), any further operations on
+    //    sockets open within context shall fail with an error code of ETERM.
+
+    // 2. After interrupting all blocking calls, zmq_term() shall block until
+    //    the following conditions are satisfied:
+
+    //    o   All sockets open within context have been closed with
+    //        zmq_close().
+
+    //    o   For each socket within context, all messages sent by the
+    //        application with zmq_send() have either been physically
+    //        transferred to a network peer, or the socket's linger period
+    //        set with the ZMQ_LINGER socket option has expired.
+
+    // We need to have zmq_socket->close called from another thread otherwise
+    // zmq_term will block
 
     delete _zmqContext;
     _zmqContext = 0;
-
-    destroyZmqSocket();
 
     OS_LOG_INFO(FAC_NET, "StateQueueClient::terminate() waiting for event thread to exit.");
     if (_pEventThread)
@@ -884,6 +905,8 @@ public:
       delete _pEventThread;
       _pEventThread = 0;
     }
+
+    destroyZmqSocket();
 
     if (_pIoServiceThread)
     {
@@ -1176,6 +1199,9 @@ private:
       do_pop(firstHit, 0, SQA_TERMINATE_STRING, SQA_TERMINATE_STRING);
     }
 
+    // WARNING: This should not be removed. zmq_term will block until all sockets are closed
+    _zmqSocket->close();
+
     OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop TERMINATED.");
   }
 
@@ -1284,9 +1310,7 @@ private:
     {
       if (!zmq_receive(_zmqSocket, id))
       {
-        // this function will fail quite often because of the timeout set on zmq socket
-
-        //OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
+        OS_LOG_ERROR(FAC_NET, "0mq failed failed to receive ID segment.");
         return false;
       }
 
