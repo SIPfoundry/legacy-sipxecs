@@ -165,7 +165,7 @@ start() {
   databaseVersionCheck
   clearIndexLocks
   buildCommand $prog
-  Command="$Command org.mortbay.jetty.Server @SIPX_CONFDIR@/sipxconfig-jetty.xml"
+  Command="$Command org.eclipse.jetty.xml.XmlConfiguration @SIPX_CONFDIR@/sipxconfig-jetty.xml"
   if [ -n "${NoFork}" ] ; then
     killAnyOrphans @SIPXPBXUSER@ $regex
     runuser -m -s @BASH@ @SIPXPBXUSER@ -c "${Command}"

@@ -22,8 +22,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -31,32 +29,32 @@ import org.springframework.web.HttpRequestHandler;
 
 
 public class WebSocketServlet implements HttpRequestHandler, BeanFactoryAware {
-	private WebSocketFactory wsFactory;
+	//private WebSocketFactory wsFactory;
 	private BeanFactory m_beanFactory;
 
 	public void init() {
 		// Create and configure WS factory
 
-		wsFactory = new WebSocketFactory(new WebSocketFactory.Acceptor() {
-			public boolean checkOrigin(HttpServletRequest request, String origin) {
+		//wsFactory = new WebSocketFactory(new WebSocketFactory.Acceptor() {
+			//public boolean checkOrigin(HttpServletRequest request, String origin) {
 				// Allow all origins
-				return true;
-			}
+				//return true;
+			//}
 
-			public WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
-				return createSipXWebSocket();
-			}
-		});
-		wsFactory.setBufferSize(4096);
-		wsFactory.setMaxIdleTime(60000);
+			//public WebSocket doWebSocketConnect(HttpServletRequest request, String protocol) {
+				//return createSipXWebSocket();
+			//}
+		//});
+		//wsFactory.setBufferSize(4096);
+		//wsFactory.setMaxIdleTime(60000);
 	}
 
 	@Override
 	public void handleRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		if (wsFactory.acceptWebSocket(request, response)) {
-			return;
-		}
+		//if (wsFactory.acceptWebSocket(request, response)) {
+			//return;
+		//}
 		response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
 				"Websocket only");
 	}

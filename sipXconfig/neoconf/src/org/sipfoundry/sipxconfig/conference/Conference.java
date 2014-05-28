@@ -257,7 +257,8 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
         if (isVideoConference()) {
             flags.append(" | ");
             flags.append(getVideoFlag());
-        } if (!(Boolean) getSettingTypedValue(QUICKSTART)) {
+        }
+        if (!(Boolean) getSettingTypedValue(QUICKSTART)) {
             flags.append(" | wait-mod");
         }
         return flags.toString();

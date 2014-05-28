@@ -11,15 +11,12 @@ package org.sipfoundry.sipxconfig.site;
 
 import java.security.Principal;
 
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.UserRealm;
-
 /**
  * Simple implementation of authentication realm for unit testing.
  * Currently any user is authenticated as "superadmin" with all the roles.
  * One can add other users to test if role-based authentication works correctly.
  */
-class JettyTestUserRealm implements UserRealm {
+class JettyTestUserRealm {
 
     private static final class User implements Principal {
         private String[] m_roles;
@@ -63,7 +60,7 @@ class JettyTestUserRealm implements UserRealm {
         return m_admin;
     }
 
-    public Principal authenticate(String username, Object credentials, HttpRequest request) {
+    public Principal authenticate(String username, Object credentials) {
         return m_admin;
     }
 

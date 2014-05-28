@@ -50,8 +50,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jain-sip-sdp-1.2.148.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jakarta-oro-2.0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jakarta-regexp-1.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jasper-compiler-4.1.31.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jasper-runtime-4.1.31.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jasperreports-3.7.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/javamail-1.4.2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/javassist-3.7.ga.jar"/>
@@ -61,7 +59,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-5.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jfreechart-1.0.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jibx-bind-1.1.6a.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jibx-run-1.1.6a.jar"/>
@@ -96,8 +93,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/sac-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/saxpath-1.0fcs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/serializer-2.7.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.5.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j12-1.5.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-mock-2.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/Stun4J.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/velocity-tools-generic-1.4.jar"/>
@@ -120,18 +115,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-mongodb-1.3.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-data-commons-1.6.1.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/snmp4j-2.0.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-client-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-continuation-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-http-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-io-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-security-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-server-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-servlet-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-servlets-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-util-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-webapp-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-websocket-8.1.0.v20120127.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jetty-xml-8.1.0.v20120127.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/servlet-api-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/bcpkix-jdk15on-147.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/bcprov-jdk15on-147.jar"/>
@@ -175,5 +158,29 @@
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.orm-3.1.4.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.web-3.1.4.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.web.servlet-3.1.4.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-5.1.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-http-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-io-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-security-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-server-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-servlet-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-util-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-webapp-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-xml-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jasper-compiler-5.5.23.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jasper-runtime-5.5.23.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.servlet-api-3.1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.servlet.jsp-api-2.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-deploy-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jetty-servlets-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.7.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j12-1.7.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-web-4.0.3.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-webmvc-4.0.3.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/websocket-api-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/websocket-client-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/websocket-common-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/websocket-server-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/websocket-servlet-9.1.5.v20140505.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>
