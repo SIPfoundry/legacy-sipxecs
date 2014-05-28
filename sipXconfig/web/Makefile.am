@@ -130,6 +130,7 @@ web_RESOURCES = $(shell cd $(srcdir)/src; find . -type f \( \
 	  -o -name '*.jpg' \
 	  -o -name '*.css' \
 	  -o -name '*.xml' \
+	  -o -name '*.dtd' \
 	  -o -name '*.vm' \
 	  -o -name '*.wsdl' \
 	  -o -name '*.properties' \
