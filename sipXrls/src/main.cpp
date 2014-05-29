@@ -197,6 +197,8 @@ int main(int argc, char* argv[])
       CONFIG_SETTING_PREFIX,
       true, // check mongo connection
       true, // increase application file descriptor limits
+      true, // block signals on main thread (and all other threads created by main)
+            // and process them only on a dedicated thread
       SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,
   };

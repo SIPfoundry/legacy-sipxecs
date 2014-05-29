@@ -38,6 +38,93 @@ void SipXApplication::showVersionHelp()
   }
 }
 
+SipXApplication::SignalTask::SignalTask(int terminateSignal) : OsTask("SignalTask"),
+                                        _terminateSignal(terminateSignal)
+{
+  //OS_LOG_DEBUG(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__);
+}
+
+SipXApplication::SignalTask::~SignalTask()
+{
+  //OS_LOG_DEBUG(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__);
+}
+
+int SipXApplication::SignalTask::run(void* arg)
+{
+  int sigNum = -1;
+  OsStatus status = OS_FAILED;
+
+//  OS_LOG_INFO(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__
+//      << " started");
+
+  while (!Os::detail::_is_termination_signal_received() && sigNum != _terminateSignal)
+  {
+    status = awaitSignal(sigNum);
+    if (OS_SUCCESS != status)
+    {
+      OS_LOG_ERROR(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__
+           << " awaitSignal failed. errno: " << errno);
+       continue;
+    }
+
+    OS_LOG_DEBUG(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__
+        << " awaitSignal successfully called");
+
+    Os::detail::_handle_signal(sigNum);
+  }
+
+  OS_LOG_INFO(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__
+      << " terminated");
+
+  return 0;
+}
+
+void SipXApplication::startSignalTaskThread()
+{
+  _signalTask.reset(new SignalTask(_signalTaskTerminateSignal));
+  _signalTask->start();
+}
+
+void SipXApplication::stopSignalTaskThread()
+{
+  if (!_signalTask || terminationRequested())
+  {
+    return;
+  }
+
+  pthread_t id;
+  if (OS_SUCCESS != _signalTask->id(id))
+  {
+    return;
+  }
+
+  int rc = pthread_kill(id, _signalTaskTerminateSignal);
+  if (0 != rc)
+  {
+    OS_LOG_ERROR(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__
+                 << " stopping signal processing thread failed. Error: " << rc);
+  }
+}
+
+void SipXApplication::doBlockSignals()
+{
+  _signalTaskTerminateSignal = SIGRTMIN + 1;
+  if (_signalTaskTerminateSignal >= SIGRTMAX)
+  {
+    fprintf(stderr, "Unable to initialize signal task terminate signal\n");
+    return;
+  }
+
+  if (OS_SUCCESS != OsTaskBase::blockSignals())
+  {
+    fprintf(stderr, "Unable to block signals\n");
+    return;
+  }
+
+  // if signals blocking succeeded start the signal processing thread
+  startSignalTaskThread();
+}
+
 bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& appData, OsServiceOptions* pOptions)
 {
   _appData = appData;
@@ -50,9 +137,9 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 
   doDaemonize(argc, argv);
 
-  if (OS_SUCCESS != OsTaskBase::blockSignals())
+  if (_appData._blockSignals)
   {
-    fprintf(stderr, "Unable to block signals\n");
+    doBlockSignals();
   }
 
   registerSignalHandlers();
@@ -405,17 +492,6 @@ void SipXApplication::initLogger()
 
 bool& SipXApplication::terminationRequested()
 {
-  static bool initialized = false;
-  if (!initialized)
-  {
-    if (OS_SUCCESS != OsTaskBase::unBlockSignals())
-    {
-      OS_LOG_ERROR(FAC_KERNEL, "Unable to unblock signals");
-    }
-
-    initialized = true;
-  }
-
   return Os::UnixSignals::instance().isTerminateSignalReceived();
 }
 

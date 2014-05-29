@@ -30,6 +30,9 @@ struct SipXApplicationData
 
   bool _checkMongo;               // Tells if mongo connection will be check or not
   bool _increaseResourceLimits;   // Tells if file descriptor limits should be increased or not
+  bool _blockSignals;             // Tells if the signals should be blocked in init function or
+                                  // not. If the signals are blocked a dedicated thread will be used
+                                  // for signal handling
 
 
   // Configuration file format. This option tells parser what format of configuration file is used
@@ -131,6 +134,20 @@ class SipXApplication
     static int normalizeLogLevel(int logLevel);
 
   private:
+    // The purpose of this class is to handle signals
+    // The signals will be blocked on all other application threads
+    // and should be processed only on this thread
+    class SignalTask : public OsTask
+    {
+    public:
+       SignalTask(int terminateSignal);
+       ~SignalTask();
+
+       int run(void* arg);
+    private:
+       int _terminateSignal;
+    };
+
     SipXApplication();                                       // SipXApplication constructor
     ~SipXApplication();                                      // SipXApplication destructor
     SipXApplication(const SipXApplication&);                 // Copy constructor disabled
@@ -156,6 +173,16 @@ class SipXApplication
      * @return - true in case of success or false otherwise
      */
     bool parse(OsServiceOptions& osServiceOptions, int argc, char** pArgv, const std::string& configFilename);
+
+    // blocks signals on main thread (and on all other thread created by main) and create
+    // a dedicated thread to process them
+    void doBlockSignals();
+
+    // starts signal processing thread
+    void startSignalTaskThread();
+
+    // stops signal processing thread
+    void stopSignalTaskThread();
 
     /**
      * Initializes logger
@@ -201,6 +228,8 @@ class SipXApplication
     int _argc;
     char** _argv;
     bool _autoDeleteConfig;
+    boost::scoped_ptr<SignalTask> _signalTask;
+    int _signalTaskTerminateSignal;
   };
 
 inline SipXApplication& SipXApplication::instance()
@@ -224,7 +253,9 @@ inline SipXApplication::SipXApplication()
   : _initialized(false),
     _argc(0),
     _argv(0),
-    _autoDeleteConfig(true)
+    _autoDeleteConfig(true),
+    _signalTask(0),
+    _signalTaskTerminateSignal(0)
 {
   _pOsServiceOptions = new OsServiceOptions();
 }
@@ -233,6 +264,8 @@ inline SipXApplication::~SipXApplication()
 {
   if (_autoDeleteConfig)
     delete _pOsServiceOptions;
+
+  stopSignalTaskThread();
 }
 
 // reload config on sighup
