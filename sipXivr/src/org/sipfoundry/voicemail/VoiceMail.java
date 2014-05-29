@@ -10,6 +10,7 @@
 package org.sipfoundry.voicemail;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.SipxIvrApp;
 
 public class VoiceMail extends SipxIvrApp {
@@ -39,6 +40,15 @@ public class VoiceMail extends SipxIvrApp {
         String action = controller.getAction();
         while(mailboxString != null) {
             LOG.info("Starting voicemail for mailbox \""+mailboxString+"\" action=\""+action);
+
+            // personalize locale to cover the welcome message
+            User user = controller.getCurrentUser();
+            if (user != null)
+            {
+                String localeString = user.getVmLanguage();
+                controller.personalizeLocale(localeString, user);
+            }
+
             mailboxString = voicemail(mailboxString, controller, action);
         }
         LOG.info("Ending voicemail");

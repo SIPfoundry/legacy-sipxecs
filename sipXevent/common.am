@@ -10,11 +10,9 @@ event_PKGS = \
 	spring-core \
 	org.springframework.transaction \
 	spring-expression \
-	org.springframework.web \
-	org.springframework.web.servlet \
+	spring-web \
+	spring-webmvc \
 	mongo \
-	jetty-client \
-	jetty-continuation \
 	jetty-http \
 	jetty-io \
 	jetty-security \
@@ -23,9 +21,8 @@ event_PKGS = \
 	jetty-servlets \
 	jetty-util \
 	jetty-webapp \
-	jetty-websocket \
 	jetty-xml \
-	servlet-api \
+	javax.servlet-api \
 	sipxcommons \
 	spring-security-config \
 	spring-security-core \

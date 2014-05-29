@@ -116,4 +116,11 @@
       <value>0</value>
     </setting>
   </group>
+  <group name="conference">
+    <setting name="language">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
 </model>

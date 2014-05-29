@@ -26,6 +26,12 @@
       value="ognl:preferences.activeGreeting"
       model="ognl:activeGreetingModel" />
   </tr>
+  <tr>
+    <td jwcid="@common/InstalledLanguages"
+        language="ognl:preferences.language"
+        languageDescription="message:language.description"
+        defaultLanguage="ognl:null"/>
+  </tr>
   <span jwcid="@If" condition="ognl:depositCpui" renderTag="false">
     <tr jwcid="@common/FieldPanel" for="user:busyPrompt"
       field="component:busyPrompt"

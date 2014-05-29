@@ -135,6 +135,7 @@ public interface MongoConstants {
     static final String DIALPAD = "dlpd";
     static final String PERSONAL_ATT = "pa";
     static final String ACTIVEGREETING = "actvgr";
+    static final String UNIFIED_MESSAGING_LANGUAGE = "vmlang";
     static final String ITEM = "itm";
     static final String DISTRIB_LISTS = "dlst";
     static final String FORCE_PIN_CHANGE= "fpchg";

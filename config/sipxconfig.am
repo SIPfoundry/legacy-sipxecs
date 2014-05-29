@@ -30,7 +30,7 @@ sipxconfig_neoconf_PKGS = \
 	jasper-runtime \
 	jasperreports \
 	javamail \
-	javax.servlet \
+	javax.servlet-api \
 	jaxen \
 	jaxrpc \
 	jettison \
@@ -53,8 +53,8 @@ sipxconfig_neoconf_PKGS = \
 	org.springframework.jdbc \
 	org.springframework.orm \
 	org.springframework.transaction \
-	org.springframework.web \
-	org.springframework.web.servlet \
+	spring-web \
+	spring-webmvc \
 	postgresql \
 	saxpath \
 	serializer \
@@ -98,7 +98,18 @@ sipxconfig_web_PKGS = \
 	jasper-compiler \
 	javassist \
 	jdom \
-	jetty \
+	jetty-server \
+	jetty-util \
+	jetty-http \
+	jetty-xml \
+	jetty-servlet \
+	jetty-servlets \
+	jetty-security \
+	jetty-deploy \
+	jetty-io \
+	jetty-webapp \
+	javax.servlet-api \
+	javax.servlet.jsp-api \
 	jta \
 	not-yet-commons-ssl \
 	ognl \

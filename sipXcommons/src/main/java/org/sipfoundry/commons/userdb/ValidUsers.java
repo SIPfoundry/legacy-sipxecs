@@ -100,6 +100,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.UNIFIED_MESSAGING_LANGUAGE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -782,6 +783,7 @@ public class ValidUsers {
 
         user.setPlayDefaultVmOption(Boolean.valueOf(getStringValue(obj, PLAY_DEFAULT_VM)));
         user.setDepositVoicemail(Boolean.valueOf(getStringValue(obj, VOICEMAIL_ENABLED)));
+        user.setVmLanguage(getStringValue(obj, UNIFIED_MESSAGING_LANGUAGE));
 
         // personal attendant related data
         if (obj.keySet().contains(PERSONAL_ATT)) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd" 
+	"classpath:org/sipfoundry/sipxconfig/site/spring-beans.dtd" 
 [
   <!-- Regexp fragments that are not atoms should be in (...), so that
        modifiers ('?', '{...}', etc.) can be applied to them directly. -->

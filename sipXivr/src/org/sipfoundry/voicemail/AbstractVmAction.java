@@ -46,10 +46,6 @@ public abstract class AbstractVmAction implements VmAction {
         return m_controller.getCurrentUser();
     }
 
-    public void changeLocale(String localeString) {
-        m_controller.changeLocale(localeString);
-    }
-
     public GreetingType getActiveGreeting() {
         if (getCurrentUser().getActiveGreeting() != null) {
             GreetingType active = GreetingType.valueOfById(getCurrentUser().getActiveGreeting());
@@ -291,6 +287,11 @@ public abstract class AbstractVmAction implements VmAction {
 
     public void setValidUsers(ValidUsers validUsers) {
         m_validUsers = validUsers;
+    }
+
+    public void personalizeLocale(String localeString, User user)
+    {
+        m_controller.personalizeLocale(localeString, user);
     }
 
 }

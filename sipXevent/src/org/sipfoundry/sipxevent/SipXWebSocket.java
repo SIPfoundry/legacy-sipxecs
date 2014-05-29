@@ -16,16 +16,14 @@
  */
 package org.sipfoundry.sipxevent;
 
-import java.io.IOException;
-
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jetty.websocket.WebSocket;
+import org.eclipse.jetty.io.Connection;
 import org.sipfoundry.commons.security.MongoUserDetailsService;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class SipXWebSocket implements WebSocket.OnTextMessage {
+public class SipXWebSocket {
 	public static final String CONTEXT_BEAN_NAME = "sipxWebSocket";
 	private Connection m_connection;
 	private String m_userId;
@@ -52,12 +50,12 @@ public class SipXWebSocket implements WebSocket.OnTextMessage {
 		    m_registeredClients.registerClient(this);
 			//sendPresenceMessage();
 		} else {
-			try {
-				m_connection.sendMessage("not_valid");
-			} catch (IOException e) {
+			//try {
+				//m_connection.sendMessage("not_valid");
+			//} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				//e.printStackTrace();
+			//}
 		}
 	}
 

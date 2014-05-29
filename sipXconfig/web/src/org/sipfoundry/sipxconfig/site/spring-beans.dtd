@@ -1,0 +1,153 @@
+ 
+ 
+<!ELEMENT beans (
+	description?,
+	(import | alias | bean)*
+)>
+ 
+<!ATTLIST beans default-lazy-init (true | false) "false">
+<!ATTLIST beans default-autowire (no | byName | byType | constructor | autodetect) "no">
+<!ATTLIST beans default-dependency-check (none | objects | simple | all) "none">
+<!ATTLIST beans default-init-method CDATA #IMPLIED>
+<!ATTLIST beans default-destroy-method CDATA #IMPLIED>
+ 
+<!ELEMENT description (#PCDATA)>
+ 
+<!ELEMENT import EMPTY>
+ 
+<!ATTLIST import resource CDATA #REQUIRED>
+ 
+<!ELEMENT alias EMPTY>
+ 
+<!ATTLIST alias name CDATA #REQUIRED>
+ 
+<!ATTLIST alias alias CDATA #REQUIRED>
+ 
+<!ELEMENT bean (
+	description?,
+	(constructor-arg | property | lookup-method | replaced-method)*
+)>
+ 
+<!ATTLIST bean id ID #IMPLIED>
+ 
+<!ATTLIST bean name CDATA #IMPLIED>
+ 
+<!ATTLIST bean class CDATA #IMPLIED>
+ 
+<!ATTLIST bean parent CDATA #IMPLIED>
+ 
+<!ATTLIST bean abstract (true | false) #IMPLIED>
+ 
+<!ATTLIST bean singleton (true | false) #IMPLIED>
+ 
+<!ATTLIST bean lazy-init (true | false | default) "default">
+ 
+<!ATTLIST bean autowire (no | byName | byType | constructor | autodetect | default) "default">
+ 
+<!ATTLIST bean dependency-check (none | objects | simple | all | default) "default">
+ 
+<!ATTLIST bean depends-on CDATA #IMPLIED>
+ 
+<!ATTLIST bean init-method CDATA #IMPLIED>
+ 
+<!ATTLIST bean destroy-method CDATA #IMPLIED>
+ 
+<!ATTLIST bean factory-method CDATA #IMPLIED>
+ 
+<!ATTLIST bean factory-bean CDATA #IMPLIED>
+ 
+<!ELEMENT constructor-arg (
+	description?,
+	(bean | ref | idref | value | null | list | set | map | props)?
+)>
+ 
+<!ATTLIST constructor-arg index CDATA #IMPLIED>
+ 
+<!ATTLIST constructor-arg type CDATA #IMPLIED>
+ 
+<!ATTLIST constructor-arg ref CDATA #IMPLIED>
+ 
+<!ATTLIST constructor-arg value CDATA #IMPLIED>
+ 
+<!ELEMENT property (
+	description?,
+	(bean | ref | idref | value | null | list | set | map | props)?
+)>
+ 
+<!ATTLIST property name CDATA #REQUIRED>
+ 
+<!ATTLIST property ref CDATA #IMPLIED>
+ 
+<!ATTLIST property value CDATA #IMPLIED>
+ 
+<!ELEMENT lookup-method EMPTY>
+ 
+<!ATTLIST lookup-method name CDATA #IMPLIED>
+ 
+<!ATTLIST lookup-method bean CDATA #IMPLIED>
+ 
+<!ELEMENT replaced-method (
+	(arg-type)*
+)>
+ 
+<!ATTLIST replaced-method name CDATA #IMPLIED>
+ 
+<!ATTLIST replaced-method replacer CDATA #IMPLIED>
+ 
+<!ELEMENT arg-type (#PCDATA)>
+ 
+<!ATTLIST arg-type match CDATA #IMPLIED>
+ 
+<!ELEMENT ref EMPTY>
+ 
+<!ATTLIST ref bean CDATA #IMPLIED>
+<!ATTLIST ref local IDREF #IMPLIED>
+<!ATTLIST ref parent CDATA #IMPLIED>
+ 
+<!ELEMENT idref EMPTY>
+ 
+<!ATTLIST idref bean CDATA #IMPLIED>
+<!ATTLIST idref local IDREF #IMPLIED>
+ 
+<!ELEMENT value (#PCDATA)>
+ 
+<!ATTLIST value type CDATA #IMPLIED>
+ 
+<!ELEMENT null (#PCDATA)>
+ 
+<!ELEMENT list (
+	(bean | ref | idref | value | null | list | set | map | props)*
+)>
+ 
+<!ELEMENT set (
+	(bean | ref | idref | value | null | list | set | map | props)*
+)>
+ 
+<!ELEMENT map (
+	(entry)*
+)>
+ 
+<!ELEMENT entry (
+  key?,
+	(bean | ref | idref | value | null | list | set | map | props)?
+)>
+ 
+<!ATTLIST entry key CDATA #IMPLIED>
+ 
+<!ATTLIST entry key-ref CDATA #IMPLIED>
+ 
+<!ATTLIST entry value CDATA #IMPLIED>
+ 
+<!ATTLIST entry value-ref CDATA #IMPLIED>
+ 
+<!ELEMENT key (
+	(bean | ref | idref | value | null | list | set | map | props)
+)>
+ 
+<!ELEMENT props (
+	(prop)*
+)>
+ 
+<!ELEMENT prop (#PCDATA)>
+ 
+<!ATTLIST prop key CDATA #REQUIRED>

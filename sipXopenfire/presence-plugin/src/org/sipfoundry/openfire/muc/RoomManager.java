@@ -42,7 +42,7 @@ public class RoomManager {
             try {
                 mucService = XMPPServer.getInstance().getMultiUserChatManager()
                         .createMultiUserChatService(subdomain, "default MUC service", false);
-                Collection<JID> admins = XMPPServer.getAdmins();
+                Collection<JID> admins = XMPPServer.getInstance().getAdmins();
                 JID admin = admins.iterator().next();
                 mucService.addSysadmin(admin);
                 mucService.setLogConversationsTimeout(60);
@@ -67,7 +67,7 @@ public class RoomManager {
 
         if (mucService == null) {
             try {
-                Collection<JID> admins = XMPPServer.getAdmins();
+                Collection<JID> admins = XMPPServer.getInstance().getAdmins();
                 JID admin = admins.iterator().next();
                 mucService = XMPPServer.getInstance().getMultiUserChatManager()
                         .createMultiUserChatService(MUC_SUBDOMAIN, DEFAULT_DESCRIPTION, false);
@@ -111,7 +111,7 @@ public class RoomManager {
                     }
                 }
 
-                for (JID admins : XMPPServer.getAdmins()) {
+                for (JID admins : XMPPServer.getInstance().getAdmins()) {
                     if (!mucRoom.getOwners().contains(admins)) {
                         mucRoom.addOwner(jid, mucRoom.getRole());
                     }

@@ -43,7 +43,7 @@ public class MessageReceiverServlet implements HttpRequestHandler {
         String userName = request.getHeader("user_id");
         SipXWebSocket webSocket = m_registeredClients.getWebSocket(userName);
         if (webSocket != null) {
-            webSocket.getConnection().sendMessage(messageString);
+            //webSocket.getConnection().sendMessage(messageString);
             LOG.debug("Message sent: "+messageString + " to user: "+userName);
         }
     }

@@ -86,7 +86,7 @@
 #if(${conference.getModeratorAccessCode()})
       <param name="moderator-pin" value="${conference.getModeratorAccessCode()}"/>
 #end
-      <param name="sound-prefix" value="$bridge.getAudioDirectory()"/>
+      <param name="sound-prefix" value="${conference.getAudioDirectory()}"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
       <param name="muted-sound" value="conf/mutingYourself.wav"/>

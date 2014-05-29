@@ -21,6 +21,7 @@ public class MailboxPreferences {
     public static final String EMPTY = "";
 
     public static final String ACTIVE_GREETING = "voicemail/mailbox/active-greeting";
+    public static final String UNIFIED_MESSAGING_LANGUAGE = "voicemail/mailbox/language";
     public static final String BUSY_PROMPT = "voicemail/mailbox/user-busy-prompt";
     public static final String VOICEMAIL_TUI = "voicemail/mailbox/voicemail-tui";
     public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
@@ -151,6 +152,7 @@ public class MailboxPreferences {
     }
 
     private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
+    private String m_language;
     private String m_busyPrompt;
     private VoicemailTuiType m_voicemailTui = VoicemailTuiType.STANDARD;
     private String m_externalMwi;
@@ -179,6 +181,7 @@ public class MailboxPreferences {
         m_emailAddress = user.getEmailAddress();
         m_alternateEmailAddress = user.getAlternateEmailAddress();
         m_activeGreeting = ActiveGreeting.fromId(user.getActiveGreeting());
+        m_language = user.getSettingValue(UNIFIED_MESSAGING_LANGUAGE);
         m_busyPrompt = user.getSettingValue(BUSY_PROMPT);
         m_voicemailTui = VoicemailTuiType.fromValue(user.getSettingValue(VOICEMAIL_TUI));
         m_externalMwi = user.getSettingValue(EXTERNAL_MWI);
@@ -199,6 +202,7 @@ public class MailboxPreferences {
         user.setEmailAddress(m_emailAddress);
         user.setAlternateEmailAddress(m_alternateEmailAddress);
         user.setActiveGreeting(m_activeGreeting.getId());
+        user.setSettingValue(UNIFIED_MESSAGING_LANGUAGE, m_language);
         user.setSettingValue(BUSY_PROMPT, m_busyPrompt);
         user.setSettingValue(VOICEMAIL_TUI, m_voicemailTui.getValue());
         user.setSettingValue(EXTERNAL_MWI, m_externalMwi);
@@ -221,6 +225,14 @@ public class MailboxPreferences {
 
     public void setActiveGreeting(ActiveGreeting activeGreeting) {
         m_activeGreeting = activeGreeting;
+    }
+
+    public String getLanguage() {
+        return m_language;
+    }
+
+    public void setLanguage(String language) {
+        m_language = language;
     }
 
     public String getBusyPrompt() {

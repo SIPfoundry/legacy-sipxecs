@@ -29,6 +29,9 @@ public abstract class InstalledLanguages extends BaseComponent {
     @Parameter
     public abstract String getLanguageDescription();
 
+    @Parameter
+    public abstract String getLanguageLabel();
+
     @Parameter(defaultValue = "ognl:LocalizationContext.DEFAULT")
     public abstract String getDefaultLanguage();
 

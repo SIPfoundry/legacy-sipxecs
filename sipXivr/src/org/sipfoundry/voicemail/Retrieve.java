@@ -48,6 +48,11 @@ public class Retrieve extends AbstractVmAction {
         m_tempRecordings = new ArrayList<String>();
         // Create the mailbox if it isn't there
         User user = getCurrentUser();
+
+        // personalize locale here to cover case where the user get's logged in after the welcome message
+        String localeString = user.getVmLanguage();
+        personalizeLocale(localeString, user);
+
         try {
             if (user.hasVoicemail()) {
                 // Those with voicemail permissions get the whole menu

@@ -32,17 +32,13 @@ commons_PKGS = \
 	thumbnailator \
 	jaudiotagger \
 	jetty \
-	jetty-client \
-	jetty-continuation \
 	jetty-http \
 	jetty-io \
 	jetty-security \
 	jetty-server \
 	jetty-servlet \
-	jetty-servlets \
 	jetty-util \
 	jetty-webapp \
-	jetty-websocket \
 	jetty-xml \
 	servlet-api \
 	spring-security-cas \

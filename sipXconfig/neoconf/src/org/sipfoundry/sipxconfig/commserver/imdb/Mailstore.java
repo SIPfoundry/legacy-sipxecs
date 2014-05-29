@@ -54,6 +54,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.PLAY_DEFAULT_VM;
 import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
 import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
 import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
+import static org.sipfoundry.commons.mongo.MongoConstants.UNIFIED_MESSAGING_LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.USERBUSYPROMPT;
 import static org.sipfoundry.commons.mongo.MongoConstants.VMONDND;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
@@ -207,6 +208,8 @@ public class Mailstore extends AbstractDataSetGenerator {
             top.put(PERSONAL_ATT, pao);
         }
         putOnlyIfNotNull(top, ACTIVEGREETING, user.getSettingValue(MailboxPreferences.ACTIVE_GREETING));
+        putOnlyIfNotNull(top, UNIFIED_MESSAGING_LANGUAGE,
+                user.getSettingValue(MailboxPreferences.UNIFIED_MESSAGING_LANGUAGE));
         // DL
         List<DBObject> dLists = new ArrayList<DBObject>();
         for (int i = 1; i < DistributionList.MAX_SIZE; i++) {

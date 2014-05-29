@@ -17,6 +17,7 @@
 package org.sipfoundry.voicemail;
 
 import java.util.Hashtable;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.Play;
@@ -359,4 +360,12 @@ public class VmEslRequestController extends AbstractEslRequestController {
         return null;
     }
 
+    public void personalizeLocale(String localeString, User user)
+    {
+        if (localeString != null) {
+            LOG.debug("Changing locale for this call to " + localeString);
+            changeLocale(localeString);
+            user.setLocale(new Locale(localeString));
+        }
+    }
 }

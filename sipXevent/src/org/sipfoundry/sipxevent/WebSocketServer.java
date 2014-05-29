@@ -20,11 +20,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -54,24 +50,24 @@ public class WebSocketServer {
     }
 
 	public void start() {
-		Server server = new Server();
+		//Server server = new Server();
 		try {
-		    SslSelectChannelConnector sslConnector =  new SslSelectChannelConnector();
-		    sslConnector.setPort(m_port);
+		    //SslSelectChannelConnector sslConnector =  new SslSelectChannelConnector();
+		    //sslConnector.setPort(m_port);
 
-		    SslContextFactory cf = sslConnector.getSslContextFactory();
-		    configureContextFactory(cf);
+		    //SslContextFactory cf = sslConnector.getSslContextFactory();
+		    //configureContextFactory(cf);
 
-	        server.setConnectors(new Connector[]{sslConnector});
+	        //server.setConnectors(new Connector[]{sslConnector});
 
-	        WebAppContext webapp = new WebAppContext();
-	        webapp.setDescriptor(m_resourceBase + "/WEB-INF/web.xml");
-	        webapp.setResourceBase(m_resourceBase);
-	        webapp.setContextPath("/");
-	        server.setHandler(webapp);
+	        //WebAppContext webapp = new WebAppContext();
+	        //webapp.setDescriptor(m_resourceBase + "/WEB-INF/web.xml");
+	        //webapp.setResourceBase(m_resourceBase);
+	        //webapp.setContextPath("/");
+	        //server.setHandler(webapp);
 
-			server.start();
-			server.join();
+			//server.start();
+			//server.join();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -79,7 +75,7 @@ public class WebSocketServer {
 
     private void configureContextFactory(SslContextFactory cf) throws Exception {
         cf.setProtocol("SSLv3");
-        cf.setKeyStore(m_keystore);
+        //cf.setKeyStore(m_keystore);
         cf.setKeyStorePassword(m_password);
     }
 
