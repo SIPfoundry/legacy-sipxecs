@@ -36,7 +36,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
      * It returns the xmpp username being given user's address
      */
     public static Map<String, Object> getXmppUsername(String emailAddress) {
-        UserManager userManager = XMPPServer.getUserManager();
+        UserManager userManager = XMPPServer.getInstance().getUserManager();
 
         Set<String> searchFields = new HashSet<String>();
         searchFields.add(EMAIL_FIELD);

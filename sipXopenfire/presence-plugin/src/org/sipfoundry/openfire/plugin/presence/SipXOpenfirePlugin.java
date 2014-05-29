@@ -330,7 +330,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         server = XMPPServer.getInstance();
 
-        userManager = XMPPServer.getUserManager();
+        userManager = XMPPServer.getInstance().getUserManager();
         presenceManager = server.getPresenceManager();
 
         hostname = server.getServerInfo().getXMPPDomain();
