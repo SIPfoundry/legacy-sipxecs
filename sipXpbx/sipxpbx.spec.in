@@ -11,7 +11,7 @@ Packager: Pingtel <support@pingtel.com>
 Url:      http://www.pingtel.com
 
 BuildRequires: gettext
-BuildRequires: java-devel >= 1.6
+BuildRequires: java-devel >= 1.7
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel

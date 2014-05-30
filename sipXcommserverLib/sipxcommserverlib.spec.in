@@ -24,6 +24,7 @@ BuildRequires: httpd-devel
 BuildRequires: xerces-c-devel >= 2.6.0
 BuildRequires: shadow-utils
 %endif
+BuildRequires:  poco-devel
 
 BuildRequires: mongodb-devel >= 2.0.2
 
@@ -49,6 +50,20 @@ Requires: patch
 # bind-utils required for dig
 Requires: bind-utils
 Requires: sipxsupervisor >= %version
+
+Requires: poco-crypto
+Requires: poco-data
+Requires: poco-foundation
+Requires: poco-mysql
+Requires: poco-net
+Requires: poco-netssl
+Requires: poco-odbc
+Requires: poco-pagecompiler
+Requires: poco-sqlite
+Requires: poco-util
+Requires: poco-xml
+Requires: poco-zip
+
 Obsoletes: %{name}-doc
 
 Prefix: %_prefix

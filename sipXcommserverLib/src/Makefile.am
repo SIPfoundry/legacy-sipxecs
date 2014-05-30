@@ -48,7 +48,8 @@ libsipXcommserver_la_LIBADD = \
 	@ODBC_LIBS@ \
 	sipdb/libsipdb.la \
 	-lboost_regex-mt \
-	-lboost_program_options-mt
+	-lboost_program_options-mt \
+	-lPocoFoundation -lPocoUtil -lPocoNet -lPocoNetSSL -lPocoXML
 
 libsipXcommserver_la_SOURCES = \
     digitmaps/UrlMapping.cpp \
