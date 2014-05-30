@@ -48,18 +48,13 @@ struct RecordConsumer
   KeyValueStore::Records* records;
 };
 
-bool string_starts_with(const std::string& str, const char* key)
-{
-  return str.find(key) == 0;
-}
-
-bool string_ends_with(const std::string& str, const char* key)
+static bool string_ends_with(const std::string& str, const char* key)
 {
   size_t i = str.rfind(key);
   return (i != std::string::npos) && (i == (str.length() - ::strlen(key)));
 }
 
-bool string_wildcard_compare(const char* wild, const std::string& str)
+static bool string_wildcard_compare(const char* wild, const std::string& str)
 {
   const char* string = str.c_str();
 
@@ -95,7 +90,7 @@ bool string_wildcard_compare(const char* wild, const std::string& str)
   return !*wild;
 }
 
-UInt64 getTime()
+static UInt64 getTime()
 {
   struct timeval sTimeVal;
 	gettimeofday( &sTimeVal, NULL );
@@ -115,7 +110,6 @@ T string_to_number(const std::string& str)
 {
   try { return boost::lexical_cast<T>(str);} catch(...){return 0;};
 }
-
 
 static int RecordConsumerCallback(const void *pData,unsigned int nDatalen,void *pUserData)
 {
