@@ -38,8 +38,8 @@ void SipXApplication::showVersionHelp()
   }
 }
 
-SipXApplication::SignalTask::SignalTask(int terminateSignal) : OsTask("SignalTask"),
-                                        _terminateSignal(terminateSignal)
+SipXApplication::SignalTask::SignalTask(int shutdownSignal) : OsTask("SignalTask"),
+                                      _shutdownSignal(shutdownSignal)
 {
   //OS_LOG_DEBUG(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__);
 }
@@ -57,7 +57,7 @@ int SipXApplication::SignalTask::run(void* arg)
 //  OS_LOG_INFO(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__
 //      << " started");
 
-  while (!Os::detail::_is_termination_signal_received() && sigNum != _terminateSignal)
+  while (!Os::detail::_is_termination_signal_received() && sigNum != _shutdownSignal)
   {
     status = awaitSignal(sigNum);
     if (OS_SUCCESS != status)
@@ -81,11 +81,11 @@ int SipXApplication::SignalTask::run(void* arg)
 
 void SipXApplication::startSignalTaskThread()
 {
-  _signalTask.reset(new SignalTask(_signalTaskTerminateSignal));
+  _signalTask.reset(new SignalTask(signalHandlerShutdownSignal));
   _signalTask->start();
 }
 
-void SipXApplication::stopSignalTaskThread()
+void SipXApplication::shutdownSignalTaskThread()
 {
   if (!_signalTask || terminationRequested())
   {
@@ -98,20 +98,20 @@ void SipXApplication::stopSignalTaskThread()
     return;
   }
 
-  int rc = pthread_kill(id, _signalTaskTerminateSignal);
+  int rc = pthread_kill(id, signalHandlerShutdownSignal);
   if (0 != rc)
   {
     OS_LOG_ERROR(FAC_SIP, "SipXApplication::SignalTask::" << __FUNCTION__
-                 << " stopping signal processing thread failed. Error: " << rc);
+                 << " shutting down signal processing thread failed. Error: " << rc);
   }
 }
 
 void SipXApplication::doBlockSignals()
 {
-  _signalTaskTerminateSignal = SIGRTMIN + 1;
-  if (_signalTaskTerminateSignal >= SIGRTMAX)
+  signalHandlerShutdownSignal = SIGRTMIN + 1;
+  if (signalHandlerShutdownSignal >= SIGRTMAX)
   {
-    fprintf(stderr, "Unable to initialize signal task terminate signal\n");
+    fprintf(stderr, "Unable to initialize signal handler shutdown signal\n");
     return;
   }
 

@@ -140,12 +140,12 @@ class SipXApplication
     class SignalTask : public OsTask
     {
     public:
-       SignalTask(int terminateSignal);
+       SignalTask(int shutdownSignal);
        ~SignalTask();
 
        int run(void* arg);
     private:
-       int _terminateSignal;
+       int _shutdownSignal;
     };
 
     SipXApplication();                                       // SipXApplication constructor
@@ -182,7 +182,7 @@ class SipXApplication
     void startSignalTaskThread();
 
     // stops signal processing thread
-    void stopSignalTaskThread();
+    void shutdownSignalTaskThread();
 
     /**
      * Initializes logger
@@ -229,7 +229,7 @@ class SipXApplication
     char** _argv;
     bool _autoDeleteConfig;
     boost::scoped_ptr<SignalTask> _signalTask;
-    int _signalTaskTerminateSignal;
+    int signalHandlerShutdownSignal;
   };
 
 inline SipXApplication& SipXApplication::instance()
@@ -255,7 +255,7 @@ inline SipXApplication::SipXApplication()
     _argv(0),
     _autoDeleteConfig(true),
     _signalTask(0),
-    _signalTaskTerminateSignal(0)
+    signalHandlerShutdownSignal(0)
 {
   _pOsServiceOptions = new OsServiceOptions();
 }
@@ -265,7 +265,7 @@ inline SipXApplication::~SipXApplication()
   if (_autoDeleteConfig)
     delete _pOsServiceOptions;
 
-  stopSignalTaskThread();
+  shutdownSignalTaskThread();
 }
 
 // reload config on sighup
