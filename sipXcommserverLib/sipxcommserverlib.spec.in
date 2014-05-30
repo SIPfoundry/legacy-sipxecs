@@ -50,7 +50,20 @@ Requires: patch
 # bind-utils required for dig
 Requires: bind-utils
 Requires: sipxsupervisor >= %version
-Requires: poco
+
+Requires: poco-crypto
+Requires: poco-data
+Requires: poco-foundation
+Requires: poco-mysql
+Requires: poco-net
+Requires: poco-netssl
+Requires: poco-odbc
+Requires: poco-pagecompiler
+Requires: poco-sqlite
+Requires: poco-util
+Requires: poco-xml
+Requires: poco-zip
+
 Obsoletes: %{name}-doc
 
 Prefix: %_prefix
