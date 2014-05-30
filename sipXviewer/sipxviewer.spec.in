@@ -10,7 +10,7 @@ Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXtools
 
 BuildRequires: automake
-BuildRequires: java-devel >= 1.6
+BuildRequires: java-devel >= 1.7
 BuildRequires: sipxcommons >= %version
 
 Source: %name-%version.tar.gz
