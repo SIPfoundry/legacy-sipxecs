@@ -62,16 +62,10 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
             context.put("ignoreDisplayUpdates", true);
         }
         context.put("domainName", Domain.getDomain().getName());
-        List<FreeswitchExtension> freeswitchExtensions = new ArrayList<FreeswitchExtension>();
-        for (FreeswitchExtension extension : extensions) {
-            if (extension.isEnabled()) {
-                freeswitchExtensions.add(extension);
-            }
-        }
         context.put("location", location);
         addAdditionalLocations(context, location);
         context.put("dollar", "$");
-        context.put("freeswitchExtensions", freeswitchExtensions);
+        getFreeswitchExtensions(context, location, extensions);
         write(writer, context);
     }
 
@@ -93,6 +87,16 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
     @Override
     protected String getTemplate() {
         return "freeswitch/default_context.xml.vm";
+    }
+
+    protected void getFreeswitchExtensions(VelocityContext context, Location location, List<FreeswitchExtension> extensions) {
+        List<FreeswitchExtension> freeswitchExtensions = new ArrayList<FreeswitchExtension>();
+        for (FreeswitchExtension extension : extensions) {
+            if (extension.isEnabled()) {
+                freeswitchExtensions.add(extension);
+            }
+        }
+        context.put("freeswitchExtensions", freeswitchExtensions);
     }
 
     private void addAdditionalLocations(VelocityContext context, Location location) {
