@@ -1,10 +1,9 @@
-package org.sipfoundry.openfire.plugin;
+package org.sipfoundry.openfire.sync.job;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.openfire.plugin.job.Job;
 
 public class QueueManager {
     private static Logger logger = Logger.getLogger(QueueManager.class);

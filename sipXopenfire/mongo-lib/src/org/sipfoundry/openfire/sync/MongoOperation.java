@@ -1,4 +1,4 @@
-package org.sipfoundry.openfire.plugin;
+package org.sipfoundry.openfire.sync;
 
 public enum MongoOperation {
     INSERT, UPDATE, DELETE;

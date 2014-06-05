@@ -5,19 +5,25 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.sipfoundry.openfire.plugin.MongoOperation;
+import org.sipfoundry.openfire.plugin.job.JobFactory;
+import org.sipfoundry.openfire.sync.MongoOperation;
+import org.sipfoundry.openfire.sync.listener.MongoOplogListener;
 
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 
-public class ImdbOplogListener extends MongoOplogListener {
+public class ImdbOplogListener extends MongoOplogListener<JobFactory> {
     private static final String WATCHED_NAMESPACE = "imdb.entity";
     private static final String ID = "_id";
     private static final Pattern USER_PATTERN = Pattern.compile("^User\\d+$");
     private static final Pattern GROUP_PATTERN = Pattern.compile("^Group\\d+$");
     private static final List<Pattern> WATCHED_ENTITIES = Arrays.asList(USER_PATTERN, GROUP_PATTERN);
     private static final List<MongoOperation> WATCHED_OPERATIONS = Arrays.asList(MongoOperation.INSERT,
-        MongoOperation.UPDATE, MongoOperation.DELETE);
+            MongoOperation.UPDATE, MongoOperation.DELETE);
+
+    public ImdbOplogListener(JobFactory factory) {
+        setJobFactory(factory);
+    }
 
     @Override
     protected DBObject buildOpLogQuery() {

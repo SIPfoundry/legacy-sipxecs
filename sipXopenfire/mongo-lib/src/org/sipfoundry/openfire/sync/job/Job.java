@@ -1,4 +1,4 @@
-package org.sipfoundry.openfire.plugin.job;
+package org.sipfoundry.openfire.sync.job;
 
 import java.io.Serializable;
 

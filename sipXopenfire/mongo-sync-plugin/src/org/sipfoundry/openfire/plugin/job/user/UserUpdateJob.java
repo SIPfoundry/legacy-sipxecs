@@ -15,7 +15,7 @@ import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.user.UserNotFoundException;
-import org.sipfoundry.openfire.plugin.job.Job;
+import org.sipfoundry.openfire.sync.job.Job;
 import org.xmpp.packet.JID;
 
 public class UserUpdateJob implements Job {

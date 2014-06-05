@@ -17,13 +17,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.sipfoundry.commons.mongo.MongoFactory;
-import org.sipfoundry.openfire.plugin.MongoOperation;
 import org.sipfoundry.openfire.plugin.job.group.GroupDeleteJob;
 import org.sipfoundry.openfire.plugin.job.group.GroupUpdateJob;
 import org.sipfoundry.openfire.plugin.job.user.UserDeleteJob;
 import org.sipfoundry.openfire.plugin.job.user.UserUpdateJob;
 import org.sipfoundry.openfire.plugin.job.vcard.VcardUpdateJob;
 import org.sipfoundry.openfire.provider.CacheHolder;
+import org.sipfoundry.openfire.sync.MongoOperation;
+import org.sipfoundry.openfire.sync.job.AbstractJobFactory;
+import org.sipfoundry.openfire.sync.job.Job;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -32,10 +34,10 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-public class JobFactory {
+public class JobFactory extends AbstractJobFactory {
     private static Logger logger = Logger.getLogger(JobFactory.class);
 
-    public static Job createJob(MongoOperation op, DBObject dbObj, Object id) {
+    public Job createJob(MongoOperation op, DBObject dbObj, Object id) {
         Job job = null;
 
         if (id != null) {

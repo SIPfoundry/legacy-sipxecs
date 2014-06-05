@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  */
-package org.sipfoundry.openfire.plugin.listener;
+package org.sipfoundry.openfire.sync.listener;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 
@@ -13,10 +13,10 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 import org.bson.types.BSONTimestamp;
 import org.sipfoundry.commons.mongo.MongoFactory;
-import org.sipfoundry.openfire.plugin.MongoOperation;
-import org.sipfoundry.openfire.plugin.QueueManager;
-import org.sipfoundry.openfire.plugin.job.Job;
-import org.sipfoundry.openfire.plugin.job.JobFactory;
+import org.sipfoundry.openfire.sync.MongoOperation;
+import org.sipfoundry.openfire.sync.job.AbstractJobFactory;
+import org.sipfoundry.openfire.sync.job.Job;
+import org.sipfoundry.openfire.sync.job.QueueManager;
 
 import com.mongodb.Bytes;
 import com.mongodb.DB;
@@ -25,7 +25,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
-public abstract class MongoOplogListener implements Runnable {
+public abstract class MongoOplogListener<T extends AbstractJobFactory> implements Runnable {
     private static Logger logger = Logger.getLogger(MongoOplogListener.class);
 
     protected static final String RECORD = "o";
@@ -34,6 +34,12 @@ public abstract class MongoOplogListener implements Runnable {
     private static final String OPERATION = "op";
     private static final String TIMESTAMP = "ts";
     private static final String SET_OP = "$set";
+
+    private T m_jobFactory;
+
+    public void setJobFactory(T factory) {
+        m_jobFactory = factory;
+    }
 
     @Override
     public void run() {
@@ -75,8 +81,7 @@ public abstract class MongoOplogListener implements Runnable {
                                 record = partialUpdate;
                             }
                         }
-
-                        Job j = JobFactory.createJob(op, record, id);
+                        Job j = m_jobFactory.createJob(op, record, id);
 
                         // job can be null if the affected object is not in use (e.g. user
                         // update for an offline user - updated data will be read when the

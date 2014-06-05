@@ -1,7 +1,7 @@
 package org.sipfoundry.openfire.plugin.job.group;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.openfire.plugin.job.Job;
+import org.sipfoundry.openfire.sync.job.Job;
 
 public class GroupDeleteJob implements Job {
     private static Logger logger = Logger.getLogger(GroupDeleteJob.class);

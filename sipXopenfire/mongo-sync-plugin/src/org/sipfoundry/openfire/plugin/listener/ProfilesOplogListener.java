@@ -5,16 +5,22 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.openfire.plugin.MongoOperation;
+import org.sipfoundry.openfire.plugin.job.JobFactory;
+import org.sipfoundry.openfire.sync.MongoOperation;
+import org.sipfoundry.openfire.sync.listener.MongoOplogListener;
 
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 
-public class ProfilesOplogListener extends MongoOplogListener {
+public class ProfilesOplogListener extends MongoOplogListener<JobFactory> {
     private static final Logger log = Logger.getLogger(ProfilesOplogListener.class);
     private static final String WATCHED_NAMESPACE = "profiles.fs.files";
     private static final List<MongoOperation> WATCHED_OPERATIONS = Arrays.asList(MongoOperation.INSERT,
             MongoOperation.DELETE);
+
+    public ProfilesOplogListener(JobFactory factory) {
+        setJobFactory(factory);
+    }
 
     @Override
     protected DBObject buildOpLogQuery() {

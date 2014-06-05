@@ -18,7 +18,7 @@ import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.vcard.VCardManager;
 import org.sipfoundry.commons.mongo.MongoFactory;
 import org.sipfoundry.commons.userdb.profile.UserProfileServiceImpl;
-import org.sipfoundry.openfire.plugin.job.Job;
+import org.sipfoundry.openfire.sync.job.Job;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.xmpp.packet.Presence;
 

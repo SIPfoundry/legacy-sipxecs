@@ -6,7 +6,7 @@ import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
-import org.sipfoundry.openfire.plugin.job.Job;
+import org.sipfoundry.openfire.sync.job.Job;
 
 public class GroupUpdateJob implements Job {
     private static Logger logger = Logger.getLogger(GroupUpdateJob.class);
