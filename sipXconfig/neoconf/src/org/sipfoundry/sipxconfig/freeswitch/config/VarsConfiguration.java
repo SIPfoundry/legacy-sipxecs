@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchSettings;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
 
-
 public class VarsConfiguration extends AbstractFreeswitchConfiguration {
     private FeatureManager m_featureManager;
 
@@ -42,7 +41,7 @@ public class VarsConfiguration extends AbstractFreeswitchConfiguration {
         write(writer, context);
     }
 
-    private String getFsDomain(Location location) {
+    protected String getFsDomain(Location location) {
         if (m_featureManager.isFeatureEnabled(Ivr.FEATURE, location)) {
             return "vm." + location.getFqdn();
         }
@@ -57,5 +56,10 @@ public class VarsConfiguration extends AbstractFreeswitchConfiguration {
     @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
+    }
+
+    @Required
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
     }
 }
