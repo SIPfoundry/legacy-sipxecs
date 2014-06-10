@@ -82,7 +82,7 @@ void MongoOpLog::run()
                         " starting MongoOpLog thread");
 
   _isRunning = true;
-  _pThread = new boost::thread(boost::bind(&MongoOpLog::internal_run, this));
+  _pThread = new boost::thread(boost::bind(&MongoOpLog::internal_run_esafe, this));
 }
 
 void MongoOpLog::stop()
@@ -199,6 +199,53 @@ bool MongoOpLog::createFirstQuery(mongo::BSONObj& lastEntry,
   createQuery(lastEntry, query);
 
   return true;
+}
+
+void MongoOpLog::internal_run_esafe()
+{
+  mongo::BSONObj lastEntry;
+  mongo::BSONObj query;
+
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::internal_run_esafe:"
+              << " entering");
+
+  while (_isRunning)
+  {
+    try
+    {
+      internal_run();
+    }
+    #ifdef MONGO_assert
+    catch (mongo::DBException& e)
+    {
+      OS_LOG_ERROR( FAC_SIP, "MongoOpLog::internal_run_esafe Mongo DB Exception: "
+          << e.what());
+    }
+    #endif //MONGO_assert
+    catch (boost::exception& e)
+    {
+      OS_LOG_ERROR( FAC_SIP, "MongoOpLog::internal_run_esafe Boost Library Exception: "
+          << boost::diagnostic_information(e));
+    }
+    catch (std::exception& e)
+    {
+      OS_LOG_ERROR( FAC_SIP, "MongoOpLog::internal_run_esafe Standard Library Exception: "
+          << e.what());
+    }
+    catch (...)
+    {
+      OS_LOG_ERROR( FAC_SIP, "MongoOpLog::internal_run_esafe Exception: Unknown exception");
+    }
+
+    // reset timestamp to check for entries right after the exception was triggered
+    _startFromTimestamp = OsDateTime::getSecsSinceEpoch();
+    // sleep for some time to give mongo time to recover
+    sleep(_querySleepTime);
+
+  }
+
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::internal_run_esafe:"
+              << " exiting");
 }
 
 void MongoOpLog::internal_run()

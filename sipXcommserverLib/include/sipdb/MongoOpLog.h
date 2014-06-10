@@ -93,6 +93,7 @@ public:
 protected:
   // The main function ran by the monitor thread
   void internal_run();
+  void internal_run_esafe();
 
   // As long as the cursor is valid (not dead) this function process every new
   // entry added to "local.oplog.rs" collection beginning with the lastEntry
