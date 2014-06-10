@@ -22,10 +22,10 @@ import org.springframework.context.ApplicationContextAware;
  * Time task that runs once a day and checks if DST will change during next 24 hours. If DST
  * change is going to happen, it schedules notification that regenerates aliases.
  */
-public class CheckDST extends TimerTask implements ApplicationContextAware {
-
+public class CheckDST implements ApplicationContextAware {
     private ApplicationContext m_applicationContext;
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }
@@ -34,13 +34,14 @@ public class CheckDST extends TimerTask implements ApplicationContextAware {
         Timer timer = new Timer();
 
         timer.schedule(new TimerTask() {
+            @Override
             public void run() {
                 m_applicationContext.publishEvent(new DSTChangeEvent(this));
             }
         }, dstChangeTime);
     }
 
-    public void run() {
+    public void checkDst() {
         TimeZone tzLocal = TimeZone.getDefault();
         Date dstChangeTime = findDstChangeTime(tzLocal, new Date());
         if (dstChangeTime != null) {
