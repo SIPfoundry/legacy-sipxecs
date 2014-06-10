@@ -33,6 +33,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-pool-1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cssparser-0.9.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-core-3.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-rs-service-description-3.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-transports-http-3.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/woodstox-core-asl-4.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dbunit-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dnsjava-2.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
@@ -56,6 +60,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/javax.servlet.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/javax.servlet.jsp.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxen-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/javax.ws.rs-api-2.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxrpc.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jettison-1.1.jar"/>
@@ -133,8 +138,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/jradius-dictionary-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gnu-crypto-2.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mongo-2.11.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jackson-core-asl-1.9.13.jar" sourcepath="/home/dhubler/libsrc/jackson-core-asl-1.9.11-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar" sourcepath="/home/dhubler/libsrc/jackson-mapper-asl-1.9.11-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-core-asl-1.9.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/easymock-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/easymockclassextension-2.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/freemarker-2.3.19.jar"/>

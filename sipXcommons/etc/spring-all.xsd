@@ -5,4 +5,5 @@
     <xs:import namespace="http://www.springframework.org/schema/beans" schemaLocation="spring-beans-2.0.xsd" />
     <xs:import namespace="http://www.springframework.org/schema/task" schemaLocation="spring-task-3.1.xsd" />
     <xs:import namespace="http://www.springframework.org/schema/security" schemaLocation="spring-security-3.1.xsd" />
+    <xs:import namespace="http://cxf.apache.org/jaxrs" schemaLocation="jaxrs.xsd" />
 </xs:schema>

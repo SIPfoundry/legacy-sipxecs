@@ -7,4 +7,5 @@ dist_conf_DATA = \
 	spring-util-2.0.xsd \
 	spring-task-3.1.xsd \
 	spring-security-3.1.xsd \
-	spring-all.xsd
+	spring-all.xsd \
+	jaxrs.xsd

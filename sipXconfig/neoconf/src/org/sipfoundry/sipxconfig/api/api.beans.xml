@@ -1,0 +1,39 @@
+<beans xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation=" 
+ http://www.springframework.org/schema/beans
+ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+ http://www.springframework.org/schema/util
+ http://www.springframework.org/schema/util/spring-util-2.0.xsd
+ http://cxf.apache.org/jaxrs
+ http://cxf.apache.org/schemas/jaxrs.xsd">
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <jaxrs:server address="/" id="connectionService">
+        <jaxrs:serviceBeans>
+            <ref bean="phoneRestApi"/>
+            <ref bean="phoneLineRestApi"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
+            <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider"/>
+            <bean class="org.sipfoundry.sipxconfig.api.SipxecsExceptionMapper"/>
+        </jaxrs:providers>
+        <jaxrs:extensionMappings>
+            <entry key="xml" value="application/xml" />
+            <entry key="json" value="application/json" />
+        </jaxrs:extensionMappings>
+    </jaxrs:server>
+
+    <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneApiImpl" id="phoneRestApi">
+        <property name="phoneContext" ref="phoneContext"/>
+        <property name="settingDao" ref="settingDao" />
+        <property name="phoneModelSource" ref="phoneModelSource" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneLineApiImpl" id="phoneLineRestApi">
+        <property name="phoneContext" ref="phoneContext"/>
+        <property name="coreContext" ref="coreContext"/>
+    </bean>
+</beans>

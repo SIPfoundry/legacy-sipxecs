@@ -81,7 +81,25 @@ sipxconfig_neoconf_PKGS = \
 	jradius-core \
 	jradius-dictionary \
 	gnu-crypto \
-	smack
+	smack \
+	FastInfoset \
+	cxf-core \
+	cxf-rt-rs-service-description \
+	cxf-rt-transports-http \
+	cxf-rt-frontend-jaxrs \
+	cxf-rt-rs-extension-providers \
+	cxf-tools-wadlto-jaxrs \
+	javax.ws.rs-api \
+	neethi \
+	xmlschema-core \
+	wsdl4j \
+	jackson-jaxrs \
+	woodstox-core-asl \
+	jaxb-api \
+	jaxb-core \
+	jaxb-impl \
+	stax2-api \
+	jcl-over-slf4j
 
 sipxconfig_web_PKGS = \
 	$(sipxconfig_neoconf_PKGS) \
