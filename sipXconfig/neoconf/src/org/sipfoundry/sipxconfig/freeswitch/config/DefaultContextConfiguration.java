@@ -89,7 +89,8 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
         return "freeswitch/default_context.xml.vm";
     }
 
-    protected void getFreeswitchExtensions(VelocityContext context, Location location, List<FreeswitchExtension> extensions) {
+    protected void getFreeswitchExtensions(VelocityContext context, Location location,
+        List<FreeswitchExtension> extensions) {
         List<FreeswitchExtension> freeswitchExtensions = new ArrayList<FreeswitchExtension>();
         for (FreeswitchExtension extension : extensions) {
             if (extension.isEnabled()) {

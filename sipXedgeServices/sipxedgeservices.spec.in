@@ -40,10 +40,10 @@ Requires: sipxtacklib       >= %version
 Requires: sipxresiprocate-libs    >= %version
 Requires: sipxesllib >= %version
 Requires: libjsonrpccpp
-Requires: freeswitch_edge
 Requires: sipxedgeservices-config
 Requires: monit
-
+Requires: freeswitch
+Requires: freeswitch-lang-en
 
 
 

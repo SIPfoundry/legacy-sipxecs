@@ -17,7 +17,7 @@ EDGE_CONFIG=/etc/sipxpbx/edge/config
 PID_FROM_PATH=${EDGE_CONFIG}/pid_from_path.pl
 
 FREESWITCH_PIDFILE=/var/log/sipxpbx/edge/freeswitch.pid
-FREESWITCH_PROC=/opt/sipxecs/edge/freeswitch/bin/freeswitch
+FREESWITCH_PROC=/usr/bin/freeswitch
 
 
 FREESWITCH_START_CMD="${FREESWITCH_PROC} -nonat -nonatmap -nosql -ncwait -conf /etc/sipxpbx/edge/config -log /var/log/sipxpbx/edge -run /var/log/sipxpbx/edge -db /var/log/sipxpbx/edge"

@@ -40,7 +40,8 @@ bundle agent sipxfreeswitch_config {
          "autoload_configs/switch.conf.xml",
          "autoload_configs/logfile.conf.xml",
          "autoload_configs/local_stream.conf.xml",
-        "autoload_configs/ivr.conf.xml"
+        "autoload_configs/ivr.conf.xml",
+        "autoload_configs/erlang_event.conf.xml"
       };
 
   files:

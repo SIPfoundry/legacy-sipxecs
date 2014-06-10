@@ -125,8 +125,8 @@ edge_setup()
         sed -i "s:%SIPXEDGE_WS_PORT%:${SIPXEDGE_WS_PORT}:g" ./sipxwebrtcd
         sed -i "s:%SIPXEDGE_WS_TCP_UDP_PORT%:${SIPXEDGE_WS_TCP_UDP_PORT}:g" ./sipxwebrtcd
         sed -i "s:%SIPXEDGE_BRIDGE_TCP_UDP_PORT%:${SIPXEDGE_BRIDGE_TCP_UDP_PORT}:g" ./sipxwebrtcd
-        sed -i "s:%SIPXEDGE_PROXY_ADDRESS%:${SIPXEDGE_PROXY_ADDRESS}:g" /usr/bin/sipxwebrtcd
-        sed -i "s:%SIPXEDGE_REALM%:${SIPXEDGE_REALM}:g" /usr/bin/sipxwebrtcd
+        sed -i "s:%SIPXEDGE_PROXY_ADDRESS%:${SIPXEDGE_PROXY_ADDRESS}:g" ./sipxwebrtcd
+        sed -i "s:%SIPXEDGE_REALM%:${SIPXEDGE_REALM}:g" ./sipxwebrtcd
 
         #
         # Set file permissions

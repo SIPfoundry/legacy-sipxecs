@@ -52,7 +52,6 @@ sipx_extra = \
   sipXcdrLog \
   sipXevent \
   sipXrecording \
-  sipXsbc \
   sipXhomer \
   sipXcallQueue
 
@@ -106,14 +105,12 @@ lib_all = \
   rubygem-file-tail \
   erlang \
   freeswitch \
-  freeswitch_edge \
   hiredis \
   net-snmp \
   homer \
   openfire \
   ruby-dbi \
   cfengine \
-  oss_core \
   rubygem-net-ssh \
   rubygem-net-sftp \
   ruby-postgres \
