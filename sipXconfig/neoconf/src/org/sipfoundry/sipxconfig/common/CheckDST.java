@@ -15,6 +15,8 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -23,6 +25,8 @@ import org.springframework.context.ApplicationContextAware;
  * change is going to happen, it schedules notification that regenerates aliases.
  */
 public class CheckDST implements ApplicationContextAware {
+    private static final Log LOG = LogFactory.getLog(CheckDST.class);
+
     private ApplicationContext m_applicationContext;
 
     @Override
@@ -36,15 +40,18 @@ public class CheckDST implements ApplicationContextAware {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
+                LOG.info("Triggering DST event...");
                 m_applicationContext.publishEvent(new DSTChangeEvent(this));
             }
         }, dstChangeTime);
     }
 
     public void checkDst() {
+        LOG.info("Checking DST...");
         TimeZone tzLocal = TimeZone.getDefault();
         Date dstChangeTime = findDstChangeTime(tzLocal, new Date());
         if (dstChangeTime != null) {
+            LOG.info("DST change detected at " + dstChangeTime.toString());
             setupNotifyTask(dstChangeTime);
         }
     }
