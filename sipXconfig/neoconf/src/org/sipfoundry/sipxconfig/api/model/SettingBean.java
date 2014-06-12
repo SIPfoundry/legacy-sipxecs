@@ -14,22 +14,27 @@
  */
 package org.sipfoundry.sipxconfig.api.model;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 
 @XmlRootElement(name = "Setting")
 @XmlType(propOrder = {
-        "path", "type", "value", "defaultValue", "label", "description"
+        "path", "type", "options", "value", "defaultValue", "label", "description"
         })
 public class SettingBean {
     private String m_path;
     private String m_type;
+    private Map<String, String> m_options;
     private String m_defaultValue;
     private String m_value;
     private String m_label;
@@ -49,6 +54,14 @@ public class SettingBean {
 
     public void setType(String type) {
         m_type = type;
+    }
+
+    public Map<String, String> getOptions() {
+        return m_options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        m_options = options;
     }
 
     public String getDefaultValue() {
@@ -86,7 +99,17 @@ public class SettingBean {
     public static SettingBean convertSetting(Setting setting, Locale locale) {
         SettingBean bean = new SettingBean();
         bean.setPath(setting.getPath());
-        bean.setType(setting.getType().getName());
+        SettingType type = setting.getType();
+        bean.setType(type.getName());
+        if (type instanceof EnumSetting) {
+            Map<String, String> settingOptions = new HashMap<String, String>();
+            for (Map.Entry<String, String> entry : ((EnumSetting) type).getEnums().entrySet())
+            {
+                String optionLabel = ((EnumSetting) type).getLabelKey(setting, entry.getValue());
+                settingOptions.put(entry.getKey(), getMessage(setting.getMessageSource(), optionLabel, locale));
+            }
+            bean.setOptions(settingOptions);
+        }
         bean.setDefaultValue(setting.getDefaultValue());
         bean.setValue(setting.getValue());
         bean.setLabel(getMessage(setting.getMessageSource(), setting.getLabelKey(), locale));

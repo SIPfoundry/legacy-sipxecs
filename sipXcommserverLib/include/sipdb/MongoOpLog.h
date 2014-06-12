@@ -85,7 +85,7 @@ public:
   void registerCallback(OpLogType type, OpLogCallBack cb);
 
   // Starts monitor thread and sets _isRunning variable true
-  void run();
+  bool run();
 
   // Sets _isRunning variable false and then waits for the monitor thread to finish
   void stop();
@@ -105,8 +105,7 @@ protected:
 
   // If startFromTimestamp is set it creates lastEntry BSONElement from it and
   // is calls createQuery
-  bool createFirstQuery(mongo::BSONObj& lastEntry,
-                        mongo::BSONObj& query);
+  bool prepareFirstEntry(mongo::BSONObj& lastEntry);
 
   // Run all registered callbacks
   void runCallBacks(const mongo::BSONObj& bSONObj);
@@ -135,8 +134,11 @@ protected:
   // An internally used map that contain a mapping between operation name and opLogType
   OpLogDataMap _opLogDataMap;
 
+  mongo::BSONObj _lastEntry;
+
 private:
   std::string _ns;
+  static const unsigned int EXCEPTION_RECOVER_TIME_SEC = 1;
 };
 
 
