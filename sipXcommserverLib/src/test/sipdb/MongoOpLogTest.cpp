@@ -132,7 +132,6 @@ public:
 
   void waitUntilDbDataIsUpdated(MongoDB::ScopedDbConnectionPtr& pConn, DbData& dbData)
   {
-    int seconds = 0;
     mongo::BSONObj bSONObj = BSON(dbData.name_fld() << dbData.getName() <<
                                   dbData.value_fld() << dbData.getValue());
 

@@ -76,13 +76,23 @@ void MongoOpLog::registerCallback(OpLogType type, OpLogCallBack cb)
   _opLogCbVectors[type].push_back(cb);
 }
 
-void MongoOpLog::run()
+bool MongoOpLog::run()
 {
   OS_LOG_INFO(FAC_SIP, "MongoOpLog::run:" <<
                         " starting MongoOpLog thread");
 
+  bool rc = prepareFirstEntry(_lastEntry);
+  if (false == rc)
+  {
+    OS_LOG_ERROR(FAC_SIP, "MongoOpLog::run" <<
+                 " exited with error");
+    return rc;
+  }
+
   _isRunning = true;
   _pThread = new boost::thread(boost::bind(&MongoOpLog::internal_run_esafe, this));
+
+  return true;
 }
 
 void MongoOpLog::stop()
@@ -166,10 +176,9 @@ void MongoOpLog::createQuery(const mongo::BSONObj& lastEntry, mongo::BSONObj& qu
   query = queryBSONObjBuilder.obj();
 }
 
-bool MongoOpLog::createFirstQuery(mongo::BSONObj& lastEntry,
-                                  mongo::BSONObj& query)
+bool MongoOpLog::prepareFirstEntry(mongo::BSONObj& lastEntry)
 {
-  OS_LOG_INFO(FAC_SIP, "MongoOpLog::createFirstQuery:" <<
+  OS_LOG_INFO(FAC_SIP, "MongoOpLog::prepareFirstEntry:" <<
                         " entering");
 
   if (_startFromTimestamp == 0)
@@ -188,24 +197,18 @@ bool MongoOpLog::createFirstQuery(mongo::BSONObj& lastEntry,
     unsigned long long lastEntryTimeStamp = lastEntry[ts_fld()].timestampTime();
     if (_startFromTimestamp * MULTIPLIER != lastEntryTimeStamp)
     {
-      OS_LOG_ERROR(FAC_SIP, "MongoOpLog::createFirstQuery" <<
+      OS_LOG_ERROR(FAC_SIP, "MongoOpLog::prepareFirstEntry" <<
                             " time stamps are different " <<
                             _startFromTimestamp * MULTIPLIER << lastEntryTimeStamp);
       return false;
     }
   }
 
-  // WARNING: BSONObj must stay in scope for the life of the BSONElement
-  createQuery(lastEntry, query);
-
   return true;
 }
 
 void MongoOpLog::internal_run_esafe()
 {
-  mongo::BSONObj lastEntry;
-  mongo::BSONObj query;
-
   OS_LOG_INFO(FAC_SIP, "MongoOpLog::internal_run_esafe:"
               << " entering");
 
@@ -237,11 +240,13 @@ void MongoOpLog::internal_run_esafe()
       OS_LOG_ERROR( FAC_SIP, "MongoOpLog::internal_run_esafe Exception: Unknown exception");
     }
 
-    // reset timestamp to check for entries right after the exception was triggered
-    _startFromTimestamp = OsDateTime::getSecsSinceEpoch();
-    // sleep for some time to give mongo time to recover
-    sleep(_querySleepTime);
-
+    if (_isRunning)
+    {
+      // reset timestamp to check for entries right after the exception was triggered
+      _startFromTimestamp = OsDateTime::getSecsSinceEpoch();
+      // sleep for some time to give mongo time to recover
+      sleep(EXCEPTION_RECOVER_TIME_SEC);
+    }
   }
 
   OS_LOG_INFO(FAC_SIP, "MongoOpLog::internal_run_esafe:"
@@ -250,19 +255,12 @@ void MongoOpLog::internal_run_esafe()
 
 void MongoOpLog::internal_run()
 {
-  mongo::BSONObj lastEntry;
-  mongo::BSONObj query;
-
   OS_LOG_INFO(FAC_SIP, "MongoOpLog::internal_run:"
               << " entering");
 
-  bool rc = createFirstQuery(lastEntry, query);
-  if (false == rc)
-  {
-    OS_LOG_ERROR(FAC_SIP, "MongoOpLog::createFirstQuery" <<
-                 " exited with error");
-    return;
-  }
+  mongo::BSONObj query;
+  // WARNING: BSONObj must stay in scope for the life of the BSONElement
+  createQuery(_lastEntry, query);
 
   MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 
@@ -273,13 +271,13 @@ void MongoOpLog::internal_run()
     std::auto_ptr<mongo::DBClientCursor> cursor = pConn->get()->query(_ns, query, 0, 0, 0,
                  mongo::QueryOption_CursorTailable | mongo::QueryOption_AwaitData );
 
-    bool rc = processQuery(cursor.get(), lastEntry);
+    bool rc = processQuery(cursor.get(), _lastEntry);
     if (false == rc)
     {
       break;
     }
 
-    createQuery(lastEntry, query);
+    createQuery(_lastEntry, query);
   }
 
   pConn->done();
