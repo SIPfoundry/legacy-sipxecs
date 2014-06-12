@@ -15,6 +15,7 @@
 package org.sipfoundry.sipxconfig.api.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ import org.sipfoundry.sipxconfig.api.model.PhoneBean;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean.GroupBean;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean.GroupList;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean.ModelBean;
+import org.sipfoundry.sipxconfig.api.model.PhoneBean.ModelList;
 import org.sipfoundry.sipxconfig.api.model.PhoneList;
 import org.sipfoundry.sipxconfig.api.model.SettingsList;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
@@ -56,6 +58,15 @@ public class PhoneApiImpl implements PhoneApi {
     private Response buildPhoneList(List<Phone> phones) {
         if (phones != null) {
             return Response.ok().entity(PhoneList.convertPhoneList(phones)).build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response getPhoneModels() {
+        Collection<PhoneModel> models = m_modelSource.getModels();
+        if (models != null) {
+            return Response.ok().entity(ModelList.convertModelList(models)).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }

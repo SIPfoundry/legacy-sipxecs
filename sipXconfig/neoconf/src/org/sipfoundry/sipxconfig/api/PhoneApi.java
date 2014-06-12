@@ -47,6 +47,10 @@ public interface PhoneApi {
     })
     public Response newPhone(@Description("Phone bean to save") PhoneBean phone);
 
+    @Path("models")
+    @GET
+    public Response getPhoneModels();
+
     @Path("start/{start}/pageSize/{pageSize}")
     @GET
     public Response getOrderedPhones(@Description("First Phone row") @PathParam("start") Integer startId,
