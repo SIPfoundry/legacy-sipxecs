@@ -1,12 +1,18 @@
 <beans xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xsi:schemaLocation=" 
  http://www.springframework.org/schema/beans
  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
  http://www.springframework.org/schema/util
  http://www.springframework.org/schema/util/spring-util-2.0.xsd
  http://cxf.apache.org/jaxrs
- http://cxf.apache.org/schemas/jaxrs.xsd">
+ http://cxf.apache.org/schemas/jaxrs.xsd
+ http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd
+ http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
@@ -36,4 +42,18 @@
         <property name="phoneContext" ref="phoneContext"/>
         <property name="coreContext" ref="coreContext"/>
     </bean>
+
+    <mvc:annotation-driven />
+    <mvc:view-controller path="/phoneapp" view-name="/ws-phone/index.html"/>
+    <mvc:resources mapping="/resources/**" location="/ws-resources/" />
+
+    <context:component-scan base-package="org.sipfoundry.sipxconfig.websocket" />
+
+    <websocket:message-broker application-destination-prefix="/app">
+      <websocket:stomp-endpoint path="/phone">
+        <websocket:sockjs/>
+      </websocket:stomp-endpoint>
+      <websocket:simple-broker prefix="/topic"/>
+    </websocket:message-broker>
+
 </beans>

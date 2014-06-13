@@ -187,5 +187,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/websocket-common-9.1.5.v20140505.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/websocket-server-9.1.5.v20140505.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/websocket-servlet-9.1.5.v20140505.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-messaging-4.0.3.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-websocket-4.0.3.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

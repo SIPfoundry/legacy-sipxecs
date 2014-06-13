@@ -155,6 +155,7 @@ context_SRC = $(shell cd $(srcdir)/context; find . -type f \( \
 	  -o -name '*.properties' \
 	  -o -name '*.html' \
 	  -o -name '*.script' \
+      -o -name '*.js' \	  
 	  -o -name '*.xml' \
 	  $(context_TESTPAGE) \
 	\))

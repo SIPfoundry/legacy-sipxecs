@@ -99,7 +99,9 @@ sipxconfig_neoconf_PKGS = \
 	jaxb-core \
 	jaxb-impl \
 	stax2-api \
-	jcl-over-slf4j
+	jcl-over-slf4j \
+	spring-messaging \
+    spring-websocket
 
 sipxconfig_web_PKGS = \
 	$(sipxconfig_neoconf_PKGS) \
@@ -126,6 +128,11 @@ sipxconfig_web_PKGS = \
 	jetty-deploy \
 	jetty-io \
 	jetty-webapp \
+	websocket-api \
+	websocket-client \
+	websocket-common \
+	websocket-server \
+	websocket-servlet \	
 	javax.servlet-api \
 	javax.servlet.jsp-api \
 	jta \
@@ -135,5 +142,7 @@ sipxconfig_web_PKGS = \
 	tapestry-annotations \
 	tapestry-contrib \
 	tapestry-framework \
-	xpp3
-
+	xpp3 \
+	jackson-core \
+	jackson-databind \
+	jackson-annotations
