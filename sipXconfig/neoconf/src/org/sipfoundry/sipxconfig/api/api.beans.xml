@@ -23,6 +23,7 @@
             <ref bean="phoneLineRestApi"/>
             <ref bean="ftpRestApi"/>
             <ref bean="serverRestApi"/>
+            <ref bean="registrationRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -53,6 +54,12 @@
         <property name="snmpManager" ref="snmpManager"/>
         <property name="jobContext" ref="jobContext"/>
         <property name="featureManager" ref="featureManager"/>
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.RegistrationApiImpl" id="registrationRestApi">
+        <property name="registrationContext" ref="registrationContext"/>
+        <property name="coreContext" ref="coreContext"/>
+        <property name="phoneContext" ref="phoneContext"/>
+        <property name="locationsManager" ref="locationsManager"/>
     </bean>
 
     <mvc:annotation-driven />

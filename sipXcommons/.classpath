@@ -36,6 +36,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/cxf-core-3.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-rs-service-description-3.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-transports-http-3.0.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cxf-rt-frontend-jaxrs-3.0.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/woodstox-core-asl-4.3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dbunit-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dnsjava-2.0.6.jar"/>
@@ -140,6 +141,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/mongo-2.11.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-core-asl-1.9.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-jaxrs-1.9.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/easymock-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/easymockclassextension-2.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/freemarker-2.3.19.jar"/>
@@ -151,7 +153,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/spring-context-4.0.3.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-core-4.0.3.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-expression-4.0.3.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jackson-core-2.3.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-aop-4.0.3.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-context-support-4.0.3.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-security-config-3.2.3.RELEASE.jar"/>
@@ -182,12 +183,12 @@
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-log4j12-1.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-web-4.0.3.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-webmvc-4.0.3.RELEASE.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-websocket-4.0.3.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/websocket-api-9.1.5.v20140505.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/websocket-client-9.1.5.v20140505.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/websocket-common-9.1.5.v20140505.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/websocket-server-9.1.5.v20140505.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/websocket-servlet-9.1.5.v20140505.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-messaging-4.0.3.RELEASE.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/spring-websocket-4.0.3.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

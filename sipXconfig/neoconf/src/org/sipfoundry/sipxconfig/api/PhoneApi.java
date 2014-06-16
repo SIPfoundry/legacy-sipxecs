@@ -23,6 +23,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,7 +40,8 @@ public interface PhoneApi {
     static final String PHONE_RES = "phone";
 
     @GET
-    public Response getPhones();
+    public Response getPhones(@Description("First Phone row") @QueryParam("start") Integer startId,
+            @Description("Number of phones to be returned") @QueryParam("limit") Integer limit);
 
     @POST
     @Consumes({
@@ -50,11 +52,6 @@ public interface PhoneApi {
     @Path("models")
     @GET
     public Response getPhoneModels();
-
-    @Path("start/{start}/pageSize/{pageSize}")
-    @GET
-    public Response getOrderedPhones(@Description("First Phone row") @PathParam("start") Integer startId,
-            @Description("Number of phones to be returned") @PathParam("pageSize") Integer pageSize);
 
     @Path("{phoneId}")
     @GET

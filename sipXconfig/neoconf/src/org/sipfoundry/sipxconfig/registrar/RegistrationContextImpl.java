@@ -12,13 +12,13 @@ package org.sipfoundry.sipxconfig.registrar;
 import static org.sipfoundry.commons.mongo.MongoConstants.CALL_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.EXPIRATION_TIME;
 import static org.sipfoundry.commons.mongo.MongoConstants.INSTRUMENT;
-import static org.sipfoundry.commons.mongo.MongoConstants.PRIMARY;
 import static org.sipfoundry.commons.mongo.MongoConstants.REG_CONTACT;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.User;
@@ -38,6 +38,7 @@ public class RegistrationContextImpl implements RegistrationContext {
     private static final String EXPIRED = "expired";
     private static final String IDENTITY = "identity";
     private static final String URI = "uri";
+    private static final String LOCAL_ADDRESS = "localAddress";
     private static final String PATTERN_ALL = ".*";
     private MongoTemplate m_nodedb;
     private DomainManager m_domainManager;
@@ -47,29 +48,88 @@ public class RegistrationContextImpl implements RegistrationContext {
      */
     @Override
     public List<RegistrationItem> getRegistrations() {
-        DB datasetDb = m_nodedb.getDb();
-        DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-        DBCursor cursor = registrarCollection.find(QueryBuilder.start(EXPIRED).is(Boolean.FALSE).get());
-        return getItems(cursor);
+        return getItems(getRegistrarCollection().find(getRegistrationsQuery()));
+    }
+
+    @Override
+    public List<RegistrationItem> getRegistrations(Integer start, Integer count) {
+        return getItems(getRegistrarCollection().find(getRegistrationsQuery()).skip(start).limit(count));
     }
 
     @Override
     public List<RegistrationItem> getRegistrationsByUser(User user) {
-        DB datasetDb = m_nodedb.getDb();
-        DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-        DBCursor cursor = registrarCollection.find(QueryBuilder.start(IDENTITY)
-                .is(user.getIdentity(m_domainManager.getDomainName())).and(EXPIRED).is(Boolean.FALSE).get());
-        return getItems(cursor);
+        return getItems(getRegistrarCollection().find(getUserQuery(user)));
     }
 
     @Override
-    public DBCursor getRegistrationsByLineId(String line) {
-        Pattern linePattern = Pattern.compile("sip:" + line + "@.*");
-        DB datasetDb = m_nodedb.getDb();
-        DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-        DBCursor cursor = registrarCollection.find(QueryBuilder.start(URI).regex(linePattern).and(EXPIRED)
-                .is(Boolean.FALSE).get());
-        return cursor;
+    public List<RegistrationItem> getRegistrationsByUser(User user, Integer start, Integer count) {
+        return getItems(getRegistrarCollection().find(getUserQuery(user)).skip(start).limit(count));
+    }
+
+    @Override
+    public List<RegistrationItem> getRegistrationsByLineId(String line) {
+        return getItems(getRegistrarCollection().find(getLineQuery(line)));
+    }
+
+    @Override
+    public List<RegistrationItem> getRegistrationsByMac(String mac) {
+        return getItems(getRegistrarCollection().find(getMacQuery(mac)));
+    }
+
+    @Override
+    public List<RegistrationItem> getRegistrationsByIp(String ip) {
+        return getItems(getRegistrarCollection().find(getIpQuery(ip)));
+    }
+
+    @Override
+    public List<RegistrationItem> getRegistrationsByServer(String server) {
+        return getItems(getRegistrarCollection().find(getServerQuery(server)));
+    }
+
+    @Override
+    public List<RegistrationItem> getRegistrationsByCallId(String callId) {
+        return getItems(getRegistrarCollection().find(getCallIdQuery(callId)));
+    }
+
+    @Override
+    public void dropRegistrationsByUser(User user) {
+        getRegistrarCollection().remove(getUserQuery(user));
+
+    }
+
+    @Override
+    public void dropRegistrationsByMac(String mac) {
+        getRegistrarCollection().remove(getMacQuery(mac));
+    }
+
+    @Override
+    public void dropRegistrationsByIp(String ip) {
+        getRegistrarCollection().remove(getIpQuery(ip));
+    }
+
+    @Override
+    public void dropRegistrationsByServer(String server) {
+        getRegistrarCollection().remove(getServerQuery(server));
+    }
+
+    @Override
+    public void dropRegistrationsByCallId(String callId) {
+        getRegistrarCollection().remove(getCallIdQuery(callId));
+    }
+
+    @Override
+    public DBCursor getMongoDbCursorRegistrationsByLineId(String line) {
+        return getRegistrarCollection().find(getLineQuery(line));
+    }
+
+    @Override
+    public DBCursor getMongoDbCursorRegistrationsByMac(String mac) {
+        return getRegistrarCollection().find(getMacQuery(mac));
+    }
+
+    @Override
+    public DBCursor getMongoDbCursorRegistrationsByIp(String ip) {
+        return getRegistrarCollection().find(getIpQuery(ip));
     }
 
     private List<RegistrationItem> getItems(DBCursor cursor) {
@@ -78,7 +138,7 @@ public class RegistrationContextImpl implements RegistrationContext {
             DBObject registration = cursor.next();
             RegistrationItem item = new RegistrationItem();
             item.setContact((String) registration.get(REG_CONTACT));
-            item.setPrimary((String) registration.get(PRIMARY));
+            item.setPrimary(StringUtils.substringBefore((String) registration.get(LOCAL_ADDRESS), "/"));
             // handle change from integer type to long in expiration time
             Object expires = registration.get(EXPIRATION_TIME);
             if (expires instanceof Integer) {
@@ -95,23 +155,41 @@ public class RegistrationContextImpl implements RegistrationContext {
         return items;
     }
 
-    @Override
-    public DBCursor getRegistrationsByMac(String mac) {
-        DB datasetDb = m_nodedb.getDb();
-        DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-        DBCursor cursor = registrarCollection.find(QueryBuilder.start(INSTRUMENT).is(mac).and(EXPIRED)
-                .is(Boolean.FALSE).get());
-        return cursor;
+    private DBObject getRegistrationsQuery() {
+        return QueryBuilder.start(EXPIRED).is(Boolean.FALSE).get();
     }
 
-    @Override
-    public DBCursor getRegistrationsByIp(String ip) {
+    private DBObject getUserQuery(User user) {
+        return QueryBuilder.start(IDENTITY).is(user.getIdentity(m_domainManager.getDomainName())).and(EXPIRED)
+                .is(Boolean.FALSE).get();
+    }
+
+    private DBObject getLineQuery(String line) {
+        Pattern linePattern = Pattern.compile("sip:" + line + "@.*");
+        return QueryBuilder.start(URI).regex(linePattern).and(EXPIRED).is(Boolean.FALSE).get();
+    }
+
+    private DBObject getMacQuery(String mac) {
+        return QueryBuilder.start(INSTRUMENT).is(mac).and(EXPIRED).is(Boolean.FALSE).get();
+    }
+
+    private DBObject getIpQuery(String ip) {
         Pattern ipPattern = Pattern.compile(PATTERN_ALL + ip + PATTERN_ALL);
+        return QueryBuilder.start(CALL_ID).regex(ipPattern).and(EXPIRED).is(Boolean.FALSE).get();
+    }
+
+    private DBCollection getRegistrarCollection() {
         DB datasetDb = m_nodedb.getDb();
-        DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-        DBCursor cursor = registrarCollection.find(QueryBuilder.start(CALL_ID).regex(ipPattern).and(EXPIRED)
-                .is(Boolean.FALSE).get());
-        return cursor;
+        return datasetDb.getCollection(DB_COLLECTION_NAME);
+    }
+
+    private DBObject getServerQuery(String server) {
+        Pattern serverPattern = Pattern.compile(PATTERN_ALL + server + PATTERN_ALL);
+        return QueryBuilder.start(LOCAL_ADDRESS).regex(serverPattern).and(EXPIRED).is(Boolean.FALSE).get();
+    }
+
+    private DBObject getCallIdQuery(String callId) {
+        return QueryBuilder.start(CALL_ID).is(callId).get();
     }
 
     public MongoTemplate getNodedb() {

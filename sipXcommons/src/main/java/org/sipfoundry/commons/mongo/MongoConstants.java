@@ -161,6 +161,7 @@ public interface MongoConstants {
     static final String EXPIRATION_TIME = "expirationTime";
     static final String REG_CONTACT = "contact";
     static final String PRIMARY = "primary";
+    static final String LOCAL_ADDRESS = "localAddress";
     static final String CALL_ID = "callId";
 
     // user voicemail vacation

@@ -46,13 +46,11 @@ public class PhoneApiImpl implements PhoneApi {
     private SettingDao m_settingDao;
 
     @Override
-    public Response getPhones() {
+    public Response getPhones(Integer startId, Integer pageSize) {
+        if (startId != null && pageSize != null) {
+            return buildPhoneList(m_phoneContext.loadPhonesByPage(startId, pageSize));
+        }
         return buildPhoneList(m_phoneContext.loadPhones());
-    }
-
-    @Override
-    public Response getOrderedPhones(Integer startId, Integer pageSize) {
-        return buildPhoneList(m_phoneContext.loadPhonesByPage(startId, pageSize));
     }
 
     private Response buildPhoneList(List<Phone> phones) {

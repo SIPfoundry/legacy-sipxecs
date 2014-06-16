@@ -97,25 +97,31 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
         assertTrue(ri.getContact().indexOf("Doe") > 0);
     }
 
-    public void testGetRegistrationsByMac() throws Exception {
-        DBCursor registrations = m_builder.getRegistrationsByMac("0004f22aa38a");
-        assertFalse(registrations.hasNext());
-        registrations = m_builder.getRegistrationsByMac("0004f2a9b633");
-        assertTrue(registrations.hasNext());
-        BasicDBList list = new BasicDBList();
-        while (registrations.hasNext()) {
-            BasicDBObject registration = (BasicDBObject) registrations.next();
-            list.add(registration);
-        }
-        assertEquals(
-                "[ { \"_id\" : \"2\" , \"contact\" : \"\\\"John Doe\\\"<sip:jane.doe@example.org>\" , \"expirationTime\" : 1299762968 , \"uri\" : \"sip:3001@example.org\" , \"instrument\" : \"0004f2a9b633\" , \"expired\" : false , \"identity\" : \"3001@example.org\" , \"callId\" : \"3f404b64-fc8490c3-6b14ac9a@192.168.2.19\"}]",
-                list.toString());
+    public void testGetRegistrationsByCallId() throws Exception {
+        List registrations = m_builder.getRegistrationsByCallId("3f404b64-fc8490c3-6b14ac9a@192.168.2.19");
+        assertEquals(1, registrations.size());
+        RegistrationItem ri = (RegistrationItem) registrations.get(0);
+        assertEquals("0004f2a9b633", ri.getInstrument());
     }
 
     public void testGetRegistrationsByIp() throws Exception {
-        DBCursor registrations = m_builder.getRegistrationsByIp("192.168.2.21");
+        List registrations = m_builder.getRegistrationsByIp("192.168.2.19");
+        assertEquals(1, registrations.size());
+        RegistrationItem ri = (RegistrationItem) registrations.get(0);
+        assertEquals("0004f2a9b633", ri.getInstrument());
+    }
+
+    public void testGetRegistrationsByMac() throws Exception {
+        List registrations = m_builder.getRegistrationsByMac("0004f2a9b633");
+        assertEquals(1, registrations.size());
+        RegistrationItem ri = (RegistrationItem) registrations.get(0);
+        assertEquals("sip:3001@example.org", ri.getUri());
+    }
+
+    public void testGetCursorRegistrationsByMac() throws Exception {
+        DBCursor registrations = m_builder.getMongoDbCursorRegistrationsByMac("0004f22aa38a");
         assertFalse(registrations.hasNext());
-        registrations = m_builder.getRegistrationsByIp("192.168.2.19");
+        registrations = m_builder.getMongoDbCursorRegistrationsByMac("0004f2a9b633");
         assertTrue(registrations.hasNext());
         BasicDBList list = new BasicDBList();
         while (registrations.hasNext()) {
@@ -127,10 +133,25 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
                 list.toString());
     }
 
-    public void testGetRegistrationsByUid() throws Exception {
-        DBCursor registrations = m_builder.getRegistrationsByLineId("3000");
+    public void testGetCursorRegistrationsByIp() throws Exception {
+        DBCursor registrations = m_builder.getMongoDbCursorRegistrationsByIp("192.168.2.21");
         assertFalse(registrations.hasNext());
-        registrations = m_builder.getRegistrationsByLineId("3001");
+        registrations = m_builder.getMongoDbCursorRegistrationsByIp("192.168.2.19");
+        assertTrue(registrations.hasNext());
+        BasicDBList list = new BasicDBList();
+        while (registrations.hasNext()) {
+            BasicDBObject registration = (BasicDBObject) registrations.next();
+            list.add(registration);
+        }
+        assertEquals(
+                "[ { \"_id\" : \"2\" , \"contact\" : \"\\\"John Doe\\\"<sip:jane.doe@example.org>\" , \"expirationTime\" : 1299762968 , \"uri\" : \"sip:3001@example.org\" , \"instrument\" : \"0004f2a9b633\" , \"expired\" : false , \"identity\" : \"3001@example.org\" , \"callId\" : \"3f404b64-fc8490c3-6b14ac9a@192.168.2.19\"}]",
+                list.toString());
+    }
+
+    public void testGetCursorRegistrationsByUid() throws Exception {
+        DBCursor registrations = m_builder.getMongoDbCursorRegistrationsByLineId("3000");
+        assertFalse(registrations.hasNext());
+        registrations = m_builder.getMongoDbCursorRegistrationsByLineId("3001");
         assertTrue(registrations.hasNext());
         BasicDBList list = new BasicDBList();
         while (registrations.hasNext()) {
