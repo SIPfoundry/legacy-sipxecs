@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:task="http://www.springframework.org/schema/task"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+
+  <bean id="executorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
+    <constructor-arg value="10" />
+  </bean>
+  <task:executor id="threadPoolTaskExecutor" pool-size="10" />
+  <task:annotation-driven executor="executorService" />
 
   <bean id="configChangeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContext" />
@@ -13,10 +22,10 @@
 
   <bean id="systemAuditManager" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.systemaudit.SystemAuditManager" />
-    <property name="target" ref="SystemAuditManagerImpl" />
+    <property name="target" ref="systemAuditManagerImpl" />
   </bean>
 
-  <bean id="SystemAuditManagerImpl" class="org.sipfoundry.sipxconfig.systemaudit.SystemAuditManagerImpl">
+  <bean id="systemAuditManagerImpl" class="org.sipfoundry.sipxconfig.systemaudit.SystemAuditManagerImpl">
     <property name="generalAuditHandler" ref="generalAuditHandler" />
     <property name="featureAuditHandler" ref="featureAuditHandler" />
     <property name="loginLogoutAuditHandler" ref="loginLogoutAuditHandler" />

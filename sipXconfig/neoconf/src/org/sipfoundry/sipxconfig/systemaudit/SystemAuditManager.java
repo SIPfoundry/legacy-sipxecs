@@ -19,6 +19,8 @@ package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
 
+import org.springframework.scheduling.annotation.Async;
+
 /**
  * This interface handles operations like building and saving ConfigChange
  * objects
@@ -27,22 +29,15 @@ public interface SystemAuditManager {
 
     /**
      * Call this method to handle a Config Change Action
-     *
-     * @param entity
-     * @param configChangeType
-     * @param properties
-     * @param oldValues
-     * @param newValues
      */
+    @Async
     public void onConfigChangeAction(Object entity, ConfigChangeAction configChangeType, String[] properties,
             Object[] oldValues, Object[] newValues);
 
     /**
      * This method handles onCollectionUpdate hibernate logic
-     *
-     * @param collection
-     * @param key
      */
+    @Async
     public void onConfigChangeCollectionUpdate(Object collection, Serializable key);
 
 }

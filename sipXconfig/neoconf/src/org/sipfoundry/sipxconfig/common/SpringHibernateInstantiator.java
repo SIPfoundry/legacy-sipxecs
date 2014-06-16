@@ -167,4 +167,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         super.onCollectionUpdate(collection, key);
     }
 
+    public void setSystemAuditManager(SystemAuditManager systemAuditManager) {
+        this.m_systemAuditManager = systemAuditManager;
+    }
 }

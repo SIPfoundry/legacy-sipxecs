@@ -55,7 +55,8 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     }
 
     /**
-     * here we only pinpoint what feature are NEWLY enabled or disabled
+     * Called before enabling or disabling features.
+     * Here we flag which features are marked for enabling or disabling
      */
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
@@ -66,6 +67,11 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
         }
     }
 
+    /**
+     * Called after enabling or disabling features.
+     * Here we know for sure which feature suffered a status change,
+     * so we persist a config change action only on those features that are consistent with the precommit request.
+     */
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
         try {
@@ -75,6 +81,9 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
         }
     }
 
+    /**
+     * Called for Login/Logout events
+     */
     @Override
     public void onApplicationEvent(ApplicationEvent authEvent) {
         try {
@@ -93,6 +102,10 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
         }
     }
 
+    /**
+     * This method only handles UserProfile saves, which don't go through
+     * hibernate but are persisted in mongo
+     */
     @Override
     public void onSave(Object entity) {
         // This is a workaround for handling UserProfile which don't go through hibernate
@@ -108,6 +121,10 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
         }
     }
 
+    /**
+     * Called when a delete action is done in hibernate
+     * This method is run in a different thread.
+     */
     @Override
     public void onDelete(Object entity) {
         onConfigChangeAction(entity, ConfigChangeAction.DELETED, null, null, null);

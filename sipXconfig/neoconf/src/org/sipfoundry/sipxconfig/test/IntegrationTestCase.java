@@ -220,6 +220,10 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         m_entityInterceptor = entityInterceptor;
     }
 
+    public SpringHibernateInstantiator getEntityInterceptor() {
+        return m_entityInterceptor;
+    }
+
     /**
      * Modifies a concrete object from the spring context.  Any modifications will be be
      * rolled back in the tearDown
