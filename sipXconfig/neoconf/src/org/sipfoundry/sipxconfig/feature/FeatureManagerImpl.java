@@ -322,6 +322,9 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
         Set<GlobalFeature> features = getEnabledGlobalFeatures();
         if (update(features, feature, enable)) {
             enableGlobalFeatures(features, true);
+            if (!enable) {
+                enableGlobalFeatures(Collections.singleton(feature), false);
+            }
         }
     }
 

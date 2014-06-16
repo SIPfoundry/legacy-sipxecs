@@ -14,6 +14,8 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.ws.rs.core.Response;
@@ -21,6 +23,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.sipfoundry.sipxconfig.api.model.SettingBean;
 import org.sipfoundry.sipxconfig.api.model.SettingsList;
+import org.sipfoundry.sipxconfig.api.model.ServerBean.JobList;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -40,6 +45,20 @@ public final class ResponseUtils {
                     return Response.ok().entity(SettingsList.convertSettingsList(setting, locale)).build();
                 }
             }
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    public static Response buildJobListResponse(List<Job> jobs, Location location, Locale locale) {
+        if (location != null) {
+            List<Job> serverJobs = new LinkedList<Job>();
+            for (Job job : jobs) {
+                Location jobLocation = job.getLocation();
+                if (location != null && jobLocation.getId().equals(location.getId())) {
+                    serverJobs.add(job);
+                }
+            }
+            return Response.ok().entity(JobList.convertJobList(serverJobs, locale)).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }

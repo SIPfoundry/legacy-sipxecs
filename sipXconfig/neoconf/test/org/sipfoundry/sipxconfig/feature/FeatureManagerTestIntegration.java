@@ -38,6 +38,8 @@ public class FeatureManagerTestIntegration extends IntegrationTestCase {
         assertFalse(m_featureManager.isFeatureEnabled(f));
         m_featureManager.enableGlobalFeatures(Collections.singleton(f), true);
         assertTrue(m_featureManager.isFeatureEnabled(f));
+        m_featureManager.enableGlobalFeatures(Collections.singleton(f), false);
+        assertFalse(m_featureManager.isFeatureEnabled(f));
     }
 
     public void testEnableLocationFeatures() {

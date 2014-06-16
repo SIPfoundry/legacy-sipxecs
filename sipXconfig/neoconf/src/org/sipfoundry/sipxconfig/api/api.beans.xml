@@ -21,6 +21,8 @@
         <jaxrs:serviceBeans>
             <ref bean="phoneRestApi"/>
             <ref bean="phoneLineRestApi"/>
+            <ref bean="ftpRestApi"/>
+            <ref bean="serverRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -41,6 +43,16 @@
     <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneLineApiImpl" id="phoneLineRestApi">
         <property name="phoneContext" ref="phoneContext"/>
         <property name="coreContext" ref="coreContext"/>
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.FtpApiImpl" id="ftpRestApi">
+        <property name="ftpManager" ref="ftpManager"/>
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.ServerApiImpl" id="serverRestApi">
+        <property name="configManager" ref="configManager"/>
+        <property name="locationsManager" ref="locationsManager"/>
+        <property name="snmpManager" ref="snmpManager"/>
+        <property name="jobContext" ref="jobContext"/>
+        <property name="featureManager" ref="featureManager"/>
     </bean>
 
     <mvc:annotation-driven />
