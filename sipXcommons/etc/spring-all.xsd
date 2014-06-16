@@ -6,4 +6,7 @@
     <xs:import namespace="http://www.springframework.org/schema/task" schemaLocation="spring-task-3.1.xsd" />
     <xs:import namespace="http://www.springframework.org/schema/security" schemaLocation="spring-security-3.1.xsd" />
     <xs:import namespace="http://cxf.apache.org/jaxrs" schemaLocation="jaxrs.xsd" />
+    <xs:import namespace="http://www.springframework.org/schema/context" schemaLocation="spring-context.xsd" />
+    <xs:import namespace="http://www.springframework.org/schema/websocket" schemaLocation="spring-websocket-4.0.xsd" />
+    <xs:import namespace="http://www.springframework.org/schema/mvc" schemaLocation="spring-mvc.xsd" />
 </xs:schema>

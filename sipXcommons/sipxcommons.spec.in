@@ -97,6 +97,9 @@ fi
 %{_datadir}/sipxecs/schema/spring-security-3.1.xsd
 %{_datadir}/sipxecs/schema/spring-task-3.1.xsd
 %{_datadir}/sipxecs/schema/jaxrs.xsd
+%{_datadir}/sipxecs/schema/spring-context.xsd
+%{_datadir}/sipxecs/schema/spring-mvc.xsd
+%{_datadir}/sipxecs/schema/spring-websocket-4.0.xsd
 %{_datadir}/sipxecs/schema/spring-all.xsd
 
 %changelog

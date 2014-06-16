@@ -8,4 +8,7 @@ dist_conf_DATA = \
 	spring-task-3.1.xsd \
 	spring-security-3.1.xsd \
 	spring-all.xsd \
-	jaxrs.xsd
+	jaxrs.xsd \
+	spring-context.xsd \
+	spring-mvc.xsd \
+	spring-websocket-4.0.xsd
