@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2008-2012, Hazel Bilisim Ltd. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<hazelcast xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.1.xsd"
+           xmlns="http://www.hazelcast.com/schema/config"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <group>
+        <name>hazelcast-sipxecs</name>
+        <password>hazelcast-sipxecs</password>
+    </group>
+    <management-center enabled="false"/>
+    <network>
+        <port auto-increment="true">6701</port>
+        <join>
+            <multicast enabled="false">
+                <multicast-group>224.2.2.3</multicast-group>
+                <multicast-port>54327</multicast-port>
+            </multicast>
+            <tcp-ip enabled="true">
+#foreach( $addr in $addresses )
+                <interface>$addr</interface>
+#end
+            </tcp-ip>
+
+            <aws enabled="false"/>
+        </join>
+        <interfaces enabled="false"/>
+        <ssl enabled="false" />
+        <socket-interceptor enabled="false" />
+        <symmetric-encryption enabled="false">
+            <!--
+               encryption algorithm such as
+               DES/ECB/PKCS5Padding,
+               PBEWithMD5AndDES,
+               AES/CBC/PKCS5Padding,
+               Blowfish,
+               DESede
+            -->
+            <algorithm>PBEWithMD5AndDES</algorithm>
+            <!-- salt value to use when generating the secret key -->
+            <salt>thesalt</salt>
+            <!-- pass phrase to use when generating the secret key -->
+            <password>thepass</password>
+            <!-- iteration count to use when generating the secret key -->
+            <iteration-count>19</iteration-count>
+        </symmetric-encryption>
+        <asymmetric-encryption enabled="false">
+            <!-- encryption algorithm -->
+            <algorithm>RSA/NONE/PKCS1PADDING</algorithm>
+            <!-- private key password -->
+            <keyPassword>thekeypass</keyPassword>
+            <!-- private key alias -->
+            <keyAlias>local</keyAlias>
+            <!-- key store type -->
+            <storeType>JKS</storeType>
+            <!-- key store password -->
+            <storePassword>thestorepass</storePassword>
+            <!-- path to the key store -->
+            <storePath>keystore</storePath>
+        </asymmetric-encryption>
+    </network>
+    <partition-group enabled="false"/>
+    <properties>
+        <property name="hazelcast.logging.type">slf4j</property>
+    </properties>
+
+</hazelcast>

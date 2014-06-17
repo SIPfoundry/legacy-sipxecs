@@ -30,6 +30,7 @@ start() {
     -Dprocname=sipxivr \
     -Dconf.dir=@SIPX_CONFDIR@ \
     -Dvar.dir=@SIPX_VARDIR@ \
+    -Dhazelcast.config=@SIPX_CONFDIR@/hz-config.xml \
     $JavaSslOpts \
     ${SIPXIVR_OPTS} \
     org.sipfoundry.sipxivr.SipXivrServer \

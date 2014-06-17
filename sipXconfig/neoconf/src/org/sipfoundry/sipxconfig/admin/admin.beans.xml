@@ -70,5 +70,4 @@
     <property name="saaLimitsConfig" ref="saaResLimits" />
     <property name="registrarLimitsConfig" ref="registrarResLimits" />
   </bean>
-    
 </beans>
