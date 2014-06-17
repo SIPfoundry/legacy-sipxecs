@@ -91,16 +91,22 @@
         <property name="parkOrbitContext" ref="parkOrbitContext" />
         <property name="audioPath" value="${sysdir.var}/parkserver/music"/>
         <property name="extensions" ref="audioExtensions"/>
+    </bean>    
+    
+    <!-- W E B S O C K ET-->
+    
+    <bean id="configHandler" class="org.sipfoundry.sipxconfig.websocket.ConfigHandshakeHandler">
     </bean>
 
     <mvc:annotation-driven />
-    <mvc:view-controller path="/phoneapp" view-name="/ws-phone/index.html"/>
+    <mvc:view-controller path="/eventapp" view-name="/ws-eventapp/index.html"/>
     <mvc:resources mapping="/resources/**" location="/ws-resources/" />
 
-    <context:component-scan base-package="org.sipfoundry.sipxconfig.websocket" />
+    <context:component-scan base-package="org.sipfoundry.sipxconfig.websocket.controller" />
 
     <websocket:message-broker application-destination-prefix="/app">
-      <websocket:stomp-endpoint path="/phone">
+      <websocket:stomp-endpoint path="/event">
+        <websocket:handshake-handler ref="configHandler"/>
         <websocket:sockjs/>
       </websocket:stomp-endpoint>
       <websocket:simple-broker prefix="/topic"/>

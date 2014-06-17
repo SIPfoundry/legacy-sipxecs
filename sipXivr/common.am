@@ -35,4 +35,5 @@ ivr_PKGS = \
 	spring-aop \
 	spring-data-commons \
 	spring-data-mongodb \
-	joda-time
+	joda-time \
+	hazelcast-all
