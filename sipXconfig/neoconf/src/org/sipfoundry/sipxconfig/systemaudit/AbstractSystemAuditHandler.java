@@ -60,11 +60,13 @@ public abstract class AbstractSystemAuditHandler {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             SipxAuthenticationDetails authDetails = (SipxAuthenticationDetails) authentication.getDetails();
-            if (authDetails.getRemoteAddress() != null) {
+            if (authDetails != null && authDetails.getRemoteAddress() != null) {
                 ipAddress = authDetails.getRemoteAddress();
             }
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            userName = userDetails.getUsername();
+            Object userDetails = authentication.getPrincipal();
+            if (userDetails instanceof UserDetailsImpl) {
+                userName = ((UserDetailsImpl) userDetails).getUsername();
+            }
         }
         ConfigChange configChange = buildConfigChange(configChangeAction, configChangeType, userName,
                 ipAddress);

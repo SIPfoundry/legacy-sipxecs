@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,8 +24,8 @@ import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.type.Type;
+import org.sipfoundry.sipxconfig.common.event.HibernateEntityChangeProvider;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -42,7 +43,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     private SessionFactory m_sessionFactory;
     private Map m_beanNamesCache;
     private Map<String, EntityDecorator> m_decorators;
-    private SystemAuditManager m_systemAuditManager;
+    private Collection<HibernateEntityChangeProvider> m_hbEntityProviders;
 
     /**
      * This implementation only supports BeanWithId objects with integer ids
@@ -59,7 +60,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
             return null;
         }
 
-        BeanWithId bean = (BeanWithId) m_beanFactory.getBean(beanName, BeanWithId.class);
+        BeanWithId bean = m_beanFactory.getBean(beanName, BeanWithId.class);
         bean.setId((Integer) id);
 
         EntityDecorator decorator = getDecorator(clazz);
@@ -100,7 +101,9 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         if (decorator != null) {
             decorator.onSave(entity, id);
         }
-        m_systemAuditManager.onConfigChangeAction(entity, ConfigChangeAction.ADDED, null, null, null);
+        for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+            provider.onConfigChangeAction(entity, ConfigChangeAction.ADDED, null, null, null);
+        }
         return super.onSave(entity, id, state, propertyNames, types);
     }
 
@@ -140,7 +143,6 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         m_beanFactory = (ListableBeanFactory) beanFactory;
         Transformer transformer = new ClassToBeanName(m_beanFactory);
         m_beanNamesCache = LazyMap.decorate(new HashMap(), transformer);
-        m_systemAuditManager = (SystemAuditManager) m_beanFactory.getBean("systemAuditManager");
     }
 
     public BeanFactory getBeanFactory() {
@@ -154,20 +156,26 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     @Override
     public boolean onFlushDirty(Object obj, Serializable id, Object[] newValues, Object[] oldValues,
             String[] properties, Type[] types) throws CallbackException {
-
-        m_systemAuditManager.onConfigChangeAction(obj, ConfigChangeAction.MODIFIED, properties, oldValues,
-                newValues);
-
+        for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+            provider.onConfigChangeAction(obj, ConfigChangeAction.MODIFIED, properties, oldValues, newValues);
+        }
         return super.onFlushDirty(obj, id, oldValues, newValues, properties, types);
     }
 
     @Override
     public void onCollectionUpdate(Object collection, Serializable key) throws CallbackException {
-        m_systemAuditManager.onConfigChangeCollectionUpdate(collection, key);
+        for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+            provider.onConfigChangeCollectionUpdate(collection, key);
+        }
         super.onCollectionUpdate(collection, key);
     }
 
-    public void setSystemAuditManager(SystemAuditManager systemAuditManager) {
-        this.m_systemAuditManager = systemAuditManager;
+    private Collection<HibernateEntityChangeProvider> getHbEntityChangeProviders() {
+        if (m_hbEntityProviders == null) {
+            Map<String, HibernateEntityChangeProvider> resLimitsConfigsMap = m_beanFactory.
+                    getBeansOfType(HibernateEntityChangeProvider.class, false, false);
+            m_hbEntityProviders = resLimitsConfigsMap.values();
+        }
+        return m_hbEntityProviders;
     }
 }

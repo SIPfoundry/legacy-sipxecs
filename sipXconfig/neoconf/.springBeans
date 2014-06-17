@@ -39,7 +39,7 @@
 		<config>src/org/sipfoundry/sipxconfig/branch/branch.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/moh/moh.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/address/address.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/configchange/configchange.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/systemaudit/systemaudit.beans.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
@@ -78,7 +78,7 @@
 				<config>src/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/branch/branch.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/moh/moh.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/configchange/configchange.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/systemaudit/systemaudit.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>
