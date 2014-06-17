@@ -110,9 +110,12 @@ public class RegistrationApiImpl implements RegistrationApi {
     }
 
     @Override
-    public Response getRegistrationsByServer(String serverId) {
+    public Response getRegistrationsByServer(String serverId, Integer startId, Integer limit) {
         Location location = getLocationByIdOrFqdn(serverId);
         if (location != null) {
+            if (startId != null && limit != null) {
+                return buildRegistrationResponse(m_context.getRegistrationsByServer(location.getAddress(), startId, limit));
+            }
             return buildRegistrationResponse(m_context.getRegistrationsByServer(location.getAddress()));
         }
         return Response.status(Status.NOT_FOUND).build();

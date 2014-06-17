@@ -81,7 +81,9 @@ public interface RegistrationApi {
     @Path("server/{serverId}")
     @GET
     public Response getRegistrationsByServer(
-            @Description("Server internal id or fqdn") @PathParam("serverId") String serverId);
+            @Description("Server internal id or fqdn") @PathParam("serverId") String serverId,
+            @Description("First registration row") @QueryParam("start") Integer start,
+            @Description("Number of registrations to be returned") @QueryParam("limit") Integer limit);
 
     @Path("server/{serverId}")
     @DELETE

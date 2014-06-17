@@ -87,6 +87,11 @@ public class RegistrationContextImpl implements RegistrationContext {
     }
 
     @Override
+    public List<RegistrationItem> getRegistrationsByServer(String server, Integer start, Integer limit) {
+        return getItems(getRegistrarCollection().find(getServerQuery(server)).skip(start).limit(limit));
+    }
+
+    @Override
     public List<RegistrationItem> getRegistrationsByCallId(String callId) {
         return getItems(getRegistrarCollection().find(getCallIdQuery(callId)));
     }

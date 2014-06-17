@@ -34,6 +34,8 @@ public interface RegistrationContext {
 
     public abstract List<RegistrationItem> getRegistrationsByServer(String server);
 
+    public abstract List<RegistrationItem> getRegistrationsByServer(String server, Integer start, Integer limit);
+
     public abstract List<RegistrationItem> getRegistrationsByCallId(String callId);
 
     public abstract void dropRegistrationsByUser(User user);
