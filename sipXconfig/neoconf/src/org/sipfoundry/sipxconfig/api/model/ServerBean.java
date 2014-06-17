@@ -93,6 +93,9 @@ public class ServerBean {
     }
 
     public static ServerBean convertLocation(Location location, boolean status) {
+        if (location == null) {
+            return null;
+        }
         ServerBean bean = new ServerBean();
         bean.setId(location.getId());
         bean.setHost(location.getFqdn());
