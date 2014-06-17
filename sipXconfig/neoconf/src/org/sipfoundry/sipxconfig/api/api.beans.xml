@@ -24,6 +24,7 @@
             <ref bean="ftpRestApi"/>
             <ref bean="serverRestApi"/>
             <ref bean="registrationRestApi"/>
+            <ref bean="ivrRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -60,6 +61,9 @@
         <property name="coreContext" ref="coreContext"/>
         <property name="phoneContext" ref="phoneContext"/>
         <property name="locationsManager" ref="locationsManager"/>
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.IvrApiImpl" id="ivrRestApi">
+        <property name="ivr" ref="ivr" />
     </bean>
 
     <mvc:annotation-driven />
