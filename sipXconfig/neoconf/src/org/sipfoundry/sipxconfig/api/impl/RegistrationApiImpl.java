@@ -114,7 +114,8 @@ public class RegistrationApiImpl implements RegistrationApi {
         Location location = getLocationByIdOrFqdn(serverId);
         if (location != null) {
             if (startId != null && limit != null) {
-                return buildRegistrationResponse(m_context.getRegistrationsByServer(location.getAddress(), startId, limit));
+                return buildRegistrationResponse(m_context.getRegistrationsByServer(location.getAddress(), startId,
+                        limit));
             }
             return buildRegistrationResponse(m_context.getRegistrationsByServer(location.getAddress()));
         }
