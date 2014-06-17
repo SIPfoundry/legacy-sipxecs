@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
-public class SystemAuditManagerTest extends IntegrationTestCase {
+public class SystemAuditManagerTestIntegration extends IntegrationTestCase {
 
     private CoreContext m_coreContext;
 
