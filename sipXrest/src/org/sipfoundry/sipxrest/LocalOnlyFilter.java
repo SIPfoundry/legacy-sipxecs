@@ -21,9 +21,9 @@ import org.restlet.data.Status;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 
 public class LocalOnlyFilter extends Filter {
-    
+
     private static final Logger logger = Logger.getLogger(LocalOnlyFilter.class);
-    
+
 
     @Override
     protected int beforeHandle(Request request, Response response) {
@@ -34,7 +34,7 @@ public class LocalOnlyFilter extends Filter {
             SipURI sipUri = RestServer.getAddressFactory().createSipURI(null, proxyDomain);
 
             logger.debug("Authentication request " + remoteAddr);
-            Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri);
+            Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri, "sipXrest");
 
             for (Hop hop : hops) {
                 if (InetAddress.getByName(hop.getHost()).getHostAddress().equals(remoteAddr)) {
@@ -51,7 +51,7 @@ public class LocalOnlyFilter extends Filter {
                 }
             }
             logger.debug("Request not from sipx domain -- rejecting");
-            response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);        
+            response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
             response.setEntity("Only Local access allowed", MediaType.TEXT_PLAIN);
             return Filter.STOP;
         } catch (Exception ex) {

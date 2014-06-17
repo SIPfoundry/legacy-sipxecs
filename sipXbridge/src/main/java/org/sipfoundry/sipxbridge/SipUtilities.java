@@ -26,7 +26,7 @@ import gov.nist.javax.sip.message.MultipartMimeContent;
 import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.message.SIPRequest;
- 
+
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -280,7 +280,7 @@ class SipUtilities {
 		String target = null;
 		try
 		{
-		  ServerTransaction peerSt = ((ServerTransaction)transaction); 
+		  ServerTransaction peerSt = ((ServerTransaction)transaction);
 		  if (peerSt != null)
 		  {
 		      SIPRequest request = ((SIPRequest)transaction.getRequest());
@@ -309,9 +309,9 @@ class SipUtilities {
                 if (user == null) {
                     user = Gateway.SIPXBRIDGE_USER;
                 }
-                
+
                 String transport = Gateway.getSipxProxyTransport();
-                
+
                 try {
                     if ( transport == null ) {
                         logger.warn("Null transport specified -- assuming UDP");
@@ -347,8 +347,8 @@ class SipUtilities {
 				    user = Gateway.SIPXBRIDGE_USER;
 				}
 				ListeningPoint lp = provider.getListeningPoint(transport);
-				String ipAddress = lp.getIPAddress();				
-				//				
+				String ipAddress = lp.getIPAddress();
+				//
 				// EXPERIMENTAL.  Point contact address to the proxy port
                 int port = lp.getPort();
                 if (Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
@@ -401,8 +401,8 @@ class SipUtilities {
 					transport = itspAccount.getOutboundTransport();
 				}
 
-				//				
-				// EXPERIMENTAL.  Point contact address to the proxy port				
+				//
+				// EXPERIMENTAL.  Point contact address to the proxy port
 				int port = Gateway.getGlobalPort(transport);
                 if (Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
                 {
@@ -567,7 +567,7 @@ class SipUtilities {
 				registrarUri.setPort(itspAccount.getInboundProxyPort());
 			}
 			Collection<Hop> hops = new FindSipServer(logger)
-					.findSipServers(registrarUri);
+					.findSipServers(registrarUri, "sipXbridge");
 
 			if (hops == null || hops.isEmpty()) {
 				throw new SipException("No route to registrar found");
@@ -767,7 +767,7 @@ class SipUtilities {
 			 */
 			String domain = fromDomain;
 			Address fromAddress = null;
-			if (itspAccount.isFromItsp()) {				
+			if (itspAccount.isFromItsp()) {
 			    if (itspAccount.getUserName() != null && itspAccount.getDefaultDomain() != null) {
 					fromUser = itspAccount.getUserName();
 					domain = itspAccount.getDefaultDomain();
@@ -1004,7 +1004,7 @@ class SipUtilities {
 					"Unexpected exception getting media formats", ex);
 		}
 	}
-	
+
 	static boolean hasAudoMediaType(SessionDescription sessionDescription) {
 		try {
 			Vector mediaDescriptions = sessionDescription
@@ -1022,7 +1022,7 @@ class SipUtilities {
 			throw new SipXbridgeException(
 					"Unexpected exception testing media formats", ex);
 		}
-	
+
 
 	}
 
@@ -1153,7 +1153,7 @@ class SipUtilities {
 						Attribute attr = (Attribute) it1.next();
 						if (logger.isDebugEnabled()) {
 							logger.debug("attrName = " + attr.getName() + " attrValue = " + attr.getValue() );
-							
+
 						}
 
 						if (attr.getName().equalsIgnoreCase("rtpmap") || attr.getName().equalsIgnoreCase("fmtp")) {

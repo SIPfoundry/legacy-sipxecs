@@ -21,40 +21,39 @@ import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
 
-
 public class ProxyRouter extends DefaultRouter {
-	Logger LOG;
-	FindSipServer finder;
-	
-	public ProxyRouter(SipStack sipStack, String outboundProxy) {
+    Logger LOG;
+    FindSipServer finder;
+
+    public ProxyRouter(SipStack sipStack, String outboundProxy) {
         super(sipStack, outboundProxy);
-    	LOG = Logger.getLogger(((SipStackImpl) sipStack).getStackLogger().getLoggerName());
-    	finder = new FindSipServer(LOG);
+        LOG = Logger.getLogger(((SipStackImpl) sipStack).getStackLogger().getLoggerName());
+        finder = new FindSipServer(LOG);
     }
 
     @Override
     public Hop getNextHop(Request request) throws SipException {
         /*
-         * Request has a Route header defined - then get the next hop
-         * based on the route header.
+         * Request has a Route header defined - then get the next hop based on the route header.
          */
-    	SipURI uri = (SipURI)request.getRequestURI();
-    	LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s for inbound %s ", uri.toString() , request.getMethod()));
-    	    
-        if ( request.getHeader(RouteHeader.NAME) != null  || uri.getMAddrParam() != null ) {
-            
-            Hop nextHop =  super.getNextHop(request);   
+        SipURI uri = (SipURI) request.getRequestURI();
+        LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s for inbound %s ", uri.toString(),
+                request.getMethod()));
+
+        if (request.getHeader(RouteHeader.NAME) != null || uri.getMAddrParam() != null) {
+
+            Hop nextHop = super.getNextHop(request);
             return nextHop;
         }
 
-    	LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s ", uri.toString()));
-    	Hop h = finder.findServer(uri) ;
-    	if (h == null) {
-    		LOG.debug(String.format("ProxyRouter::getNextHop could not find next hop for %s", uri.toString()));
-    		return super.getNextHop(request) ;
-    	}
-		LOG.debug(String.format("ProxyRouter::getNextHop next hop for %s is %s", uri.toString(), h.toString()));
-    	return h;
+        LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s ", uri.toString()));
+        Hop h = finder.findServer(uri, "org.sipfoundry.commons.siprouter.ProxyRouter.java; ");
+        if (h == null) {
+            LOG.debug(String.format("ProxyRouter::getNextHop could not find next hop for %s", uri.toString()));
+            return super.getNextHop(request);
+        }
+        LOG.debug(String.format("ProxyRouter::getNextHop next hop for %s is %s", uri.toString(), h.toString()));
+        return h;
     }
 
     @Override

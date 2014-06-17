@@ -34,7 +34,7 @@ import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
 
 public class ItspAccountInfo  {
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
-    
+
     /**
      * The outbound proxy for the account.
      */
@@ -73,7 +73,7 @@ public class ItspAccountInfo  {
     /**
      * The Sip Domain for the register request.
      */
-    private ArrayList<String> sipxecsLineId = new ArrayList<String>();
+    private final ArrayList<String> sipxecsLineId = new ArrayList<String>();
 
     /**
      * The authentication realm
@@ -108,7 +108,7 @@ public class ItspAccountInfo  {
     /*
      * The call Id table.
      */
-    private ConcurrentHashMap<String, FailureCounter> failureCountTable = new ConcurrentHashMap<String, FailureCounter>();
+    private final ConcurrentHashMap<String, FailureCounter> failureCountTable = new ConcurrentHashMap<String, FailureCounter>();
 
     /*
      * NAT keepalive method.
@@ -183,13 +183,13 @@ public class ItspAccountInfo  {
      */
 
     protected RegistrationTimerTask registrationTimerTask;
-    
+
     /*
      * A flag that records whether alarm has been sent for this itsp.
      */
 
     private boolean alarmSent;
-    
+
     /*
      * internal flag for whether or not to use outbound proxy.
      */
@@ -200,7 +200,7 @@ public class ItspAccountInfo  {
      * Internal flag (if true then inbound proxy port has been explicitly set).
      */
     private boolean inboundProxyPortSet;
-    
+
     /*
      * If set to true then ITSP accepts Loose source routing.
      */
@@ -226,13 +226,13 @@ public class ItspAccountInfo  {
      * The configured outbound proxy for this ITSP.
      */
     private String configuredOutboundProxy;
-    
+
     /*
      * Whether or not to relay media for this ITSP.
      */
     private boolean alwaysRelayMedia = true;
-    
-    
+
+
     private String authenticationUserName;
 
     /*
@@ -307,11 +307,11 @@ public class ItspAccountInfo  {
             return this.getSipDomain();
         }
     }
-    
+
     private String getConfiguredOutboundProxy() {
         return this.configuredOutboundProxy == null ? this.proxyDomain : configuredOutboundProxy;
     }
-    
+
 
     public int getOutboundProxyPort() {
         return outboundProxyPort;
@@ -350,8 +350,8 @@ public class ItspAccountInfo  {
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundDomain);
             sipUri.setTransportParam(this.outboundTransport);
-            Hop hop = new FindSipServer(logger).findServer(sipUri);
-           
+            Hop hop = new FindSipServer(logger).findServer(sipUri, "sipXbridge");
+
             if ( this.outboundProxyPort != 5060 ) {
               this.setOutboundProxyPort(hop.getPort());
             }
@@ -594,7 +594,7 @@ public class ItspAccountInfo  {
     public String getInboundProxy() {
         return inboundProxy == null ? getOutboundProxy() : inboundProxy;
     }
-    
+
     /**
      * @return the inboundProxy addresses
      */
@@ -606,14 +606,14 @@ public class ItspAccountInfo  {
             if ( inBoundProxyPort != 5060) {
                 sipUri.setPort(inBoundProxyPort);
             }
-            Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri);
+            Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri, "sipXbridge");
             return hops;
         } catch ( Exception ex) {
             return null;
         }
 
     }
-    
+
     /**
      * @return the configured inboundProxy
      */
@@ -665,7 +665,7 @@ public class ItspAccountInfo  {
     public String getCallerId() {
         return this.callerId;
     }
-    
+
     public String getPreferredCallerId() {
         return this.preferredCallerId;
     }
@@ -673,14 +673,14 @@ public class ItspAccountInfo  {
     public void setPreferredCallerId(String callerId) {
         this.preferredCallerId = callerId;
     }
-    
+
     private String getDefaultCallerId() {
 	    if (this.getDefaultDomain() == null ) {
 		    return null;
 	    }
 	    return this.getUserName() + "@" + this.getDefaultDomain();
     }
-    
+
 
     protected Address getCallerAlias(Address from) {
     	if (!this.useDefaultAssertedIdentity) {
@@ -688,7 +688,7 @@ public class ItspAccountInfo  {
     	}
     	return from;
     }
-    
+
 
     protected Address getPreferredCallerAlias(Address from) {
     	if (!this.useDefaultPreferredIdentity) {
@@ -696,7 +696,7 @@ public class ItspAccountInfo  {
     	}
     	return from;
     }
-    
+
     private Address getAlias(String userId) {
         try {
             if (userId != null) {
@@ -812,7 +812,7 @@ public class ItspAccountInfo  {
                 if ( this.outboundProxyPort != 5060 ) {
                     sipUri.setPort(this.outboundProxyPort);
                 }
-                return new FindSipServer(logger).findSipServers(sipUri);
+                return new FindSipServer(logger).findSipServers(sipUri, "sipXbridge");
             }
         } catch (Exception ex) {
             throw new SipXbridgeException(ex);
@@ -866,34 +866,34 @@ public class ItspAccountInfo  {
 
     /**
      * Get hop to Registrar.
-     * 
+     *
      * @return
      */
     public Hop getHopToRegistrar() {
         return this.hopToRegistrar;
     }
-    
+
     /**
      * Set the enabled flag.
-     * 
+     *
      * @param flag
      */
     public void setEnabled(boolean flag) {
-        this.enabled = flag;       
+        this.enabled = flag;
     }
-    
+
     /**
      * Return the value of the alwaysRelayMedia flag.
-     * 
+     *
      * @return true if alwaysRelayMedia is set to true.
      */
-    public boolean isAlwaysRelayMedia() { 
+    public boolean isAlwaysRelayMedia() {
         return this.alwaysRelayMedia;
     }
-    
+
     /**
      * Set the alwaysRelayMedia flag
-     * 
+     *
      * @param flag -- the "alwaysRelayMedia" flag
      */
     public void setAlwaysRelayMedia(boolean flag) {
@@ -902,7 +902,7 @@ public class ItspAccountInfo  {
 
     /**
      * Get the enabled flag.
-     * 
+     *
      * @return
      */
     public boolean isEnabled() {
@@ -921,12 +921,12 @@ public class ItspAccountInfo  {
     public String getAuthenticationUserName() {
         return authenticationUserName;
     }
-    
+
     public UserCredentials getUserCredentials() {
         String userName = this.authenticationUserName == null ? this.userName : this.authenticationUserName;
-            
+
         UserCredentialsImpl retval = new UserCredentialsImpl(userName, this.getSipDomain(), this.getPassword());
-            
+
         return retval;
     }
 

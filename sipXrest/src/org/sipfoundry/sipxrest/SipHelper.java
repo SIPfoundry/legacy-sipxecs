@@ -61,9 +61,9 @@ public class SipHelper {
 
     private static final String SDP = "sdp";
 
-    private int m_maxForwards = 70;
+    private final int m_maxForwards = 70;
 
-    private AbstractSipListener abstractListener;
+    private final AbstractSipListener abstractListener;
 
     public static final String BUSY_MESSAGE = "Busy Here";
 
@@ -340,7 +340,7 @@ public class SipHelper {
                     Collections.singletonList(viaHeader), maxForwards);
 
             // Set loose routing to the target.
-            Hop hop = new FindSipServer(logger).findServer(requestURI);
+            Hop hop = new FindSipServer(logger).findServer(requestURI, "sipXrest");
             SipURI sipUri = getStackBean().getAddressFactory().createSipURI(null, hop.getHost());
             sipUri.setPort(hop.getPort());
             sipUri.setLrParam();

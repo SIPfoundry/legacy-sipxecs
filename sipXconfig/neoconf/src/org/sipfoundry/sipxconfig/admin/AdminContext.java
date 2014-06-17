@@ -21,6 +21,7 @@ public interface AdminContext {
     public static final AddressType SIPXCDR_DB_ADDRESS = new AddressType(
             "sipxcdr", "jdbc:postgresql://%s/SIPXCDR", 5432);
     public static final AlarmDefinition ALARM_LOGIN_FAILED = new AlarmDefinition("LOGIN_FAILED", 3);
+    public static final AlarmDefinition ALARM_DNS_LOOKUP = new AlarmDefinition("DNS_LOOKUP_FAILED");
     public static final String ARCHIVE = "configuration.tar.gz";
     final String CONTEXT_BEAN_NAME = "adminContext";
 

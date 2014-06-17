@@ -84,7 +84,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public Collection<AlarmDefinition> getAvailableAlarms(AlarmServerManager manager) {
-        return Collections.singleton(ALARM_LOGIN_FAILED);
+        return Arrays.asList(new AlarmDefinition[]{ALARM_LOGIN_FAILED, ALARM_DNS_LOOKUP});
     }
 
     @Override

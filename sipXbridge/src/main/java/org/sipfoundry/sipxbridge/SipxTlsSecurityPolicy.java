@@ -71,7 +71,7 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
             OUTERMOST: for (String identity : certIdentities) {
                 try {
                     Collection<Hop> hops = new FindSipServer(logger).findSipServers(
-                            ProtocolObjects.addressFactory.createSipURI("", identity));
+                            ProtocolObjects.addressFactory.createSipURI("", identity), "sipXbridge");
                     Hop hop;
                     for (Iterator<Hop> it = hops.iterator(); it.hasNext();) {
                         hop = it.next();
