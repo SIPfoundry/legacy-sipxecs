@@ -107,7 +107,7 @@ int SipLSendCommand::execute(int argc, char* argv[])
                                 }
                         }
                         while(charsRead);
-            fclose(sipMessageFile);
+            
 
             OsSocket* writeSocket = NULL;
             if(protocol.compareTo("TCP") == 0)
@@ -151,7 +151,15 @@ int SipLSendCommand::execute(int argc, char* argv[])
                         commandStatus = CommandProcessor::COMMAND_FAILED;
                 }
 
+         if (sipMessageFile)
+         {
+           fclose(sipMessageFile);
+           free (sipMessageFile);
+         }
+        
         }
+        
+       
 
         return(commandStatus);
 }

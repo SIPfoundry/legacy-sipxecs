@@ -9,6 +9,7 @@
 
 #include "sipXecsService/daemon.h"
 
+// coverity[+kill]
 void daemonize(const char* pidfile) {
     if (getppid() == 1) {
         return; // already a daemon

@@ -483,7 +483,14 @@ res_parse(char *msg, char *tail)
          */
         if ( qdcount ) {
                 if ((resp->question = (s_question **)malloc(qdcount*sizeof(s_question*))) == NULL )
-                        return(NULL);
+                {
+                  //
+                  // Free the response since we are not able to allocate the question
+                  //
+                  free_response(resp);
+                  free(resp);
+                  return(NULL);
+                }
                 for ( i=0 ; i<qdcount ; i++ )           /* Clear, in case of free */
                         resp->question[i] = NULL;
                 resp->header.qdcount = qdcount;  /* Stores swapped byte order!  Requires change to free_response. --GAT */

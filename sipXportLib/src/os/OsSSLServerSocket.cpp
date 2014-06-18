@@ -157,6 +157,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
          }
          else
          {
+            ::close (clientSocket);
             Os::Logger::instance().log(FAC_KERNEL, PRI_ERR
                           , "OsSSLConnectionSocket::accept - Error creating new SSL connection.");
          }
