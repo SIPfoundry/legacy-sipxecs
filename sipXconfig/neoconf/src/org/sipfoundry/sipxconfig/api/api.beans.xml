@@ -25,6 +25,7 @@
             <ref bean="serverRestApi"/>
             <ref bean="registrationRestApi"/>
             <ref bean="ivrRestApi"/>
+            <ref bean="callParkRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -36,6 +37,11 @@
             <entry key="json" value="application/json" />
         </jaxrs:extensionMappings>
     </jaxrs:server>
+
+    <util:list id="audioExtensions" value-type="java.lang.String">
+        <value>wav</value>
+        <value>mp3</value>
+    </util:list>
 
     <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneApiImpl" id="phoneRestApi">
         <property name="phoneContext" ref="phoneContext"/>
@@ -64,6 +70,11 @@
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.IvrApiImpl" id="ivrRestApi">
         <property name="ivr" ref="ivr" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.CallParkApiImpl" id="callParkRestApi">
+        <property name="parkOrbitContext" ref="parkOrbitContext" />
+        <property name="audioPath" value="${sysdir.var}/parkserver/music"/>
+        <property name="extensions" ref="audioExtensions"/>
     </bean>
 
     <mvc:annotation-driven />
