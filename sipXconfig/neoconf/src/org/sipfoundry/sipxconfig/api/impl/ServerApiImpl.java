@@ -71,6 +71,12 @@ public class ServerApiImpl implements ServerApi {
     }
 
     @Override
+    public Response sendServerProfiles() {
+        m_configManager.sendProfiles(m_locationsManager.getLocationsList());
+        return Response.ok().build();
+    }
+
+    @Override
     public Response getServer(String serverId) {
         Location location = getLocationByIdOrFqdn(serverId);
         if (location != null) {
@@ -78,6 +84,16 @@ public class ServerApiImpl implements ServerApi {
             Collection<Location> registeredLocations = m_configManager.getRegisteredLocations(locations);
             return Response.ok()
                     .entity(ServerBean.convertLocation(location, registeredLocations.contains(location))).build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response sendServerProfile(String serverId) {
+        Location location = getLocationByIdOrFqdn(serverId);
+        if (location != null) {
+            m_configManager.sendProfiles(Collections.singletonList(location));
+            return Response.ok().build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }

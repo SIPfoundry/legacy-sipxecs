@@ -40,6 +40,10 @@ public interface ServerApi {
     @GET
     public Response getServers();
 
+    @Path("profiles")
+    @PUT
+    public Response sendServerProfiles();
+
     @POST
     @Consumes({
         MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
@@ -61,6 +65,11 @@ public interface ServerApi {
     })
     public Response updateServer(@Description("Server internal id or FQDN") @PathParam("serverId") String serverId,
             @Description("Server bean to save") ServerBean server);
+
+    @Path("{serverId}/profiles")
+    @PUT
+    public Response sendServerProfile(
+            @Description("Server internal id or FQDN") @PathParam("serverId") String serverId);
 
     @Path("{serverId}/service/")
     @GET
