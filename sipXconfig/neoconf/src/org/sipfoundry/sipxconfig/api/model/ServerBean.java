@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.api.model;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -222,8 +223,14 @@ public class ServerBean {
             bean.setStatus(job.getStatus().name());
             bean.setErrMsg(job.getErrorMsg());
             DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-            bean.setStart(dateFormat.format(job.getStart()));
-            bean.setEnd(dateFormat.format(job.getStop()));
+            Date start = job.getStart();
+            if (start != null) {
+                bean.setStart(dateFormat.format(start));
+            }
+            Date stop = job.getStop();
+            if (stop != null) {
+                bean.setEnd(dateFormat.format(stop));
+            }
             bean.setServer(ServerBean.convertLocation(job.getLocation(), true));
             return bean;
         }
