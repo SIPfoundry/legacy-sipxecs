@@ -11,4 +11,5 @@ dist_conf_DATA = \
 	jaxrs.xsd \
 	spring-context.xsd \
 	spring-mvc.xsd \
-	spring-websocket-4.0.xsd
+	spring-websocket-4.0.xsd \
+	core.xsd
