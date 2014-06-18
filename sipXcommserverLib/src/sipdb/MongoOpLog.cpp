@@ -73,7 +73,8 @@ void MongoOpLog::registerCallback(OpLogType type, OpLogCallBack cb)
                         " entering" <<
                         " type=" << type);
 
-  _opLogCbVectors[type].push_back(cb);
+  if (type < OpLogTypeNumber)
+    _opLogCbVectors[type].push_back(cb);
 }
 
 bool MongoOpLog::run()

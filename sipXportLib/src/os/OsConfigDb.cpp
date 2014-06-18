@@ -850,6 +850,7 @@ OsStatus OsConfigDb::loadFromEncryptedFile(const char *file)
 
         size_t bytesRead;
         retval = osfile.read(buff, buffLen, bytesRead);
+        buff[bytesRead] = '\0';
         if (bytesRead != buffLen || retval != OS_SUCCESS)
         {
             Os::Logger::instance().log(FAC_KERNEL, PRI_ERR, "Error reading config file or \

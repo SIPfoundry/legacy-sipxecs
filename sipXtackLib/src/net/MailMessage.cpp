@@ -199,7 +199,8 @@ UtlString MailMessage::Send()
     s.write(str.data(),str.length());
 
     // Receive a 354 response
-    s.read(receiveBuf,MAILBUFLEN);
+    int bytesRead = s.read(receiveBuf,MAILBUFLEN);
+    receiveBuf[bytesRead] = '\0';
     if (memcmp(receiveBuf,"354",3) != 0)
     {
         errorMsg = "Unacceptable response to DATA: ";
