@@ -1341,7 +1341,7 @@ static int rr_compare(const void* a, const void* b)
       // Compare on address.
       return memcmp((const void*) &a_rr->rdata.address,
                     (const void*) &b_rr->rdata.address,
-                    sizeof (struct sockaddr));
+                    sizeof (struct in_addr));
 
    default:
       return 0;
