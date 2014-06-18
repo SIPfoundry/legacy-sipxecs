@@ -75,8 +75,15 @@ void TestUtilities::knownBug(const char* message, const char* bugNo,
     
     std::string error = err.what();
     if (error.length() < MAX_BUG_MESSAGE_LEN - 1)
+    {
       strncpy(m_bugMessage, error.c_str(), error.length() );
-
+    }
+    else
+    {
+      strncpy(m_bugMessage, error.c_str(), MAX_BUG_MESSAGE_LEN - 1);
+      m_bugMessage[MAX_BUG_MESSAGE_LEN - 1] = '\0';
+    }
+      
     // return after and allow non-fatal error to occur
 }
 
