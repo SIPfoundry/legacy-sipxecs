@@ -15,8 +15,7 @@
 package org.sipfoundry.sipxconfig.api.impl;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,124 +24,108 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.sipfoundry.sipxconfig.api.CallParkApi;
-import org.sipfoundry.sipxconfig.api.model.CallParkBean;
-import org.sipfoundry.sipxconfig.api.model.CallParkList;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
+import org.sipfoundry.sipxconfig.api.PagingGroupApi;
+import org.sipfoundry.sipxconfig.api.model.PageGroupBean;
+import org.sipfoundry.sipxconfig.api.model.PageGroupBean.UserBean;
+import org.sipfoundry.sipxconfig.api.model.PageGroupList;
 import org.sipfoundry.sipxconfig.api.model.SettingsList;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkSettings;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.paging.PagingFeatureContext;
+import org.sipfoundry.sipxconfig.paging.PagingGroup;
+import org.sipfoundry.sipxconfig.paging.PagingSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class CallParkApiImpl extends FileManager implements CallParkApi {
-    private ParkOrbitContext m_context;
+public class PagingGroupApiImpl extends FileManager implements PagingGroupApi {
+    private PagingContext m_context;
+    private PagingFeatureContext m_featureContext;
+    private CoreContext m_coreContext;
 
     @Override
-    public Response getOrbits() {
-        Collection<ParkOrbit> parkOrbits = m_context.getParkOrbits();
-        if (parkOrbits != null) {
-            return Response.ok().entity(CallParkList.convertOrbitList(parkOrbits)).build();
+    public Response getPageGroups() {
+        List<PagingGroup> groups = m_context.getPagingGroups();
+        if (groups != null) {
+            return Response.ok().entity(PageGroupList.convertPageList(groups)).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }
 
     @Override
-    public Response newOrbit(CallParkBean bean) {
-        ParkOrbit orbit = m_context.newParkOrbit();
+    public Response newPageGroup(PageGroupBean bean) {
         Response response = checkPrompt(bean);
         if (response != null) {
             return response;
         }
-        boolean success = CallParkBean.populateOrbit(bean, orbit);
-        if (!success) {
-            return Response.serverError().build();
+        PagingGroup group = new PagingGroup();
+        PageGroupBean.populateGroup(bean, group);
+        Response populateUsersFailure = populateUsers(bean, group);
+        if (populateUsersFailure != null) {
+            return populateUsersFailure;
         }
-        m_context.storeParkOrbit(orbit);
-        return Response.ok().entity(orbit.getId()).build();
+        m_context.savePagingGroup(group);
+        return Response.ok().build();
     }
 
     @Override
-    public Response getOrbit(Integer orbitId) {
-        ParkOrbit orbit = m_context.loadParkOrbit(orbitId);
-        if (orbit != null) {
-            return Response.ok().entity(CallParkBean.convertOrbit(orbit)).build();
+    public Response getPageGroup(Integer groupId) {
+        PagingGroup group = m_context.getPagingGroupById(groupId);
+        if (group != null) {
+            return Response.ok().entity(PageGroupBean.convertGroup(group)).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }
 
     @Override
-    public Response deleteOrbit(Integer orbitId) {
-        ParkOrbit orbit = m_context.loadParkOrbit(orbitId);
-        if (orbit != null) {
-            m_context.removeParkOrbits(Collections.singleton(orbit.getId()));
+    public Response deletePageGroup(Integer groupId) {
+        PagingGroup group = m_context.getPagingGroupById(groupId);
+        if (group != null) {
+            m_featureContext.deletePagingGroupsById(Collections.singletonList(groupId));
             return Response.ok().build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }
 
     @Override
-    public Response updateOrbit(Integer orbitId, CallParkBean bean) {
-        ParkOrbit orbit = m_context.loadParkOrbit(orbitId);
-        if (orbit != null) {
-            Response response = checkPrompt(bean);
-            if (response != null) {
-                return response;
+    public Response updatePageGroup(Integer groupId, PageGroupBean bean) {
+        Response response = checkPrompt(bean);
+        if (response != null) {
+            return response;
+        }
+        PagingGroup group = m_context.getPagingGroupById(groupId);
+        if (group != null) {
+            PageGroupBean.populateGroup(bean, group);
+            Response populateUsersFailure = populateUsers(bean, group);
+            if (populateUsersFailure != null) {
+                return populateUsersFailure;
             }
-            boolean success = CallParkBean.populateOrbit(bean, orbit);
-            if (!success) {
-                return Response.serverError().build();
+            m_context.savePagingGroup(group);
+            return Response.ok().build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    private Response populateUsers(PageGroupBean bean, PagingGroup group) {
+        group.setUsers(new HashSet<User>());
+        for (UserBean userBean : bean.getUsers()) {
+            User user = null;
+            if (userBean.getId() != null) {
+                user = m_coreContext.getUser(userBean.getId());
+            } else if (userBean.getUserName() != null) {
+                user = m_coreContext.loadUserByUserNameOrAlias(userBean.getUserName());
             }
-            m_context.storeParkOrbit(orbit);
-            return Response.ok().build();
+            if (user == null) {
+                return Response.status(Status.NOT_FOUND).entity(userBean).build();
+            }
+            group.getUsers().add(user);
         }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response getOrbitSettings(Integer orbitId, HttpServletRequest request) {
-        ParkOrbit orbit = m_context.loadParkOrbit(orbitId);
-        if (orbit != null) {
-            Setting settings = orbit.getSettings();
-            return Response.ok().entity(SettingsList.convertSettingsList(settings, request.getLocale())).build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response getOrbitSetting(Integer orbitId, String path, HttpServletRequest request) {
-        ParkOrbit orbit = m_context.loadParkOrbit(orbitId);
-        if (orbit != null) {
-            return ResponseUtils.buildSettingResponse(orbit, path, request.getLocale());
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response setOrbitSetting(Integer orbitId, String path, String value) {
-        ParkOrbit orbit = m_context.loadParkOrbit(orbitId);
-        if (orbit != null) {
-            orbit.setSettingValue(path, value);
-            m_context.storeParkOrbit(orbit);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response deleteOrbitSetting(Integer orbitId, String path) {
-        ParkOrbit orbit = m_context.loadParkOrbit(orbitId);
-        if (orbit != null) {
-            Setting setting = orbit.getSettings().getSetting(path);
-            setting.setValue(setting.getDefaultValue());
-            m_context.storeParkOrbit(orbit);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
+        return null;
     }
 
     @Override
     public Response getSettings(HttpServletRequest request) {
-        ParkSettings settings = m_context.getSettings();
+        PagingSettings settings = m_context.getSettings();
         if (settings != null) {
             return Response.ok()
                     .entity(SettingsList.convertSettingsList(settings.getSettings(), request.getLocale())).build();
@@ -152,7 +135,7 @@ public class CallParkApiImpl extends FileManager implements CallParkApi {
 
     @Override
     public Response getSetting(String path, HttpServletRequest request) {
-        ParkSettings settings = m_context.getSettings();
+        PagingSettings settings = m_context.getSettings();
         if (settings != null) {
             return ResponseUtils.buildSettingResponse(settings, path, request.getLocale());
         }
@@ -161,7 +144,7 @@ public class CallParkApiImpl extends FileManager implements CallParkApi {
 
     @Override
     public Response setSetting(String path, String value) {
-        ParkSettings settings = m_context.getSettings();
+        PagingSettings settings = m_context.getSettings();
         if (settings != null) {
             settings.setSettingValue(path, value);
             m_context.saveSettings(settings);
@@ -172,7 +155,7 @@ public class CallParkApiImpl extends FileManager implements CallParkApi {
 
     @Override
     public Response deleteSetting(String path) {
-        ParkSettings settings = m_context.getSettings();
+        PagingSettings settings = m_context.getSettings();
         if (settings != null) {
             Setting setting = settings.getSettings().getSetting(path);
             setting.setValue(setting.getDefaultValue());
@@ -238,15 +221,23 @@ public class CallParkApiImpl extends FileManager implements CallParkApi {
         return null;
     }
 
-    private Response checkPrompt(CallParkBean bean) {
+    private Response checkPrompt(PageGroupBean bean) {
         if (bean != null) {
-            return checkPrompt(bean.getMusic());
+            return checkPrompt(bean.getSound());
         }
         return null;
     }
 
-    public void setParkOrbitContext(ParkOrbitContext context) {
+    public void setPagingContext(PagingContext context) {
         m_context = context;
+    }
+
+    public void setPagingFeatureContext(PagingFeatureContext context) {
+        m_featureContext = context;
+    }
+
+    public void setCoreContext(CoreContext context) {
+        m_coreContext = context;
     }
 
 }

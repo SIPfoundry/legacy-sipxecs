@@ -42,6 +42,7 @@
             <ref bean="registrationRestApi"/>
             <ref bean="ivrRestApi"/>
             <ref bean="callParkRestApi"/>
+            <ref bean="pagingRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -92,6 +93,13 @@
         <property name="audioPath" value="${sysdir.var}/parkserver/music"/>
         <property name="extensions" ref="audioExtensions"/>
     </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.PagingGroupApiImpl" id="pagingRestApi">
+        <property name="pagingContext" ref="pagingContext"/>
+        <property name="pagingFeatureContext" ref="pagingFeatureContext"/>
+        <property name="coreContext" ref="coreContext"/>
+        <property name="audioPath" value="${sysdir.var}/sipxpage/music"/>
+        <property name="extensions" ref="audioExtensions"/>
+    </bean> 
 
     <mvc:annotation-driven />
     <mvc:view-controller path="/phoneapp" view-name="/ws-phone/index.html"/>
