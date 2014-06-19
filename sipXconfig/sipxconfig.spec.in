@@ -262,7 +262,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
-%config(noreplace) %{sipxpbxconf}/hz-config.vm
 %config(noreplace) %{sipxpbxconf}/sipxconfig/*
 %config(noreplace) %{sipxpbxconf}/sipxdns/*
 %config(noreplace) %{sipxpbxconf}/sipximbot/*
