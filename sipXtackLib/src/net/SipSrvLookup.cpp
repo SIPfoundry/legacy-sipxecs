@@ -826,6 +826,46 @@ void lookup_A(server_t*& list,
    }
 }
 
+const char* SipSrvLookup::getRecordTypeStr(int type)
+{
+   switch (type)
+   {
+      case T_CNAME:
+         return "CNAME";
+      case T_SRV:
+         return "SRV";
+      case T_A:
+         return "A";
+      case T_NAPTR:
+         return "NAPTR";
+      default:
+         return "unknown";
+   }
+}
+
+void SipSrvLookup::raiseDnsQueryAlarm(const char* queryName,
+                                      int queryType)
+{
+  // for A record type we get false positives so we don't raise alarm for it
+
+  if (T_A == queryType)
+  {
+    return;
+  }
+
+  // don't raise alarms for queries of type SRV that don't have ".rr." string in them
+  if (T_SRV == queryType && NULL == strstr(queryName, ".rr."))
+  {
+    return;
+  }
+
+  Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                "ALARM_DNS_QUERY_FAILED "
+                "DNS query failed for '%s'. No valid '%s' records found",
+                queryName,
+                getRecordTypeStr(queryType));
+}
+
 // Perform a DNS query and parse the results.  Follows CNAME records.
 void SipSrvLookup::res_query_and_parse(const char* in_name,
                                        int type,
@@ -838,11 +878,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
                  "SipSrvLookup::res_query_and_parse in_name = '%s', "
                  "type = %d (%s)",
                  in_name,type,
-                 type == T_CNAME ? "CNAME" :
-                 type == T_SRV ? "SRV" :
-                 type == T_A ? "A" :
-                 type == T_NAPTR ? "NAPTR" :
-                 "unknown");
+                 getRecordTypeStr(type));
 
    // The number of CNAMEs we have followed.
    int cname_count = 0;
@@ -948,11 +984,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
                        "DNS query for name '%s', "
                        "type = %d (%s): returned error",
                        name, type,
-                       type == T_CNAME ? "CNAME" :
-                       type == T_SRV ? "SRV" :
-                       type == T_A ? "A" :
-                       type == T_NAPTR ? "NAPTR" :
-                       "unknown");
+                       getRecordTypeStr(type));
          break;
       }
 
@@ -964,11 +996,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
                        "DNS query for name '%s', "
                        "type = %d (%s): response could not be parsed",
                        name, type,
-                       type == T_CNAME ? "CNAME" :
-                       type == T_SRV ? "SRV" :
-                       type == T_A ? "A" :
-                       type == T_NAPTR ? "NAPTR" :
-                       "unknown");
+                       getRecordTypeStr(type));
          break;
       }
       // If requested for testing purposes, sort the query and print it.
@@ -993,6 +1021,10 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
                  "SipSrvLookup::res_query_and_parse out_name = '%s', out_response = %p",
                  out_name, out_response);
 
+   if (NULL == response)
+   {
+     raiseDnsQueryAlarm(name, type);
+   }
 }
 
 /// Set the nameserver address to a specific nameserver.

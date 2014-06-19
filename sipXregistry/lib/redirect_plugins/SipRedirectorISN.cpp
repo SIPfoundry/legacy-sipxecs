@@ -370,6 +370,11 @@ SipRedirectorISN::lookUp(
                        "%s::LookUp no NAPTR record found for domain '%s' "
                        "for ISN translation of '%s'",
                        mLogName.data(), domain, requestString.data());
+
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                       "ALARM_DNS_NO_VALID_NAPTR_RECORDS_FOUND "
+                       "No valid NAPTR records found for domain '%s'",
+                       domain);
       }
 
       // Free the result of res_parse if necessary.

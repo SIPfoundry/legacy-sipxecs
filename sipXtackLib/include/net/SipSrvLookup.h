@@ -221,6 +221,12 @@ public:
                                        ///< The port address of the nameserver
     );
 
+
+    static const char* getRecordTypeStr(int type);
+
+    static void raiseDnsQueryAlarm(const char* queryName,
+                            int queryType);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
