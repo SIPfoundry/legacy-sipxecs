@@ -64,7 +64,8 @@ static const char* CallEvent_DefaultReferElement =
 /// Instantiate an event builder and set the observer name for its events
 CallStateEventBuilder_DB::CallStateEventBuilder_DB(const char* observerDnsName ///< the DNS name to be recorded in all events
                                                      ) :
-   CallStateEventBuilder(observerDnsName)
+   CallStateEventBuilder(observerDnsName),
+   mEventComplete(false)
 {
 }
 

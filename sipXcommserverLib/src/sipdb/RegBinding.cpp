@@ -32,6 +32,7 @@ const char* RegBinding::timestamp_fld(){ static std::string fld = "timestamp"; r
 const char* RegBinding::expired_fld(){ static std::string fld = "expired"; return fld.c_str(); }
 
 RegBinding::RegBinding() :
+    _shardId(0),
     _cseq(0),
     _expirationTime(0),
     _timestamp(0),
@@ -39,7 +40,12 @@ RegBinding::RegBinding() :
 {
 }
 
-RegBinding::RegBinding(const RegBinding& binding)
+RegBinding::RegBinding(const RegBinding& binding) :
+  _shardId(0),
+  _cseq(0),
+  _expirationTime(0),
+  _timestamp(0),
+  _expired(false)
 {
     _identity = binding._identity;
     _uri = binding._uri;
@@ -81,7 +87,12 @@ void RegBinding::swap(RegBinding& binding)
     std::swap(_expired, binding._expired);
 }
 
-RegBinding::RegBinding(const mongo::BSONObj& bson)
+RegBinding::RegBinding(const mongo::BSONObj& bson) :
+  _shardId(0),
+  _cseq(0),
+  _expirationTime(0),
+  _timestamp(0),
+  _expired(false)
 {
     if (bson.hasField(RegBinding::identity_fld()))
       _identity = bson.getStringField(RegBinding::identity_fld());

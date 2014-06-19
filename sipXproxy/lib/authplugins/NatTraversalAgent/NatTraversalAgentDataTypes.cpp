@@ -721,6 +721,7 @@ MediaRelaySession::MediaRelaySession( const tMediaRelayHandle& uniqueHandle,
    mCallerRtpPort( callerPort ),
    mCalleeRtpPort( calleePort ),
    mbIsaCloneOfAnotherMediaRelaySession( isaCloneOfAnotherMediaRelaySession ),
+   mbCallerAndCalleeRtpPortsSwapped(false),
    mpAssociatedMediaBridgePair( pAssociatedMediaBridgePair ),
    mLinkCount( 1 )
 {

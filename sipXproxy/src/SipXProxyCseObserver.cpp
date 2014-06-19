@@ -36,7 +36,10 @@ class BranchTimePair : public UtlString
 
 public:
    BranchTimePair(const char* name, const unsigned long* time = NULL, const bool* paipresent = NULL) :
-      UtlString(name)
+      UtlString(name),
+      timeInt(0),
+      paibool(false),
+      count(0)
    {
       if ( time ) {
          setValue(time);
@@ -67,7 +70,8 @@ public:
    BranchTimePair(const BranchTimePair& rBranchTimePair):
    UtlString(rBranchTimePair),
    timeInt(0),
-   paibool(false)
+   paibool(false),
+   count(0)
    {
       setValue(&rBranchTimePair.timeInt);
       setPaiPresent(&rBranchTimePair.paibool);

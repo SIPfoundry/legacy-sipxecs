@@ -31,6 +31,8 @@
 // Constructor allowing the user to specify options
 OsMutexLinux::OsMutexLinux(const unsigned options)
 {
+   mMutexImp.thread = 0;
+   
    int res;
 
    res = pt_mutex_init(&mMutexImp);

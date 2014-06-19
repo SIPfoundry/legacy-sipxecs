@@ -66,13 +66,14 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor,
    mSSL(NULL),
    mPeerIdentity(NOT_IDENTIFIED)
 {
+   mbExternalSSLSocket = FALSE;
+   
    if (mIsConnected)
    {
       Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsSSLConnectionSocket::_(socket %d , timeout %ld)",
                     connectedSocketDescriptor, timeoutInSecs
                     );
-      mbExternalSSLSocket = FALSE;
       SSLInitSocket(connectedSocketDescriptor, timeoutInSecs);
    }
    else

@@ -62,6 +62,7 @@ CallerAlertInfo::CallerAlertInfo(const UtlString& pluginName ///< the name for t
      mExternalEnabled(false),
      mInternalText(""),
      mInternalEnabled(false),
+     mReplaceExisting(false),
      mpSipRouter( 0 )
 {
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "CallerAlertInfo[%s] started",

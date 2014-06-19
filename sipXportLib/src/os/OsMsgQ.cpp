@@ -36,11 +36,14 @@ const UtlString OsMsgQBase::MSGQ_PREFIX("MsgQ.");
 
 /* ============================ CREATORS ================================== */
 
+#define DEFAULT_MSGQ_MAX_MSGS 1024
+
 // Constructor
 // If the name is specified but is already in use, throw an exception
-OsMsgQBase::OsMsgQBase(const char* name)
-:  mSendHookFunc(NULL),
+OsMsgQBase::OsMsgQBase(const char* name) :  
+   mSendHookFunc(NULL),
    mFlushHookFunc(NULL),
+   mMaxMsgs(DEFAULT_MSGQ_MAX_MSGS),
    mName(name)
 {
    if (mName != "")

@@ -498,7 +498,7 @@ void DbHelper::printCell(std::ostream& strm, const std::string& cellName, T cell
    }
 }
 
-DbHelper::DbHelper()
+DbHelper::DbHelper() : _pFnPrintEntry(0)
 {
 
 }

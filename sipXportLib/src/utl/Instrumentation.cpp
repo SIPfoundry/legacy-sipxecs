@@ -30,6 +30,10 @@ struct TraceElements
 {
   TraceElements()
   {
+    for (int i = 0; i < TraceElementSize; i++)
+    {
+      trace_elems[i] = 0;
+    }
     size = 0;
   }
 

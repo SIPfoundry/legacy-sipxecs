@@ -61,6 +61,7 @@ Moribund*                                   DialogTracker::pMoribund = 0;
 
 DialogTracker::DialogTracker( const DialogTracker& referenceDialogTracker,
                               const UtlString& newHandle ) :
+  mbInitialDialogEstablished(false),
   mpCopyOfPatchedSdpBody( 0 )
 {
    // Init state machine pointers
@@ -1178,7 +1179,8 @@ void DialogTracker::initializeStatePointers( void )
 }
 
 DialogTracker::RetransmissionDescriptor::RetransmissionDescriptor() :
-   mpSavedPatchedSdp( 0 )
+   mpSavedPatchedSdp( 0 ),
+   mSequenceNumber(0)
 {}
 
 void DialogTracker::RetransmissionDescriptor::setMessageToTrackRetransmissionsOf( const SipMessage& messageToTrackRetransmissionsOf,

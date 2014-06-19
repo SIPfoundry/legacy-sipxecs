@@ -28,9 +28,9 @@ class DBConnectionPool;
 class PoolForHost {
 public:
   PoolForHost()
-      : _created(0), _minValidCreationTimeMicroSec(0) {}
+      : _created(0), _minValidCreationTimeMicroSec(0), _type(mongo::ConnectionString::INVALID) {}
 
-  PoolForHost( const PoolForHost& other )
+  PoolForHost( const PoolForHost& other ) : _type(mongo::ConnectionString::INVALID)
   {
     OS_LOG_AND_ASSERT((other._pool.size() == 0), FAC_DB, "cannot copy pool with size > 0");
     _created = other._created;

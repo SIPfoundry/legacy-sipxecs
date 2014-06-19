@@ -56,8 +56,14 @@ TiXmlString::TiXmlString (const char* instring)
 }
 
 // TiXmlString copy constructor
-TiXmlString::TiXmlString (const TiXmlString& copy)
+TiXmlString::TiXmlString (const TiXmlString& copy) :
+  cstring(0),
+  allocated(0),
+  current_length(0)
 {
+
+
+    
     size_t newlen;
     char * newstring;
 

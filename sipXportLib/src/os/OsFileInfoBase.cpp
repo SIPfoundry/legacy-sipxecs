@@ -26,12 +26,18 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsFileInfoBase::OsFileInfoBase()
+OsFileInfoBase::OsFileInfoBase() :
+  mbIsReadOnly(0),
+  mbIsDirectory(0),
+  mSize(0)
 {
 }
 
 // Copy constructor
-OsFileInfoBase::OsFileInfoBase(const OsFileInfoBase& rOsFileInfoBase)
+OsFileInfoBase::OsFileInfoBase(const OsFileInfoBase& rOsFileInfoBase) :
+  mbIsReadOnly(0),
+  mbIsDirectory(0),
+  mSize(0)
 {
 }
 

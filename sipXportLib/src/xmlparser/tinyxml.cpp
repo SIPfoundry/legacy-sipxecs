@@ -899,7 +899,10 @@ TiXmlDocument::TiXmlDocument( const std::string& documentName ) : TiXmlNode( TiX
 #endif
 
 
-TiXmlDocument::TiXmlDocument( const TiXmlDocument& copy ) : TiXmlNode( TiXmlNode::DOCUMENT )
+TiXmlDocument::TiXmlDocument( const TiXmlDocument& copy ) : 
+  TiXmlNode( TiXmlNode::DOCUMENT ),
+  errorId(0),
+  tabsize(0)
 {
 	copy.CopyTo( this );
 }
