@@ -191,6 +191,5 @@
 	<classpathentry exported="true" kind="lib" path="lib/org.springframework.jdbc-3.1.4.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/spring-web-4.0.3.RELEASE.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-annotations-2.3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/hazelcast-all-3.3-EA.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

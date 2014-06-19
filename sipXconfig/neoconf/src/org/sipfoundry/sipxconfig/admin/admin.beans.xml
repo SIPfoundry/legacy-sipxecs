@@ -70,9 +70,5 @@
     <property name="saaLimitsConfig" ref="saaResLimits" />
     <property name="registrarLimitsConfig" ref="registrarResLimits" />
   </bean>
-  
-  <bean id="hzConfig" class="org.sipfoundry.sipxconfig.admin.HzConfig">
-    <property name="velocityEngine" ref="velocityEngine" />
-  </bean>  
     
 </beans>

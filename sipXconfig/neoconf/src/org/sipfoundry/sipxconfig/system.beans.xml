@@ -340,11 +340,4 @@
   <bean id="beanWithSettings" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
-  
-  <!--
-    - H A Z E L C A S T
-  -->
-  <bean id="hzInstance" class="com.hazelcast.core.Hazelcast" factory-method="newHazelcastInstance">
-  </bean>
-  
 </beans>

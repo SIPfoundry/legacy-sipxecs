@@ -101,8 +101,7 @@ sipxconfig_neoconf_PKGS = \
 	stax2-api \
 	jcl-over-slf4j \
 	spring-messaging \
-    spring-websocket \
-    hazelcast-all
+    spring-websocket
 
 sipxconfig_web_PKGS = \
 	$(sipxconfig_neoconf_PKGS) \

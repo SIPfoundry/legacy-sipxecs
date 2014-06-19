@@ -89,10 +89,4 @@
     <constructor-arg><ref bean="fsConfig"/></constructor-arg>
   </bean>
 
-  <!--
-    - H A Z E L C A S T
-  -->
-  <bean id="hzInstance" class="com.hazelcast.core.Hazelcast" factory-method="newHazelcastInstance">
-  </bean>
-
 </beans>

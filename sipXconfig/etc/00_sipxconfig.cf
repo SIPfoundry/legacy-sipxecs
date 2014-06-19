@@ -33,12 +33,6 @@ bundle agent 00_sipxconfig {
         create => "true",
         perms => m("644"),
         copy_from => copy_from_cfdata("resource-limits.ini");
-    any::
-      "$(sipx.SIPX_CONFDIR)/hz-config.xml"
-        comment => "hazelcast config file",
-        create => "true",
-        perms => m("644"),
-        copy_from => copy_from_cfdata("$(sipx.location_id)/hz-config.xml");        
     primary::
       "$(sipx.SIPX_CONFDIR)/sipxconfig.properties"
         comment => "sipXconfig configuration $(this.promiser)",
