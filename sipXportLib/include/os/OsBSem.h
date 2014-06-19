@@ -73,7 +73,7 @@ public:
 protected:
    int mOptions;  // options specified at time of binary semaphore creation
 
-   OsBSemBase()  {  };
+   OsBSemBase() : mOptions(0) {  };
      //:Default constructor
 
    virtual

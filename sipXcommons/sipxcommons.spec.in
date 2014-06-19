@@ -100,6 +100,7 @@ fi
 %{_datadir}/sipxecs/schema/spring-context.xsd
 %{_datadir}/sipxecs/schema/spring-mvc.xsd
 %{_datadir}/sipxecs/schema/spring-websocket-4.0.xsd
+%{_datadir}/sipxecs/schema/core.xsd
 %{_datadir}/sipxecs/schema/spring-all.xsd
 
 %changelog

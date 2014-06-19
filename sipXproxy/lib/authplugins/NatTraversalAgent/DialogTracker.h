@@ -287,6 +287,7 @@ private:
    class ResponseRetransmissionDescriptor : public RetransmissionDescriptor
    {
       public:
+         ResponseRetransmissionDescriptor() : mResponseCode(0) {};
          virtual ~ResponseRetransmissionDescriptor(){};
          bool operator==( const SipMessage& response ) const;
          bool operator!=( const SipMessage& request ) const;

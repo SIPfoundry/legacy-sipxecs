@@ -27,7 +27,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsProcessIteratorBase::OsProcessIteratorBase()
+OsProcessIteratorBase::OsProcessIteratorBase() :
+  prioFilterClass(OsProcess::NormalPriorityClass)
 {
 }
 

@@ -35,6 +35,7 @@ NatTraversalRules::NatTraversalRules()
      mbSystemBehindNat     ( false ),
      mbAggressiveModeSet   ( true ),
      mbMediaRelayPublicAddressProvidedInConfig( false ),
+     mMediaRelayXmlRpcPort(0),
      mMaxMediaRelaySessions( DEFAULT_MAX_MEDIA_RELAY_SESSIONS ),
      mbDiscoverPublicIpAddressViaStun( false ),
      mStunRefreshIntervalInSecs( 300 ),

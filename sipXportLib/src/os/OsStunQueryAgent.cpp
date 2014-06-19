@@ -1004,8 +1004,11 @@ void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int t
  *  Not applicable
  *-----------------------------------------------------------------------------
  */
-OsStunQueryAgent::OsStunQueryAgent () {
-    isValidServer=false;
+OsStunQueryAgent::OsStunQueryAgent () :
+  isValidServer(false)
+{
+  stunServer.addr = 0;
+  stunServer.port = 0;
 }
 
 /*-----------------------------------------------------------------------------

@@ -205,7 +205,9 @@ RESTServer::RESTServer() :
   _serverParamsHandle(0),
   _maxQueuedConnections(HTTP_SERVER_MAX_QUEUED_CONNECTIONS),
   _maxThreads(HTTP_SERVER_MAX_THREADS),
-  _rootDocument(REST_DEFAULT_ROOT_DOCUMENT)
+  _rootDocument(REST_DEFAULT_ROOT_DOCUMENT),
+  _port(0),
+  _isSecure(false)
 {
 }
 
@@ -216,7 +218,9 @@ RESTServer::RESTServer(int maxQueuedConnections, int maxThreads) :
   _serverParamsHandle(0),
   _maxQueuedConnections(maxQueuedConnections),
   _maxThreads(maxThreads),
-  _rootDocument(REST_DEFAULT_ROOT_DOCUMENT)
+  _rootDocument(REST_DEFAULT_ROOT_DOCUMENT),
+  _port(0),
+  _isSecure(false)
 {
 }
 

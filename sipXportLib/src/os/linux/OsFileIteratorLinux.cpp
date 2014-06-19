@@ -28,8 +28,10 @@
 
 
 OsFileIteratorLinux::OsFileIteratorLinux(const OsPathLinux& pathname) :
-OsFileIteratorBase(pathname),
-mSearchHandle(NULL)
+  OsFileIteratorBase(pathname),
+  mSearchHandle(NULL),
+  mMatchAttrib(ANY_FILE),
+  mFileCount(0)
 {
 }
 
@@ -55,7 +57,9 @@ OsFileIteratorLinux::~OsFileIteratorLinux()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 OsFileIteratorLinux::OsFileIteratorLinux() :
-mSearchHandle(NULL)
+  mSearchHandle(NULL),
+  mMatchAttrib(ANY_FILE),
+  mFileCount(0)
 {
 }
 

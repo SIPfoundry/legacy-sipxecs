@@ -38,7 +38,10 @@ OsLockingList::OsLockingList() :
 
 // Copy constructor
 OsLockingList::OsLockingList(const OsLockingList& rOsLockingList) :
-listMutex(OsMutex::Q_FIFO)
+   listMutex(OsMutex::Q_FIFO),
+   iteratorLockCount(0),
+   listIterator(0),
+   currentElement(0)
 {
 }
 

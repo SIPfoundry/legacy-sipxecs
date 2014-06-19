@@ -185,6 +185,7 @@ bool SipBridgeRouter::retargetUri(SipMessage& sipRequest, const std::string& hos
 SipBridgeRouter::SipBridgeRouter(SipRouter* pRouter) : 
   _pRouter(pRouter),
   _bridgeWanPort(5080),
+  _bridgeLanPort(5090),
   _enabled(false)
 {
   _bridgeConfigFilePath = SipXecsService::Path(SipXecsService::ConfigurationDirType,

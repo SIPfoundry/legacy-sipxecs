@@ -9,4 +9,6 @@
     <xs:import namespace="http://www.springframework.org/schema/context" schemaLocation="spring-context.xsd" />
     <xs:import namespace="http://www.springframework.org/schema/websocket" schemaLocation="spring-websocket-4.0.xsd" />
     <xs:import namespace="http://www.springframework.org/schema/mvc" schemaLocation="spring-mvc.xsd" />
+    <xs:import namespace="http://www.springframework.org/schema/util" schemaLocation="spring-util-2.0.xsd" />
+    <xs:import namespace="http://cxf.apache.org/core" schemaLocation="core.xsd" />
 </xs:schema>

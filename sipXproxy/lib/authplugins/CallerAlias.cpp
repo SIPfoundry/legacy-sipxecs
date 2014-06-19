@@ -54,7 +54,8 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 /// constructor
 CallerAlias::CallerAlias(const UtlString& pluginName ///< the name for this instance
 ) :
-	AuthPlugin(pluginName)
+	AuthPlugin(pluginName),
+  mpSipRouter(0)
 {
         MongoDB::ConnectionInfo info = MongoDB::ConnectionInfo::globalInfo();
 	mpEntityDb = new EntityDB(info);

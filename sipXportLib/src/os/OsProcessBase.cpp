@@ -32,7 +32,9 @@
 OsProcessBase::OsProcessBase() :
    mPID(-1),
    mParentPID(-1),
-   mProcessName("")
+   mProcessName(""),
+   mPrioClass(NormalPriorityClass),
+   mExeclusive(0)
 {
 }
 

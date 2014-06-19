@@ -39,8 +39,12 @@ const unsigned long int RegEx::MAX_RECURSION = SIPX_MAX_REGEX_RECURSION;
 #endif
 
 /////////////////////////////////
-RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth)
-{
+RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth) :
+  subjectStr(0),
+  subjectLen(0),
+  lastStart(0),
+  lastMatches(0)
+{ 
    const char*  pcre_error;
    int          erroffset;
 
@@ -96,7 +100,11 @@ RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth)
 };
 
 /////////////////////////////////
-RegEx::RegEx(const RegEx& regex)
+RegEx::RegEx(const RegEx& regex) :
+  subjectStr(0),
+  subjectLen(0),
+  lastStart(0),
+  lastMatches(0)
 {
    const char * error = __FILE__ ": unknown error in RegEx(RegEx)";
 

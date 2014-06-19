@@ -141,6 +141,7 @@ buildCommand() {
      -Djava.io.tmpdir=${TmpDir} \
      -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig \
      -Djetty.conf.dir=@SIPX_CONFDIR@ \
+     -Dhazelcast.config=@SIPX_CONFDIR@/hz-config.xml \
      -Djetty.log.dir=${LogDir} \
      -Dorg.apache.lucene.lockdir=${IndexDir} \
      -Dorg.apache.commons.loging.Log=org.apache.commons.logging.impl.Log4JLogger \

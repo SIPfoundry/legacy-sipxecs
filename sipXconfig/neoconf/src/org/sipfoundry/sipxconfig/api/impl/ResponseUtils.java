@@ -14,13 +14,21 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import org.sipfoundry.sipxconfig.api.model.FileBean;
 import org.sipfoundry.sipxconfig.api.model.SettingBean;
 import org.sipfoundry.sipxconfig.api.model.SettingsList;
 import org.sipfoundry.sipxconfig.api.model.ServerBean.JobList;
@@ -30,6 +38,8 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public final class ResponseUtils {
+    public static final String CONTENT_LENGTH = "Content-Length";
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     private ResponseUtils() {
     }
@@ -61,5 +71,26 @@ public final class ResponseUtils {
             return Response.ok().entity(JobList.convertJobList(serverJobs, locale)).build();
         }
         return Response.status(Status.NOT_FOUND).build();
+    }
+
+    public static Response buildDownloadFileResponse(File file) {
+        FileBean bean = FileBean.convertFile(file);
+        ResponseBuilder responseBuilder = Response.ok(file, bean.getType());
+        responseBuilder.header(CONTENT_DISPOSITION, "attachment; filename=" + bean.getName());
+        responseBuilder.header(CONTENT_LENGTH, bean.getSize());
+        return responseBuilder.build();
+    }
+
+    public static Response buildStreamFileResponse(final File file) {
+        StreamingOutput stream = new StreamingOutput() {
+            @Override
+            public void write(OutputStream outputStream) throws IOException, WebApplicationException {
+                Files.copy(file.toPath(), outputStream);
+            }
+        };
+        FileBean bean = FileBean.convertFile(file);
+        ResponseBuilder responseBuilder = Response.ok(stream, bean.getType());
+        responseBuilder.header(CONTENT_LENGTH, bean.getSize());
+        return responseBuilder.build();
     }
 }

@@ -30,13 +30,17 @@
 OsFileIteratorBase::OsFileIteratorBase(const OsPathBase& pathname) :
    mUserSpecifiedPath(pathname),
    mFilterExp(NULL),
-   mSearchHandle(INVALID_HANDLE)
+   mSearchHandle(INVALID_HANDLE),
+   mMatchAttrib(ANY_FILE),
+   mFileCount(0)
 {
 }
 
 OsFileIteratorBase::OsFileIteratorBase() :
    mFilterExp(NULL),
-   mSearchHandle(INVALID_HANDLE)
+   mSearchHandle(INVALID_HANDLE),
+   mMatchAttrib(ANY_FILE),
+   mFileCount(0)
 {
 }
 

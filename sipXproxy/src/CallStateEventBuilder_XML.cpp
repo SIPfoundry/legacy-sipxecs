@@ -181,7 +181,9 @@ const char* EventText[] =
 /// Instantiate an event builder and set the observer name for its events
 CallStateEventBuilder_XML::CallStateEventBuilder_XML(const char* observerDnsName ///< the DNS name to be recorded in all events
                                                      ) :
-   CallStateEventBuilder(observerDnsName)
+   CallStateEventBuilder(observerDnsName),
+   mViaCount(0),
+   mEventComplete(false)
 {
 }
 

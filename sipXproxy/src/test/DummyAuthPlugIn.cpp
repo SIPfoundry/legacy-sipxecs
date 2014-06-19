@@ -21,6 +21,7 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 /// constructor
 DummyAuthPlugin::DummyAuthPlugin(const UtlString& pluginName )
    : AuthPlugin(pluginName),
+     mLastAuthResult(DENY),
      mbDenyNextRequest( false )
 {
    Os::Logger::instance().log(FAC_SIP,PRI_INFO,"DummyAuthPlugin plugin instantiated '%s'",

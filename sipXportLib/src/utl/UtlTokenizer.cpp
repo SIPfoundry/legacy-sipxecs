@@ -107,7 +107,9 @@ UtlBoolean UtlTokenizer::isDelim(const char c, const char *delim)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 // Copy constructor
-UtlTokenizer::UtlTokenizer(const UtlTokenizer& rUtlTokenizer)
+UtlTokenizer::UtlTokenizer(const UtlTokenizer& rUtlTokenizer) :
+  m_tokens(0),
+  m_tokenPosition(0)
 {
 }
 

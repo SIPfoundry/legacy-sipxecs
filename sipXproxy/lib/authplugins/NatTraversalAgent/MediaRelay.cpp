@@ -98,6 +98,7 @@ const UtlContainableType AsynchMediaRelayMsg::TYPE = "AsynchMediaRelayMsg";
 #define GENERIC_TIMER_TICKS_BEFORE_SYMMITRON_RECONNECT_ATTEMPT (1)
 #define GENERIC_TIMER_TICKS_BEFORE_BRIDGE_STAT_QUERY           (10)
 #define DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS                    (20000)
+#define DEFAULT_MAX_MEDIA_RELAY 100;
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -110,6 +111,10 @@ MediaRelay::MediaRelay() :
    mGenericTimerTickCounter( 0 ),
    mbPollForSymmitronRecovery( false )
 {
+  mbIsPartOfsipXLocalPrivateNetwork = false;
+  mXmlRpcPort = 0;
+  mMaxMediaRelaySessions = DEFAULT_MAX_MEDIA_RELAY;	
+  mRelaySessionHandle = 0;
    // start the timer that will periodically ping the symmitron and query bridge stats
    OsTime genericTimerPeriod( GENERIC_TIMER_IN_SECS, 0 );
    mGenericTimer.periodicEvery( genericTimerPeriod, genericTimerPeriod );
@@ -1527,9 +1532,12 @@ AsynchMediaRelayMsg::AsynchMediaRelayMsg( EventSubType eventSubType,
                                           const UtlString& subId ) :
    OsMsg( OS_EVENT, eventSubType ),
    mControllerHandle( controllerHandle ),
-   mSubId( subId )
+   mSubId( subId ),
+   mPort(0),
+   mTimeout(0),
+   mKeepAliveTime( 0),
+   mpOpaqueData(0)
 {
-
 }
 
 AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
@@ -1541,8 +1549,10 @@ AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
    mControllerHandle( controllerHandle ),
    mSubId( symId ),
    mIpAddress( ipAddress ),
-   mPort( port ),
-   mKeepAliveTime( keepAliveTime )
+   mPort(port),
+   mTimeout(0),
+   mKeepAliveTime(keepAliveTime),
+   mpOpaqueData(0)
 {
 }
 
@@ -1552,7 +1562,10 @@ AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
    OsMsg( OS_EVENT,  AsynchMediaRelayMsg::SYMMITRON_SET_SYM_TIMEOUT ),
    mControllerHandle( controllerHandle ),
    mSubId( symId ),
-   mTimeout( timeout )
+   mPort(0),
+   mTimeout(timeout),
+   mKeepAliveTime( 0),
+   mpOpaqueData(0)
 {
 }
 
@@ -1562,13 +1575,20 @@ AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
    OsMsg( OS_EVENT,  AsynchMediaRelayMsg::SYMMITRON_GET_BRIDGE_STATS ),
    mControllerHandle( controllerHandle ),
    mSubId( bridgeId ),
+   mPort(0),
+   mTimeout(0),
+   mKeepAliveTime( 0),
    mpOpaqueData( opaqueData )
 {
 }
 
 AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle ) :
    OsMsg( OS_EVENT,  AsynchMediaRelayMsg::SYMMITRON_PING ),
-   mControllerHandle( controllerHandle )
+   mControllerHandle( controllerHandle ),
+   mPort(0),
+   mTimeout(0),
+   mKeepAliveTime( 0),
+   mpOpaqueData(0)
 {
 }
 

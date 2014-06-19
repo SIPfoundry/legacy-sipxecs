@@ -15,13 +15,16 @@
         }
 
         function connect() {
-            var socket = new SockJS('/sipxconfig/api/ws/phone');
+            var socket = new SockJS('/sipxconfig/api/ws/event');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function(frame) {
                 setConnected(true);
                 console.log('Connected: ' + frame);
                 stompClient.subscribe('/topic/store-phone', function(phone){
-                    showPhone('Serial: ' + JSON.parse(phone.body).serialNo + ' Model: ' + JSON.parse(phone.body).model.label);
+                    showEvent('PHONE ** Serial: ' + JSON.parse(phone.body).serialNo + ' Model: ' + JSON.parse(phone.body).model.label);
+                });
+                stompClient.subscribe('/user/topic/receive-vm', function(voicemail){
+                    showEvent('VOICEMAIL ** Message: ' + JSON.parse(voicemail.body).description);
                 });                
             });
         }
@@ -32,7 +35,7 @@
             console.log("Disconnected");
         }        
 
-        function showPhone(message) {
+        function showEvent(message) {
             var response = document.getElementById('response');
             var p = document.createElement('p');
             p.style.wordWrap = 'break-word';

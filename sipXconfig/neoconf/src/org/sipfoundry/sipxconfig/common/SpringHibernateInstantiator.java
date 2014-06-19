@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -172,9 +174,15 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
 
     private Collection<HibernateEntityChangeProvider> getHbEntityChangeProviders() {
         if (m_hbEntityProviders == null) {
-            Map<String, HibernateEntityChangeProvider> resLimitsConfigsMap = m_beanFactory.
-                    getBeansOfType(HibernateEntityChangeProvider.class, false, false);
-            m_hbEntityProviders = resLimitsConfigsMap.values();
+            m_hbEntityProviders = new ArrayList<HibernateEntityChangeProvider>();
+            Map<String, HibernateEntityChangeProvider> beanMap = m_beanFactory
+                    .getBeansOfType(HibernateEntityChangeProvider.class, false,
+                            false);
+            for (HibernateEntityChangeProvider provider : beanMap.values()) {
+                if (provider instanceof Proxy) {
+                    m_hbEntityProviders.add(provider);
+                }
+            }
         }
         return m_hbEntityProviders;
     }
