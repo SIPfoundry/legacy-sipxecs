@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
         org.sipfoundry.sipxconfig.common.User[] myUsers = search(manageUser.getSearch());
         for (int i = 0; i < myUsers.length; i++) {
             if (Boolean.TRUE.equals(manageUser.getDeleteUser())) {
-                m_coreContext.deleteUser(myUsers[i]);
+                m_coreContext.deleteUsers(Collections.singletonList(myUsers[i].getId()));
                 continue; // no other edits make sense
             }
             Property[] edit = manageUser.getEdit();
