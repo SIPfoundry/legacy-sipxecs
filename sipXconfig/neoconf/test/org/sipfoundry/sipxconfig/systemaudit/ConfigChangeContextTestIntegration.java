@@ -56,7 +56,7 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
         assertNotSame(-1, configChangeValue.getId());
     }
 
-    public void testConfigChangeConstraintViolation() {
+    public void testUserIpAddressMissingUserName() {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeAction(ConfigChangeAction.ADDED);
         configChange.setConfigChangeType(ConfigChangeType.PHONE);
@@ -69,33 +69,14 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("ConstraintViolationException"));
         }
+    }
 
-        userIpAddress = new UserIpAddress();
-        userIpAddress.setIpAddress("localhost");
-        configChange.setUserIpAddress(userIpAddress);
-        try {
-            m_configChangeContext.storeConfigChange(configChange);
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("ConstraintViolationException"));
-        }
-
-        configChange = new ConfigChange();
+    public void testUserIpAddressMissingIpAddress() {
+        ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeType(ConfigChangeType.PHONE);
+        UserIpAddress userIpAddress = new UserIpAddress();
         userIpAddress = new UserIpAddress();
         userIpAddress.setUserName("superadmin");
-        userIpAddress.setIpAddress("localhost");
-        configChange.setUserIpAddress(userIpAddress);
-        try {
-            m_configChangeContext.storeConfigChange(configChange);
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("ConstraintViolationException"));
-        }
-
-        configChange = new ConfigChange();
-        configChange.setConfigChangeAction(ConfigChangeAction.ADDED);
-        userIpAddress = new UserIpAddress();
-        userIpAddress.setUserName("superadmin");
-        userIpAddress.setIpAddress("localhost");
         configChange.setUserIpAddress(userIpAddress);
         try {
             m_configChangeContext.storeConfigChange(configChange);
