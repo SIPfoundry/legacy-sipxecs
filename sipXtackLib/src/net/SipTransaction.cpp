@@ -2927,11 +2927,6 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                               "SipTransaction::recurseDnsSrvChildren "
                               "no valid DNS records found for sendTo sip:'%s':%d proto = '%s'",
                               mSendToAddress.data(), mSendToPort, protoString.data());
-
-                Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                              "ALARM_DNS_NO_VALID_RECORDS_FOUND "
-                              "No valid DNS records found for '%s'",
-                              mSendToAddress.data());
             }
         }
     }

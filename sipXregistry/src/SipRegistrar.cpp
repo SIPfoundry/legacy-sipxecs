@@ -106,6 +106,14 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    OsConfigDb domainConfig;
    domainConfig.loadFromFile(SipXecsService::domainConfigPath());
 
+   UtlString domainName;
+   domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, domainName);
+   if (!domainName.isNull())
+   {
+     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar "
+                   "SIP_DOMAIN_NAME: %s", domainName.data());
+     SipSrvLookup::setDomainName(domainName);
+   }
 
    // Domain Aliases
    //   (other domain names that this registrar accepts as valid in the request URI)

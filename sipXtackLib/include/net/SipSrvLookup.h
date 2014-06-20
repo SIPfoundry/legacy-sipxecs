@@ -227,6 +227,8 @@ public:
     static void raiseDnsQueryAlarm(const char* queryName,
                             int queryType);
 
+    static void setDomainName(const char* domainName);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -239,6 +241,9 @@ protected:
    /// Our own hostname
    static UtlString mOwnHostname;
    
+   // local domain name
+   static UtlString mDomainName;
+
    /// Sets the timeout parameter for DNS SRV queries. Default is 3
    static int mTimeout;
 
