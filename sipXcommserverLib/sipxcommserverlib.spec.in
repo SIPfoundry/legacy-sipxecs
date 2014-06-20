@@ -64,6 +64,9 @@ Requires: poco-util
 Requires: poco-xml
 Requires: poco-zip
 
+BuildRequires: leveldb-devel
+Requires: leveldb
+
 Obsoletes: %{name}-doc
 
 Prefix: %_prefix

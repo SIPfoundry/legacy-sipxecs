@@ -26,7 +26,8 @@ nobase_include_HEADERS =  \
     sipdb/DbHelper.h \
     sipdb/CustomConnPool.h \
     sipdb/unqlite.h \
-    sipdb/KeyValueStore.h \
+    sipdb/UnqliteDB.h \
+    sipdb/LevelDB.h \
     sipdb/RESTClient.h \
     sipdb/RESTServer.h \
     digitmaps/UrlMapping.h \
