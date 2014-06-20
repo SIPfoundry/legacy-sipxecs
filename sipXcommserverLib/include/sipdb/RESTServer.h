@@ -19,9 +19,10 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/thread.hpp>
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
-#include "sipdb/KeyValueStore.h"
+#include "sipdb/LevelDB.h"
 
 
 #define REST_DEFAULT_ROOT_DOCUMENT "/root"
@@ -36,7 +37,7 @@ public:
   typedef Poco::Net::HTTPServerResponse Response;
   typedef void* OS_HANDLE;
   typedef boost::function<void(Request&, Response&)> Handler;
-  typedef std::map<std::string, KeyValueStore*> KVStore;
+  typedef std::map<std::string, LevelDB*> KVStore;
   
   RESTServer();
   
@@ -64,7 +65,7 @@ public:
   
   void setDataDirectory(const std::string& dataDirectory);
   
-  KeyValueStore* getStore(const std::string& path);
+  LevelDB* getStore(const std::string& path);
 
 protected:  
   void onHandleRequest(Request& request, Response& response);
@@ -73,11 +74,11 @@ protected:
   
   bool isAuthorized(Request& request, Response& response);
   
-  void sendRestRecordsAsJson(const std::vector<std::string>& pathVector, KeyValueStore::Records& records, Response& response);
+  void sendRestRecordsAsJson(const std::vector<std::string>& pathVector, LevelDB::Records& records, Response& response);
   
-  void sendRestJsonDocument(const std::vector<std::string>& pathVector, std::size_t depth, KeyValueStore::Records& records, std::ostream& ostr);
+  void sendRestJsonDocument(const std::vector<std::string>& pathVector, std::size_t depth, LevelDB::Records& records, std::ostream& ostr);
   
-  void sendRestRecordsAsValuePairs(const std::string& path, const KeyValueStore::Records& records, Response& response);
+  void sendRestRecordsAsValuePairs(const std::string& path, const LevelDB::Records& records, Response& response);
   
   void escapeString(std::string& str);
 private:
