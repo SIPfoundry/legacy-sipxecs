@@ -12,7 +12,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.websocket;
+package org.sipfoundry.sipxconfig.websocket.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
