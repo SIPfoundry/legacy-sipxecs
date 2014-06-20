@@ -56,6 +56,7 @@ BUILD_EPEL = \
 	wxGTK-devel-* \
 	wxGTK-media-* \
 	xemacs-* \
+	leveldb-devel-*
 
 # Technincally these could be build and runtime requirements
 RUNTIME_EPEL = \
@@ -103,5 +104,6 @@ RUNTIME_EPEL = \
 	wxBase-* \
 	wxGTK-2.* \
 	wxGTK-gl-* \
-	zeromq-*
+	zeromq-* \
+	leveldb-*
 
