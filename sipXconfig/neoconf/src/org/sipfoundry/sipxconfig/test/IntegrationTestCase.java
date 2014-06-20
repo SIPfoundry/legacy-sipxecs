@@ -35,11 +35,6 @@ import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisherImpl;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditManagerMock;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -63,27 +58,6 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
 
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
-    }
-
-    /**
-     * mocks SystemAuditManager to prevent auditing unit tests
-     */
-    private void mockSystemAuditManager(ConfigurableApplicationContext context) {
-        ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
-        String systemAuditManagerBeanName = "systemAuditManagerImpl";
-        if (beanFactory.containsBean(systemAuditManagerBeanName)) {
-            BeanDefinitionRegistry beanDefinitionRegistry = ((BeanDefinitionRegistry) beanFactory);
-            beanDefinitionRegistry.removeBeanDefinition(systemAuditManagerBeanName);
-            RootBeanDefinition mockBean = new RootBeanDefinition(SystemAuditManagerMock.class);
-            beanDefinitionRegistry.registerBeanDefinition(systemAuditManagerBeanName, mockBean);
-        }
-    }
-
-    @Override
-    protected ConfigurableApplicationContext loadContext(Object key) throws Exception {
-        ConfigurableApplicationContext context = super.loadContext(key);
-        mockSystemAuditManager(context);
-        return context;
     }
 
     @Override

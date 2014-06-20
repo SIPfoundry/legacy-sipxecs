@@ -17,11 +17,10 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
-import java.sql.SQLException;
 import java.util.List;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -31,7 +30,6 @@ import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChange> implements
         ConfigChangeContext {
@@ -96,22 +94,32 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         m_settingDao = settingDao;
     }
 
-    public void storeConfigChange(final ConfigChange configChange) throws SystemAuditException {
-        getHibernateTemplate().executeWithNewSession(new HibernateCallback<ConfigChange>() {
-            @Override
-            public ConfigChange doInHibernate(Session session) throws HibernateException, SQLException {
-                UserIpAddress userIpAddress = configChange.getUserIpAddress();
-                if (userIpAddress != null && userIpAddress.isNew()) {
-                    session.save(userIpAddress);
-                }
-                if (!configChange.isNew()) {
-                    session.merge(configChange);
-                } else {
-                    session.save(configChange);
-                }
-                return configChange;
+    public void storeConfigChange(ConfigChange configChange) throws SystemAuditException {
+        Session newSession = getHibernateTemplate().getSessionFactory().openSession();
+
+        Transaction transaction = newSession.beginTransaction();
+        try {
+            transaction = newSession.beginTransaction();
+
+            UserIpAddress userIpAddress = configChange.getUserIpAddress();
+            if (userIpAddress != null && userIpAddress.isNew()) {
+                newSession.save(userIpAddress);
             }
-        });
+            if (!configChange.isNew()) {
+                newSession.merge(configChange);
+            } else {
+                newSession.save(configChange);
+            }
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new SystemAuditException(e);
+        } finally {
+            newSession.close();
+        }
     }
 
     @Override

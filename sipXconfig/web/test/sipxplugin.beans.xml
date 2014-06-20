@@ -11,4 +11,10 @@
   <bean id="skinProperties" class="org.sipfoundry.sipxconfig.site.skin.SkinProperties">
     <property name="locationPath" value="skin.properties" />
   </bean>
+
+  <bean id="executorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
+    <constructor-arg value="10" />
+  </bean>
+  <task:executor id="threadPoolTaskExecutor" pool-size="10" />
+  <task:annotation-driven executor="executorService" />
 </beans>
