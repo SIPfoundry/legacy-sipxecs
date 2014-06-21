@@ -20,11 +20,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.cxf.jaxrs.model.wadl.Description;
 
-@Path("/ftp/")
+@Path("/cdrs/")
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
 })
-@Description("FTP Management REST API")
-public interface FtpApi {
+@Description("CDR Management REST API")
+public interface CdrApi extends ServiceSettingsApi {
 
 }

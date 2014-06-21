@@ -20,11 +20,11 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.cxf.jaxrs.model.wadl.Description;
 
-@Path("/ftp/")
+@Path("/proxy/")
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
 })
-@Description("FTP Management REST API")
-public interface FtpApi {
+@Description("Proxy Management REST API")
+public interface ProxyApi extends ServiceSettingsApi {
 
 }

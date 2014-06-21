@@ -43,6 +43,12 @@
             <ref bean="ivrRestApi"/>
             <ref bean="callParkRestApi"/>
             <ref bean="pagingRestApi"/>
+            <ref bean="imbotRestApi"/>
+            <ref bean="restServerRestApi"/>
+            <ref bean="cdrRestApi"/>
+            <ref bean="proxyRestApi"/>
+            <ref bean="registrarRestApi"/>
+            <ref bean="saaRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -92,7 +98,25 @@
         <property name="parkOrbitContext" ref="parkOrbitContext" />
         <property name="audioPath" value="${sysdir.var}/parkserver/music"/>
         <property name="extensions" ref="audioExtensions"/>
-    </bean>    
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.MyBuddyApiImpl" id="imbotRestApi">
+        <property name="imBot" ref="imBot" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.RestServerApiImpl" id="restServerRestApi">
+        <property name="restServer" ref="restServer" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.CdrApiImpl" id="cdrRestApi">
+        <property name="cdrManager" ref="cdrManager" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.ProxyApiImpl" id="proxyRestApi">
+        <property name="proxyManager" ref="proxyManager" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.RegistrarApiImpl" id="registrarRestApi">
+        <property name="registrar" ref="registrar" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.SaaApiImpl" id="saaRestApi">
+        <property name="saaManager" ref="saaManager" />
+    </bean>
     
     <!-- W E B S O C K ET-->
     
