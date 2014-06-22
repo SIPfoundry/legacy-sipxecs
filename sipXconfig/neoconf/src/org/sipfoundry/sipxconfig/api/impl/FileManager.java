@@ -87,7 +87,11 @@ public class FileManager {
         return true;
     }
 
-    public void setAudioPath(String path) {
+    public String getPath() {
+        return m_path;
+    }
+
+    public void setPath(String path) {
         m_path = path;
     }
 

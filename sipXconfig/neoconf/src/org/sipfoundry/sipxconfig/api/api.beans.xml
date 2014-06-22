@@ -66,6 +66,10 @@
         <value>mp3</value>
     </util:list>
 
+    <util:list id="reportExtensions" value-type="java.lang.String">
+        <value>jasper</value>
+    </util:list>
+
     <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneApiImpl" id="phoneRestApi">
         <property name="phoneContext" ref="phoneContext"/>
         <property name="settingDao" ref="settingDao" />
@@ -96,7 +100,7 @@
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.CallParkApiImpl" id="callParkRestApi">
         <property name="parkOrbitContext" ref="parkOrbitContext" />
-        <property name="audioPath" value="${sysdir.var}/parkserver/music"/>
+        <property name="path" value="${sysdir.var}/parkserver/music"/>
         <property name="extensions" ref="audioExtensions"/>
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.MyBuddyApiImpl" id="imbotRestApi">
@@ -107,6 +111,9 @@
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.CdrApiImpl" id="cdrRestApi">
         <property name="cdrManager" ref="cdrManager" />
+        <property name="coreContext" ref="coreContext"/>
+        <property name="path" value="${sysdir.var}/reports"/>
+        <property name="extensions" ref="reportExtensions"/>
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.ProxyApiImpl" id="proxyRestApi">
         <property name="proxyManager" ref="proxyManager" />
@@ -126,7 +133,7 @@
         <property name="pagingContext" ref="pagingContext"/>
         <property name="pagingFeatureContext" ref="pagingFeatureContext"/>
         <property name="coreContext" ref="coreContext"/>
-        <property name="audioPath" value="${sysdir.var}/sipxpage/music"/>
+        <property name="path" value="${sysdir.var}/sipxpage/music"/>
         <property name="extensions" ref="audioExtensions"/>
     </bean> 
 
