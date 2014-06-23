@@ -40,7 +40,7 @@ Requires: shadow-utils
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
 %else
-Requires: java >= 1.7.0
+Requires: java-1.7.0-openjdk
 %endif
 
 %if %{_vendor} == suse
