@@ -13,30 +13,39 @@
  * details.
  */
 
-#ifndef LEVELDB_H_INCLUDED
-#define	LEVELDB_H_INCLUDED
 
-#include <string>
-#include <vector>
-#include <leveldb/db.h>
-#include <boost/noncopyable.hpp>
+#ifndef KEYVALUESTORE_H_INCLUDED
+#define KEYVALUESTORE_H_INCLUDED
+
+#include <boost/thread.hpp>
 
 
-class LevelDB : boost::noncopyable
+#define PERSISTENT_STORE_MAX_VALUE_SIZE 65536
+#define PERSISTENT_STORE_MAX_KEY_SIZE 1024
+#define PERSISTENT_STORE_EXPIRES_SUFFIX ".KV_EXPIRES"
+
+
+class KeyValueStore : boost::noncopyable
 {
-public: 
+public:
   struct Record
   {
     std::string key;
     std::string value;
   };
-
+  
   typedef std::vector<std::string> Keys;
   typedef std::vector<Record> Records;
-
-  LevelDB();
+  typedef boost::shared_mutex mutex_read_write;
+  typedef boost::shared_lock<boost::shared_mutex> mutex_read_lock;
+  typedef boost::lock_guard<boost::shared_mutex> mutex_write_lock;
+  typedef void* HANDLE;
   
-  ~LevelDB();
+  KeyValueStore();
+  
+  KeyValueStore(const std::string& path);
+
+  ~KeyValueStore();
 
   bool open(const std::string& path);
 
@@ -46,8 +55,10 @@ public:
 
   bool put(const std::string& key, const std::string& value);
 
+  bool put(const std::string& key, const std::string& value, unsigned int expireInSeconds);
+
   bool get(const std::string& key, std::string& value);
-  
+
   bool del(const std::string& key);
   
   bool getKeys(Keys& keys);
@@ -61,10 +72,21 @@ public:
   bool delKeys(const std::string& filter);
   
   const std::string getPath() const;
-  
 private:
-  leveldb::DB* _pDb;
+
+  void log_error();
+
+  bool is_expired(const std::string& key);
+
+  bool purge_expired(const std::string& key);
+
+  bool _get(const std::string& key, std::string& value);
+
+  HANDLE _pDbHandle;
+
   std::string _path;
+
+  mutex_read_write _mutex;
 };
 
 
@@ -72,11 +94,25 @@ private:
 // Inlines
 //
 
-inline const std::string LevelDB::getPath() const
+inline bool KeyValueStore::isOpen()
+{
+  return _pDbHandle != 0;
+}
+
+inline const std::string KeyValueStore::getPath() const
 {
   return _path;
 }
 
+inline bool KeyValueStore::getKeys(Keys& keys)
+{
+  return getKeys("", keys);
+}
 
-#endif	// LEVELDB_H_INCLUDED
+inline bool KeyValueStore::getRecords(Records& records)
+{
+  return getRecords("", records);
+}
 
+
+#endif

@@ -60,7 +60,7 @@ using Poco::ThreadPool;
 //
 // Used for sorting records
 //
-static bool compare_records (LevelDB::Record& first, LevelDB::Record& second)
+static bool compare_records (KeyValueStore::Record& first, KeyValueStore::Record& second)
 {
   return first.key.compare(second.key) <= 0;
 }
@@ -94,7 +94,7 @@ static void getPathVector(const std::string& path, std::vector<std::string>& pat
   }
 }
 
-static bool printOneRecord(std::size_t filterDepth, const std::string& resourceName, std::list<LevelDB::Record>& records, std::list<LevelDB::Record>::iterator& iter, std::ostream& ostr)
+static bool printOneRecord(std::size_t filterDepth, const std::string& resourceName, std::list<KeyValueStore::Record>& records, std::list<KeyValueStore::Record>::iterator& iter, std::ostream& ostr)
 {
   //
   // return false if there are no more records
@@ -323,7 +323,7 @@ void RESTServer::stop()
   }
 }
 
-LevelDB* RESTServer::getStore(const std::string& path)
+KeyValueStore* RESTServer::getStore(const std::string& path)
 {
   std::vector<std::string> tokens = string_tokenize(path, "/");
   if(tokens.size() < 3)
@@ -331,7 +331,7 @@ LevelDB* RESTServer::getStore(const std::string& path)
   
   mutex_lock lock(_kvStoreMutex);
   
-  LevelDB* pStore = 0;
+  KeyValueStore* pStore = 0;
   std::string document = tokens[2];
   
   if (_kvStore.find(document) == _kvStore.end())
@@ -347,11 +347,11 @@ LevelDB* RESTServer::getStore(const std::string& path)
       strm << document;
     
     
-    pStore = new LevelDB();
+    pStore = new KeyValueStore();
     pStore->open(strm.str());
     if (pStore->isOpen())
     {
-     _kvStore.insert(std::pair<std::string, LevelDB*>(document, pStore));
+     _kvStore.insert(std::pair<std::string, KeyValueStore*>(document, pStore));
     }
     else
     {
@@ -424,7 +424,7 @@ void RESTServer::onHandleRestRequest(Request& request, Response& response)
     path = path + std::string("/");
   }
   
-  LevelDB* pStore = getStore(path);
+  KeyValueStore* pStore = getStore(path);
   
   if (!pStore)
   {
@@ -440,7 +440,7 @@ void RESTServer::onHandleRestRequest(Request& request, Response& response)
   
   if (request.getMethod() == HTTPRequest::HTTP_GET)
   {
-    LevelDB::Records records;
+    KeyValueStore::Records records;
     pStore->getRecords(filter, records);
     
     if (records.empty())
@@ -502,12 +502,12 @@ void RESTServer::escapeString(std::string& str)
   }
 }
 
-void RESTServer::sendRestJsonDocument(const std::vector<std::string>& pathVector, std::size_t depth, LevelDB::Records& unsorted, std::ostream& ostr)
+void RESTServer::sendRestJsonDocument(const std::vector<std::string>& pathVector, std::size_t depth, KeyValueStore::Records& unsorted, std::ostream& ostr)
 {
   //
   // sort the records
   //
-  std::list<LevelDB::Record> records;
+  std::list<KeyValueStore::Record> records;
   std::copy( unsorted.begin(), unsorted.end(), std::back_inserter(records));
   records.sort(compare_records);
   
@@ -515,12 +515,12 @@ void RESTServer::sendRestJsonDocument(const std::vector<std::string>& pathVector
   //
   // Loop through the records
   //
-  std::list<LevelDB::Record>::iterator iter = records.begin();
+  std::list<KeyValueStore::Record>::iterator iter = records.begin();
   while (printOneRecord(depth, pathVector[depth], records, iter, ostr))
     ostr << ",";
 }
 
-void RESTServer::sendRestRecordsAsJson(const std::vector<std::string>& pathVector, LevelDB::Records& records, Response& response)
+void RESTServer::sendRestRecordsAsJson(const std::vector<std::string>& pathVector, KeyValueStore::Records& records, Response& response)
 {
   response.setChunkedTransferEncoding(true);
   response.setContentType("text/json");
@@ -531,12 +531,12 @@ void RESTServer::sendRestRecordsAsJson(const std::vector<std::string>& pathVecto
 }
 
 
-void RESTServer::sendRestRecordsAsValuePairs(const std::string& path, const LevelDB::Records& records, Response& response)
+void RESTServer::sendRestRecordsAsValuePairs(const std::string& path, const KeyValueStore::Records& records, Response& response)
 {
   //
   // sort the records
   //
-  std::list<LevelDB::Record> sorted;
+  std::list<KeyValueStore::Record> sorted;
   std::copy( records.begin(), records.end(), std::back_inserter(sorted));
   sorted.sort(compare_records);
   
@@ -545,7 +545,7 @@ void RESTServer::sendRestRecordsAsValuePairs(const std::string& path, const Leve
   response.setContentType("text/plain");
   std::ostream& ostr = response.send();
 
-  for (std::list<LevelDB::Record>::const_iterator iter = sorted.begin(); iter != sorted.end(); iter++)
+  for (std::list<KeyValueStore::Record>::const_iterator iter = sorted.begin(); iter != sorted.end(); iter++)
   {
     ostr << iter->key << ": " << iter->value << "\r\n";
   }

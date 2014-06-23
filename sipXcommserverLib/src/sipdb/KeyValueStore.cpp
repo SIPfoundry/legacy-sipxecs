@@ -25,7 +25,7 @@
 #include <string>
 #include <boost/lexical_cast.hpp>
 
-#include "sipdb/UnqliteDB.h"
+#include "sipdb/KeyValueStore.h"
 #include "os/OsLogger.h"
 #include "os/qsTypes.h"
 
@@ -38,14 +38,14 @@ extern "C"
 struct KeyConsumer
 {
   std::string filter;
-  UnqliteDB::Keys* keys;
+  KeyValueStore::Keys* keys;
 };
 
 struct RecordConsumer
 {
   std::string filter;
   std::string key;
-  UnqliteDB::Records* records;
+  KeyValueStore::Records* records;
 };
 
 static bool string_ends_with(const std::string& str, const char* key)
@@ -149,7 +149,7 @@ static int RecordConsumerCallback(const void *pData,unsigned int nDatalen,void *
       //
       // There is a key.  This is a data assignment
       //
-      UnqliteDB::Record record;
+      KeyValueStore::Record record;
       record.key = pConsumer->key;
       record.value = data;
       pConsumer->records->push_back(record);
@@ -190,23 +190,23 @@ static int KeyConsumerCallback(const void *pData,unsigned int nDatalen,void *pUs
   return UNQLITE_OK;
 }
 
-UnqliteDB::UnqliteDB() :
+KeyValueStore::KeyValueStore() :
   _pDbHandle(0)
 {
 }
 
-UnqliteDB::UnqliteDB(const std::string& path) :
+KeyValueStore::KeyValueStore(const std::string& path) :
   _pDbHandle(0)
 {
   open(path);
 }
 
-UnqliteDB::~UnqliteDB()
+KeyValueStore::~KeyValueStore()
 {
   close();
 }
 
-void UnqliteDB::log_error()
+void KeyValueStore::log_error()
 {
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
   if (!pDbHandle)
@@ -217,11 +217,11 @@ void UnqliteDB::log_error()
   unqlite_config(pDbHandle,UNQLITE_CONFIG_ERR_LOG,&zBuf,&iLen);
   if( iLen > 0 )
   {
-    OS_LOG_ERROR(FAC_DB, "UnqliteDB Exception:  " << zBuf);
+    OS_LOG_ERROR(FAC_DB, "KeyValueStore Exception:  " << zBuf);
   }
 }
 
-bool UnqliteDB::close()
+bool KeyValueStore::close()
 {
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
   if (pDbHandle)
@@ -240,7 +240,7 @@ bool UnqliteDB::close()
   return true;
 }
 
-bool UnqliteDB::open(const std::string& path)
+bool KeyValueStore::open(const std::string& path)
 {
   if (isOpen())
     return false;
@@ -260,11 +260,11 @@ bool UnqliteDB::open(const std::string& path)
   return true;
 }
 
-bool UnqliteDB::put(const std::string& key, const std::string& value)
+bool KeyValueStore::put(const std::string& key, const std::string& value)
 {
   if (key.size() > PERSISTENT_STORE_MAX_KEY_SIZE || value.size() > PERSISTENT_STORE_MAX_VALUE_SIZE)
   {
-    OS_LOG_ERROR(FAC_DB, "UnqliteDB::put:  Maximum data/ size exceeded");
+    OS_LOG_ERROR(FAC_DB, "KeyValueStore::put:  Maximum data/ size exceeded");
     return false;
   }
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
@@ -288,11 +288,11 @@ bool UnqliteDB::put(const std::string& key, const std::string& value)
   return true;
 }
 
-bool UnqliteDB::put(const std::string& key, const std::string& value, unsigned int expireInSeconds)
+bool KeyValueStore::put(const std::string& key, const std::string& value, unsigned int expireInSeconds)
 {
   if (key.size() > PERSISTENT_STORE_MAX_KEY_SIZE || value.size() > PERSISTENT_STORE_MAX_VALUE_SIZE)
   {
-    OS_LOG_ERROR(FAC_DB, "UnqliteDB::put:  Maximum data/ size exceeded");
+    OS_LOG_ERROR(FAC_DB, "KeyValueStore::put:  Maximum data/ size exceeded");
     return false;
   }
 
@@ -331,7 +331,7 @@ bool UnqliteDB::put(const std::string& key, const std::string& value, unsigned i
   return true;
 }
 
-bool UnqliteDB::get(const std::string& key, std::string& value)
+bool KeyValueStore::get(const std::string& key, std::string& value)
 {
   if (is_expired(key))
   {
@@ -342,7 +342,7 @@ bool UnqliteDB::get(const std::string& key, std::string& value)
   return _get(key, value);
 }
 
-bool UnqliteDB::_get(const std::string& key, std::string& value)
+bool KeyValueStore::_get(const std::string& key, std::string& value)
 {
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
   if (!pDbHandle)
@@ -366,7 +366,7 @@ bool UnqliteDB::_get(const std::string& key, std::string& value)
   return true;
 }
 
-bool UnqliteDB::is_expired(const std::string& key)
+bool KeyValueStore::is_expired(const std::string& key)
 {
   std::string expireKey = key + std::string(PERSISTENT_STORE_EXPIRES_SUFFIX);
 
@@ -379,7 +379,7 @@ bool UnqliteDB::is_expired(const std::string& key)
   return expireTime <= getTime();
 }
 
-bool UnqliteDB::purge_expired(const std::string& key)
+bool KeyValueStore::purge_expired(const std::string& key)
 {
   std::string expireKey = key + std::string(".expires");
   if (!del(key))
@@ -388,7 +388,7 @@ bool UnqliteDB::purge_expired(const std::string& key)
 }
 
 
-bool UnqliteDB::del(const std::string& key)
+bool KeyValueStore::del(const std::string& key)
 {
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
   if (!pDbHandle)
@@ -405,7 +405,7 @@ bool UnqliteDB::del(const std::string& key)
   return true;
 }
 
-bool UnqliteDB::getKeys(const std::string& filter, Keys& keys)
+bool KeyValueStore::getKeys(const std::string& filter, Keys& keys)
 {
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
   if (!pDbHandle)
@@ -441,7 +441,7 @@ bool UnqliteDB::getKeys(const std::string& filter, Keys& keys)
   return true;
 }
 
-bool UnqliteDB::getRecords(const std::string& filter, Records& records)
+bool KeyValueStore::getRecords(const std::string& filter, Records& records)
 {
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
   if (!pDbHandle)
@@ -484,7 +484,7 @@ bool UnqliteDB::getRecords(const std::string& filter, Records& records)
   return true;
 }
 
-bool UnqliteDB::delKeys(const std::string& filter)
+bool KeyValueStore::delKeys(const std::string& filter)
 {
   unqlite* pDbHandle = static_cast<unqlite*>(_pDbHandle);
   if (!pDbHandle)
