@@ -49,6 +49,8 @@
             <ref bean="proxyRestApi"/>
             <ref bean="registrarRestApi"/>
             <ref bean="saaRestApi"/>
+            <ref bean="mwiRestApi"/>
+            <ref bean="dnsRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -123,6 +125,13 @@
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.SaaApiImpl" id="saaRestApi">
         <property name="saaManager" ref="saaManager" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.MwiApiImpl" id="mwiRestApi">
+        <property name="mwi" ref="mwi" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.DnsApiImpl" id="dnsRestApi">
+        <property name="dnsManager" ref="dnsManager" />
+        <property name="dnsTestContext" ref="dnsTestContext" />
     </bean>
     
     <!-- W E B S O C K ET-->
