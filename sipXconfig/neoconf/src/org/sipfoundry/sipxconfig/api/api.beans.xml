@@ -51,6 +51,7 @@
             <ref bean="saaRestApi"/>
             <ref bean="mwiRestApi"/>
             <ref bean="dnsRestApi"/>
+            <ref bean="mohRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -132,6 +133,9 @@
     <bean class="org.sipfoundry.sipxconfig.api.impl.DnsApiImpl" id="dnsRestApi">
         <property name="dnsManager" ref="dnsManager" />
         <property name="dnsTestContext" ref="dnsTestContext" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.MohApiImpl" id="mohRestApi">
+        <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     </bean>
     
     <!-- W E B S O C K ET-->
