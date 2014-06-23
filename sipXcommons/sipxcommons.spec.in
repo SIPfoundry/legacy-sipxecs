@@ -13,7 +13,7 @@ Url: http://www.sipfoundry.org/sipXcommons
 %if %{_vendor} == suse
 BuildRequires: java-1_6_0-sun-devel
 %else
-BuildRequires: java-devel >= 1.7
+BuildRequires: java-1.7.0-openjdk-devel
 %endif
 BuildRequires: automake
 %if %{_vendor} == redhat
@@ -40,7 +40,7 @@ Requires: shadow-utils
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
 %else
-Requires: java >= 1.7
+Requires: java >= 1.7.0
 %endif
 
 %if %{_vendor} == suse

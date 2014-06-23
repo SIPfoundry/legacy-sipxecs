@@ -13,7 +13,7 @@ Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
 Url:      http://www.sipfoundry.org/
 
 BuildRequires: automake
-BuildRequires: java-devel >= 1.7
+BuildRequires: java-1.7.0-openjdk-devel
 
 %if %{_vendor} == redhat
 BuildRequires: shadow-utils
