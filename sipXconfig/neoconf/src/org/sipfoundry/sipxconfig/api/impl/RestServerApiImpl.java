@@ -14,27 +14,26 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
-import org.sipfoundry.sipxconfig.api.FtpApi;
-import org.sipfoundry.sipxconfig.ftp.FtpManager;
-import org.sipfoundry.sipxconfig.ftp.FtpSettings;
+import org.sipfoundry.sipxconfig.api.RestServerApi;
+import org.sipfoundry.sipxconfig.restserver.RestServer;
+import org.sipfoundry.sipxconfig.restserver.RestServerSettings;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
-public class FtpApiImpl extends BaseServiceApiImpl implements FtpApi {
-    private FtpManager m_ftpManager;
+public class RestServerApiImpl extends BaseServiceApiImpl implements RestServerApi {
+    private RestServer m_rest;
 
-
-    public void setFtpManager(FtpManager manager) {
-        m_ftpManager = manager;
+    public void setRestServer(RestServer server) {
+        m_rest = server;
     }
 
     @Override
     protected PersistableSettings getSettings() {
-        return m_ftpManager.getSettings();
+        return m_rest.getSettings();
     }
 
     @Override
     protected void saveSettings(PersistableSettings settings) {
-        m_ftpManager.saveSettings((FtpSettings) settings);
+        m_rest.saveSettings((RestServerSettings) settings);
     }
 
 }

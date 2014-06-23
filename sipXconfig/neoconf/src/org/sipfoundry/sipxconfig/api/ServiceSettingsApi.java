@@ -14,43 +14,41 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.sipfoundry.sipxconfig.api.model.PageGroupBean;
 
-@Path("/pagegroups/")
-@Produces({
-    MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
-})
-@Description("Page Group Management REST API")
-public interface PagingGroupApi extends PromptsApi {
+@Description("Service Settings Management REST API")
+public interface ServiceSettingsApi {
 
+    @Path("settings")
     @GET
-    public Response getPageGroups();
+    public Response getServiceSettings(@Context HttpServletRequest request);
 
-    @POST
-    public Response newPageGroup(@Description("Page Group bean to save") PageGroupBean bean);
-
-    @Path("{groupId}")
+    @Path("settings/{path:.*}")
     @GET
-    public Response getPageGroup(@Description("Page Group internal id") @PathParam("groupId") Integer groupId);
+    public Response getServiceSetting(@Description("Path to Service setting") @PathParam("path") String path,
+            @Context HttpServletRequest request);
 
-    @Path("{groupId}")
-    @DELETE
-    public Response deletePageGroup(@Description("Page Group internal id") @PathParam("groupId") Integer groupId);
-
-    @Path("{groupId}")
+    @Path("settings/{path:.*}")
     @PUT
-    public Response updatePageGroup(@Description("Page Group internal id") @PathParam("groupId") Integer groupId,
-            @Description("Page Group bean to save") PageGroupBean bean);
+    @Consumes({
+        MediaType.TEXT_PLAIN
+    })
+    public Response setServiceSetting(@Description("Path to Service setting") @PathParam("path") String path,
+            String value);
+
+    @Path("settings/{path:.*}")
+    @DELETE
+    public Response deleteServiceSetting(@Description("Path to Service setting") @PathParam("path") String path);
 
 }

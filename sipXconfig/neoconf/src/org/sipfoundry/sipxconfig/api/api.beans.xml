@@ -43,6 +43,14 @@
             <ref bean="ivrRestApi"/>
             <ref bean="callParkRestApi"/>
             <ref bean="pagingRestApi"/>
+            <ref bean="imbotRestApi"/>
+            <ref bean="restServerRestApi"/>
+            <ref bean="cdrRestApi"/>
+            <ref bean="proxyRestApi"/>
+            <ref bean="registrarRestApi"/>
+            <ref bean="saaRestApi"/>
+            <ref bean="mwiRestApi"/>
+            <ref bean="dnsRestApi"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
@@ -58,6 +66,10 @@
     <util:list id="audioExtensions" value-type="java.lang.String">
         <value>wav</value>
         <value>mp3</value>
+    </util:list>
+
+    <util:list id="reportExtensions" value-type="java.lang.String">
+        <value>jasper</value>
     </util:list>
 
     <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneApiImpl" id="phoneRestApi">
@@ -90,9 +102,37 @@
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.CallParkApiImpl" id="callParkRestApi">
         <property name="parkOrbitContext" ref="parkOrbitContext" />
-        <property name="audioPath" value="${sysdir.var}/parkserver/music"/>
+        <property name="path" value="${sysdir.var}/parkserver/music"/>
         <property name="extensions" ref="audioExtensions"/>
-    </bean>    
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.MyBuddyApiImpl" id="imbotRestApi">
+        <property name="imBot" ref="imBot" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.RestServerApiImpl" id="restServerRestApi">
+        <property name="restServer" ref="restServer" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.CdrApiImpl" id="cdrRestApi">
+        <property name="cdrManager" ref="cdrManager" />
+        <property name="coreContext" ref="coreContext"/>
+        <property name="path" value="${sysdir.var}/reports"/>
+        <property name="extensions" ref="reportExtensions"/>
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.ProxyApiImpl" id="proxyRestApi">
+        <property name="proxyManager" ref="proxyManager" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.RegistrarApiImpl" id="registrarRestApi">
+        <property name="registrar" ref="registrar" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.SaaApiImpl" id="saaRestApi">
+        <property name="saaManager" ref="saaManager" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.MwiApiImpl" id="mwiRestApi">
+        <property name="mwi" ref="mwi" />
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.DnsApiImpl" id="dnsRestApi">
+        <property name="dnsManager" ref="dnsManager" />
+        <property name="dnsTestContext" ref="dnsTestContext" />
+    </bean>
     
     <!-- W E B S O C K ET-->
     
@@ -102,7 +142,7 @@
         <property name="pagingContext" ref="pagingContext"/>
         <property name="pagingFeatureContext" ref="pagingFeatureContext"/>
         <property name="coreContext" ref="coreContext"/>
-        <property name="audioPath" value="${sysdir.var}/sipxpage/music"/>
+        <property name="path" value="${sysdir.var}/sipxpage/music"/>
         <property name="extensions" ref="audioExtensions"/>
     </bean> 
 

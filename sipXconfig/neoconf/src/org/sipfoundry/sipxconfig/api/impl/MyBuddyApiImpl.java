@@ -14,27 +14,26 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
-import org.sipfoundry.sipxconfig.api.FtpApi;
-import org.sipfoundry.sipxconfig.ftp.FtpManager;
-import org.sipfoundry.sipxconfig.ftp.FtpSettings;
+import org.sipfoundry.sipxconfig.api.MyBuddyApi;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
+import org.sipfoundry.sipxconfig.imbot.ImBotSettings;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
-public class FtpApiImpl extends BaseServiceApiImpl implements FtpApi {
-    private FtpManager m_ftpManager;
+public class MyBuddyApiImpl extends BaseServiceApiImpl implements MyBuddyApi {
+    private ImBot m_imbot;
 
-
-    public void setFtpManager(FtpManager manager) {
-        m_ftpManager = manager;
+    public void setImBot(ImBot imbot) {
+        m_imbot = imbot;
     }
 
     @Override
     protected PersistableSettings getSettings() {
-        return m_ftpManager.getSettings();
+        return m_imbot.getSettings();
     }
 
     @Override
     protected void saveSettings(PersistableSettings settings) {
-        m_ftpManager.saveSettings((FtpSettings) settings);
+        m_imbot.saveSettings((ImBotSettings) settings);
     }
 
 }

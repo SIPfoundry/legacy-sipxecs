@@ -12,19 +12,28 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.api;
+package org.sipfoundry.sipxconfig.api.impl;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import org.sipfoundry.sipxconfig.api.MwiApi;
+import org.sipfoundry.sipxconfig.mwi.Mwi;
+import org.sipfoundry.sipxconfig.mwi.MwiSettings;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
-import org.apache.cxf.jaxrs.model.wadl.Description;
+public class MwiApiImpl extends BaseServiceApiImpl implements MwiApi {
+    private Mwi m_mwi;
 
-@Path("/ftp/")
-@Produces({
-    MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
-})
-@Description("FTP Management REST API")
-public interface FtpApi {
+    public void setMwi(Mwi mwi) {
+        m_mwi = mwi;
+    }
+
+    @Override
+    protected PersistableSettings getSettings() {
+        return m_mwi.getSettings();
+    }
+
+    @Override
+    protected void saveSettings(PersistableSettings settings) {
+        m_mwi.saveSettings((MwiSettings) settings);
+    }
 
 }

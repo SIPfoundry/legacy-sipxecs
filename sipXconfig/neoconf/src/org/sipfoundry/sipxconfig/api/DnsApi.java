@@ -14,17 +14,27 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.model.wadl.Description;
 
-@Path("/ftp/")
+@Path("/dns/")
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
 })
-@Description("FTP Management REST API")
-public interface FtpApi {
+@Description("DNS Management REST API")
+public interface DnsApi extends ServiceSettingsApi {
+
+    @Path("advisor/server/{serverId}")
+    @GET
+    @Produces({
+        MediaType.TEXT_PLAIN
+    })
+    public Response getTestAdvisor(@Description("Server internal id or FQDN") @PathParam("serverId") String serverId);
 
 }
