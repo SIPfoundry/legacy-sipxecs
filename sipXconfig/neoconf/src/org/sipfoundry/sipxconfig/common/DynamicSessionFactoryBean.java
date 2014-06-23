@@ -30,7 +30,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
         BeanFactoryAware {
     public static final String HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
             + "<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" "
-            + "   \"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd\">";
+            + "   \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">";
     public static final String MAPPING_PATTERN = "<hibernate-mapping default-lazy=\"false\">"
             + "<subclass name=\"%s\" extends=\"%s\" discriminator-value=\"%s\"/>"
             + "</hibernate-mapping>";

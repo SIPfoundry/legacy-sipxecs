@@ -23,6 +23,8 @@ sipxconfig_neoconf_PKGS = \
 	gdata-contacts \
 	guessencoding \
 	hibernate \
+	hibernate-commons-annotations \
+	hibernate-jpa \
 	jackson-core-asl \
 	jackson-mapper-asl \
 	jain-sip-sdp \

@@ -8,6 +8,11 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.LDAP;
+import static org.sipfoundry.commons.userdb.profile.UserProfileService.PHANTOM;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,11 +50,6 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.orm.hibernate3.HibernateCallback;
-
-import static org.sipfoundry.commons.userdb.profile.UserProfileService.DISABLED;
-import static org.sipfoundry.commons.userdb.profile.UserProfileService.ENABLED;
-import static org.sipfoundry.commons.userdb.profile.UserProfileService.LDAP;
-import static org.sipfoundry.commons.userdb.profile.UserProfileService.PHANTOM;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
        ApplicationContextAware, SetupListener {
