@@ -865,7 +865,8 @@ void SipSrvLookup::raiseDnsQueryAlarm(const char* queryName,
 
   if (mDomainName.isNull())
   {
-    Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                  "ALARM_DNS_DOMAIN_NAME_NOT_SET "
                   "SipSrvLookup::raiseDnsQueryAlarm domain name was not set");
     return;
   }
