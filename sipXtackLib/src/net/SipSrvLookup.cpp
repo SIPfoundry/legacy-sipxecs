@@ -247,6 +247,9 @@ int SipSrvLookup::options[OptionCodeLast+1] = {
 /// Sets the hostname of a host to be given preference among alternatives selected by weight
 UtlString SipSrvLookup::mOwnHostname;
 
+// sets local domain name
+UtlString SipSrvLookup::mDomainName;
+
 /// Sets the timeout parameter for DNS SRV queries. Default is 3
 int SipSrvLookup::mTimeout = 3;
 
@@ -843,18 +846,43 @@ const char* SipSrvLookup::getRecordTypeStr(int type)
    }
 }
 
+void SipSrvLookup::setDomainName(const char* domainName)
+{
+  // Seize the lock, to ensure atomic effect.
+  OsLock lock(sMutex);
+
+  mDomainName = domainName;
+}
+
 void SipSrvLookup::raiseDnsQueryAlarm(const char* queryName,
                                       int queryType)
 {
-  // for A record type we get false positives so we don't raise alarm for it
-
+  // for A record type we get false positives so we don't raise alarms
   if (T_A == queryType)
   {
     return;
   }
 
-  // don't raise alarms for queries of type SRV that don't have ".rr." string in them
-  if (T_SRV == queryType && NULL == strstr(queryName, ".rr."))
+  if (mDomainName.isNull())
+  {
+    Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                  "ALARM_DNS_DOMAIN_NAME_NOT_SET "
+                  "SipSrvLookup::raiseDnsQueryAlarm domain name was not set");
+    return;
+  }
+
+  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                "SipSrvLookup::raiseDnsQueryAlarm domain name: %s", mDomainName.data());
+
+  // don't raise alarms for queries that don't have local domain name string in them
+  const char* pos = strstr(queryName, mDomainName.data());
+  if (NULL == pos)
+  {
+    return;
+  }
+
+  // don't raise alarms for queries that don't ends with local domain name
+  if (strlen(pos) != mDomainName.length())
   {
     return;
   }

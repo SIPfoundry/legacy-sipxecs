@@ -17,6 +17,7 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
+import java.io.PrintWriter;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
@@ -47,5 +48,10 @@ public interface ConfigChangeContext extends DataObjectSource<ConfigChange> {
      * @throws SystemAuditException
      */
     public void storeConfigChange(ConfigChange configChange) throws SystemAuditException;
+
+    /**
+     * Export current System Audit table contents to CSV
+     */
+    public void dumpSystemAuditLogs(PrintWriter writer, SystemAuditFilter filter);
 
 }

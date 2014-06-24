@@ -14,10 +14,6 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,11 +21,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.sipfoundry.sipxconfig.api.model.PageGroupBean;
 
@@ -38,7 +32,7 @@ import org.sipfoundry.sipxconfig.api.model.PageGroupBean;
     MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
 })
 @Description("Page Group Management REST API")
-public interface PagingGroupApi {
+public interface PagingGroupApi extends PromptsApi {
 
     @GET
     public Response getPageGroups();
@@ -58,52 +52,5 @@ public interface PagingGroupApi {
     @PUT
     public Response updatePageGroup(@Description("Page Group internal id") @PathParam("groupId") Integer groupId,
             @Description("Page Group bean to save") PageGroupBean bean);
-
-    @Path("settings")
-    @GET
-    public Response getSettings(@Context HttpServletRequest request);
-
-    @Path("settings/{path:.*}")
-    @GET
-    public Response getSetting(@Description("Path to Orbit setting") @PathParam("path") String path,
-            @Context HttpServletRequest request);
-
-    @Path("settings/{path:.*}")
-    @PUT
-    @Consumes({
-        MediaType.TEXT_PLAIN
-    })
-    public Response setSetting(@Description("Path to Orbit setting") @PathParam("path") String path, String value);
-
-    @Path("settings/{path:.*}")
-    @DELETE
-    public Response deleteSetting(@Description("Path to Orbit setting") @PathParam("path") String path);
-
-    @Path("prompts")
-    @GET
-    public Response getPrompts();
-
-    @Path("prompts")
-    @POST
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadPrompts(List<Attachment> attachments, @Context HttpServletRequest request);
-
-    @Path("prompts/{promptName}")
-    @GET
-    @Produces({
-        "audio/x-wav", "audio/mpeg"
-    })
-    public Response downloadPrompt(@Description("Prompt name") @PathParam("promptName") String promptName);
-
-    @Path("prompts/{promptName}")
-    @DELETE
-    public Response removePrompt(@Description("Prompt name") @PathParam("promptName") String promptName);
-
-    @Path("prompts/{promptName}/stream")
-    @GET
-    @Produces({
-        "audio/x-wav", "audio/mpeg"
-    })
-    public Response streamPrompt(@Description("Prompt name") @PathParam("promptName") String promptName);
 
 }

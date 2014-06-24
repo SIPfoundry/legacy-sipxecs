@@ -35,8 +35,8 @@ public class UtcTimestampType extends TimestampType {
      * value has been already converted to what Java thought was UTC value, we need to revert the
      * results of that conversion
      */
-    public void set(PreparedStatement st, Object value, int index) throws SQLException {
-        Date date = (Date) value;
+    public void set(PreparedStatement st, Date value, int index) throws SQLException {
+        Date date = value;
         Calendar local = getLocalCalendar();
         local.setTime(date);
         int offset = local.get(Calendar.ZONE_OFFSET);

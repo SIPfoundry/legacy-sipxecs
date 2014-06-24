@@ -14,60 +14,26 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import org.sipfoundry.sipxconfig.api.IvrApi;
-import org.sipfoundry.sipxconfig.api.model.SettingsList;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.ivr.IvrSettings;
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
-public class IvrApiImpl implements IvrApi {
+public class IvrApiImpl extends BaseServiceApiImpl implements IvrApi {
     private Ivr m_ivr;
-
-    @Override
-    public Response getIvrSettings(HttpServletRequest request) {
-        IvrSettings ivrSettings = m_ivr.getSettings();
-        if (ivrSettings != null) {
-            Setting settings = ivrSettings.getSettings();
-            return Response.ok().entity(SettingsList.convertSettingsList(settings, request.getLocale())).build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response getIvrSetting(String path, HttpServletRequest request) {
-        IvrSettings ivrSettings = m_ivr.getSettings();
-        return ResponseUtils.buildSettingResponse(ivrSettings, path, request.getLocale());
-    }
-
-    @Override
-    public Response setIvrSetting(String path, String value) {
-        IvrSettings ivrSettings = m_ivr.getSettings();
-        if (ivrSettings != null) {
-            ivrSettings.setSettingValue(path, value);
-            m_ivr.saveSettings(ivrSettings);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response deleteIvrSetting(String path) {
-        IvrSettings ivrSettings = m_ivr.getSettings();
-        if (ivrSettings != null) {
-            Setting setting = ivrSettings.getSettings().getSetting(path);
-            setting.setValue(setting.getDefaultValue());
-            m_ivr.saveSettings(ivrSettings);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
 
     public void setIvr(Ivr ivr) {
         m_ivr = ivr;
+    }
+
+    @Override
+    protected PersistableSettings getSettings() {
+        return m_ivr.getSettings();
+    }
+
+    @Override
+    protected void saveSettings(PersistableSettings settings) {
+        m_ivr.saveSettings((IvrSettings) settings);
     }
 
 }

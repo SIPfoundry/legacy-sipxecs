@@ -14,17 +14,9 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.model.wadl.Description;
 
@@ -34,25 +26,5 @@ import org.apache.cxf.jaxrs.model.wadl.Description;
 })
 @Description("FTP Management REST API")
 public interface FtpApi {
-
-    @Path("settings")
-    @GET
-    public Response getFtpSettings(@Context HttpServletRequest request);
-
-    @Path("settings/{path:.*}")
-    @GET
-    public Response getFtpSetting(@Description("Path to Phone setting") @PathParam("path") String path,
-            @Context HttpServletRequest request);
-
-    @Path("settings/{path:.*}")
-    @PUT
-    @Consumes({
-        MediaType.TEXT_PLAIN
-    })
-    public Response setFtpSetting(@Description("Path to Phone setting") @PathParam("path") String path, String value);
-
-    @Path("settings/{path:.*}")
-    @DELETE
-    public Response deleteFtpSetting(@Description("Path to Phone setting") @PathParam("path") String path);
 
 }

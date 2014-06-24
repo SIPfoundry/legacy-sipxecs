@@ -506,7 +506,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         addByNoLinesCriteria(crit);
         crit.setProjection(Projections.rowCount());
         List results = getHibernateTemplate().findByCriteria(crit);
-        return (Integer) DataAccessUtils.requiredSingleResult(results);
+        return ((Long) DataAccessUtils.requiredSingleResult(results)).intValue();
     }
 
     public static void addByNoLinesCriteria(DetachedCriteria crit) {

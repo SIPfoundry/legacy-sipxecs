@@ -14,31 +14,26 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import org.sipfoundry.sipxconfig.api.PagingGroupApi;
 import org.sipfoundry.sipxconfig.api.model.PageGroupBean;
 import org.sipfoundry.sipxconfig.api.model.PageGroupBean.UserBean;
 import org.sipfoundry.sipxconfig.api.model.PageGroupList;
-import org.sipfoundry.sipxconfig.api.model.SettingsList;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.paging.PagingFeatureContext;
 import org.sipfoundry.sipxconfig.paging.PagingGroup;
 import org.sipfoundry.sipxconfig.paging.PagingSettings;
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
-public class PagingGroupApiImpl extends FileManager implements PagingGroupApi {
+public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGroupApi {
     private PagingContext m_context;
     private PagingFeatureContext m_featureContext;
     private CoreContext m_coreContext;
@@ -123,104 +118,6 @@ public class PagingGroupApiImpl extends FileManager implements PagingGroupApi {
         return null;
     }
 
-    @Override
-    public Response getSettings(HttpServletRequest request) {
-        PagingSettings settings = m_context.getSettings();
-        if (settings != null) {
-            return Response.ok()
-                    .entity(SettingsList.convertSettingsList(settings.getSettings(), request.getLocale())).build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response getSetting(String path, HttpServletRequest request) {
-        PagingSettings settings = m_context.getSettings();
-        if (settings != null) {
-            return ResponseUtils.buildSettingResponse(settings, path, request.getLocale());
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response setSetting(String path, String value) {
-        PagingSettings settings = m_context.getSettings();
-        if (settings != null) {
-            settings.setSettingValue(path, value);
-            m_context.saveSettings(settings);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response deleteSetting(String path) {
-        PagingSettings settings = m_context.getSettings();
-        if (settings != null) {
-            Setting setting = settings.getSettings().getSetting(path);
-            setting.setValue(setting.getDefaultValue());
-            m_context.saveSettings(settings);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response getPrompts() {
-        return Response.ok().entity(getFileList()).build();
-    }
-
-    @Override
-    public Response uploadPrompts(List<Attachment> attachments, HttpServletRequest request) {
-        List<String> failures = uploadFiles(attachments);
-        if (failures.size() > 0) {
-            return Response.serverError().entity(StringUtils.join(failures, ",")).build();
-        }
-        return Response.ok().build();
-    }
-
-    @Override
-    public Response downloadPrompt(String promptName) {
-        Response response = checkPrompt(promptName);
-        if (response != null) {
-            return response;
-        }
-        return ResponseUtils.buildDownloadFileResponse(getFile(promptName));
-    }
-
-    @Override
-    public Response removePrompt(String promptName) {
-        Response response = checkPrompt(promptName);
-        if (response != null) {
-            return response;
-        }
-        try {
-            deleteFile(promptName);
-        } catch (IOException exception) {
-            return Response.serverError().entity(exception.getMessage()).build();
-        }
-        return Response.ok().build();
-    }
-
-    @Override
-    public Response streamPrompt(String promptName) {
-        Response response = checkPrompt(promptName);
-        if (response != null) {
-            return response;
-        }
-        return ResponseUtils.buildStreamFileResponse(getFile(promptName));
-    }
-
-    protected Response checkPrompt(String promptName) {
-        if (promptName != null) {
-            boolean fileExists = checkFile(promptName);
-            if (!fileExists) {
-                return Response.status(Status.NOT_FOUND).entity("Prompt not found").build();
-            }
-        }
-        return null;
-    }
-
     private Response checkPrompt(PageGroupBean bean) {
         if (bean != null) {
             return checkPrompt(bean.getSound());
@@ -238,6 +135,16 @@ public class PagingGroupApiImpl extends FileManager implements PagingGroupApi {
 
     public void setCoreContext(CoreContext context) {
         m_coreContext = context;
+    }
+
+    @Override
+    protected PersistableSettings getSettings() {
+        return m_context.getSettings();
+    }
+
+    @Override
+    protected void saveSettings(PersistableSettings settings) {
+        m_context.saveSettings((PagingSettings) settings);
     }
 
 }

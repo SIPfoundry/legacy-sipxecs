@@ -24,6 +24,10 @@
 				<td jwcid="user@TextField" value="ognl:user"
 					displayName="message:filter.user" />
 			</tr>
+			<tr jwcid="groupsPanel">
+				<span jwcid="@common/GroupMultiSelect" value="ognl:groupsString"
+					source="ognl:coreContext.groups" />
+			</tr>
 			<tr jwcid="@common/FieldPanel" field="component:details"
                 label="message:filter.details">
                 <td jwcid="details@TextField" value="ognl:details"
@@ -38,6 +42,11 @@
 			</tr>
 		</table>
     </fieldset>
-    <span jwcid="configChangeTable" class="component"
+	<ul class="component-links">
+		<li><a jwcid="export@common/ExportLink" id="systemaudit:export"
+			listener="listener:export"> <span key="link.export">Export</span>
+		</a></li>
+	</ul>
+	<span jwcid="configChangeTable" class="component"
         source="ognl:tableModel" />
 </form>

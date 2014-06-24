@@ -17,8 +17,14 @@
 
 package org.sipfoundry.sipxconfig.site.admin.systemaudit;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -29,11 +35,15 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.web.WebResponse;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 import org.sipfoundry.sipxconfig.site.user.EditUser;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
@@ -45,6 +55,7 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
 
     public static final String PAGE = "admin/systemaudit/ManageSystemAudit";
 
+    private static final Log LOG = LogFactory.getLog(SystemAuditHistory.class);
     private static final String SESSION = "session";
 
     @Persist(value = SESSION)
@@ -109,6 +120,10 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
     }
 
     @Persist(value = SESSION)
+    public abstract String getGroupsString();
+    public abstract void setGroupsString(String groups);
+
+    @Persist(value = SESSION)
     public abstract String getUser();
     public abstract void setUser(String userName);
 
@@ -118,6 +133,9 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
 
     @InjectObject(value = "spring:configChangeContext")
     public abstract ConfigChangeContext getConfigChangeContext();
+
+    @InjectObject(value = "spring:settingDao")
+    public abstract SettingDao getSettingDao();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -155,8 +173,39 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
     }
 
     public IBasicTableModel getTableModel() {
-        SystemAuditFilter filter = new SystemAuditFilter(getStartDate(), getEndDate(), getType(),
-                getAction(), getUser(), getDetails());
-        return new ConfigChangeTableModel(getConfigChangeContext(), getGroupId(), filter);
+        return new ConfigChangeTableModel(getConfigChangeContext(),
+                getGroupId(), getCurrentFilter());
+    }
+
+    private Set<Group> getGroups() {
+        String groupsString = getGroupsString();
+        Set<Group> groups = new HashSet<Group>();
+        if (groupsString != null) {
+            groups.addAll(getSettingDao().getGroupsByString(
+                    User.GROUP_RESOURCE_ID, groupsString, false));
+        }
+        return groups;
+    }
+
+    @InjectObject(value = "service:tapestry.globals.WebResponse")
+    public abstract WebResponse getResponse();
+
+    public void export() {
+        try {
+            PrintWriter writer = TapestryUtils.getCsvExportWriter(
+                    getResponse(), "system_audit.csv");
+            getConfigChangeContext().dumpSystemAuditLogs(writer,
+                    getCurrentFilter());
+            writer.close();
+        } catch (IOException e) {
+            LOG.error("Error during System Audit export", e);
+        }
+    }
+
+    private SystemAuditFilter getCurrentFilter() {
+        SystemAuditFilter filter = new SystemAuditFilter(getStartDate(),
+                getEndDate(), getType(), getAction(), getUser(), getDetails(),
+                getGroups());
+        return filter;
     }
 }

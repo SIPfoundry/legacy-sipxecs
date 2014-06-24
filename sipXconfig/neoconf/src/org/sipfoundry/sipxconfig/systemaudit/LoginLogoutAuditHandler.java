@@ -64,15 +64,17 @@ public class LoginLogoutAuditHandler extends AbstractSystemAuditHandler {
     private void logout(HttpSessionDestroyedEvent logoutEvent) throws Exception {
         HttpSession session = logoutEvent.getSession();
         Object userSession = (Object) session.getAttribute("state:sipXconfig-web:userSession");
-        String userIdString = BeanUtils.getProperty(userSession, "userId");
-        if (userIdString == null || userIdString.isEmpty()) {
-            return;
+        if (userSession != null) {
+            String userIdString = BeanUtils.getProperty(userSession, "userId");
+            if (userIdString == null || userIdString.isEmpty()) {
+                return;
+            }
+            Integer userId = Integer.parseInt(userIdString);
+            User user = getCoreContext().getUser(userId);
+            ConfigChange configChange = buildConfigChange(ConfigChangeAction.LOGOUT,
+                    ConfigChangeType.LOGIN_LOGOUT, user.getName(), AbstractSystemAuditHandler.LOCALHOST);
+            configChange.setDetails(SUCCESS);
+            getConfigChangeContext().storeConfigChange(configChange);
         }
-        Integer userId = Integer.parseInt(userIdString);
-        User user = getCoreContext().getUser(userId);
-        ConfigChange configChange = buildConfigChange(ConfigChangeAction.LOGOUT,
-                ConfigChangeType.LOGIN_LOGOUT, user.getName(), AbstractSystemAuditHandler.LOCALHOST);
-        configChange.setDetails(SUCCESS);
-        getConfigChangeContext().storeConfigChange(configChange);
     }
 }

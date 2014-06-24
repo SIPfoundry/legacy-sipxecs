@@ -9,10 +9,15 @@
 package org.sipfoundry.voicemail;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.hz.HzConstants;
+import org.sipfoundry.commons.hz.HzPublisherTask;
+import org.sipfoundry.commons.hz.HzVmEvent;
 import org.sipfoundry.commons.userdb.PersonalAttendant;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.util.IMSender;
@@ -22,8 +27,11 @@ import org.sipfoundry.sipxivr.common.IvrChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
 import org.sipfoundry.voicemail.mailbox.TempMessage;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import com.hazelcast.core.HazelcastInstance;
 
 public class Deposit extends AbstractVmAction implements ApplicationContextAware {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -31,10 +39,11 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
     private Map<String, String> m_depositMap;
     private ApplicationContext m_appContext;
     private String m_operatorAddr;
-
+    private HazelcastInstance m_hzInstance;
+    private ExecutorService m_executorService = Executors.newSingleThreadExecutor();
     /**
      * The depositVoicemail dialog
-     * 
+     *
      * @return
      */
     @Override
@@ -241,6 +250,10 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
         try {
             if (user.getVMEntryIM()) {
                 HttpResult result = IMSender.sendVmEntryIM(user, instantMsg, m_sendIMUrl);
+                m_executorService.submit(new HzPublisherTask(
+                    m_hzInstance,
+                    new HzVmEvent(getChannelCallerIdName(), user.getUserName(), instantMsg),
+                    HzConstants.VM_TOPIC));
                 if (!result.isSuccess()) {
                     LOG.error("Deposit::sendIM Trouble with RemoteRequest: " + result.getResponse(),
                             result.getException());
@@ -268,6 +281,12 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
             try {
                 if (user.getVMExitIM()) {
                     HttpResult result = IMSender.sendVmExitIM(user, instantMsg, m_sendIMUrl);
+
+                    m_executorService.submit(new HzPublisherTask(
+                        m_hzInstance,
+                        new HzVmEvent(getChannelCallerIdName(), user.getUserName(), instantMsg),
+                        HzConstants.VM_TOPIC));
+
                     if (!result.isSuccess()) {
                         LOG.error("Deposit::sendIM Trouble with RemoteRequest: " + result.getResponse(),
                                 result.getException());
@@ -281,7 +300,7 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
     /**
      * See if the caller wants to send this message to other mailboxes
-     * 
+     *
      * @param existingMessage the message they want to send
      */
     private void moreOptions(TempMessage message) {
@@ -341,5 +360,10 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
     public void setOperatorAddr(String operatorAddr) {
         m_operatorAddr = operatorAddr;
+    }
+
+    @Required
+    public void setHzInstance(HazelcastInstance hzInstance) {
+        m_hzInstance = hzInstance;
     }
 }

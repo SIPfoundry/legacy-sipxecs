@@ -12,7 +12,7 @@ Url: http://www.sipfoundry.org
 %if %{_vendor} == suse
 BuildRequires: java-1_6_0-sun-devel
 %else
-BuildRequires: java-devel >= 1.7
+BuildRequires: java-1.7.0-openjdk-devel
 %endif
 BuildRequires: automake
 BuildRequires: sipxcommons >= %version

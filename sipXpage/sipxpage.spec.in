@@ -11,7 +11,7 @@ Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXbridge
 
 BuildRequires: automake
-BuildRequires: java-devel >= 1.7
+BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: zip
 BuildRequires: sipxcommons >= %version
 

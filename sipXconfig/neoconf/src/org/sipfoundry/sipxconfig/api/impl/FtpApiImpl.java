@@ -14,60 +14,27 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import org.sipfoundry.sipxconfig.api.FtpApi;
-import org.sipfoundry.sipxconfig.api.model.SettingsList;
 import org.sipfoundry.sipxconfig.ftp.FtpManager;
 import org.sipfoundry.sipxconfig.ftp.FtpSettings;
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
-public class FtpApiImpl implements FtpApi {
+public class FtpApiImpl extends BaseServiceApiImpl implements FtpApi {
     private FtpManager m_ftpManager;
 
-    @Override
-    public Response getFtpSettings(HttpServletRequest request) {
-        FtpSettings ftpSettings = m_ftpManager.getSettings();
-        if (ftpSettings != null) {
-            Setting settings = ftpSettings.getSettings();
-            return Response.ok().entity(SettingsList.convertSettingsList(settings, request.getLocale())).build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response getFtpSetting(String path, HttpServletRequest request) {
-        FtpSettings ftpSettings = m_ftpManager.getSettings();
-        return ResponseUtils.buildSettingResponse(ftpSettings, path, request.getLocale());
-    }
-
-    @Override
-    public Response setFtpSetting(String path, String value) {
-        FtpSettings ftpSettings = m_ftpManager.getSettings();
-        if (ftpSettings != null) {
-            ftpSettings.setSettingValue(path, value);
-            m_ftpManager.saveSettings(ftpSettings);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response deleteFtpSetting(String path) {
-        FtpSettings ftpSettings = m_ftpManager.getSettings();
-        if (ftpSettings != null) {
-            Setting setting = ftpSettings.getSettings().getSetting(path);
-            setting.setValue(setting.getDefaultValue());
-            m_ftpManager.saveSettings(ftpSettings);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
 
     public void setFtpManager(FtpManager manager) {
         m_ftpManager = manager;
+    }
+
+    @Override
+    protected PersistableSettings getSettings() {
+        return m_ftpManager.getSettings();
+    }
+
+    @Override
+    protected void saveSettings(PersistableSettings settings) {
+        m_ftpManager.saveSettings((FtpSettings) settings);
     }
 
 }

@@ -36,7 +36,7 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
     private DaoEventPublisher m_daoEventPublisher;
 
     public T load(Class<T> c, Serializable id) {
-        return (T) getHibernateTemplate().load(c, id);
+        return getHibernateTemplate().load(c, id);
     }
 
     protected void saveBeanWithSettings(BeanWithSettings bean) {
@@ -126,7 +126,7 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
         addByGroupCriteria(crit, groupId);
         crit.setProjection(Projections.rowCount());
         List results = getHibernateTemplate().findByCriteria(crit);
-        return (Integer) DataAccessUtils.requiredSingleResult(results);
+        return ((Long) DataAccessUtils.requiredSingleResult(results)).intValue();
     }
 
     protected void removeAll(Class<T> klass, Collection ids) {

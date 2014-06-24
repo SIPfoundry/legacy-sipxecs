@@ -19,6 +19,7 @@ import java.sql.Types;
 import org.apache.commons.lang.enums.Enum;
 import org.apache.commons.lang.enums.EnumUtils;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
 import org.hibernate.usertype.UserType;
 
@@ -81,7 +82,7 @@ public class EnumUserType implements UserType {
             return false;
         }
 
-        return Hibernate.STRING.isEqual(x, y);
+        return Hibernate.STRING.isEqual(x, y, EntityMode.POJO);
     }
 
     /**
@@ -89,7 +90,7 @@ public class EnumUserType implements UserType {
      *      java.lang.Object)
      */
     public Object nullSafeGet(ResultSet rs, String[] names, Object owner_) throws SQLException {
-        String enumCode = (String) Hibernate.STRING.nullSafeGet(rs, names[0]);
+        String enumCode = Hibernate.STRING.nullSafeGet(rs, names[0]);
 
         return EnumUtils.getEnum(m_enumClass, enumCode);
     }

@@ -340,4 +340,5 @@
   <bean id="beanWithSettings" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
+  
 </beans>

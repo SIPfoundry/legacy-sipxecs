@@ -10,7 +10,7 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
-BuildRequires: java-devel >= 1.7
+BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: automake
 BuildRequires: zip
 BuildRequires: sipxcommserverlib

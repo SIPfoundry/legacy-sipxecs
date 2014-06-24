@@ -23,7 +23,7 @@ BuildRequires: libxml2
 BuildRequires: sipxcommserverlib-devel >= %version
 
 # java
-BuildRequires: java-devel >= 1.7
+BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: sipxcommons >= %version
 
 # sipxconfig plugin

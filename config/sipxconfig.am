@@ -23,6 +23,8 @@ sipxconfig_neoconf_PKGS = \
 	gdata-contacts \
 	guessencoding \
 	hibernate \
+	hibernate-commons-annotations \
+	hibernate-jpa \
 	jackson-core-asl \
 	jackson-mapper-asl \
 	jain-sip-sdp \
@@ -101,7 +103,8 @@ sipxconfig_neoconf_PKGS = \
 	stax2-api \
 	jcl-over-slf4j \
 	spring-messaging \
-    spring-websocket
+    spring-websocket \
+    hazelcast-all
 
 sipxconfig_web_PKGS = \
 	$(sipxconfig_neoconf_PKGS) \
