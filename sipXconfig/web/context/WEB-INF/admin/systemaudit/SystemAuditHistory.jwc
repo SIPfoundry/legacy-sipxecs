@@ -11,4 +11,13 @@
     <binding name="userListener" value="listener:editUser"/>
   </component>
 
+  <component id="groupsPanel" type="common/FieldPanel">
+    <!-- Tacos/Tapestry Bug
+      - give the right value for field, and autocomplete renders double
+      -->
+    <binding name="field" value="components.groupsX"/>
+    <binding name="label" value="message:label.groups"/>
+    <binding name="description" value="message:description.groups"/>
+  </component>
+
 </component-specification>

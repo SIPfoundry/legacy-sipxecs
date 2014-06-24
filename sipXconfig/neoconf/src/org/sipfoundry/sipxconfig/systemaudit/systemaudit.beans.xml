@@ -18,6 +18,7 @@
 
   <bean id="configChangeContextImpl" class="org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContextImpl" parent="abstractDaoImpl">
     <property name="settingDao" ref="settingDao" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="systemAuditManager" class="org.springframework.aop.framework.ProxyFactoryBean">

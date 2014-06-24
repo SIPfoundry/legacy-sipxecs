@@ -19,6 +19,9 @@ package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
+
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class SystemAuditFilter implements Serializable {
 
@@ -27,16 +30,18 @@ public class SystemAuditFilter implements Serializable {
     private ConfigChangeType m_type;
     private ConfigChangeAction m_action;
     private String m_userName;
+    private Set<Group> m_userGroups;
     private String m_details;
 
     public SystemAuditFilter(Date startDate, Date endDate, ConfigChangeType type,
-            ConfigChangeAction action, String userName, String details) {
+            ConfigChangeAction action, String userName, String details, Set<Group> userGroup) {
         super();
         this.m_startDate = startDate;
         this.m_endDate = endDate;
         this.m_type = type;
         this.m_action = action;
         this.m_userName = userName;
+        this.m_userGroups = userGroup;
         this.m_details = details;
     }
 
@@ -78,6 +83,14 @@ public class SystemAuditFilter implements Serializable {
 
     public void setUserName(String userName) {
         this.m_userName = userName;
+    }
+
+    public Set<Group> getUserGroup() {
+        return m_userGroups;
+    }
+
+    public void setUserGroup(Set<Group> userGroups) {
+        this.m_userGroups = userGroups;
     }
 
     public String getDetails() {

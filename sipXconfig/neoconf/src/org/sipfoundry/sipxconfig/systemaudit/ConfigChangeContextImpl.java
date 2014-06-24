@@ -17,8 +17,12 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
+import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -26,6 +30,7 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -36,7 +41,12 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChange> implements
         ConfigChangeContext {
 
+    private static final String COMMA_SEPARATOR = ",";
+    private static final String DATE_TIME = "dateTime";
+    private static final String DETAILS = "details";
+
     private SettingDao m_settingDao;
+    private CoreContext m_coreContext;
 
     @Override
     public List<ConfigChange> getConfigChanges() {
@@ -44,17 +54,11 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
     }
 
     @Override
-    public List<ConfigChange> loadConfigChangesByPage(Integer groupId, int firstRow, int pageSize,
-            String[] orderBy, boolean orderAscending, SystemAuditFilter filter) {
-        DetachedCriteria c = DetachedCriteria.forClass(ConfigChange.class);
-        addByGroupCriteria(c, groupId);
-        addFilterCriteria(c, filter);
-        if (orderBy != null) {
-            for (String o : orderBy) {
-                Order order = orderAscending ? Order.asc(o) : Order.desc(o);
-                c.addOrder(order);
-            }
-        }
+    public List<ConfigChange> loadConfigChangesByPage(Integer groupId,
+            int firstRow, int pageSize, String[] orderBy,
+            boolean orderAscending, SystemAuditFilter filter) {
+        DetachedCriteria c = createCriteria(groupId, orderBy, orderAscending,
+                filter);
         return getHibernateTemplate().findByCriteria(c, firstRow, pageSize);
     }
 
@@ -65,7 +69,7 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
      * @param filter
      */
     private void addFilterCriteria(DetachedCriteria crit, SystemAuditFilter filter) {
-        crit.add(Restrictions.between("dateTime", filter.getStartDate(), filter.getEndDate()));
+        crit.add(Restrictions.between(DATE_TIME, filter.getStartDate(), filter.getEndDate()));
         ConfigChangeType type = filter.getType();
         if (type != null && type != ConfigChangeType.ALL) {
             crit.add(Restrictions.eq("configChangeType", type));
@@ -74,15 +78,28 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         if (action != null && action != ConfigChangeAction.ALL) {
             crit.add(Restrictions.eq("configChangeAction", action));
         }
+        String userNameKey = "userIpAddress.userName";
+        String userIpAddress = "userIpAddress";
+        crit.createAlias(userIpAddress, userIpAddress);
         String userName = filter.getUserName();
         if (userName != null) {
-            String userIpAddress = "userIpAddress";
-            crit.createAlias(userIpAddress, userIpAddress);
-            crit.add(Restrictions.eq("userIpAddress.userName", userName));
+            crit.add(Restrictions.eq(userNameKey, userName));
+        }
+        Set<Group> userGroups = filter.getUserGroup();
+        Set<String> userNames = new HashSet<String>();
+        if (!userGroups.isEmpty()) {
+            for (Group userGroup : userGroups) {
+                Collection<String> userNamesInGroup = m_coreContext.getGroupMembersNames(userGroup);
+                userNames.addAll(userNamesInGroup);
+            }
+            if (userNames.isEmpty()) {
+                userNames.add("");
+            }
+            crit.add(Restrictions.in(userNameKey, userNames));
         }
         String details = filter.getDetails();
         if (details != null) {
-            crit.add(Restrictions.eq("details", details));
+            crit.add(Restrictions.eq(DETAILS, details));
         }
     }
 
@@ -119,7 +136,58 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         DetachedCriteria c = DetachedCriteria.forClass(ConfigChange.class);
         c.setProjection(Projections.rowCount());
         addFilterCriteria(c, filter);
-        return (Integer) getHibernateTemplate().findByCriteria(c).get(0);
+        Long count = (Long) getHibernateTemplate().findByCriteria(c).get(0);
+        return count.intValue();
+    }
+
+    @Required
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    private DetachedCriteria createCriteria(Integer groupId, String[] orderBy,
+            boolean orderAscending, SystemAuditFilter filter) {
+        DetachedCriteria c = DetachedCriteria.forClass(ConfigChange.class);
+        addByGroupCriteria(c, groupId);
+        addFilterCriteria(c, filter);
+        if (orderBy != null) {
+            for (String o : orderBy) {
+                Order order = orderAscending ? Order.asc(o) : Order.desc(o);
+                c.addOrder(order);
+            }
+        }
+        return c;
+    }
+
+    private List<ConfigChange> loadConfigChangesByFilter(String[] orderBy,
+            boolean orderAscending, SystemAuditFilter filter) {
+        DetachedCriteria c = createCriteria(null, orderBy, orderAscending,
+                filter);
+        return getHibernateTemplate().findByCriteria(c);
+    }
+
+    @Override
+    public void dumpSystemAuditLogs(PrintWriter writer, SystemAuditFilter filter) {
+        // create header
+        writer.print("date_time" + COMMA_SEPARATOR);
+        writer.print("user_name" + COMMA_SEPARATOR);
+        writer.print("user_ip_address" + COMMA_SEPARATOR);
+        writer.print("config_change_type" + COMMA_SEPARATOR);
+        writer.print("config_change_action" + COMMA_SEPARATOR);
+        writer.println(DETAILS + COMMA_SEPARATOR);
+
+        // fill the table
+        List<ConfigChange> configChangesList = loadConfigChangesByFilter(
+                new String[] {DATE_TIME}, false, filter);
+        for (ConfigChange configChange: configChangesList) {
+            writer.print(configChange.getDateTime() + COMMA_SEPARATOR);
+            UserIpAddress userIpAddress = configChange.getUserIpAddress();
+            writer.print(userIpAddress.getUserName() + COMMA_SEPARATOR);
+            writer.print(userIpAddress.getIpAddress() + COMMA_SEPARATOR);
+            writer.print(configChange.getConfigChangeType() + COMMA_SEPARATOR);
+            writer.print(configChange.getConfigChangeAction() + COMMA_SEPARATOR);
+            writer.println(configChange.getDetails() + COMMA_SEPARATOR);
+        }
     }
 
 }

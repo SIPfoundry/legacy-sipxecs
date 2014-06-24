@@ -17,9 +17,15 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class ConfigChangeValue extends BeanWithId {
+
+    public static final List<String> EXCEPTED_PROPERTIES = Arrays.asList(
+            "pintoken", "sip_password", "voicemailPintoken");
 
     private ConfigChange m_configChange;
     private String m_propertyName;
@@ -47,6 +53,9 @@ public class ConfigChangeValue extends BeanWithId {
     }
 
     public void setValueBefore(String valueBefore) {
+        if (isExcepted()) {
+            return;
+        }
         this.m_valueBefore = valueBefore;
     }
 
@@ -55,6 +64,9 @@ public class ConfigChangeValue extends BeanWithId {
     }
 
     public void setValueAfter(String valueAfter) {
+        if (isExcepted()) {
+            return;
+        }
         this.m_valueAfter = valueAfter;
     }
 
@@ -64,5 +76,19 @@ public class ConfigChangeValue extends BeanWithId {
 
     public void setPropertyName(String propertyName) {
         this.m_propertyName = propertyName;
+    }
+
+    /**
+     * Decide if we need to store the valueBefore and valueAfter. For instance we
+     * need to keep track of password changes, but not the actual password
+     * values.
+     */
+    private boolean isExcepted() {
+        if (getPropertyName() != null
+                && ConfigChangeValue.EXCEPTED_PROPERTIES
+                        .contains(getPropertyName())) {
+            return true;
+        }
+        return false;
     }
 }
