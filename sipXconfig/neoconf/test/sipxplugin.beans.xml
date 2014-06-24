@@ -18,5 +18,6 @@
   </bean>
 
   <bean id="systemAuditManager" class="org.sipfoundry.sipxconfig.systemaudit.SystemAuditManagerMock"/>
+  <bean id="systemAuditManagerImpl" class="org.sipfoundry.sipxconfig.systemaudit.SystemAuditManagerMock"/>
 
 </beans>

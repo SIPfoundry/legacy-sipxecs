@@ -118,7 +118,9 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         // to load them all. However, if you do have isolated spring file, this is definitely
         // overrideable
         return new String[] {
-            "classpath*:**/*.beans.xml"
+            "classpath:/org/sipfoundry/sipxconfig/system.beans.xml",
+            "classpath*:/org/sipfoundry/sipxconfig/*/**/*.beans.xml",
+            "classpath*:/sipxplugin.beans.xml"
         };
     }
 

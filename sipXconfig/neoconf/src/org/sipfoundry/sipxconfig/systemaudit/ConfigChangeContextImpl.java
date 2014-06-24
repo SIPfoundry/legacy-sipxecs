@@ -179,7 +179,7 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         // fill the table
         List<ConfigChange> configChangesList = loadConfigChangesByFilter(
                 new String[] {DATE_TIME}, false, filter);
-        for (ConfigChange configChange: configChangesList) {
+        for (ConfigChange configChange : configChangesList) {
             writer.print(configChange.getDateTime() + COMMA_SEPARATOR);
             UserIpAddress userIpAddress = configChange.getUserIpAddress();
             writer.print(userIpAddress.getUserName() + COMMA_SEPARATOR);
