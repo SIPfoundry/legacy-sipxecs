@@ -14,29 +14,28 @@
  */
 package org.sipfoundry.sipxconfig.websocket.controller;
 
+import java.io.Serializable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.HibernateEntityChangeProvider;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
-public class PhoneController implements DaoEventListener {
+public class PhoneController implements HibernateEntityChangeProvider {
     private static final Log LOG = LogFactory.getLog(PhoneController.class);
 
     @Autowired
     private SimpMessagingTemplate m_template;
 
     @Override
-    public void onDelete(Object entity) {
-
-    }
-
-    @Override
-    public void onSave(Object entity) {
+    public void onConfigChangeAction(Object entity, ConfigChangeAction configChangeType, String[] properties,
+        Object[] oldValues, Object[] newValues) {
         if (entity instanceof Phone) {
             Phone phone = (Phone) entity;
             try {
@@ -45,6 +44,10 @@ public class PhoneController implements DaoEventListener {
                 LOG.error("Cannot push packet ", ex);
             }
         }
+    }
+
+    @Override
+    public void onConfigChangeCollectionUpdate(Object collection, Serializable key) {
 
     }
 }

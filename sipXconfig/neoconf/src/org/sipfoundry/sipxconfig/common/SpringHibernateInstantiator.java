@@ -14,7 +14,10 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.map.LazyMap;
@@ -46,6 +49,10 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     private Map m_beanNamesCache;
     private Map<String, EntityDecorator> m_decorators;
     private Collection<HibernateEntityChangeProvider> m_hbEntityProviders;
+
+    private Set<HbEntity> m_inserts = new HashSet<HbEntity>();
+    private Set<HbEntity> m_updates = new HashSet<HbEntity>();
+    private Set<HbEntity> m_deletes = new HashSet<HbEntity>();
 
     /**
      * This implementation only supports BeanWithId objects with integer ids
@@ -103,9 +110,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         if (decorator != null) {
             decorator.onSave(entity, id);
         }
-        for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
-            provider.onConfigChangeAction(entity, ConfigChangeAction.ADDED, null, null, null);
-        }
+        m_inserts.add(new HbEntity(entity, id, null, null, propertyNames, types, state));
         return super.onSave(entity, id, state, propertyNames, types);
     }
 
@@ -115,6 +120,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         if (decorator != null) {
             decorator.onDelete(entity, id);
         }
+        m_deletes.add(new HbEntity(entity, id, null, null, propertyNames, types, state));
         super.onDelete(entity, id, state, propertyNames, types);
     }
 
@@ -158,9 +164,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     @Override
     public boolean onFlushDirty(Object obj, Serializable id, Object[] newValues, Object[] oldValues,
             String[] properties, Type[] types) throws CallbackException {
-        for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
-            provider.onConfigChangeAction(obj, ConfigChangeAction.MODIFIED, properties, oldValues, newValues);
-        }
+        m_updates.add(new HbEntity(obj, id, newValues, oldValues, properties, types, null));
         return super.onFlushDirty(obj, id, oldValues, newValues, properties, types);
     }
 
@@ -170,6 +174,38 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
             provider.onConfigChangeCollectionUpdate(collection, key);
         }
         super.onCollectionUpdate(collection, key);
+    }
+
+    public void postFlush(Iterator iterator) {
+        HbEntity hbEntity = null;
+        try {
+            for (Iterator<HbEntity> it = m_inserts.iterator(); it.hasNext();) {
+                hbEntity = it.next();
+                for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+                    provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.ADDED,
+                        hbEntity.getProperties(), null, null);
+                }
+            }
+            for (Iterator<HbEntity> it = m_updates.iterator(); it.hasNext();) {
+                hbEntity = it.next();
+                for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+                    provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.MODIFIED,
+                        hbEntity.getProperties(), hbEntity.getOldValues(), hbEntity.getNewValues());
+                }
+            }
+            for (Iterator<HbEntity> it = m_deletes.iterator(); it.hasNext();) {
+                hbEntity = it.next();
+                for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+                    provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.DELETED,
+                        hbEntity.getProperties(), null, null);
+                }
+            }
+
+        } finally {
+            m_inserts.clear();
+            m_updates.clear();
+            m_deletes.clear();
+        }
     }
 
     private Collection<HibernateEntityChangeProvider> getHbEntityChangeProviders() {
