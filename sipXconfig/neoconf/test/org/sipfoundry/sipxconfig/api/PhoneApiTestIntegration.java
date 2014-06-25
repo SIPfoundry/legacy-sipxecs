@@ -76,12 +76,12 @@ public class PhoneApiTestIntegration extends RestApiIntegrationTestCase {
                 String.format(
                         "{\"id\":%s,\"serialNo\":\"0004f2ae4888\",\"deviceVersion\":\"acmePhone2\","
                                 + "\"description\":\"TestPhone Modified\",\"model\":{\"modelId\":\"acmePhoneStandard\",\"label\":\"Acme\","
-                                + "\"vendor\":null,\"versions\":[\"acmePhone1\",\"acmePhone2\"]},\"lines\":null,\"groups\":[{\"id\":%s,\"name\":\"testPhoneGroup\",\"weight\":%s}]}",
+                                + "\"vendor\":null,\"versions\":[\"acmePhone1\",\"acmePhone2\"]},\"lines\":null,\"groups\":[{\"id\":%s,\"name\":\"testPhoneGroup\",\"description\":null,\"weight\":%s,\"count\":null}]}",
                         phone.getId(), group.getId(), group.getWeight()), modifiedPhone);
 
         // retrieve phone groups
         String groups = getAsJson("phones/0004f2ae4888/groups");
-        assertEquals(String.format("{\"groups\":[{\"id\":%s,\"name\":\"testPhoneGroup\",\"weight\":%s}]}",
+        assertEquals(String.format("{\"groups\":[{\"id\":%s,\"name\":\"testPhoneGroup\",\"description\":null,\"weight\":%s,\"count\":null}]}",
                 group.getId(), group.getWeight()), groups);
 
         // remove phone from group

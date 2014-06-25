@@ -24,9 +24,9 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.api.PhoneApi;
+import org.sipfoundry.sipxconfig.api.model.GroupBean;
+import org.sipfoundry.sipxconfig.api.model.GroupList;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean;
-import org.sipfoundry.sipxconfig.api.model.PhoneBean.GroupBean;
-import org.sipfoundry.sipxconfig.api.model.PhoneBean.GroupList;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean.ModelBean;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean.ModelList;
 import org.sipfoundry.sipxconfig.api.model.PhoneList;
@@ -143,7 +143,7 @@ public class PhoneApiImpl implements PhoneApi {
     public Response getPhoneGroups(String phoneId) {
         Phone phone = getPhoneByIdOrMac(phoneId);
         if (phone != null) {
-            return Response.ok().entity(GroupList.convertGroupList(phone.getGroupsAsList())).build();
+            return Response.ok().entity(GroupList.convertGroupList(phone.getGroupsAsList(), null)).build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }

@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
-import org.sipfoundry.sipxconfig.setting.Group;
 
 @XmlRootElement(name = "Phone")
 @XmlType(propOrder = {
@@ -120,7 +119,7 @@ public class PhoneBean {
         bean.setDescription(phone.getDescription());
         bean.setModel(ModelBean.convertModel(phoneModel));
         bean.setLines(LineBean.buildLineList(phone.getLines()));
-        bean.setGroups(GroupBean.buildGroupList(phone.getGroupsAsList()));
+        bean.setGroups(GroupBean.buildGroupList(phone.getGroupsAsList(), null));
         return bean;
     }
 
@@ -329,81 +328,6 @@ public class PhoneBean {
                 return lines;
             }
             return null;
-        }
-    }
-
-    @XmlType(propOrder = {
-            "id", "name", "weight"
-            })
-    @JsonPropertyOrder({
-            "id", "name", "weight"
-            })
-    public static class GroupBean {
-        private int m_id;
-        private String m_name;
-        private Integer m_weight;
-
-        public int getId() {
-            return m_id;
-        }
-
-        public void setId(int id) {
-            m_id = id;
-        }
-
-        public void setName(String name) {
-            m_name = name;
-        }
-
-        public String getName() {
-            return m_name;
-        }
-
-        public void setWeight(int weight) {
-            m_weight = weight;
-        }
-
-        public int getWeight() {
-            return m_weight;
-        }
-
-        public static List<GroupBean> buildGroupList(List<Group> phoneGroups) {
-            List<GroupBean> groups = new LinkedList<GroupBean>();
-            for (Group group : phoneGroups) {
-                GroupBean groupBean = new GroupBean();
-                groupBean.setId(group.getId());
-                groupBean.setName(group.getName());
-                groupBean.setWeight(group.getWeight());
-                groups.add(groupBean);
-            }
-            if (groups.size() > 0) {
-                return groups;
-            }
-            return null;
-        }
-    }
-
-    @XmlRootElement(name = "Groups")
-    public static class GroupList {
-
-        private List<GroupBean> m_groups;
-
-        public void setGroups(List<GroupBean> groups) {
-            m_groups = groups;
-        }
-
-        @XmlElement(name = "Group")
-        public List<GroupBean> getGroups() {
-            if (m_groups == null) {
-                m_groups = new ArrayList<GroupBean>();
-            }
-            return m_groups;
-        }
-
-        public static GroupList convertGroupList(List<Group> groups) {
-            GroupList list = new GroupList();
-            list.setGroups(GroupBean.buildGroupList(groups));
-            return list;
         }
     }
 
