@@ -48,6 +48,8 @@ BUILD_EPEL = \
 	libev-* \
 	libmongodb-devel-2.4* \
 	neXtaw-* \
+	nodejs-* \
+	npm-* \
 	poco-* \
 	poco-debug-* \
 	python-empy-* \
