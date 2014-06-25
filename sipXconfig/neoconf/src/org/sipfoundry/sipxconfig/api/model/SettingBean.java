@@ -21,6 +21,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -29,6 +30,9 @@ import org.springframework.context.NoSuchMessageException;
 
 @XmlRootElement(name = "Setting")
 @XmlType(propOrder = {
+        "path", "type", "options", "value", "defaultValue", "label", "description"
+        })
+@JsonPropertyOrder({
         "path", "type", "options", "value", "defaultValue", "label", "description"
         })
 public class SettingBean {
@@ -103,8 +107,7 @@ public class SettingBean {
         bean.setType(type.getName());
         if (type instanceof EnumSetting) {
             Map<String, String> settingOptions = new HashMap<String, String>();
-            for (Map.Entry<String, String> entry : ((EnumSetting) type).getEnums().entrySet())
-            {
+            for (Map.Entry<String, String> entry : ((EnumSetting) type).getEnums().entrySet()) {
                 String optionLabel = ((EnumSetting) type).getLabelKey(setting, entry.getValue());
                 settingOptions.put(entry.getKey(), getMessage(setting.getMessageSource(), optionLabel, locale));
             }

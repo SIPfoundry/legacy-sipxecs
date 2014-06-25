@@ -1,0 +1,68 @@
+<beans xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:cxf="http://cxf.apache.org/core"
+	xsi:schemaLocation=" 
+ http://www.springframework.org/schema/beans
+ http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+ http://www.springframework.org/schema/util
+ http://www.springframework.org/schema/util/spring-util-2.0.xsd
+ http://cxf.apache.org/core
+ http://cxf.apache.org/schemas/core.xsd
+ http://cxf.apache.org/jaxrs
+ http://cxf.apache.org/schemas/jaxrs.xsd
+ http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd
+ http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <ref bean="loggingInInterceptor" />
+        </cxf:inInterceptors>
+        <cxf:outInterceptors>
+            <ref bean="loggingOutInterceptor" />
+        </cxf:outInterceptors>
+        <cxf:inFaultInterceptors>
+            <ref bean="loggingOutInterceptor" />
+        </cxf:inFaultInterceptors>
+    </cxf:bus>
+    <jaxrs:server address="/" id="connectionService">
+        <jaxrs:serviceBeans>
+            <ref bean="registeredApis"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
+            <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider"/>
+            <bean class="org.sipfoundry.sipxconfig.api.SipxecsExceptionMapper"/>
+        </jaxrs:providers>
+        <jaxrs:extensionMappings>
+            <entry key="xml" value="application/xml" />
+            <entry key="json" value="application/json" />
+        </jaxrs:extensionMappings>
+    </jaxrs:server>
+    
+    <!-- W E B S O C K ET-->
+    
+    <bean id="configHandler" class="org.sipfoundry.sipxconfig.websocket.ConfigHandshakeHandler">
+    </bean>
+
+    <mvc:annotation-driven />
+    <mvc:view-controller path="/eventapp" view-name="/ws-eventapp/index.html"/>
+    <mvc:resources mapping="/resources/**" location="/ws-resources/" />
+
+    <context:component-scan base-package="org.sipfoundry.sipxconfig.websocket.controller" />
+
+    <websocket:message-broker application-destination-prefix="/app">
+      <websocket:stomp-endpoint path="/event">
+        <websocket:handshake-handler ref="configHandler"/>
+        <websocket:sockjs/>
+      </websocket:stomp-endpoint>
+      <websocket:simple-broker prefix="/topic"/>
+    </websocket:message-broker>
+
+</beans>

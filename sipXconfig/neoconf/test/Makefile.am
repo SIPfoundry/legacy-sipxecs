@@ -12,6 +12,14 @@ noinst_DATA = javac-test
 test_PKGS = \
 	$(sipxconfig_test_integration_core_PKGS)
 
+test_jetty_PKGS = \
+	jetty-continuation \
+	jetty-http \
+	jetty-io \
+	jetty-security \
+	jetty-server \
+	jetty-util
+
 test_RESOURCES = \
 	$(shell cd $(srcdir); find org -not -name '*.java') \
 	log4j.properties \
@@ -25,6 +33,7 @@ test_DEPS = \
 	$(neoconf_JAVAROOT) \
 	$(srcdir) \
 	$(top_srcdir)/etc/sipxpbx \
+	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons $(srcdir)/lib, $(test_jetty_PKGS)) \
 	$(call JavaDep, @SIPX_JAVADIR@/sipXcommons $(top_srcdir)/lib, $(test_PKGS)) \
 	@SIPX_JAVADIR@/sipXconfig/cdr-bindings.jar
 

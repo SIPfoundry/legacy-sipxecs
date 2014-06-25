@@ -8,5 +8,6 @@
 	<classpathentry kind="var" path="SIPX_BUILDDIR"/>
 	<classpathentry kind="lib" path="/sipxcommons/lib/junit-4.8.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXrelay"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-5.1.4.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

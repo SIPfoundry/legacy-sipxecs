@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -35,6 +36,9 @@ import org.sipfoundry.sipxconfig.setting.Group;
 @XmlType(propOrder = {
         "id", "serialNo", "deviceVersion", "description", "model", "lines", "groups"
         })
+@JsonPropertyOrder({
+        "id", "serialNo", "deviceVersion", "description", "model", "lines", "groups"
+    })
 public class PhoneBean {
     private int m_id;
     private String m_serialNo;
@@ -127,6 +131,9 @@ public class PhoneBean {
     @XmlType(propOrder = {
             "modelId", "label", "vendor", "versions"
             })
+    @JsonPropertyOrder({
+            "modelId", "label", "vendor", "versions"
+            })
     public static class ModelBean {
         private String m_modelId;
         private String m_label;
@@ -196,6 +203,10 @@ public class PhoneBean {
 
     @XmlRootElement(name = "Line")
     @XmlType(propOrder = {
+            "id", "uri", "user", "userId", "extension", "displayName", "password", "registrationServer",
+            "registrationServerPort", "voicemail"
+            })
+    @JsonPropertyOrder({
             "id", "uri", "user", "userId", "extension", "displayName", "password", "registrationServer",
             "registrationServerPort", "voicemail"
             })
@@ -322,6 +333,9 @@ public class PhoneBean {
     }
 
     @XmlType(propOrder = {
+            "id", "name", "weight"
+            })
+    @JsonPropertyOrder({
             "id", "name", "weight"
             })
     public static class GroupBean {

@@ -1,7 +1,7 @@
 include $(top_srcdir)/config/sipxconfig.am
 
 sipxconfig_test_integration_core_PKGS = \
-	$(sipxconfig_web_PKGS) \
+	$(sipxconfig_web_test_PKGS) \
 	dbunit \
 	easymock \
 	easymockclassextension \
@@ -10,7 +10,37 @@ sipxconfig_test_integration_core_PKGS = \
 	p6spy \
 	spring-mock \
 	xml-apis \
-	xmlunit
+	xmlunit \
+	cxf-rt-transports-http-jetty
+
+sipxconfig_web_test_PKGS = \
+	$(sipxconfig_neoconf_PKGS) \
+	ant \
+	ant-launcher \
+	backport-util-concurrent \
+	c3p0 \
+	cglib-nodep \
+	commons-fileupload \
+	commons-pool \
+	ez-vcard \
+	hivemind \
+	hivemind-lib \
+	jasper-compiler \
+	javassist \
+	jdom \	
+	javax.servlet-api \
+	javax.servlet.jsp-api \
+	jta \
+	not-yet-commons-ssl \
+	ognl \
+	rome \
+	tapestry-annotations \
+	tapestry-contrib \
+	tapestry-framework \
+	xpp3 \
+	jackson-core \
+	jackson-databind \
+	jackson-annotations
 
 sipxconfig_test_integration_PKGS = \
 	$(sipxconfig_test_integration_core_PKGS) \

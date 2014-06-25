@@ -17,52 +17,8 @@
  http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.0.xsd
  http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <import resource="classpath:META-INF/cxf/cxf.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-
     <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor" />
     <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor" />
-    <cxf:bus>
-        <cxf:inInterceptors>
-            <ref bean="loggingInInterceptor" />
-        </cxf:inInterceptors>
-        <cxf:outInterceptors>
-            <ref bean="loggingOutInterceptor" />
-        </cxf:outInterceptors>
-        <cxf:inFaultInterceptors>
-            <ref bean="loggingOutInterceptor" />
-        </cxf:inFaultInterceptors>
-    </cxf:bus>
-    <jaxrs:server address="/" id="connectionService">
-        <jaxrs:serviceBeans>
-            <ref bean="phoneRestApi"/>
-            <ref bean="phoneLineRestApi"/>
-            <ref bean="ftpRestApi"/>
-            <ref bean="serverRestApi"/>
-            <ref bean="registrationRestApi"/>
-            <ref bean="ivrRestApi"/>
-            <ref bean="callParkRestApi"/>
-            <ref bean="pagingRestApi"/>
-            <ref bean="imbotRestApi"/>
-            <ref bean="restServerRestApi"/>
-            <ref bean="cdrRestApi"/>
-            <ref bean="proxyRestApi"/>
-            <ref bean="registrarRestApi"/>
-            <ref bean="saaRestApi"/>
-            <ref bean="mwiRestApi"/>
-            <ref bean="dnsRestApi"/>
-            <ref bean="mohRestApi"/>
-        </jaxrs:serviceBeans>
-        <jaxrs:providers>
-            <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
-            <bean class="org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider"/>
-            <bean class="org.sipfoundry.sipxconfig.api.SipxecsExceptionMapper"/>
-        </jaxrs:providers>
-        <jaxrs:extensionMappings>
-            <entry key="xml" value="application/xml" />
-            <entry key="json" value="application/json" />
-        </jaxrs:extensionMappings>
-    </jaxrs:server>
 
     <util:list id="audioExtensions" value-type="java.lang.String">
         <value>wav</value>
@@ -71,6 +27,26 @@
 
     <util:list id="reportExtensions" value-type="java.lang.String">
         <value>jasper</value>
+    </util:list>
+
+    <util:list id="registeredApis">
+        <ref bean="phoneRestApi"/>
+        <ref bean="phoneLineRestApi"/>
+        <ref bean="ftpRestApi"/>
+        <ref bean="serverRestApi"/>
+        <ref bean="registrationRestApi"/>
+        <ref bean="ivrRestApi"/>
+        <ref bean="callParkRestApi"/>
+        <ref bean="pagingRestApi"/>
+        <ref bean="imbotRestApi"/>
+        <ref bean="restServerRestApi"/>
+        <ref bean="cdrRestApi"/>
+        <ref bean="proxyRestApi"/>
+        <ref bean="registrarRestApi"/>
+        <ref bean="saaRestApi"/>
+        <ref bean="mwiRestApi"/>
+        <ref bean="dnsRestApi"/>
+        <ref bean="mohRestApi"/>
     </util:list>
 
     <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneApiImpl" id="phoneRestApi">
@@ -137,31 +113,11 @@
     <bean class="org.sipfoundry.sipxconfig.api.impl.MohApiImpl" id="mohRestApi">
         <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     </bean>
-    
-    <!-- W E B S O C K ET-->
-    
-    <bean id="configHandler" class="org.sipfoundry.sipxconfig.websocket.ConfigHandshakeHandler">
-    </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.PagingGroupApiImpl" id="pagingRestApi">
         <property name="pagingContext" ref="pagingContext"/>
         <property name="pagingFeatureContext" ref="pagingFeatureContext"/>
         <property name="coreContext" ref="coreContext"/>
         <property name="path" value="${sysdir.var}/sipxpage/music"/>
         <property name="extensions" ref="audioExtensions"/>
-    </bean> 
-
-    <mvc:annotation-driven />
-    <mvc:view-controller path="/eventapp" view-name="/ws-eventapp/index.html"/>
-    <mvc:resources mapping="/resources/**" location="/ws-resources/" />
-
-    <context:component-scan base-package="org.sipfoundry.sipxconfig.websocket.controller" />
-
-    <websocket:message-broker application-destination-prefix="/app">
-      <websocket:stomp-endpoint path="/event">
-        <websocket:handshake-handler ref="configHandler"/>
-        <websocket:sockjs/>
-      </websocket:stomp-endpoint>
-      <websocket:simple-broker prefix="/topic"/>
-    </websocket:message-broker>
-
+    </bean>
 </beans>

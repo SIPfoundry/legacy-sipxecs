@@ -8,5 +8,12 @@
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXconfig/cdr-bindings.jar"/>
 	<classpathentry kind="var" path="SIPX_BUILDDIR/sipXconfig/neoconf/test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
+	<classpathentry kind="lib" path="test/lib/jetty-continuation-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="test/lib/jetty-http-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="test/lib/jetty-io-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="test/lib/jetty-security-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="test/lib/jetty-server-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="test/lib/jetty-util-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="test/lib/geronimo-servlet_3.0_spec-1.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
