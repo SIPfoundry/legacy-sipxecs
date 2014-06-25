@@ -135,7 +135,7 @@ sipxconfig_web_PKGS = \
 	websocket-client \
 	websocket-common \
 	websocket-server \
-	websocket-servlet \	
+	websocket-servlet \
 	javax.servlet-api \
 	javax.servlet.jsp-api \
 	jta \
