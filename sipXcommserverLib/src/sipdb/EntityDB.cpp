@@ -22,10 +22,46 @@
 
 using namespace std;
 
-const string EntityDB::NS("imdb.entity");
+static const std::string ID_SIPX_PROVISION = "~~id~sipXprovision";
 
-bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) const
+const std::string EntityDB::NS("imdb.entity");
+
+
+static std::string validate_identity_string(const std::string& identity)
 {
+  //
+  // There are special cases where we might want to rewrite certain identity.
+  // A good example is if a set of users share a common credential like ~~id~sipXprovision
+  //
+  // Rewrite:  ~~id~sipXprovision~XXXYYY => ~~id~sipXprovision
+  // Rewrite:  ~~id~sipXprovision~XXXYYY@somedomain.com  => ~~id~sipXprovision@somedomain.com
+  //
+  if (identity.find(ID_SIPX_PROVISION) == 0)
+  {
+    std::vector<std::string> tokens;
+    boost::split(tokens, identity, boost::is_any_of("@"), boost::token_compress_on);
+
+    if (tokens.size() <= 1)
+    {
+      return ID_SIPX_PROVISION;
+    }
+    else if (tokens.size() == 2)
+    {
+      return  ID_SIPX_PROVISION + std::string("@") + tokens[1];
+    }
+    else
+    {
+      OS_LOG_WARNING(FAC_ODBC, "validate_identity_string - " << identity << " appears to be malformed");
+    }
+  }
+
+  return identity;
+}
+
+bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
+{
+    std::string identity = validate_identity_string(ident);
+
 	mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
 
@@ -48,8 +84,10 @@ bool EntityDB::findByIdentity(const string& identity, EntityRecord& entity) cons
 	return false;
 }
 
-bool EntityDB::findByUserId(const string& userId, EntityRecord& entity) const
+bool EntityDB::findByUserId(const string& uid, EntityRecord& entity) const
 {
+  std::string userId = validate_identity_string(uid);
+
 	mongo::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
     mongo::BSONObjBuilder builder;
     BaseDB::nearest(builder, query);
