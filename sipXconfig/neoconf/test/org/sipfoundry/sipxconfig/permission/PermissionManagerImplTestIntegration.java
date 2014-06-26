@@ -15,15 +15,15 @@ import static org.sipfoundry.sipxconfig.permission.PermissionName.FREESWITH_VOIC
 import static org.sipfoundry.sipxconfig.permission.PermissionName.SUPERADMIN;
 import static org.sipfoundry.sipxconfig.permission.PermissionName.VOICEMAIL;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanSetup;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
@@ -176,7 +176,11 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
 
         CustomDialingRule rule = new CustomDialingRule();
         rule.setName("a2");
-        rule.setPermissionNames(Collections.singletonList(permission.getName()));
+        //Hibernate 3.6.10 does not accept merge on unmodifiable lists
+        //It will throw java.lang.UnsupportedOperationException
+        List<String> permNames = new ArrayList<String>();
+        permNames.add(permission.getName());
+        rule.setPermissionNames(permNames);
 
         m_dialPlanContext.storeRule(rule);
         commit();
@@ -312,8 +316,8 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/application/superadmin", p.getSettingPath());
     }
-    
-    
+
+
     public void testGetApplicationPermissionByNameFromDb() throws Exception {
         sql("permission/permission.sql");
 
@@ -355,7 +359,7 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("ENABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/voicemail-server/FreeswitchVoicemailServer", p.getSettingPath());
     }
-    
+
     public void testGetVMServerPermissionByNameFromDb() throws Exception {
         sql("permission/permission.sql");
 
@@ -382,7 +386,7 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("ENABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
     }
-    
+
     public void testPermissionFromDb() throws Exception {
         sql("permission/permission.sql");
         Permission p = m_permissionManager.getPermissionByName("perm_1001");
@@ -405,7 +409,7 @@ public class PermissionManagerImplTestIntegration extends IntegrationTestCase {
 
         assertEquals(3, countRowsInTable("permission"));
     }
-    
+
     public void testClear() throws Exception {
         sql("permission/permission.sql");
         m_permissionManager.clear();
