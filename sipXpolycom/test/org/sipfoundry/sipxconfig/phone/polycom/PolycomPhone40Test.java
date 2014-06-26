@@ -24,17 +24,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.cert.CertificateManager;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -50,6 +58,17 @@ public class PolycomPhone40Test extends TestCase {
 
     @Override
     protected void setUp() {
+
+        FeatureManager featureManagerMock = createMock(FeatureManager.class);
+        featureManagerMock.isFeatureEnabled(Mwi.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
+        featureManagerMock.isFeatureEnabled(MusicOnHoldManager.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
         m_phone = new PolycomPhone();
         PolycomModel model = new PolycomModel();
         model.setModelId("polycomVVX500");
@@ -71,6 +90,8 @@ public class PolycomPhone40Test extends TestCase {
 
         VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator(TestHelper.getEtcDir());
         m_phone.setProfileGenerator(profileGenerator);
+        m_phone.setFeatureManager(featureManagerMock);
+        EasyMock.replay(featureManagerMock);
     }
 
     // Firmware version 1.6 is no longer supported. For firmware version 2.0 and beyound,
@@ -83,10 +104,10 @@ public class PolycomPhone40Test extends TestCase {
         AddressManager addressManager = createMock(AddressManager.class);
         addressManager.getAddresses(new AddressType("provisionService", "http://%s:%d/"));
         expectLastCall().andReturn(new ArrayList<Address>()).anyTimes();
-        
+
         m_phone.setAddressManager(addressManager);
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
-        
+
         CertificateManager cm = createMock(CertificateManager.class);
         cm.getSelfSigningAuthorityText();
         expectLastCall().andReturn("empty");
@@ -109,7 +130,7 @@ public class PolycomPhone40Test extends TestCase {
         assertTrue(new File(m_root, m_phone.getRegionFilename()).exists());
         assertTrue(new File(m_root, m_phone.getSiteFilename()).exists());
         assertTrue(new File(m_root, m_phone.getVideoFilename()).exists());
-        
+
         m_phone.removeProfiles(m_location);
         assertTrue(phonebook.exists());
         assertFalse(appFile.exists());
@@ -142,7 +163,7 @@ public class PolycomPhone40Test extends TestCase {
         Setting settings = m_tester.getPrimaryLine().getSettings();
         Setting address = settings.getSetting("reg/server/1/address");
         assertEquals("sipfoundry.org", address.getValue());
-        
+
         Setting missedCallTracking = settings.getSetting("call/missedCallTracking/enabled");
         assertTrue((Boolean)missedCallTracking.getTypedValue());
     }

@@ -13,7 +13,9 @@ import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonelog.PhoneLog;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -21,11 +23,13 @@ public class PolycomPhoneDefaults {
     private final DeviceDefaults m_defaults;
     private final SpeedDial m_speedDial;
     private final String m_model;
+    private final Phone m_phone;
 
-    PolycomPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial, String model) {
+    PolycomPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial, String model, Phone phone) {
         m_defaults = defaults;
         m_speedDial = speedDial;
         m_model = model;
+        m_phone = phone;
     }
 
     private DeviceTimeZone getZone() {
@@ -41,7 +45,6 @@ public class PolycomPhoneDefaults {
     public String getNtpServer() {
         return m_defaults.getNtpServer();
     }
-
 
     // The attributes that control Daylight Savings Time (DST) are explained here:
     // http://wiki.sipfoundry.org/display/xecsuser/Polycom#
@@ -120,7 +123,7 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(path = "attendant/uri")
     public String getAttendantUri() {
-        if (m_speedDial != null && m_speedDial.isBlf()) {
+        if (isPresenceEnabled() && m_speedDial != null && m_speedDial.isBlf()) {
             return SipUri.format(m_speedDial.getResourceListId(true), m_defaults.getDomainName(), false);
         }
         return null;
@@ -128,7 +131,7 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(path = "attendant/reg")
     public String getAttendantReg() {
-        if (m_speedDial != null && m_speedDial.isBlf()) {
+        if (isPresenceEnabled() && m_speedDial != null && m_speedDial.isBlf()) {
             return "1";
         }
         return null;
@@ -153,5 +156,9 @@ public class PolycomPhoneDefaults {
             return "3";
         }
         return null;
+    }
+
+    private boolean isPresenceEnabled() {
+        return m_phone.getFeatureManager().isFeatureEnabled(Rls.FEATURE);
     }
 }

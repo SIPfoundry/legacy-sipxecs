@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
@@ -33,7 +34,6 @@ public class Line extends BeanWithGroups {
     private User m_user;
 
     private boolean m_initialized;
-
 
     private List<String> m_paths = new ArrayList<String>();
 
@@ -189,4 +189,13 @@ public class Line extends BeanWithGroups {
             model.setGroups(m_phone.getGroups());
         }
     }
+
+    public boolean isNotSpecialPhoneProvisionUserLine() {
+        boolean notProv = true;
+        if (getUser() != null && SpecialUserType.PHONE_PROVISION.getUserName().equals(getUser().getUserName())) {
+            notProv = false;
+        }
+        return notProv;
+    }
+
 }

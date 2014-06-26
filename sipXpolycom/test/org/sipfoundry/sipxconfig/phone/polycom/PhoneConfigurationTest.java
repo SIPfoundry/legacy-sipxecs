@@ -9,6 +9,7 @@
 */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.replay;
 
@@ -31,13 +32,17 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.moh.MohAddressFactory;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -53,7 +58,19 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
     @Override
     protected void setUp() throws Exception {
+        FeatureManager featureManagerMock = createMock(FeatureManager.class);
+        featureManagerMock.isFeatureEnabled(Mwi.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
+        featureManagerMock.isFeatureEnabled(MusicOnHoldManager.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
         phone = new PolycomPhone();
+        phone.setFeatureManager(featureManagerMock);
+        EasyMock.replay(featureManagerMock);
+
         m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         m_pg = phone.getProfileGenerator();
     }
@@ -62,6 +79,8 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 * Test 2.x profile generation.
 */
     public void testGenerateProfileVersion20() throws Exception {
+
+
         FileSystemProfileLocation location = TestHelper.setFsVelocityProfileGenerator(phone, TestHelper.getEtcDir());;
         location.setParentDir(TestHelper.getTestOutputDirectory());
 
@@ -92,7 +111,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         System.out.println("*** BEGIN expected profile content. ***");
         dumpXml(getClass().getResourceAsStream("expected-phone.cfg.xml"), System.out);
         System.out.println("*** END expected profile content. ***");
-        
+
         //Use string comparison here since we want to capture special chars like German umlaut, etc;
         //using xml comparison via assertXmlEquals will reconvert the characters encoded
         assertEquals(FileUtils.readFileToString(new File(getClass().getResource("expected-phone.cfg.xml").getFile())), FileUtils.readFileToString(new File(TestHelper.getTestOutputDirectory()+"/profile.XXX")));
@@ -119,7 +138,8 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         // The phone has no lines configured.
         m_testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
 
-        String expectedMohUri = "~~mh@example.org";
+        //String expectedMohUri = "~~mh@example.org";
+        String expectedMohUri = "";// actually empty, since there are no lines
         MohAddressFactory moh = EasyMock.createNiceMock(MohAddressFactory.class);
         moh.getPersonalMohFilesUri(SpecialUserType.PHONE_PROVISION.getUserName());
         expectLastCall().andReturn("sip:" + expectedMohUri).anyTimes();
@@ -131,22 +151,13 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         User special_user = new User();
         special_user.setPermissionManager(pm);
         special_user.setMohAddresses(moh);
-        special_user.setSipPassword("the ~~id~sipXprovision password");
+        special_user.setSipPassword("abcd");
         special_user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
-        String expected_label = "ID: YBU";
+        String expected_label = "ID: HL2";
         special_user.setFirstName(expected_label.split(" ")[0]);
         special_user.setLastName(expected_label.split(" ")[1]);
 
-        IMocksControl phoneContextControl = EasyMock.createNiceControl();
-        PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
-        PhoneTestDriver.supplyVitalTestData(phoneContextControl, phoneContext, phone);
 
-        phoneContext.createSpecialPhoneProvisionUser(phone.getSerialNumber());
-        phoneContextControl.andReturn(special_user).anyTimes();
-        phoneContextControl.replay();
-
-        // This displaces the PhoneContext set by supplyTestData() above.
-        phone.setPhoneContext(phoneContext);
         phone.beforeProfileGeneration();
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
         m_pg.generate(m_location, cfg, null, "profile");
@@ -287,7 +298,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
         assertPolycomXmlEquals(getClass().getResourceAsStream("expected-external-line-sipx-phone.cfg.xml"), m_location.getReader());
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
         new File(TestHelper.getTestOutputDirectory()+"/profile.XXX").delete();

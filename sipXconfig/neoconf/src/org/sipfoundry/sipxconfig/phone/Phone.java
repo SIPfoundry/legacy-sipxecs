@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.RestartException;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.sip.SipService;
@@ -55,7 +56,7 @@ public abstract class Phone extends Device implements Replicable {
 
     private String m_description;
 
-    private List<Line> m_lines = Collections.EMPTY_LIST;
+    private List<Line> m_lines = Collections.emptyList();
 
     private PhoneContext m_phoneContext;
 
@@ -68,6 +69,8 @@ public abstract class Phone extends Device implements Replicable {
     private PhoneModel m_model;
 
     private String m_profileDir;
+
+    private FeatureManager m_featureManager;
 
     protected Phone() {
     }
@@ -385,5 +388,13 @@ public abstract class Phone extends Device implements Replicable {
     @Override
     public boolean isReplicationEnabled() {
         return true;
+    }
+
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    public FeatureManager getFeatureManager() {
+        return m_featureManager;
     }
 }

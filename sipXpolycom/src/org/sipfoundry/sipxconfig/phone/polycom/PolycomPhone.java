@@ -185,7 +185,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(),
-                speedDial, getModelId());
+                speedDial, getModelId(), this);
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);

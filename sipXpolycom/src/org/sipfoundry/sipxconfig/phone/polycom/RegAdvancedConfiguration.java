@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.commons.util.ShortHash;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -29,6 +31,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Responsible for generating ipmid.cfg
  */
 public class RegAdvancedConfiguration extends ProfileContext<PolycomPhone> {
+    private static final String PROVISION_AOR = "%s~%s";
 
     public RegAdvancedConfiguration(PolycomPhone device) {
         super(device, device.getTemplateDir() + "/reg-advanced.cfg.vm");
@@ -42,6 +45,10 @@ public class RegAdvancedConfiguration extends ProfileContext<PolycomPhone> {
         if (lines.isEmpty()) {
             Line line = phone.createSpecialPhoneProvisionUserLine();
             line.setSettingValue("reg/label", line.getUser().getDisplayName());
+            line.setSettingValue(
+                    "reg/address",
+                    String.format(PROVISION_AOR, SpecialUserType.PHONE_PROVISION.getUserName(),
+                            ShortHash.get(phone.getSerialNumber())));
             lines.add(line);
         }
 

@@ -24,7 +24,7 @@ public class SiteConfigurationTest extends PolycomXmlTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        setUp404150Tests();
+        setUp404150TestsMwiMohRlsEnabled();
         String cert = "Version: 3 " + "Serial Number: 1378803401547 " + "Signature Algorithm: SHA1WITHRSA "
                 + "Issuer: C=US,ST=AnyState,L=AnyTown,O=ezuce.ro,OU=sipXecs,CN=ca.ezuce.ro,E=root@ezuce.ro "
                 + "Not Before: Tue Sep 10 10:56:41 EEST 2013 " + "Not After: Sun Sep 10 10:56:41 EEST 2023 "

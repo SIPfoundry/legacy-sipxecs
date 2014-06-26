@@ -18,14 +18,17 @@ import static org.easymock.EasyMock.replay;
 import static org.sipfoundry.sipxconfig.test.TestHelper.getMockDomainManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
+import org.sipfoundry.commons.util.ShortHash;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
@@ -41,6 +44,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.sip.SipService;
+import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -50,7 +54,7 @@ public final class PhoneTestDriver {
     public static final String SHARED_USER = "sharedUser";
     public static final String SHARED = "Shared";
     public static final String PASS = "1234";
-
+    private static final String SERIAL_NUMBER = "0004f200e06b";
     private final IMocksControl m_phoneContextControl;
 
     private final PhoneContext m_phoneContext;
@@ -63,8 +67,6 @@ public final class PhoneTestDriver {
 
     private IMocksControl m_sipControl;
 
-    private String m_serialNumber = "0004f200e06b";
-
     private PhoneTestDriver(Phone phone, List<User> users, boolean phonebookManagementEnabled, boolean speedDial,
             boolean sendCheckSyncToMac) {
         m_phoneContextControl = createNiceControl();
@@ -73,7 +75,10 @@ public final class PhoneTestDriver {
         if (speedDial) {
             SpeedDial sd = new SpeedDial();
             sd.setUser(users.get(0));
-
+            Button b = new Button();
+            b.setBlf(true);
+            List<Button> buttons = Arrays.asList(new Button[]{b});
+            sd.setButtons(buttons);
             m_phoneContext.getSpeedDial(phone);
             m_phoneContextControl.andReturn(sd).anyTimes();
         }
@@ -82,7 +87,7 @@ public final class PhoneTestDriver {
 
         m_phoneContextControl.replay();
 
-        phone.setSerialNumber(m_serialNumber);
+        phone.setSerialNumber(SERIAL_NUMBER);
 
         m_mohAddresses = EasyMock.createMock(MohAddressFactory.class);
 
@@ -205,11 +210,7 @@ public final class PhoneTestDriver {
     }
 
     public String getSerialNumber() {
-        return m_serialNumber;
-    }
-
-    public void setSerialNumber(String serialNumber) {
-        m_serialNumber = serialNumber;
+        return SERIAL_NUMBER;
     }
 
     public Line getPrimaryLine() {
@@ -316,6 +317,14 @@ public final class PhoneTestDriver {
         phone.setPhonebookManager(phonebookManager);
         phoneContext.getSystemDirectory();
         control.andReturn(TestHelper.getSystemEtcDir()).anyTimes();
+
+        phoneContext.createSpecialPhoneProvisionUser(SERIAL_NUMBER);
+        User userProv = new User();
+        userProv.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
+        userProv.setFirstName("ID:");
+        userProv.setLastName(ShortHash.get(SERIAL_NUMBER));
+        userProv.setSipPassword("abcd");
+        control.andReturn(userProv).anyTimes();
 
         phoneContext.getPhoneDefaults();
         control.andReturn(defaults).anyTimes();
