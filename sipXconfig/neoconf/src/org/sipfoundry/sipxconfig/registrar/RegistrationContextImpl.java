@@ -63,7 +63,7 @@ public class RegistrationContextImpl implements RegistrationContext {
     }
 
     @Override
-    public DBCursor getRegistrationsByLineId(String line) {
+    public DBCursor getMongoDbCursorRegistrationsByLineId(String line) {
         Pattern linePattern = Pattern.compile("sip:" + line + "@.*");
         DB datasetDb = m_nodedb.getDb();
         DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
@@ -72,7 +72,15 @@ public class RegistrationContextImpl implements RegistrationContext {
         return cursor;
     }
 
-    private List<RegistrationItem> getItems(DBCursor cursor) {
+    /**
+     * will be ovewritten starting with 14.10 release
+     */
+    @Override
+    public List<RegistrationItem> getRegistrationsByLineId(String line) {
+        return getItems(getMongoDbCursorRegistrationsByLineId(line));
+    }
+
+    private static List<RegistrationItem> getItems(DBCursor cursor) {
         List<RegistrationItem> items = new ArrayList<RegistrationItem>(cursor.size());
         while (cursor.hasNext()) {
             DBObject registration = cursor.next();

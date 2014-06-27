@@ -22,9 +22,11 @@ public interface RegistrationContext {
 
     public abstract List<RegistrationItem> getRegistrationsByUser(User user);
 
-    DBCursor getRegistrationsByLineId(String uid);
+    DBCursor getMongoDbCursorRegistrationsByLineId(String uid);
 
     DBCursor getRegistrationsByMac(String mac);
 
     DBCursor getRegistrationsByIp(String ip);
+
+    List<RegistrationItem> getRegistrationsByLineId(String line);
 }

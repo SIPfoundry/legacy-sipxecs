@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site.speeddial;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.EventListener;
@@ -19,11 +20,13 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.registrar.RegistrationContext;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
@@ -37,6 +40,9 @@ public abstract class SpeedDialPage extends UserBasePage {
 
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
+
+    @InjectObject(value = "spring:registrationContext")
+    public abstract RegistrationContext getRegistrationContext();
 
     @InjectObject(value = "spring:phoneProfileManager")
     public abstract ProfileManager getProfileManager();
@@ -67,6 +73,7 @@ public abstract class SpeedDialPage extends UserBasePage {
     public abstract void setSubscribeToPresenceDisabled(boolean subscribeToPresenceDisabled);
 
     public abstract User getLoadedUser();
+
     public abstract void setLoadedUser(User user);
 
     @Override
@@ -100,9 +107,9 @@ public abstract class SpeedDialPage extends UserBasePage {
     public void onSubmit() {
         // XCF-1435 - Unless attempting to save data (e.g. onApply and the like)
         // clear all form errors
-        //   A.) user is probably not done and errors are disconcerting
-        //   B.) tapestry rewrites form values that are invalid on the button move operations
-        // NOTE:  This relies on the fact the the form listener is called BEFORE AND IN ADDITION TO
+        // A.) user is probably not done and errors are disconcerting
+        // B.) tapestry rewrites form values that are invalid on the button move operations
+        // NOTE: This relies on the fact the the form listener is called BEFORE AND IN ADDITION TO
         // the button listener.
         if (!isValidationEnabled()) {
             TapestryUtils.getValidator(this).clearErrors();
@@ -130,6 +137,14 @@ public abstract class SpeedDialPage extends UserBasePage {
         if (TapestryUtils.isValid(this)) {
             onApply();
             Collection<Phone> phones = getPhoneContext().getPhonesByUserId(getUserId());
+            List<RegistrationItem> registrations = getRegistrationContext().getRegistrationsByLineId(
+                    getUser().getUserName());
+            for (RegistrationItem reg : registrations) {
+                Phone phone = getPhoneContext().getPhoneBySerialNumber(reg.getInstrument());
+                if (phone != null) {
+                    phones.add(phone);
+                }
+            }
             Collection<Integer> ids = DataCollectionUtil.extractPrimaryKeys(phones);
             getProfileManager().generateProfiles(ids, true, null);
         }

@@ -29,7 +29,7 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
     private MongoTemplate m_nodeDb;
     private DomainManager m_mgr;
 
-    private Object[][] DATA = {
+    private final Object[][] DATA = {
         {
             "063b4c2f5e11bf66a232762a7cf9e73a", "2395", "sip:3000@example.org",
             "\"John Doe\"<sip:john.doe@example.org;LINEID=f57f2117d5997f8d03d8395732f463f3>", true,
@@ -128,9 +128,9 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
     }
 
     public void testGetRegistrationsByUid() throws Exception {
-        DBCursor registrations = m_builder.getRegistrationsByLineId("3000");
+        DBCursor registrations = m_builder.getMongoDbCursorRegistrationsByLineId("3000");
         assertFalse(registrations.hasNext());
-        registrations = m_builder.getRegistrationsByLineId("3001");
+        registrations = m_builder.getMongoDbCursorRegistrationsByLineId("3001");
         assertTrue(registrations.hasNext());
         BasicDBList list = new BasicDBList();
         while (registrations.hasNext()) {
@@ -141,11 +141,12 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
                 "[ { \"_id\" : \"2\" , \"contact\" : \"\\\"John Doe\\\"<sip:jane.doe@example.org>\" , \"expirationTime\" : 1299762968 , \"uri\" : \"sip:3001@example.org\" , \"instrument\" : \"0004f2a9b633\" , \"expired\" : false , \"identity\" : \"3001@example.org\" , \"callId\" : \"3f404b64-fc8490c3-6b14ac9a@192.168.2.19\"}]",
                 list.toString());
     }
-    
+
     public void setNodeDb(MongoTemplate nodeDb) {
         m_nodeDb = nodeDb;
     }
 
+    @Override
     public void setDomainManager(DomainManager mgr) {
         m_mgr = mgr;
     }
