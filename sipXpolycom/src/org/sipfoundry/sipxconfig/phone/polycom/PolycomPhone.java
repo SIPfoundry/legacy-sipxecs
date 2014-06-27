@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.DelegatingSettingModel.InsertValueFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlEscapeValueFilter;
@@ -185,7 +186,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(),
-                speedDial, getModelId(), this);
+                speedDial, getModelId(), this.getFeatureManager().isFeatureEnabled(Rls.FEATURE));
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);

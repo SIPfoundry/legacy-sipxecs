@@ -18,7 +18,6 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.TimeZoneManager;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class PolycomPhoneDefaultsTest extends TestCase {
@@ -45,7 +44,7 @@ public class PolycomPhoneDefaultsTest extends TestCase {
         // Create a fresh new PolycomPhoneDefaults that will use our fresh new DeviceTimeZone.
         DeviceDefaults deviceDefaults = new DeviceDefaults();
         deviceDefaults.setTimeZoneManager(tzm);
-        m_polycomPhoneDefaults = new PolycomPhoneDefaults(deviceDefaults, new SpeedDial(), "polycomXXX", new PolycomPhone());
+        m_polycomPhoneDefaults = new PolycomPhoneDefaults(deviceDefaults, new SpeedDial(), "polycomXXX", false);
     }
 
     // Negative numeric start/stop DST values would be in poor taste, even if they should

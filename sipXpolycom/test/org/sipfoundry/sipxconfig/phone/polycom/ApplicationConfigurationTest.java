@@ -14,11 +14,14 @@ import static org.easymock.EasyMock.createMock;
 import java.io.InputStream;
 
 import org.custommonkey.xmlunit.XMLUnit;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -32,6 +35,11 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
     @Override
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
+
+        FeatureManager featureManagerMock = createMock(FeatureManager.class);
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
         phone32 = new PolycomPhone();
         phone32.setModelId("335");
         PolycomModel model = PolycomXmlTestCase.phoneModelBuilder("polycom335", getClass());
@@ -39,6 +47,7 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         phone32.setPhoneModelSource(phoneModelSource);
         phone32.setModel(model);
         phone32.setDeviceVersion(PolycomModel.VER_3_2_X);
+        phone32.setFeatureManager(featureManagerMock);
         PhoneTestDriver.supplyTestData(phone32);
 
         phone40 = new PolycomPhone();
@@ -46,6 +55,7 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         phone40.setPhoneModelSource(phoneModelSource);
         phone40.setModel(model);
         phone40.setDeviceVersion(PolycomModel.VER_4_0_X);
+        phone40.setFeatureManager(featureManagerMock);
         PhoneTestDriver.supplyTestData(phone40);
 
         phone31 = new PolycomPhone();
@@ -53,8 +63,11 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         phone31.setPhoneModelSource(phoneModelSource);
         phone31.setModel(model);
         phone31.setDeviceVersion(PolycomModel.VER_3_1_X);
+        phone31.setFeatureManager(featureManagerMock);
         PhoneTestDriver.supplyTestData(phone31);
-        
+
+        EasyMock.replay(featureManagerMock);
+
     }
 
     public void testGenerateProfile() throws Exception {
@@ -80,7 +93,7 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
         m_pg = pg;
-        
+
         ApplicationConfiguration app = new ApplicationConfiguration(phone40);
 
         m_pg.generate(location, app, null, "profile");
@@ -97,8 +110,8 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
         m_pg = pg;
-        
-        ApplicationConfiguration app = new ApplicationConfiguration(phone31,"192.168.1.20");
+
+        ApplicationConfiguration app = new ApplicationConfiguration(phone31, "192.168.1.20");
 
         m_pg.generate(location, app, null, "profile");
 
@@ -107,7 +120,7 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         assertPolycomXmlEquals(expectedPhoneStream, location.getReader());
         expectedPhoneStream.close();
     }
-    
+
     public void testNonBlankEndsInComma() {
         assertEquals("", ApplicationConfiguration.nonBlankEndsInComma(null));
         assertEquals("", ApplicationConfiguration.nonBlankEndsInComma(""));

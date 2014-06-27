@@ -9,6 +9,8 @@
 */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import static org.easymock.EasyMock.createMock;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,9 +19,12 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.DocumentException;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.CodecGroupsTest.CodecGroupType;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 
@@ -60,6 +65,11 @@ public class CodecConfigurationForModelTest extends TestCase {
 
         // Initialize the phone.
         m_phone = new PolycomPhone();
+        FeatureManager featureManagerMock = createMock(FeatureManager.class);
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+        m_phone.setFeatureManager(featureManagerMock);
+        EasyMock.replay(featureManagerMock);
         m_phone.setModel(PolycomXmlTestCase.phoneModelBuilder(phoneModelId, getClass()));
         PhoneTestDriver.supplyTestData(m_phone, new LinkedList<User>());
 

@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.easymock.EasyMock.createMock;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,15 +20,17 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.dom4j.DocumentException;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
-import org.sipfoundry.sipxconfig.test.TestHelper;
-
-import junit.framework.TestCase;
 
 /**
 * Checks that each Polycom codec group has the correct codec options, and the correct
@@ -69,6 +72,11 @@ public class CodecGroupsTest extends TestCase {
         PolycomPhone phone = new PolycomPhone();
         phone.setModel(model);
         phone.setDeviceVersion(version);
+        FeatureManager featureManagerMock = createMock(FeatureManager.class);
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+        phone.setFeatureManager(featureManagerMock);
+        EasyMock.replay(featureManagerMock);
         PhoneTestDriver.supplyTestData(phone, new LinkedList<User>());
 
         // The adaptor setting for the multi-enum setting.
@@ -130,7 +138,7 @@ public class CodecGroupsTest extends TestCase {
         VVX_500("VVX_500");
 
         @SuppressWarnings("unused")
-        private String m_name;
+        private final String m_name;
 
         private CodecGroupType(String name) {
             m_name = name;
@@ -235,14 +243,14 @@ public class CodecGroupsTest extends TestCase {
         IP_4000_LIST.add("G711Mu");
         IP_4000_LIST.add("G711A");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.IP_4000, IP_4000_LIST);
-        
+
         ArrayList<String> IP_5000_LIST = new ArrayList<String>();
         IP_5000_LIST.add("G722");
         IP_5000_LIST.add("G711Mu");
         IP_5000_LIST.add("G711A");
         IP_5000_LIST.add("G729AB");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.IP_5000, IP_5000_LIST);
-        
+
         ArrayList<String> IP_6000_LIST = new ArrayList<String>();
         IP_6000_LIST.add("G7221C.48kbps");
         IP_6000_LIST.add("Siren14.48kbps");
@@ -272,7 +280,7 @@ public class CodecGroupsTest extends TestCase {
         VVX_1500_LIST.add("G711A");
         VVX_1500_LIST.add("G729AB");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.VVX_1500, VVX_1500_LIST);
-        
+
         ArrayList<String> VVX_500_LIST = new ArrayList<String>();
         VVX_500_LIST.add("G722");
         VVX_500_LIST.add("G7221.32kbps");

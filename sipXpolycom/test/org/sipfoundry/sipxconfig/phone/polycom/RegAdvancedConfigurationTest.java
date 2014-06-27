@@ -107,6 +107,9 @@ public class RegAdvancedConfigurationTest extends PolycomXmlTestCase {
         featureManagerMock.isFeatureEnabled(MusicOnHoldManager.FEATURE);
         EasyMock.expectLastCall().andReturn(true).anyTimes();
 
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
         PolycomPhone phoneVVX600 = new PolycomPhone();
         ModelSource<PhoneModel> phoneModelSource = createMock(ModelSource.class);
         phoneVVX600.setModelId("polycomVVX600");
@@ -169,6 +172,9 @@ public class RegAdvancedConfigurationTest extends PolycomXmlTestCase {
         featureManagerMock.isFeatureEnabled(Mwi.FEATURE);
         EasyMock.expectLastCall().andReturn(false).anyTimes();
 
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
         PolycomPhone phone = new PolycomPhone();
         phone.setModelId("polycomVVX500");
         phone.setPhoneModelSource(phoneModelSource);
@@ -198,6 +204,9 @@ public class RegAdvancedConfigurationTest extends PolycomXmlTestCase {
         featureManagerMock.isFeatureEnabled(MusicOnHoldManager.FEATURE);
         EasyMock.expectLastCall().andReturn(true).anyTimes();
         featureManagerMock.isFeatureEnabled(Mwi.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
         EasyMock.expectLastCall().andReturn(true).anyTimes();
 
         List<Line> lines = new ArrayList<Line>();

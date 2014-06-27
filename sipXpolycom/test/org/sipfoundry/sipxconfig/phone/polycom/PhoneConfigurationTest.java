@@ -10,7 +10,7 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.replay;
 
 import java.io.File;
@@ -27,7 +27,6 @@ import org.dom4j.dom.DOMDocumentFactory;
 import org.dom4j.dom.DOMElement;
 import org.dom4j.io.SAXReader;
 import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
@@ -40,7 +39,6 @@ import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
