@@ -49,8 +49,6 @@ Requires: patch
 # bind-utils required for dig
 Requires: bind-utils
 Requires: sipxsupervisor >= %version
-<<<<<<< HEAD
-
 Requires: poco-crypto
 Requires: poco-data
 Requires: poco-foundation
@@ -64,8 +62,6 @@ Requires: poco-util
 Requires: poco-xml
 Requires: poco-zip
 
-=======
->>>>>>> parent of 95e6c06... XX-11099:  KeyValue store implementation using unqlite
 Obsoletes: %{name}-doc
 
 Prefix: %_prefix
