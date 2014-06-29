@@ -48,7 +48,5 @@ libsipdb_la_SOURCES =  \
    SubscribeDB.cpp \
    ResultSet.cpp \
    DbHelper.cpp \
-   CustomConnPool.cpp \
-   unqlite.c \
-   KeyValueStore.cpp
+   CustomConnPool.cpp
    
