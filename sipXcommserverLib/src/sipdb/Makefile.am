@@ -50,7 +50,5 @@ libsipdb_la_SOURCES =  \
    DbHelper.cpp \
    CustomConnPool.cpp \
    unqlite.c \
-   KeyValueStore.cpp \
-   RESTClient.cpp \
-   RESTServer.cpp
+   KeyValueStore.cpp
    
