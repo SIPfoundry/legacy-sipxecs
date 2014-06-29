@@ -1,0 +1,69 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  @PACKAGE_REVISION@
+
+Summary: Yet Another REST Daemon (sipXyard)
+License: AGPL
+Vendor: Ezuce Inc.
+Url: http://www.ezuce.com
+
+Source:   %name-%version.tar.gz
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: sipxcommserverlib-devel  >= %version
+BuildRequires: sipxportlib-devel        >= %version
+BuildRequires: sipxtacklib-devel        >= %version
+BuildRequires: leveldb-devel
+
+Requires: sipxcommserverlib  >= %version
+Requires: sipxportlib        >= %version
+Requires: sipxtacklib        >= %version
+Requires: leveldb
+
+%description
+Implementation of REST Persistence Store, Remote Configuration and Process Management
+
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: Ezuce Inc.
+Summary: %name Class Library
+
+
+%description devel
+Class Library for %name
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make %{_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%attr(755,root,root) %{_bindir}/sipxyard
+%attr(755,root,root) %{_libdir}/libsipXyard.so*
+
+%files devel
+%defattr(644,root,root,755)
+%{_libdir}/libsipXyard.la
+%{_includedir}/sipxyard/*
+
+%post
+setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipxyard
+
