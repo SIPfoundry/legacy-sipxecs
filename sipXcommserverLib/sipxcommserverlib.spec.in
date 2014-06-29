@@ -27,7 +27,6 @@ BuildRequires: shadow-utils
 BuildRequires:  poco-devel
 
 BuildRequires: mongodb-devel >= 2.0.2
-BuildRequires: leveldb-devel
 
 Source: %name-%version.tar.gz
 
