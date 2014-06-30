@@ -122,12 +122,11 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     }
 
     /**
-     * Called when a delete action is done in hibernate
-     * This method is run in a different thread.
+     * Delete events are handled in SpringHibernateInstantiator.
      */
     @Override
     public void onDelete(Object entity) {
-        onConfigChangeAction(entity, ConfigChangeAction.DELETED, null, null, null);
+        // Do nothing
     }
 
     @Required
