@@ -205,6 +205,9 @@ public:
     // Get startup time
     unsigned long currentTime = OsDateTime::getSecsSinceEpoch();
 
+    // mongo oplog return entries with time stamp greater then currentTime
+    currentTime--;
+
     DbData dbData(dbTestData[0].pName, dbTestData[0].pValue, dbTestData[0].pId);
 
     updateDbDataWaitUntilReadVerified(dbData);
@@ -279,6 +282,9 @@ public:
   {
     // Get startup time
     unsigned long currentTime = OsDateTime::getSecsSinceEpoch();
+
+    // mongo oplog return entries with time stamp greater then currentTime
+    currentTime--;
 
     MongoOpLog mongoOpLog(_info, BSON("ns" << _databaseName), 0, currentTime);
 
