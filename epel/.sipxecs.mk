@@ -29,6 +29,8 @@ epel.clean :
 # Only used for building, not required for ISO
 BUILD_EPEL = \
 	bakefile-* \
+	c-ares19-* \
+	c-ares19-devel-* \
 	Canna-libs-* \
 	ccache-* \
 	compface-1.5*\
@@ -43,15 +45,24 @@ BUILD_EPEL = \
 	erlang-rebar-* \
 	gperftools-devel-* \
 	gtest-devel-* \
+	gyp-* \
+	http-parser-* \
+	http-parser-devel-* \
 	libdnet-* \
 	libdnet-devel-* \
 	libev-* \
 	libmongodb-devel-2.4* \
+	libuv-* \
+	libuv-devel-* \
 	neXtaw-* \
+	node-gyp-* \
+	nodejs-* \
+	npm-* \
 	poco-* \
 	poco-debug-* \
 	python-empy-* \
 	rubygem-mocha-* \
+	v8-* \
 	v8-devel-* \
 	wxGTK-devel-* \
 	wxGTK-media-* \

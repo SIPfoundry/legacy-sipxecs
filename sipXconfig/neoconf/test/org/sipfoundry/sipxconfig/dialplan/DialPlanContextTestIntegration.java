@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.dialplan;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -85,7 +86,11 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
 
         CustomDialingRule r2 = new CustomDialingRule();
         r2.setName("a2");
-        r2.setPermissionNames(Collections.singletonList(PermissionName.VOICEMAIL.getName()));
+        //Hibernate 3.6.10 does not accept merge on unmodifiable lists
+        //It will throw java.lang.UnsupportedOperationException
+        List<String> permNames = new ArrayList<String>();
+        permNames.add(PermissionName.VOICEMAIL.getName());
+        r2.setPermissionNames(permNames);
 
         m_dialPlanContext.storeRule(r1);
         assertEquals(1 + DEFAULT_DIAL_PLAN_SIZE, m_dialPlanContext.getRules().size());
@@ -214,12 +219,12 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
 
         assertEquals(2, ar.getHolidayAttendant().getPeriods().size());
 
-        // This test relies on assumption java and postgres timezones match, which is normally an ok 
+        // This test relies on assumption java and postgres timezones match, which is normally an ok
         // assumption unless some other unit test in the suite calls TimeZone.setTimeZone...which they do.
         //
-        // We could fix those tests to restore tz, but another test could be written someday 
+        // We could fix those tests to restore tz, but another test could be written someday
         // that unknowingly does the same thing.
-        // 
+        //
         //assertEquals("19:25", ar.getWorkingTimeAttendant().getWorkingHours()[4].getStopTime());
     }
 
@@ -263,14 +268,14 @@ public class DialPlanContextTestIntegration extends IntegrationTestCase {
         assertEquals(7 * 2, countRowsInTable("attendant_working_hours"));
         assertEquals(3, countRowsInTable("holiday_dates"));
     }
-    
+
     private HolidayPeriod getNewHolidayPeriod(Date startDate, Date endDate) {
         HolidayPeriod holidayPeriod = new HolidayPeriod();
         holidayPeriod.setStartDate(startDate);
         holidayPeriod.setEndDate(endDate);
         return holidayPeriod;
     }
-    
+
     public void testSaveExtensionThatIsDuplicateAlias() throws Exception {
         TestHelper.cleanInsertFlat("dialplan/attendant_rule.db.xml");
         AttendantRule ar = new AttendantRule();

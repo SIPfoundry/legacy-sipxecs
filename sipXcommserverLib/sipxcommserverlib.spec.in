@@ -24,10 +24,8 @@ BuildRequires: httpd-devel
 BuildRequires: xerces-c-devel >= 2.6.0
 BuildRequires: shadow-utils
 %endif
-BuildRequires:  poco-devel
 
 BuildRequires: mongodb-devel >= 2.0.2
-BuildRequires: leveldb-devel
 
 Source: %name-%version.tar.gz
 
@@ -51,7 +49,6 @@ Requires: patch
 # bind-utils required for dig
 Requires: bind-utils
 Requires: sipxsupervisor >= %version
-
 Requires: poco-crypto
 Requires: poco-data
 Requires: poco-foundation

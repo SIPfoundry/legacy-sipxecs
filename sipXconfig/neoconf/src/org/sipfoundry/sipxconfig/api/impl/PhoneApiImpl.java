@@ -116,13 +116,15 @@ public class PhoneApiImpl implements PhoneApi {
         phone.setSerialNumber(phoneBean.getSerialNo());
         phone.setDescription(phoneBean.getDescription());
         phone.setDeviceVersion(DeviceVersion.getDeviceVersion(phoneBean.getDeviceVersion()));
-        String groupNames = phone.getGroupsNames();
-        for (GroupBean groupBean : phoneBean.getGroups()) {
-            String groupName = groupBean.getName();
-            if (!StringUtils.contains(groupNames, groupName)) {
-                // add group only if it doesn't already exist
-                Group g = m_settingDao.getGroupCreateIfNotFound(PHONE_RES, groupBean.getName());
-                phone.addGroup(g);
+        if (phoneBean.getGroups() != null) {
+            String groupNames = phone.getGroupsNames();
+            for (GroupBean groupBean : phoneBean.getGroups()) {
+                String groupName = groupBean.getName();
+                if (!StringUtils.contains(groupNames, groupName)) {
+                    // add group only if it doesn't already exist
+                    Group g = m_settingDao.getGroupCreateIfNotFound(PHONE_RES, groupBean.getName());
+                    phone.addGroup(g);
+                }
             }
         }
     }

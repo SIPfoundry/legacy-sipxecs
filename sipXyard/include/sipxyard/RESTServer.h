@@ -19,9 +19,10 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/thread.hpp>
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
-#include "sipdb/KeyValueStore.h"
+#include "sipxyard/LevelDB.h"
 
 
 #define REST_DEFAULT_ROOT_DOCUMENT "/root"
@@ -36,11 +37,15 @@ public:
   typedef Poco::Net::HTTPServerResponse Response;
   typedef void* OS_HANDLE;
   typedef boost::function<void(Request&, Response&)> Handler;
-  typedef std::map<std::string, KeyValueStore*> KVStore;
-  
+  typedef std::map<std::string, LevelDB*> KVStore;
+   
   RESTServer();
   
+  RESTServer(RESTServer* pParentStore);
+  
   RESTServer(int maxQueuedConnections, int maxThreads);
+  
+  RESTServer(RESTServer* pParentStore, int maxQueuedConnections, int maxThreads);
   
   ~RESTServer();
   
@@ -64,8 +69,10 @@ public:
   
   void setDataDirectory(const std::string& dataDirectory);
   
-  KeyValueStore* getStore(const std::string& path);
-
+  const std::string& getDataDirectory() const;
+  
+  LevelDB* getStore(const std::string& path, bool createIfMissing);
+ 
 protected:  
   void onHandleRequest(Request& request, Response& response);
   
@@ -73,13 +80,13 @@ protected:
   
   bool isAuthorized(Request& request, Response& response);
   
-  void sendRestRecordsAsJson(const std::vector<std::string>& pathVector, KeyValueStore::Records& records, Response& response);
-  
-  void sendRestJsonDocument(const std::vector<std::string>& pathVector, std::size_t depth, KeyValueStore::Records& records, std::ostream& ostr);
-  
-  void sendRestRecordsAsValuePairs(const std::string& path, const KeyValueStore::Records& records, Response& response);
+  void sendRestRecordsAsJson(const std::vector<std::string>& pathVector, LevelDB::Records& records, Response& response);
+    
+  void sendRestRecordsAsValuePairs(const std::string& path, const LevelDB::Records& records, Response& response);
   
   void escapeString(std::string& str);
+  
+  bool validateInsert(LevelDB* pStore, const std::string& resource, const std::string& value);
 private:
   OS_HANDLE _socketHandle;
   OS_HANDLE _secureSocketHandle;
@@ -97,6 +104,7 @@ private:
   KVStore _kvStore;
   Handler _customHandler;
   bool _isSecure;
+  RESTServer* _pParentStore;
 }; 
 
 //
@@ -116,6 +124,27 @@ inline const std::string& RESTServer::getAddress() const
 inline unsigned short RESTServer::getPort() const
 {
   return _port;
+}
+
+inline void RESTServer::setDataDirectory(const std::string& dataDirectory)
+{
+  _dataDirectory = dataDirectory;
+}
+
+inline const std::string& RESTServer::getDataDirectory() const
+{
+  return _dataDirectory;
+}
+
+inline void RESTServer::setCredentials(const std::string& user, const std::string& password)
+{
+  _user = user;
+  _password = password;
+}
+
+inline void RESTServer::setCustomHandler(const Handler& handler)
+{
+  _customHandler = handler;
 }
 
 #endif	/* RESTSERVER_H */

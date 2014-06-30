@@ -14,7 +14,7 @@
  */
 
 
-#include "sipdb/RESTClient.h"
+#include "sipxyard/RESTClient.h"
 #include "os/OsLogger.h"
 
 

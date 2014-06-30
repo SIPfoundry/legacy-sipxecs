@@ -14,10 +14,9 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.map.LazyMap;
@@ -50,9 +49,9 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     private Map<String, EntityDecorator> m_decorators;
     private Collection<HibernateEntityChangeProvider> m_hbEntityProviders;
 
-    private Set<HbEntity> m_inserts = new HashSet<HbEntity>();
-    private Set<HbEntity> m_updates = new HashSet<HbEntity>();
-    private Set<HbEntity> m_deletes = new HashSet<HbEntity>();
+    private CopyOnWriteArraySet<HbEntity> m_inserts = new CopyOnWriteArraySet<HbEntity>();
+    private CopyOnWriteArraySet<HbEntity> m_updates = new CopyOnWriteArraySet<HbEntity>();
+    private CopyOnWriteArraySet<HbEntity> m_deletes = new CopyOnWriteArraySet<HbEntity>();
 
     /**
      * This implementation only supports BeanWithId objects with integer ids
@@ -178,33 +177,29 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
 
     public void postFlush(Iterator iterator) {
         HbEntity hbEntity = null;
-        try {
-            for (Iterator<HbEntity> it = m_inserts.iterator(); it.hasNext();) {
-                hbEntity = it.next();
-                for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
-                    provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.ADDED,
-                        hbEntity.getProperties(), null, null);
-                }
+        for (Iterator<HbEntity> it = m_inserts.iterator(); it.hasNext();) {
+            hbEntity = it.next();
+            for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+                provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.ADDED,
+                    hbEntity.getProperties(), null, null);
             }
-            for (Iterator<HbEntity> it = m_updates.iterator(); it.hasNext();) {
-                hbEntity = it.next();
-                for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
-                    provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.MODIFIED,
-                        hbEntity.getProperties(), hbEntity.getOldValues(), hbEntity.getNewValues());
-                }
+            m_inserts.remove(hbEntity);
+        }
+        for (Iterator<HbEntity> it = m_updates.iterator(); it.hasNext();) {
+            hbEntity = it.next();
+            for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+                provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.MODIFIED,
+                    hbEntity.getProperties(), hbEntity.getOldValues(), hbEntity.getNewValues());
             }
-            for (Iterator<HbEntity> it = m_deletes.iterator(); it.hasNext();) {
-                hbEntity = it.next();
-                for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
-                    provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.DELETED,
-                        hbEntity.getProperties(), null, null);
-                }
+            m_updates.remove(hbEntity);
+        }
+        for (Iterator<HbEntity> it = m_deletes.iterator(); it.hasNext();) {
+            hbEntity = it.next();
+            for (HibernateEntityChangeProvider provider : getHbEntityChangeProviders()) {
+                provider.onConfigChangeAction(hbEntity.getEntity(), ConfigChangeAction.DELETED,
+                    hbEntity.getProperties(), null, null);
             }
-
-        } finally {
-            m_inserts.clear();
-            m_updates.clear();
-            m_deletes.clear();
+            m_deletes.remove(hbEntity);
         }
     }
 

@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-5.1.4.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

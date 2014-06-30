@@ -119,11 +119,11 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     public Bridge newBridge() {
-        return (Bridge) m_beanFactory.getBean(Bridge.BEAN_NAME, Bridge.class);
+        return m_beanFactory.getBean(Bridge.BEAN_NAME, Bridge.class);
     }
 
     public Conference newConference() {
-        Conference conference = (Conference) m_beanFactory.getBean(Conference.BEAN_NAME, Conference.class);
+        Conference conference = m_beanFactory.getBean(Conference.BEAN_NAME, Conference.class);
         conference.generateAccessCodes();
         return conference;
     }
@@ -151,7 +151,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     public Bridge loadBridge(Serializable id) {
-        return (Bridge) getHibernateTemplate().load(Bridge.class, id);
+        return getHibernateTemplate().load(Bridge.class, id);
     }
 
     public Bridge getBridgeByServer(String hostname) {
@@ -178,13 +178,13 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     public Conference loadConference(Serializable id) {
-        return (Conference) getHibernateTemplate().load(Conference.class, id);
+        return getHibernateTemplate().load(Conference.class, id);
     }
 
     public Conference findConferenceByName(String name) {
         List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(CONFERENCE_BY_NAME,
                 VALUE, name);
-        return (Conference) DataAccessUtils.singleResult(conferences);
+        return DataAccessUtils.singleResult(conferences);
     }
 
     public void clear() {
@@ -272,7 +272,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
             }
         };
         List list = getHibernateTemplate().executeFind(callback);
-        Integer count = (Integer) list.get(0);
+        Long count = (Long) list.get(0);
         return count.intValue();
     }
 
@@ -304,7 +304,7 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         List<Bridge> servers = hibernate.findByNamedQueryAndNamedParam("bridgeForLocationId", "locationId",
                 locationId);
 
-        return (Bridge) DataAccessUtils.singleResult(servers);
+        return DataAccessUtils.singleResult(servers);
     }
 
     @Required

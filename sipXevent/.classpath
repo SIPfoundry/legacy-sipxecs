@@ -3,5 +3,15 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-deploy-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-http-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-io-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-security-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-server-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-servlet-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-servlets-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-util-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-webapp-9.1.5.v20140505.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty-xml-9.1.5.v20140505.jar"/>
 	<classpathentry kind="output" path="eclipse.bin"/>
 </classpath>

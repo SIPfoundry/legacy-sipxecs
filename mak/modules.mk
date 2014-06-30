@@ -33,6 +33,7 @@ sipx_core = \
   sipXpolycom \
   sipXrls \
   sipXsaa \
+  sipXyard \
   sipXedgeServices \
   sipXrelease \
   sipXecs
@@ -168,7 +169,8 @@ sipXsbc_DEPS = sipXconfig sipXsqa sipXregistry
 sipXcallQueue_DEPS = sipXconfig
 sipXexample_DEPS = sipXcommserverLib sipXconfig
 sipXsss_DEPS = sipXsqa sipXcommserverLib sipXresiprocate
-sipXedgeServices_DEPS =  sipXeslLib sipXresiprocate sipXcommserverLib
+sipXyard = sipXcommserverLib
+sipXedgeServices_DEPS =  sipXeslLib sipXresiprocate sipXcommserverLib sipXyard
 
 all = \
   $(lib) \

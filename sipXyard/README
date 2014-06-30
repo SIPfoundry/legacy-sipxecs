@@ -1,0 +1,195 @@
+OVERVIEW - (Y)et (A)nother (R)est (D)aemon
+==========================================
+
+sipXyard or simply YARD is an implementation of a RESTful persistence store,
+process and configuration manager.  It is brought about by a need for external
+applications to manage a remote Linux system using standard HTTP request in a 
+secure fashion.  LevelDB is used as the Key-Value store to persist individual 
+REST records.  The keys will be retrieved as a structured JSON document. 
+
+RUNNING - How To Run YARD
+=========================
+
+YARD is installed as /usr/bin/sipxyard.  You can run yard as a console 
+application or as a Linux daemon by specifying a PID file when you run YARD.
+The following parameters can be specified in the command line.
+
+Parameters:
+
+  --host arg               The IP Address where the HTTP Server will listen for
+                           connections.
+  --port arg               The port where the HTTP Server will listen for 
+                           connections.
+  --secure-host arg        The IP Address where the HTTP Server will listen for
+                           TLS connections.
+  --secure-port arg        The port where the HTTP Server will listen for TLS 
+                           connections.
+  --data-directory arg     The directory where the HTTP Server will store data.
+  --auth-user arg          User for Basic/Digest authentication.
+  --auth-password arg      Password for Basic/Digest authentication.
+  --private-key-file arg   Contains the path to the private key file used for 
+                           encryption
+  --certificate-file arg   Contains the path to the certificate file (in PEM 
+                           format)
+  --ca-location arg        Contains the path to the file or directory 
+                           containing the CA/root certificates.
+  --pass-phrase arg        Pass phrase if the private key is protected by a 
+                           password.
+  --verify-client-certs    The server sends a client certificate request to the
+                           client and verify it.
+  --secure-transport-only  Set this flag if only TLS transport (https) will be 
+                           allowed.
+  -h [ --help ]            : Display help information.
+  -v [ --version ]         : Display version information.
+  -P [ --pid-file ] arg    : PID file when running as daemon.
+  -L [ --log-file ] arg    : Specify the application log file.
+  -l [ --log-level ] arg   : Specify the application log priority level.Valid 
+                           level is between 0-7.  0 (EMERG) 1 (ALERT) 2 (CRIT) 
+                           3 (ERR) 4 (WARNING) 5 (NOTICE) 6 (INFO) 7 (DEBUG)
+  -C [ --config-file ] arg : Optional configuration file.
+
+
+For testing purposes, you can run /usr/bin/sipxyard without any argument.  It 
+will start listening on the default port 8020 and will store LeveLDB data in the
+current working directory.  In production, it is advisable for you to use TLS
+on top of BASIC authentication.
+
+If you intend to use YARD to manage system processes, make sure you run it with
+enough privilege to access and control them.  This also applies, if you need to
+set the data directory to system folders such as /etc/ or /var.
+
+
+PERSISTENCE - Using YARD To Store Data
+======================================
+
+YARD supports CRUD operations using standard HTTP Methods.
+
+PUT:    (C)reate records in the persistence store
+GET:    (R)ead records from the persistence store
+POST:   (U)pdate records from the persistence store
+DELETE: (D)elete records from the persistence store
+
+NOTE:  PUT/POST can be used interchangeably since YARD does not distinguish
+between insert and update operations.  YARD always performs UPSERT.  If the 
+record does not exists, it is inserted.  Otherwise, it is updated.
+
+DOCUMENT ROOT - Document Path URI
+=================================
+
+The persistence store is accessed using /root prefix.  For example, if you want
+to write to document FOO, the URI for this document is http://yard:8020/root/FOO.
+Each document created will have a corresponding LevelDB folder created where 
+the active data-directory is pointed to.  This folder will contain various files
+that LevelDB needs for the Key-Value store operations.  It is advisable that
+each group of related data goes to their corresponding document instead of 
+dumping a bunch of unrelated data in one big document.  Having multiple document
+store will make your queries faster.
+
+NOTE:  There is no special operation required to create documents in YARD.  As
+records are stored, the document is automatically created after the first 
+attempt to POST or PUT a new record.
+
+
+CREATING RECORDS - Values and Structures
+========================================
+
+To persist records in YARD all you need to do is to submit a POST or a PUT 
+request with "value" as either a URI or a FORM parameter.  The value parameter
+will hold the data you want to store.  For example, if you want store data
+to a key "mykey" in document foo, the URI should look like 
+http://yard:8020/root/foo/mykey?value=somevalue. There is a good REST extension
+for Google Chrome called Postman or you may opt to use curl command line.  Curl
+command line would look like this:
+
+    #~ curl --data "value=somevalue" http://yard:8020/root/foo/mykey
+
+You may also store nested structures instead of individual values. Example
+
+    #~ curl --data "value=somevalue" http://yard:8020/root/foo/mystruct/val1
+    #~ curl --data "value=somevalue" http://yard:8020/root/foo/mystruct/val2
+
+will store 'val1' and 'val2' as members of the structure 'mystruct'.  There
+is no limit in how deep you want to nest structures.  You  can for example add a 
+structure within 'mystruct'.  So on and so forth.  Example:
+
+    #~ curl --data "value=myvalue" http://yard:8020/root/foo/mystruct/val3/sub1
+    #~ curl --data "value=myvalue" http://yard:8020/root/foo/mystruct/val3/sub2
+
+The above example will store a substructure named 'val3' inside 'mystruct' and 
+with members 'sub1' and 'sub2'
+
+CAVEAT:  When performing updates, you can only update records if you are 
+storing the same object type as the one already stored in the database. For 
+example /root/foo/mykey is a "Value" object.  You cannot update it with a new
+object containing a structure. For example:  
+
+    #~ curl --data "value=myvalue" http://yard:8020/root/foo/mykey/val1
+
+will be rejected.  This is also true if you attempt to replace a structure with
+a value object.
+
+READING RECORDS - Query Operations using GET
+============================================
+
+Once you have stored values in YARD, you can retrieve them by referencing them 
+using thir path in the Document.  You can for example get all records from a 
+document by using the document path /root/foo will result to a JSON document
+representing all records in document foo.
+
+{
+    foo: {
+    mykey: "somevalue"
+    mystruct: {
+        val1: "somevalue"
+        val2: "somevalue"
+        val3: {
+            sub1: "myvalue"
+            sub2: "myvalue"
+            }
+        }
+    }
+}
+
+You can get specific records by appending the key of the record in the path.  
+If you want to get the value of val3, for example, you should issue a GET 
+request with path http://yard:8020/root/foo/mystruct/val3 and it would result to:
+
+{
+    val3: {
+        sub1: "myvalue"
+        sub2: "myvalue"
+    }
+}
+
+You can narrow down up to the actual value of each element.  'sub2' value
+can be retrieved by the path URI http://yard:8020/root/foo/mystruct/val3/sub2 and you
+should get the actual value as a result.
+
+{
+    sub2: "myvalue"
+}
+
+If a record you are trying to retrieve does not exists, YARD will cordially 
+respond back with a 404.
+
+DELETING Records - DELETE Operation
+===================================
+
+DELETE and GET operations have the same semantics.  You can delete certain 
+records or even all records if you specify the path.  For example:
+
+    #~ curl -X DELETE http://yard:8020/root/foo/mystruct/val3/sub2
+
+will delete the element 'sub2' from the structure 'val'.  
+
+    #~ curl -X DELETE http://yard:8020/root/foo/mystruct
+
+will delete mystruct and all the elements below it and
+
+    #~ curl -X DELETE http://yard:8020/root/foo
+
+will delete all records from document 'foo'
+
+Unlike GET, YARD will not respond with a 404 if the record that is being DELETEd
+is not present.  A 200 OK will be sent back by YARD even if the record does not
+exists.
