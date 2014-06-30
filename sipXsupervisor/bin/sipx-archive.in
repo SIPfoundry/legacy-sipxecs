@@ -247,6 +247,7 @@ class SftpFileManager < FileManagerBase
 
   def connect(uri, params)
     @uri = uri
+    @params = params
     @ftp = Net::SFTP.start(uri.host, params['user'], :password => params['password'])
     @path = sanitize_path(uri.path)
   end
@@ -297,6 +298,7 @@ class SftpFileManager < FileManagerBase
 
   def list
     begin
+      @ftp = Net::SFTP.start(@uri.host, @params['user'], :password => @params['password']) 
       candidates = @ftp.dir.glob(@path, '*').collect { |f| f.name }
       select_backups(candidates)
     rescue Net::SFTP::StatusException
