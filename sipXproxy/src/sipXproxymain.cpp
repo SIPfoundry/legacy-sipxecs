@@ -68,6 +68,8 @@
 #define DEFAULT_SIP_TRANSACTION_EXPIRES 180
 #define DEFAULT_SIP_SERIAL_EXPIRES 20
 
+#define EXIT_ON_TERMINATION true
+
 static const char* CONFIG_SETTING_CALL_STATE_DB = "SIPX_PROXY_CALL_STATE_DB";
 static const char* CONFIG_SETTING_CALL_STATE_DB_HOST = "SIPX_PROXY_CALL_STATE_DB_HOST";
 static const char* CONFIG_SETTING_CALL_STATE_DB_NAME = "SIPX_PROXY_CALL_STATE_DB_NAME";
@@ -551,6 +553,17 @@ int proxy()
       {
           OsTask::delay(1000);
       }
+    }
+
+    if (EXIT_ON_TERMINATION)
+    {
+      //
+      // NOTE:  This is a temporary hack because proxy sometimes generate
+      // core dumps during exit and is very hard to replicate in the lab.
+      // Until we have further data what is causing the core dump, we will
+      // be exiting the process as soon as a termiantion signal is received
+      //
+      _exit(0);
     }
  
     // This is a server task so gracefully shutdown the
