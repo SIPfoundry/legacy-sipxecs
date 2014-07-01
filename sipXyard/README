@@ -7,6 +7,34 @@ applications to manage a remote Linux system using standard HTTP request in a
 secure fashion.  LevelDB is used as the Key-Value store to persist individual 
 REST records.  The keys will be retrieved as a structured JSON document. 
 
+DEPENDENCIES - Library Dependencies
+============
+
+sipXcommserverLib   : sipXecs Communications Server Library
+LevelDB             : Key Value Store support
+POCO C++            : HTTP Support
+
+
+INSTALLING - How To Install YARD on CentOS 6
+==========================================
+
+1.  Copy the latest repo file for sipXecs into /etc/yum.repos.d from 
+http://download.sipfoundry.org or you can directly create a new file and type
+the following:
+
+[sipXecs]
+name=sipXecs software for CentOS $releasever - $basearch
+baseurl=http://download.sipfoundry.org/pub/14.10-unstable/CentOS_$releasever/$basearch
+gpgcheck=0
+
+2.  Install sipXyard
+
+    #~ sudo yum install sipxyard
+
+NOTE: Installing sipXyard will also install the required dependencies
+
+
+
 RUNNING - How To Run YARD
 =========================
 
@@ -77,7 +105,9 @@ DOCUMENT ROOT - Document Path URI
 =================================
 
 The persistence store is accessed using /root prefix.  For example, if you want
-to write to document FOO, the URI for this document is http://yard:8020/root/FOO.
+to write to document 'foo', the URI for this document is 
+http://yard:8020/root/foo.
+
 Each document created will have a corresponding LevelDB folder created where 
 the active data-directory is pointed to.  This folder will contain various files
 that LevelDB needs for the Key-Value store operations.  It is advisable that
@@ -152,7 +182,8 @@ representing all records in document foo.
 
 You can get specific records by appending the key of the record in the path.  
 If you want to get the value of val3, for example, you should issue a GET 
-request with path http://yard:8020/root/foo/mystruct/val3 and it would result to:
+request with path http://yard:8020/root/foo/mystruct/val3 and it would result 
+to:
 
 {
     val3: {
@@ -162,8 +193,8 @@ request with path http://yard:8020/root/foo/mystruct/val3 and it would result to
 }
 
 You can narrow down up to the actual value of each element.  'sub2' value
-can be retrieved by the path URI http://yard:8020/root/foo/mystruct/val3/sub2 and you
-should get the actual value as a result.
+can be retrieved by the path URI http://yard:8020/root/foo/mystruct/val3/sub2 
+and you should get the actual value as a result.
 
 {
     sub2: "myvalue"
@@ -193,3 +224,78 @@ will delete all records from document 'foo'
 Unlike GET, YARD will not respond with a 404 if the record that is being DELETEd
 is not present.  A 200 OK will be sent back by YARD even if the record does not
 exists.
+
+
+CONFIGURATION MANAGEMENT - Using YARD To Generate Config Files
+==============================================================
+
+You  can use YARD as a remote configuration manager for your Linux applications
+that support the INI configuration format.  The URI path /root/system-config
+has a special meaning in YARD where all structures stored in this document
+can be exported as an INI file in local file system of the server hosting the 
+YARD instance.  Take the following curl commands as an example:
+
+    #~ curl --data "value=val1" http://yard:8020/root/system-config/myapp/param1
+    #~ curl --data "value=val2" http://yard:8020/root/system-config/myapp/param2
+    #~ curl --data "value=val3" http://yard:8020/root/system-config/myapp/param3
+
+The above commands insert three parameters in the structure myapp.
+
+To export these paramaters into the file system in INI format, you can issue
+the command
+
+    #~ curl --data "path=/etc/myapp/myapp.ini" \
+        http://yard:8020/api/system-config/myapp/replicate
+
+Take note of the prefix in the above command.  Instead of '/root/system-config',
+we changed it to '/api/system-config'.  This tells YARD that the URI is invoking
+an API command as opposed to a persistent store command.  You will notice that 
+we have the API call replicate as a suffix to structure 'myapp'.  And finally,
+the 'path' parameter value is where you want the values stored.  This will 
+result to an INI file with content below
+
+/etc/myapp/myapp.ini
+
+param1 = val1
+param2 = val2
+param3 = val3
+
+You may also insert structures within the configuration document.  Structure
+elements will be represented using dot notation.  Take the curl command below
+as an example
+
+    #~ curl --data "value=val1" \
+        http://yard:8020/root/system-config/myapp/param4/elem1
+
+This will result to an INI entry below
+
+param4.elem1 = val1
+
+
+PROCESS MANAGEMENT - Managing And Monitoring Server Applications
+================================================================
+
+1.  You can monitor the status and memory consumption of a process using the
+/api/proc/${process}/status URI.  ${process} is a placeholder of the executable
+filename (case-sensitive) you want to check.  This API call will return the 
+Process ID and Physical memory consumption of the process as a JSON structure.
+Below is an example of getting the status of gedit using the URI 
+/api/proc/gedit/status:
+
+{"gedit":[{"PID": "8062","RES": "5668 kB"}]}
+
+Note:  If there are more than one instance of the process running, the 
+status API call will return an array.
+
+2.  You can kill a running process using /api/proc/${process}/kill API call.  
+You need to specify the process ID as a parameter.  The curl command below will
+kill the gedit instance above.
+
+    #~ curl --data "pid=8062" http://yard:8020/api/proc/gedit/kill
+
+3.  Lastly, you will be able to restart system service using
+/api/proc/${initscript}/restart API call where ${initscript} is the name of the
+/etc/init.d script for the system service.  For example, the curl command below
+will restart iptables
+
+#~ curl http://yard:8020/api/proc/iptables/restart
