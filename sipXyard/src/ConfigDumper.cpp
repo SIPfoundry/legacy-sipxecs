@@ -18,6 +18,7 @@
 #include "ConfigDumper.h"
 #include "sipxyard/YardUtils.h"
 #include "Poco/Net/HTMLForm.h"
+#include "os/OsLogger.h"
 #include <fstream>
 
 
@@ -88,6 +89,9 @@ void ConfigDumper::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Ne
     {
       response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
       response.send();
+      
+      OS_LOG_INFO(FAC_DB, "ConfigDumper::handleRequest - Exported " << resource.str() << " to " << fileName.str());
+      
       return;
     }
     else
@@ -95,6 +99,7 @@ void ConfigDumper::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Ne
       response.setReason("Unable To Replicate Configuration");
       response.setStatus(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
       response.send();
+      OS_LOG_WARNING(FAC_DB,"ConfigDumper::handleRequest - FAILED to export " << resource.str() << " to " << fileName.str());
       return;
     }
   }

@@ -261,7 +261,10 @@ LevelDB* RESTServer::getStore(const std::string& path, bool createIfMissing)
   
   std::vector<std::string> tokens = YardUtils::string_tokenize(path, "/");
   if(tokens.size() < 3)
+  {
+    OS_LOG_ERROR(FAC_DB, "RESTServer::getStore - " << path << " a malformed document path");
     return 0;
+  }
   
   mutex_lock lock(_kvStoreMutex);
   
@@ -282,6 +285,7 @@ LevelDB* RESTServer::getStore(const std::string& path, bool createIfMissing)
       
     if (createIfMissing || boost::filesystem::exists(strm.str()))
     {
+      OS_LOG_INFO(FAC_DB, "RESTServer::getStore - Creating new document store for " << document);
       pStore = new LevelDB();
       pStore->open(strm.str());
       if (pStore->isOpen())
@@ -290,6 +294,7 @@ LevelDB* RESTServer::getStore(const std::string& path, bool createIfMissing)
       }
       else
       {
+        OS_LOG_ERROR(FAC_DB, "RESTServer::getStore - Unable to open document store for " << document);
         delete pStore;
         pStore = 0;
       }
@@ -302,6 +307,11 @@ LevelDB* RESTServer::getStore(const std::string& path, bool createIfMissing)
   else
   {
     pStore = _kvStore.at(document);
+  }
+  
+  if (!pStore)
+  {
+    OS_LOG_ERROR(FAC_DB, "RESTServer::getStore - No document store available for " << document);
   }
   
   return pStore;
@@ -324,8 +334,13 @@ bool RESTServer::isAuthorized(Request& request, Response& response)
   
   if (!authorized)
   {
+    OS_LOG_WARNING(FAC_DB, "RESTServer::isAuthorized - Unauthorized request from " << request.clientAddress().toString());
     response.setStatus(HTTPResponse::HTTP_FORBIDDEN);
     response.send();
+  }
+  else
+  {
+    OS_LOG_INFO(FAC_DB, "RESTServer::isAuthorized - Authorization granted to " << request.clientAddress().toString());
   }
   
   return authorized;
@@ -443,12 +458,15 @@ void RESTServer::onHandleRestRequest(Request& request, Response& response)
     
     if (records.empty())
     {
+      OS_LOG_DEBUG(FAC_DB, "RESTServer::onHandleRestRequest - No records found for path " << resource);
       response.setChunkedTransferEncoding(true);
       response.setReason("No Records Found");
       response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
       response.send();
       return;
     }
+    
+    OS_LOG_DEBUG(FAC_DB, "RESTServer::onHandleRestRequest - " << records.size() << " records found for path " << resource);
     
     std::vector<std::string> tokens;
     YardUtils::get_path_vector(resource, tokens);
@@ -462,6 +480,9 @@ void RESTServer::onHandleRestRequest(Request& request, Response& response)
     response.setReason("Records Deleted");
     response.setStatus(HTTPResponse::HTTP_OK);
     response.send();
+    
+    OS_LOG_DEBUG(FAC_DB, "RESTServer::onHandleRestRequest - Deleted records " << filter);
+    
     return;
   }
   else if (request.getMethod() == HTTPRequest::HTTP_PUT || request.getMethod() == HTTPRequest::HTTP_POST)
@@ -476,6 +497,7 @@ void RESTServer::onHandleRestRequest(Request& request, Response& response)
       {
         if (!validateInsert(pStore, resource, value))
         {
+          OS_LOG_WARNING(FAC_DB, "RESTServer::onHandleRestRequest - Type mismatch for " << resource << " method=" << request.getMethod());
           response.setReason("Object Type Mismatch");
           response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
           response.send();
@@ -487,6 +509,9 @@ void RESTServer::onHandleRestRequest(Request& request, Response& response)
       response.setReason("Records Updated");
       response.setStatus(HTTPResponse::HTTP_OK);
       response.send();
+      
+      OS_LOG_INFO(FAC_DB, "RESTServer::onHandleRestRequest - Records updated for " << resource << " method=" << request.getMethod())
+        
       return;
     }
   }
