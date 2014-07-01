@@ -22,6 +22,7 @@ class YardProcessor
 {
 public:
   YardProcessor();
+  virtual ~YardProcessor();
   virtual bool willHandleRequest(const std::string& path) = 0;
   virtual void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) = 0;
   void announceAssociatedServer(RESTServer* pServer);
@@ -34,6 +35,7 @@ protected:
 //
 
 inline YardProcessor::YardProcessor() : _pServer(0) {};
+inline YardProcessor::~YardProcessor() {};
 inline void YardProcessor::announceAssociatedServer(RESTServer* pServer){_pServer = pServer;}
 
 #endif	// REQUESTPROCESSOR_H_INCLUDED
