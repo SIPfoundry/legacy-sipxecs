@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -103,7 +104,7 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     static final String[] UNSUPPORTED_MODELS = new String[] {
         POLY_300, POLY_500
     };
-
+    static final String RLS_PRESENCE_OVERRIDER = "rlsOverrider";
     private AddressManager m_addressManager;
     private BeanFactory m_beanFactory;
     private CertificateManager m_certificateManager;
@@ -185,8 +186,13 @@ public class PolycomPhone extends Phone implements BeanFactoryAware {
     @Override
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+        // TODO move this check in FeatureManagerImpl - each feature could have an overrider
+        LocationFeature feature = Rls.FEATURE;
+        if (m_beanFactory != null && m_beanFactory.containsBean(RLS_PRESENCE_OVERRIDER)) {
+            feature = new LocationFeature((String) m_beanFactory.getBean(RLS_PRESENCE_OVERRIDER));
+        }
         PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(),
-                speedDial, getModelId(), this.getFeatureManager().isFeatureEnabled(Rls.FEATURE));
+                speedDial, getModelId(), this.getFeatureManager().isFeatureEnabled(feature));
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
