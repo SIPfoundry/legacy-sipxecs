@@ -1,4 +1,5 @@
-SUBDIRS = . 
+SUBDIRS = .
+#SUBDIRS+=sems
 
 AM_CPPFLAGS =  \
 	$(SIPXPROXY_COMMON_CXX_FLAGS) \
@@ -44,7 +45,7 @@ sipxwebrtc_CFLAGS = -I${srcdir}/common/esl/include
 sipxwebrtc_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\"
-	
+
 
 sipxwebrtc_LDADD = @BOOST_LIBS@ \
 	-lpthread \

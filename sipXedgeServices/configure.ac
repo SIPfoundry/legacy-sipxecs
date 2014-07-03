@@ -46,6 +46,9 @@ AC_SUBST(LIBVERSION_AGE)
 AC_SUBST(LIBVERSION_FULL)
 AC_SUBST(LIBVERSION_INFO)
 
+m4_include([config/sems.m4])
+#SFAC_SEMS_CONFIGURE
+
 AC_CONFIG_FILES([
   applications/Makefile
   Makefile
