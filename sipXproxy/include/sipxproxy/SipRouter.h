@@ -232,6 +232,13 @@ class SipRouter : public OsServerTask
    /// OPTIONS, NOTIFY, and SUBSCRIBE
    bool isPAIdentityApplicable(const SipMessage& sipRequest);
 
+   //
+   // This method will be call if a SIP message will no longer be spiraling through 
+   // the authentication rules and is about to be sent out to the final destination.
+   // This is normally the place where the code will evaluate extra rules
+   // such as privacy.
+   //
+   void performPreRoutingChecks(SipMessage& sipRequest);
    // @cond INCLUDENOCOPY
 
    // There is no copy constructor.

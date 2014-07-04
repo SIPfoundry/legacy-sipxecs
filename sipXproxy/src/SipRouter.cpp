@@ -49,6 +49,7 @@ const char* SipBidirectionalProcessorPlugin::Factory = "getTransactionPlugin";
 const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 // The period of time in seconds that nonces are valid, in seconds.
 #define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
+static const char* P_PID_HEADER = "P-Preferred-Identity";
 
 // STRUCTS
 // TYPEDEFS
@@ -1087,6 +1088,11 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          maxForwards = mpSipUserAgent->getMaxForwards();
       }
       sipRequest.setMaxForwards(maxForwards);
+      
+      if (!bMessageWillSpiral)
+      {
+        performPreRoutingChecks(sipRequest);
+      }
       break;
 
    case SendResponse:
@@ -1099,6 +1105,41 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
    }
    
    return returnedAction;
+}
+
+//
+// This method will be called if a SIP message will no longer be spiraling through 
+// authentication rules and is about to be sent out to the final destination.
+// This is normally the place where the code will evaluate extra rules
+// such as privacy.
+//
+void SipRouter::performPreRoutingChecks(SipMessage& sipRequest)
+{
+  //  RFC 3323
+  //
+  //  6. Hints for Multiple Identities
+  //
+  //   If a P-Preferred-Identity header field is present in the message that
+  //   a proxy receives from an entity that it does not trust, the proxy MAY
+  //   use this information as a hint suggesting which of multiple valid
+  //   identities for the authenticated user should be asserted.  If such a
+  //   hint does not correspond to any valid identity known to the proxy for
+  //   that user, the proxy can add a P-Asserted-Identity header of its own
+  //   construction, or it can reject the request (for example, with a 403
+  //   Forbidden).  The proxy MUST remove the user-provided P-Preferred-
+  //   Identity header from any message it forwards.
+  //     
+  int ppidcount = sipRequest.getCountHeaderFields(P_PID_HEADER);
+  if (ppidcount > 0)
+  {
+    OS_LOG_INFO(FAC_SIP, "SipRouter::performPreRoutingChecks - Removing " 
+      << ppidcount << " count of " << P_PID_HEADER << " header(s)");
+
+    for (int i = ppidcount - 1; i >= 0; i--)
+    {
+      sipRequest.removeHeader(P_PID_HEADER, i);
+    }
+  }
 }
 
 // Get the canonical form of our SIP domain name
