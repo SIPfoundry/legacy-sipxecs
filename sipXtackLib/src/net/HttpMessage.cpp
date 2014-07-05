@@ -87,6 +87,7 @@ HttpMessage::HttpMessage(const char* messageBytes, ssize_t byteCount)
    , mSendPort(PORT_NONE)
    , mpResponseListenerQueue(NULL)
    , mResponseListenerData(NULL)
+   , _ignoreLastRead(false)
 {
   system_tap_sip_msg_created((intptr_t)this);
    smHttpMessageCount++;
@@ -110,6 +111,7 @@ HttpMessage::HttpMessage(OsSocket* inSocket, ssize_t bufferSize)
    , mSendPort(PORT_NONE)
    , mpResponseListenerQueue(NULL)
    , mResponseListenerData(NULL)
+   , _ignoreLastRead(false)
 {
   system_tap_sip_msg_created((intptr_t)this);
 
@@ -124,7 +126,8 @@ HttpMessage::HttpMessage(OsSocket* inSocket, ssize_t bufferSize)
 
 
 // Copy constructor
-HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
+HttpMessage::HttpMessage(const HttpMessage& rHttpMessage) :
+  _ignoreLastRead(false)
 {
   system_tap_sip_msg_created((intptr_t)this);
 
