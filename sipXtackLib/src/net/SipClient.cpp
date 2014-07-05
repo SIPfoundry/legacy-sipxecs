@@ -713,6 +713,15 @@ int SipClient::run(void* runArg)
                              HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
                              &readBuffer);
 
+         if (msg->ignoreLastRead())
+         {
+           //
+           // Read operation thinks this is NOT a valid SIP/HTTP packet.  Eg. STUN requests
+           //
+           delete msg;
+           readBuffer.remove(0);
+           continue;
+         }
          // Use readBuffer to hold any unparsed data after the message
          // we read.
          // Note that if a message was successfully parsed, readBuffer

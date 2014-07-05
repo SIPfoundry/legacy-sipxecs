@@ -801,6 +801,7 @@ public:
      void logTimeEvent(const char* eventName);
      void dumpTimeLog() const;
 
+     bool ignoreLastRead() const;
 /* ============================ INQUIRY =================================== */
 
      static UtlBoolean isWholeMessage(const char* messageBuffer,
@@ -843,6 +844,11 @@ private:
    OsTimeLog mTimeLog;
 #endif
 
+   //
+  // Flag we use to tell the upper layer that the last read operation, although
+  // yielded readable bytes is not an HTTP message.  Eg. STUN requests.  
+  //
+   bool _ignoreLastRead;
    //! Internal utility
    NameValuePair* getHeaderField(int index, const char* name = NULL) const;
 
@@ -851,4 +857,8 @@ private:
 
 /* ============================ INLINE METHODS ============================ */
 
+inline bool HttpMessage::ignoreLastRead() const
+{
+  return _ignoreLastRead;
+}
 #endif  // _HttpMessage_h_

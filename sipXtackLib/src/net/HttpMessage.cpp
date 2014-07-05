@@ -44,6 +44,7 @@
 #include <net/HttpConnectionMap.h>
 #include <net/Url.h>
 #include <net/Instrumentation.h>
+#include <os/OsStunQueryAgent.h>
 
 
 // EXTERNAL FUNCTIONS
@@ -1132,6 +1133,11 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                       UtlString* externalBuffer,
                       int maxContentLength)
 {
+  //
+  // Flag we use to tell the upper layer that the last read operation, although
+  // yielded readable bytes is not an HTTP message.  Eg. STUN requests.  
+  //
+  _ignoreLastRead = false;
    //
    // Initialize state variables that keep track of what we have seen
    // of the incoming HTTP message.
@@ -1152,7 +1158,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    // time to confirm that that is not so, then un-ifdef the code below. For now we just warn with extreme
    // prejudice.
    //
-   #if 0
+   #if 1
    if (body)
    {
        delete body;
@@ -1270,6 +1276,19 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
          }
          else // we must have read bytes from the socket
          {
+           //
+           // We should be able to detect if the DATAGRAM is a STUN request
+           // at this point
+           //
+           if (inSocket->getIpProtocol() == OsSocket::UDP)
+           {
+             if ((bytesRead > 0) && StunMessage::isStunMessage(buffer, bytesRead))
+             {
+               _ignoreLastRead = true;
+               return 0;
+             }
+           }
+           
 #           ifdef MSG_DEBUG
             Os::Logger::instance().log(FAC_HTTP, PRI_DEBUG,
                           "HttpMessage::read %zu bytes read: '%.*s'",

@@ -108,6 +108,13 @@ void SipUdpServer::createServerSocket(const char* szBindAddr,
    // Create the socket.
    OsStunDatagramSocket* pSocket =
       new OsStunDatagramSocket(0, NULL, port, szBindAddr, FALSE);
+   
+   //
+   // Enable transparent STUN reads so transport can take a peek if what
+   // was read was a STUN message.  This allows HttpMessage::read() function
+   // to categorize a STUN packet as such and can be ignored by the SIP layer
+   //
+   pSocket->enableTransparentStunReads(true);
 
    // If the socket is busy or unbindable and the user requested using the
    // next available port, try the next SIP_MAX_PORT_RANGE ports.
