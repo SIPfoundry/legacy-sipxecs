@@ -1281,7 +1281,7 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
      //  Otherwise, propagate the contact information as is (which
      //  is what a compliant proxy should do).
      //
-     if (contactString.compareTo("*") == 0 || scheme != Url::SipUrlScheme || scheme != Url::SipsUrlScheme)
+     if (contactString.compareTo("*") == 0 || (scheme != Url::SipUrlScheme && scheme != Url::SipsUrlScheme))
      {
        OS_LOG_NOTICE(FAC_SIP, "SipRouter::addNatMappingInfoToContacts skipping URI: " << contactString.data());
        continue;
