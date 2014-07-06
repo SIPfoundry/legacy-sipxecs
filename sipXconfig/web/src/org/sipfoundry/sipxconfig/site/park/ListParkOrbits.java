@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkSettings;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
@@ -41,19 +40,12 @@ public abstract class ListParkOrbits extends SipxBasePage implements PageBeginRe
 
     public abstract Collection getRowsToDelete();
 
-    public abstract ParkSettings getSettings();
-
-    public abstract void setSettings(ParkSettings settings);
-
     @Persist
     @InitialValue(value = "literal:orbits")
     public abstract String getTab();
 
     @Override
     public void pageBeginRender(PageEvent arg0) {
-        if (getSettings() == null) {
-            setSettings(getParkOrbitContext().getSettings());
-        }
     }
 
     public IPage add(IRequestCycle cycle) {
@@ -69,13 +61,6 @@ public abstract class ListParkOrbits extends SipxBasePage implements PageBeginRe
         editPage.setParkOrbitId(callGroupId);
         editPage.setParkOrbit(null);
         return editPage;
-    }
-
-    public void apply(IRequestCycle cycle) {
-        if (!TapestryUtils.validateFDSoftAndHardLimits(this, getSettings(), "resource-limits")) {
-            return;
-        }
-        getParkOrbitContext().saveSettings(getSettings());
     }
 
     public void formSubmit() {

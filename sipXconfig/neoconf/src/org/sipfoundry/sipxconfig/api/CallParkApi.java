@@ -35,13 +35,28 @@ import org.sipfoundry.sipxconfig.api.model.CallParkBean;
     MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
 })
 @Description("Call Park Management REST API")
-public interface CallParkApi extends PromptsApi, ServiceSettingsApi {
+public interface CallParkApi extends PromptsApi {
 
     @GET
     public Response getOrbits();
 
     @POST
     public Response newOrbit(@Description("Call Park bean to save") CallParkBean bean);
+
+    @Path("servers/{serverId}")
+    @GET
+    public Response getOrbitsByServer(
+            @Description("Server internal id or FQDN") @PathParam("serverId") String serverId);
+
+    @Path("servers/{serverId}")
+    @POST
+    public Response newOrbit(@Description("Server internal id or FQDN") @PathParam("serverId") String serverId,
+            @Description("Call Park bean to save") CallParkBean bean);
+
+    @Path("servers/{serverId}")
+    @DELETE
+    public Response deleteOrbitsByServer(
+            @Description("Server internal id or FQDN") @PathParam("serverId") String serverId);
 
     @Path("{orbitId}")
     @GET

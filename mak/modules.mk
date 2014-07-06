@@ -28,7 +28,6 @@ sipx_core = \
   sipXproxy \
   sipXpublisher \
   sipXregistry \
-  sipXpark \
   sipXpage \
   sipXpolycom \
   sipXrls \
@@ -159,7 +158,6 @@ sipXivr_DEPS = sipXconfig
 sipXproxy_DEPS = sipXcommserverLib
 sipXpublisher_DEPS = sipXcommserverLib
 sipXregistry_DEPS = sipXcommserverLib
-sipXpark_DEPS = sipXcallLib sipXcommserverLib
 sipXpage_DEPS = sipXcommons
 sipXpolycom_DEPS = sipXconfig
 sipXrls_DEPS = sipXsqa sipXcallLib sipXcommserverLib

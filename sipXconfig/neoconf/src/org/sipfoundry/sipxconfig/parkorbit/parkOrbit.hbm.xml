@@ -40,6 +40,7 @@
       <key column="park_orbit_id" />
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>
+    <many-to-one name="location" class="org.sipfoundry.sipxconfig.commserver.Location" column="location_id" />
   </class>
 
   <query name="parkOrbitIdsWithAlias">
@@ -48,6 +49,10 @@
 
     <query name="parkOrbitByName">
     <![CDATA[select orbit from ParkOrbit orbit where orbit.name = :value]]>
+  </query>
+
+  <query name="parkOrbitsByServer">
+    <![CDATA[from ParkOrbit orbit where orbit.location.id = :locationId]]>
   </query>
 
 </hibernate-mapping>

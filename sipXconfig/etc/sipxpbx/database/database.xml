@@ -467,6 +467,7 @@
     <antcall target="callgroup-fallback-expire" />
     <antcall target="update-polycom-version" />
     <antcall target="config-change" />
+    <antcall target="add-orbit-location" />
   </target>
 
   <target name="plugin-patches">
@@ -1414,6 +1415,9 @@
     <db-patch patch="user-ip-address"/>
     <db-patch patch="config-change"/>
     <plsql-patch patch="system-audit-cleanup"/>
+  </target>
+  <target name="add-orbit-location" unless="add-orbit-location">
+    <db-patch patch="add-orbit-location" />
   </target>
 
   <!--

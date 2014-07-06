@@ -33,6 +33,42 @@
     </condition>
   </extension>
 #end
+#if ($park)
+#foreach($orbit in $orbits)
+#if(${orbit.enabled})
+  <extension name="ParkOrbit${orbit.name}">
+    <condition field="destination_number" expression="^${orbit.extension}${dollar}">
+#if(!${orbit.isMultipleCalls()})
+      <action inline="true" application="set" data="slot_count=${dollar}{fifo(count QPark${orbit.extension})}"/>
+      <action inline="true" application="set" data="slot_count=${dollar}{slot_count:-9:2}"/>
+    </condition>
+    <condition field="${slot_count}" expression="^\:0$" break="always">
+#end
+      <action application="set" data="fifo_music=${orbit.audioDirectory}${orbit.music}"/>
+      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}#if(${orbit.isParkTimeoutEnabled()}):${orbit.parkTimeout}#end"/>
+      <action application="set" data="fifo_orbit_dialplan=XML"/>
+#if(${orbit.isTransferAllowed()})
+      <action application="set" data="fifo_caller_exit_key=${orbit.transferKey}"/>
+      <action application="set" data="fifo_caller_exit_to_orbit=true"/>
+#end
+      <action application="fifo" data="QPark${orbit.extension} in"/>
+      <action application="hangup"/>
+    </condition>
+  </extension>
+  <extension name="UnPark${orbit.name}">
+    <condition field="destination_number" expression="^${orbit.unparkExtension}${dollar}">
+      <action application="fifo" data="QPark${orbit.extension} out nowait"/>
+    </condition>
+  </extension>
+#end
+#end
+  <extension name="transferPark">
+    <condition field="destination_number" expression="^transferPark(\d+)$">
+      <action application="set" data="ringback=${us-ring}"/>
+      <action application="bridge" data="{api_on_answer='uuid_simplify ${uuid}'}sofia/${domainName}/$1@${domainName}"/>
+    </condition>
+  </extension>
+#end
 #foreach($extension in $freeswitchExtensions)
   <extension name="${extension.name}">
 #foreach($condition in $extension.conditions)

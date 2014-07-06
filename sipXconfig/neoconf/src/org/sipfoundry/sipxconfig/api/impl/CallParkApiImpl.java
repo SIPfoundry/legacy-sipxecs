@@ -14,6 +14,7 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -25,14 +26,15 @@ import org.sipfoundry.sipxconfig.api.CallParkApi;
 import org.sipfoundry.sipxconfig.api.model.CallParkBean;
 import org.sipfoundry.sipxconfig.api.model.CallParkList;
 import org.sipfoundry.sipxconfig.api.model.SettingsList;
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkSettings;
-import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class CallParkApiImpl extends BaseServiceApiImpl implements CallParkApi {
+public class CallParkApiImpl extends PromptsApiImpl implements CallParkApi {
     private ParkOrbitContext m_context;
+    private LocationsManager m_locationsManager;
 
     @Override
     public Response getOrbits() {
@@ -45,17 +47,50 @@ public class CallParkApiImpl extends BaseServiceApiImpl implements CallParkApi {
 
     @Override
     public Response newOrbit(CallParkBean bean) {
-        ParkOrbit orbit = m_context.newParkOrbit();
-        Response response = checkPrompt(bean);
-        if (response != null) {
-            return response;
+        return newOrbit(bean.getServer(), bean);
+    }
+
+    @Override
+    public Response getOrbitsByServer(String serverId) {
+        Location location = getLocationByIdOrFqdn(serverId);
+        if (location != null) {
+            Collection<ParkOrbit> parkOrbits = m_context.getParkOrbits(location.getId());
+            if (parkOrbits != null) {
+                return Response.ok().entity(CallParkList.convertOrbitList(parkOrbits)).build();
+            }
         }
-        boolean success = CallParkBean.populateOrbit(bean, orbit);
-        if (!success) {
-            return Response.serverError().build();
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response deleteOrbitsByServer(String serverId) {
+        Location location = getLocationByIdOrFqdn(serverId);
+        if (location != null) {
+            Collection<ParkOrbit> parkOrbits = m_context.getParkOrbits(location.getId());
+            Collection<Integer> ids = new ArrayList<Integer>();
+            for (ParkOrbit orbit : parkOrbits) {
+                ids.add(orbit.getId());
+            }
+            m_context.removeParkOrbits(ids);
+            return Response.ok().build();
         }
-        m_context.storeParkOrbit(orbit);
-        return Response.ok().entity(orbit.getId()).build();
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response newOrbit(String serverId, CallParkBean bean) {
+        Location location = getLocationByIdOrFqdn(serverId);
+        if (location != null) {
+            ParkOrbit orbit = m_context.newParkOrbit();
+            Response response = checkPrompt(bean);
+            if (response != null) {
+                return response;
+            }
+            CallParkBean.populateOrbit(bean, orbit, location);
+            m_context.storeParkOrbit(orbit);
+            return Response.ok().entity(orbit.getId()).build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
     }
 
     @Override
@@ -85,12 +120,14 @@ public class CallParkApiImpl extends BaseServiceApiImpl implements CallParkApi {
             if (response != null) {
                 return response;
             }
-            boolean success = CallParkBean.populateOrbit(bean, orbit);
-            if (!success) {
-                return Response.serverError().build();
+            Location location = getLocationByIdOrFqdn(bean.getServer());
+            if (location != null) {
+                CallParkBean.populateOrbit(bean, orbit, location);
+                m_context.storeParkOrbit(orbit);
+                return Response.ok().build();
+            } else {
+                return Response.status(Status.NOT_FOUND).entity("No such server").build();
             }
-            m_context.storeParkOrbit(orbit);
-            return Response.ok().build();
         }
         return Response.status(Status.NOT_FOUND).build();
     }
@@ -144,18 +181,24 @@ public class CallParkApiImpl extends BaseServiceApiImpl implements CallParkApi {
         return null;
     }
 
+    private Location getLocationByIdOrFqdn(String id) {
+        Location location = null;
+        try {
+            int locationId = Integer.parseInt(id);
+            location = m_locationsManager.getLocation(locationId);
+        } catch (NumberFormatException e) {
+            // no id then it must be MAC
+            location = m_locationsManager.getLocationByFqdn(id);
+        }
+        return location;
+    }
+
     public void setParkOrbitContext(ParkOrbitContext context) {
         m_context = context;
     }
 
-    @Override
-    protected PersistableSettings getSettings() {
-        return m_context.getSettings();
-    }
-
-    @Override
-    protected void saveSettings(PersistableSettings settings) {
-        m_context.saveSettings((ParkSettings) settings);
+    public void setLocationsManager(LocationsManager manager) {
+        m_locationsManager = manager;
     }
 
 }

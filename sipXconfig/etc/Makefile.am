@@ -45,6 +45,10 @@ cfdefaults_DATA = \
 	apache.cfdat \
 	postgres.cfdat
 
+audiodir = @SIPX_VARDIR@/parkserver/music
+dist_audio_DATA = \
+	audio/default.wav
+
 fsvars = \
 	$(filter FREESWITCH%,$(.VARIABLES))
 

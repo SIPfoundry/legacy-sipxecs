@@ -41,9 +41,6 @@
   <bean id="proxyResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
     <property name="prefix" value="sipxproxy-"/>
   </bean>
-  <bean id="parkResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
-    <property name="prefix" value="sipxpark-"/>
-  </bean>
   <bean id="publisherResLimits" class="org.sipfoundry.sipxconfig.admin.ResLimitsConfigImpl">
     <property name="prefix" value="sipxpublisher-"/>
   </bean>
@@ -63,9 +60,7 @@
     <property name="proxyManager" ref="proxyManager" />
     <property name="saaManager" ref="saaManager" />
     <property name="registrar" ref="registrar" />
-    <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="proxyLimitsConfig" ref="proxyResLimits" />
-    <property name="parkLimitsConfig" ref="parkResLimits" />
     <property name="publisherLimitsConfig" ref="publisherResLimits" />    
     <property name="saaLimitsConfig" ref="saaResLimits" />
     <property name="registrarLimitsConfig" ref="registrarResLimits" />

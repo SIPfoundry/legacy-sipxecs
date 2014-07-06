@@ -7,7 +7,6 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="parkOrbitContext" object="spring:parkOrbitContext"/>
-  <inject property="parkConfig" object="spring:parkConfig"/>
 
   <property name="parkOrbit"  persist="session"/>
   <property name="parkOrbitId"  persist="session"/>
@@ -34,7 +33,7 @@
   </component>
   <component id="musicOnHoldSelector" type="common/AssetSelectorMultiple">
     <binding name="asset" value="parkOrbit.music"/>
-    <binding name="assetDir" value="parkConfig.audioDirectory"/>
+    <binding name="assetDir" value="parkOrbit.audioDirectory"/>
     <binding name="errorMsg" value="message:error.select"/>
     <binding name="contentType" value="literal:audio/x-wav"/>
   </component>

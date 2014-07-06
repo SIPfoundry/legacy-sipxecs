@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.registrar;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -17,6 +18,8 @@ import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
@@ -87,7 +90,10 @@ public class RegistrarSettings extends PersistableSettings implements DeployConf
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) Registrar.FEATURE);
+        // trigger Freeswitch context regeneration in case call pickup code changed
+        // regenerate aliases for park orbit in case call pickup code changed
+        return Arrays.asList((Feature) Registrar.FEATURE, (Feature) ParkOrbitContext.FEATURE,
+                (Feature) FreeswitchFeature.FEATURE);
     }
 
     @Override

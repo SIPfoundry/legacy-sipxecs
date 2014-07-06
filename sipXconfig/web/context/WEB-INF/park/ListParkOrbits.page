@@ -27,14 +27,18 @@
   </component>
   <component id="tableView" type="common/Table">
     <binding name="source" value="parkOrbitContext.parkOrbits" />
-    <binding name="columns" value="literal:* name,enabled,extension,music" />
+    <binding name="columns" value="literal:* name,enabled,extension,location,music" />
     <binding name="class" value="bean:rowClass.next" />
     <binding name="row" value="currentRow" />
     <binding name="selections" value="selections" />
   </component>
   <component id="nameColumnValue" type="Block" />
+  <component id="locationColumnValue" type="Block" />
   <component id="nameText" type="Insert">
     <binding name="value" value="currentRow.name" />
+  </component>
+  <component id="locationText" type="Insert">
+    <binding name="value" value="currentRow.location.fqdn" />
   </component>
   <component id="editRowLink" type="DirectLink">
     <binding name="listener" value="listener:edit" />

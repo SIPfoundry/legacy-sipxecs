@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.mwi.MwiSettings;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkSettings;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.proxy.ProxySettings;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
@@ -81,8 +80,6 @@ public class ResLimitsConfigurationTest {
         proxyResLimits.setPrefix("sipxproxy-");
         ResLimitsConfigImpl registrarResLimits = new ResLimitsConfigImpl();
         registrarResLimits.setPrefix("sipxregistry-");
-        ResLimitsConfigImpl parkResLimits = new ResLimitsConfigImpl();
-        parkResLimits.setPrefix("sipxpark-");
         ResLimitsConfigImpl mwiResLimits = new ResLimitsConfigImpl();
         mwiResLimits.setPrefix("sipxpublisher-");
         ResLimitsConfigImpl rlsResLimits = new ResLimitsConfigImpl();
@@ -91,13 +88,11 @@ public class ResLimitsConfigurationTest {
         sipxsaaResLimits.setPrefix("sipxsaa-");
         resLimitsConfigs.add(proxyResLimits);
         resLimitsConfigs.add(registrarResLimits);
-        resLimitsConfigs.add(parkResLimits);
         resLimitsConfigs.add(mwiResLimits);
         resLimitsConfigs.add(rlsResLimits);
         resLimitsConfigs.add(sipxsaaResLimits);
         m_config.setResLimitsConfigs(resLimitsConfigs);
 
-        m_config.setParkLimitsConfig(parkResLimits);
         m_config.setRegistrarLimitsConfig(registrarResLimits);
         m_config.setProxyLimitsConfig(proxyResLimits);
         m_config.setSaaLimitsConfig(sipxsaaResLimits);
@@ -168,24 +163,12 @@ public class ResLimitsConfigurationTest {
         saaManager.saveSettings(saaSettings);
         EasyMock.expectLastCall().anyTimes();
 
-        ParkSettings parkSettings = new ParkSettings();
-        parkSettings.setModelFilesContext(TestHelper.getModelFilesContext());
-        parkSettings.setSettingTypedValue("resource-limits/fd-soft", "6666");
-        parkSettings.setSettingTypedValue("resource-limits/fd-hard", "66667");
-        parkSettings.setSettingTypedValue("resource-limits/core-enabled", false);
-        ParkOrbitContext parkOrbitContext = EasyMock.createMock(ParkOrbitContext.class);
-        parkOrbitContext.getSettings();
-        EasyMock.expectLastCall().andReturn(parkSettings);
-        parkOrbitContext.saveSettings(parkSettings);
-        EasyMock.expectLastCall().anyTimes();
-
         EasyMock.replay(config1, beanFactory, adminContext,
-            proxyManager, mwi, registrar, rls, saaManager, parkOrbitContext);
+            proxyManager, mwi, registrar, rls, saaManager);
 
         m_config.setAdminContext(adminContext);
         m_config.setMwi(mwi);
         m_config.setRegistrar(registrar);
-        m_config.setParkOrbitContext(parkOrbitContext);
         m_config.setSaaManager(saaManager);
         m_config.setProxyManager(proxyManager);
     }

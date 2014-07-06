@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.rls.Rls;
 
 /**
@@ -178,11 +177,6 @@ public class MappingRules extends RulesXmlFile {
             Address rls = m_addressManager.getSingleAddress(getRlsType(), location);
             if (rls != null) {
                 rulesString = rulesString.replace(RLS_SIP_SRV_OR_HOSTPORT, rls.addressColonPort());
-            }
-
-            Address park = m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, location);
-            if (park != null) {
-                rulesString = rulesString.replace(ORBIT_SERVER_SIP_SRV_OR_HOSTPORT, park.addressColonPort());
             }
 
             Address page = m_addressManager.getSingleAddress(PagingContext.SIP_TCP, location);

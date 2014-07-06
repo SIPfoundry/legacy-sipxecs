@@ -1,11 +1,6 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="@common/QuickHelp" value="message:quick.help"/>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'orbits','settings'}" selectedTab="ognl:tab"/>
-  <div id="settings-content">
-    <span jwcid="@common/ErrorMsg"/>
-    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
-  </div>
-  <span jwcid="orbitsTab@Block">
+  <span jwcid="@common/ErrorMsg"/>
 	  <ul class="component-links">
 	    <li><a jwcid="defaultsLink" id="orbits:defaults"><span key="link.defaults">Defaults</span></a></li>
 	    <li><a jwcid="addLink" id="orbits:add"><span key="link.add">Add Extension</span></a></li>
@@ -18,6 +13,9 @@
 	      <span jwcid="enabledColumnValue@Block">
 	        <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
 	      </span>
+	      <span jwcid="locationColumnValue">
+	        <span jwcid="locationText"/>
+	      </span>
 	    </table>
 	    <ul class="component-submit">
 	      <li>
@@ -26,13 +24,4 @@
 	      </li>
 	    </ul>
 	  </form>	  
-  </span>
-  <span jwcid="settingsTab@Block">
-	  <form jwcid="form@Form" delegate="bean:validator">
-	    <fieldset jwcid="@setting/SettingsFieldset"
-	        settings="ognl:settings.settings" />
-	    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
-	        listener="listener:apply"/>
-	  </form>  
-  </span>  
 </div>

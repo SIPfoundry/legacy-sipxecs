@@ -9,24 +9,27 @@
  */
 package org.sipfoundry.sipxconfig.parkorbit;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
+import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
@@ -34,39 +37,26 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
-import org.sipfoundry.sipxconfig.firewall.FirewallManager;
-import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
-import org.sipfoundry.sipxconfig.firewall.FirewallRule;
-import org.sipfoundry.sipxconfig.proxy.ProxyManager;
-import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
-import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
-import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext, BeanFactoryAware,
-        FeatureProvider, AddressProvider, ProcessProvider, FirewallProvider {
+        FeatureProvider, DaoEventListener, ConfigProvider {
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
     private static final String PARK_ORBIT_BY_NAME = "parkOrbitByName";
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private SettingDao m_settingDao;
-    private BeanWithSettingsDao<ParkSettings> m_beanWithSettingsDao;
-
-    public ParkSettings getSettings() {
-        return m_beanWithSettingsDao.findOrCreateOne();
-    }
-
-    public void saveSettings(ParkSettings settings) {
-        m_beanWithSettingsDao.upsert(settings);
-    }
+    private FeatureManager m_featureManager;
+    private JdbcTemplate m_jdbcTemplate;
+    private ReplicationManager m_replicationManager;
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
         // Check for duplicate names and extensions before saving the park orbit
@@ -101,6 +91,10 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     public Collection getParkOrbits() {
         return getHibernateTemplate().loadAll(ParkOrbit.class);
+    }
+
+    public Collection getParkOrbits(Integer locationId) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("parkOrbitsByServer", "locationId", locationId);
     }
 
     public String getDefaultMusicOnHold() {
@@ -181,48 +175,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     }
 
     @Override
-    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        List<DefaultFirewallRule> rules = DefaultFirewallRule.rules(Arrays.asList(SIP_TCP_PORT, SIP_UDP_PORT));
-        rules.add(new DefaultFirewallRule(SIP_RTP_PORT, FirewallRule.SystemId.PUBLIC, true));
-        return rules;
-    }
-
-    @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equalsAnyOf(SIP_TCP_PORT, SIP_UDP_PORT, SIP_RTP_PORT)) {
-            return null;
-        }
-
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-        if (locations.isEmpty()) {
-            return null;
-        }
-
-        ParkSettings settings = getSettings();
-        List<Address> addresses = new ArrayList<Address>(locations.size());
-        for (Location location : locations) {
-            Address address = null;
-            if (type.equals(SIP_TCP_PORT)) {
-                address = new Address(SIP_TCP_PORT, location.getAddress(), settings.getSipTcpPort());
-            } else if (type.equals(SIP_UDP_PORT)) {
-                address = new Address(SIP_UDP_PORT, location.getAddress(), settings.getSipUdpPort());
-            } else if (type.equals(SIP_RTP_PORT)) {
-                int startPort = settings.getRtpPort();
-                int maxCalls = settings.getMaxSessions();
-                address = new Address(SIP_RTP_PORT, location.getAddress(), startPort);
-                // end port is 2x max calls was based on code found in sipXpark/src/main.cpp
-                address.setEndPort(startPort + (2 * maxCalls));
-            }
-            addresses.add(address);
-        }
-        return addresses;
-    }
-
-    public void setBeanWithSettingsDao(BeanWithSettingsDao<ParkSettings> beanWithSettingsDao) {
-        m_beanWithSettingsDao = beanWithSettingsDao;
-    }
-
-    @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
     }
@@ -230,12 +182,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-        return (enabled ? Collections.singleton(ProcessDefinition.sipx("sipxpark")) : null);
     }
 
     @Override
@@ -247,18 +193,83 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        validator.requiredOnSameHost(FEATURE, ProxyManager.FEATURE);
-        validator.singleLocationOnly(FEATURE);
+        validator.requiredOnSameHost(FEATURE, FreeswitchFeature.FEATURE);
     }
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
+        // remove park orbits on feature disabled
+        if (request.getAllNewlyDisabledFeatures().contains(ParkOrbitContext.FEATURE)) {
+            Collection<Location> locations = request.getLocationsForDisabledFeature(ParkOrbitContext.FEATURE);
+            Collection<Integer> ids = new ArrayList<Integer>();
+            for (Location location : locations) {
+                Collection<ParkOrbit> parkOrbits = getParkOrbits(location.getId());
+                for (ParkOrbit orbit : parkOrbits) {
+                    ids.add(orbit.getId());
+                }
+            }
+            if (ids.size() > 0) {
+                removeParkOrbits(ids);
+            }
+        }
     }
 
     @Override
     public ParkOrbit loadParkOrbitByName(String name) {
-        List<ParkOrbit> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                PARK_ORBIT_BY_NAME, VALUE, name);
+        List<ParkOrbit> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(PARK_ORBIT_BY_NAME,
+                VALUE, name);
         return (ParkOrbit) DataAccessUtils.singleResult(conferences);
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        if (m_featureManager.isFeatureEnabled(FEATURE)) {
+            List<Replicable> replicables = new ArrayList<Replicable>();
+            replicables.addAll(getParkOrbits());
+            return replicables;
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
+        if (!request.applies(ParkOrbitContext.FEATURE)) {
+            return;
+        }
+        // in case call pickup code change, regenerate aliases
+        Collection<ParkOrbit> orbits = getParkOrbits();
+        for (ParkOrbit orbit : orbits) {
+            m_replicationManager.replicateEntity(orbit);
+        }
+    }
+
+    @Required
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    @Required
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        m_jdbcTemplate = jdbcTemplate;
+    }
+
+    @Required
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Location) {
+            int count = m_jdbcTemplate.queryForInt("select count(*) from park_orbit where location_id = ?",
+                    ((Location) entity).getId());
+            if (count >= 1) {
+                throw new UserException("&err.location.orbitAssigned");
+            }
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
     }
 }

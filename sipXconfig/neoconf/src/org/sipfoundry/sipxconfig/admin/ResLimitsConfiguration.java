@@ -31,8 +31,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.mwi.MwiSettings;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkSettings;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.proxy.ProxySettings;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
@@ -52,7 +50,7 @@ import org.springframework.beans.factory.annotation.Required;
  * fd-soft
  * fd-hard
  * core-enabled
- * These can apply to the following processes: sipXpark, sipXproxy, sipXrls, sipXsaa, mwi, sipXregistrar
+ * These can apply to the following processes: sipXproxy, sipXrls, sipXsaa, mwi, sipXregistrar
  * We have adminSettings that establishes defaults. But for each process setting page there are same resource limits
  * and each process can overwrite the defaults. Any time admin settings page can overwrite all resource
  * limits for all processes with defaults
@@ -87,7 +85,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     private ProxyManager m_proxyManager;
     private Registrar m_registrar;
     private SaaManager m_saaManager;
-    private ParkOrbitContext m_parkOrbitContext;
     private AdminContext m_adminContext;
     private ListableBeanFactory m_beanFactory;
     private Collection<AbstractResLimitsConfig> m_resLimitsConfigs;
@@ -96,7 +93,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     private AbstractResLimitsConfig m_publisherLimitsConfig;
     private AbstractResLimitsConfig m_registrarLimitsConfig;
     private AbstractResLimitsConfig m_saaLimitsConfig;
-    private AbstractResLimitsConfig m_parkLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -112,7 +108,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         features.add(Registrar.FEATURE);
         features.add(SaaManager.FEATURE);
         features.add(SaaManager.FEATURE);
-        features.add(ParkOrbitContext.FEATURE);
         if (!request.applies(features)) {
             return;
         }
@@ -136,7 +131,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         m_publisherLimitsConfig.writeResourceLimits(w, m_mwi.getSettings());
         m_registrarLimitsConfig.writeResourceLimits(w, m_registrar.getSettings());
         m_saaLimitsConfig.writeResourceLimits(w, m_saaManager.getSettings());
-        m_parkLimitsConfig.writeResourceLimits(w, m_parkOrbitContext.getSettings());
         Collection<ResLimitPluginConfig> pluginFeatures = getPluginFeatures();
         AbstractResLimitsConfig resLimitsConfig = null;
         for (ResLimitPluginConfig pluginConfig : pluginFeatures) {
@@ -191,9 +185,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         setResLimitsValues(saaSettings, fdSoft, fdHard, coreEnabled);
         m_saaManager.saveSettings(saaSettings);
 
-        ParkSettings parkSettings = m_parkOrbitContext.getSettings();
-        setResLimitsValues(parkSettings, fdSoft, fdHard, coreEnabled);
-        m_parkOrbitContext.saveSettings(parkSettings);
         Collection<ResLimitPluginConfig> pluginFeatures = getPluginFeatures();
         AbstractResLimitsConfig resLimitsConfig = null;
         PersistableSettings pluginSettings = null;
@@ -259,11 +250,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     }
 
     @Required
-    public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
-        m_parkOrbitContext = parkOrbitContext;
-    }
-
-    @Required
     public void setProxyLimitsConfig(AbstractResLimitsConfig proxyLimitsConfig) {
         m_proxyLimitsConfig = proxyLimitsConfig;
     }
@@ -281,11 +267,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     @Required
     public void setSaaLimitsConfig(AbstractResLimitsConfig saaLimitsConfig) {
         m_saaLimitsConfig = saaLimitsConfig;
-    }
-
-    @Required
-    public void setParkLimitsConfig(AbstractResLimitsConfig parkLimitsConfig) {
-        m_parkLimitsConfig = parkLimitsConfig;
     }
 
     @Override

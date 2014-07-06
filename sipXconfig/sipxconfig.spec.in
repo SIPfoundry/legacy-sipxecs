@@ -113,6 +113,7 @@ Obsoletes: sipxhttpd
 # UC-1846 - sipXsbc is not supported, might be enabled later
 Obsoletes: sipxsbc
 Obsoletes: sipxsbc-config
+Obsoletes: sipxpark
 
 %if %{_vendor} == suse
 Requires: apache2-prefork
@@ -286,6 +287,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/unmanaged/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/unite/unitelite.conf
+%config(noreplace) %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/parkserver/music
 
 %dir %attr(755,sipx,sipx) %{_localstatedir}/sipxdata/cfdata
 %{_localstatedir}/sipxdata/cfdata/defaults/*.cfdat

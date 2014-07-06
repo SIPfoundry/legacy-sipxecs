@@ -9,22 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.site.park;
 
+import java.util.List;
 
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitConfiguration;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 
 public abstract class EditParkOrbit extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "park/EditParkOrbit";
 
     public abstract ParkOrbitContext getParkOrbitContext();
-
-    public abstract ParkOrbitConfiguration getParkConfig();
 
     public abstract Integer getParkOrbitId();
 
@@ -34,7 +36,17 @@ public abstract class EditParkOrbit extends PageWithCallback implements PageBegi
 
     public abstract void setParkOrbit(ParkOrbit parkOrbit);
 
+    public abstract List<Location> getParkServers();
+
+    public abstract void setParkServers(List<Location> servers);
+
+    @InjectObject("spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
+
     public void pageBeginRender(PageEvent event_) {
+        if (getParkServers() == null) {
+            setParkServers(getFeatureManager().getLocationsForEnabledFeature(ParkOrbitContext.FEATURE));
+        }
         ParkOrbit orbit = getParkOrbit();
         if (null != orbit) {
             return;
@@ -65,6 +77,9 @@ public abstract class EditParkOrbit extends PageWithCallback implements PageBegi
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
+        if (getParkOrbit().getLocation() == null) {
+            delegate.record(new ValidatorException(getMessages().getMessage("message.invalidLocation")));
+        }
         return !delegate.getHasErrors();
     }
 

@@ -17,13 +17,17 @@ package org.sipfoundry.sipxconfig.api.model;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
 
 @XmlRootElement(name = "Orbit")
 @XmlType(propOrder = {
-        "id", "name", "enabled", "extension", "description", "music"
+        "id", "name", "enabled", "extension", "description", "music", "server"
         })
+@JsonPropertyOrder({
+    "id", "name", "enabled", "extension", "description", "music", "server"
+    })
 public class CallParkBean {
     private int m_id;
     private String m_name;
@@ -31,6 +35,7 @@ public class CallParkBean {
     private String m_extension;
     private String m_description;
     private String m_music;
+    private String m_server;
 
     public int getId() {
         return m_id;
@@ -40,16 +45,16 @@ public class CallParkBean {
         m_id = id;
     }
 
-    public String getName() {
-        return m_name;
-    }
-
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
     }
 
     public boolean isEnabled() {
         return m_enabled;
+    }
+
+    public String getName() {
+        return m_name;
     }
 
     public void setName(String name) {
@@ -80,28 +85,35 @@ public class CallParkBean {
         m_music = music;
     }
 
+    public String getServer() {
+        return m_server;
+    }
+
+    public void setServer(String server) {
+        m_server = server;
+    }
+
     public static CallParkBean convertOrbit(ParkOrbit orbit) {
         if (orbit == null) {
             return null;
         }
-        try {
-            CallParkBean bean = new CallParkBean();
-            BeanUtils.copyProperties(bean, orbit);
-            return bean;
-        } catch (Exception ex) {
-            return null;
-        }
+        CallParkBean bean = new CallParkBean();
+        bean.setId(orbit.getId());
+        bean.setName(orbit.getName());
+        bean.setEnabled(orbit.isEnabled());
+        bean.setExtension(orbit.getExtension());
+        bean.setDescription(orbit.getDescription());
+        bean.setMusic(orbit.getMusic());
+        bean.setServer(orbit.getLocation().getFqdn());
+        return bean;
     }
 
-    public static boolean populateOrbit(CallParkBean bean, ParkOrbit orbit) {
-        try {
-            if (orbit != null && bean != null) {
-                BeanUtils.copyProperties(orbit, bean);
-                return true;
-            }
-            return false;
-        } catch (Exception ex) {
-            return false;
-        }
+    public static void populateOrbit(CallParkBean bean, ParkOrbit orbit, Location location) {
+        orbit.setName(bean.getName());
+        orbit.setEnabled(bean.isEnabled());
+        orbit.setExtension(bean.getExtension());
+        orbit.setDescription(bean.getDescription());
+        orbit.setMusic(bean.getMusic());
+        orbit.setLocation(location);
     }
 }

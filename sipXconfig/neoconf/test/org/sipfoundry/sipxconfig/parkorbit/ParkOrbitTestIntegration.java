@@ -13,17 +13,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 
 public class ParkOrbitTestIntegration extends IntegrationTestCase {
     private ParkOrbitContext m_parkOrbitContext;
+    private LocationsManager m_locationsManager;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
         super.onSetUpBeforeTransaction();
         clear();
+        sql("commserver/SeedLocations.sql");
     }
     
     protected void onSetUpInTransaction() throws Exception {
@@ -38,6 +41,7 @@ public class ParkOrbitTestIntegration extends IntegrationTestCase {
         assertEquals("sales", orbit.getName());
         assertEquals("501", orbit.getExtension());
         assertEquals("something.wav", orbit.getMusic());
+        assertEquals("primary.example.org", orbit.getLocation().getFqdn());
     }
 
     public void testGetParkOrbits() throws Exception {
@@ -49,13 +53,24 @@ public class ParkOrbitTestIntegration extends IntegrationTestCase {
         assertFalse(orbit1.getName().equals(orbit2.getName()));
     }
 
+    public void testGetParkOrbitsByServer() throws Exception {
+        Location primary = m_locationsManager.getPrimaryLocation();
+        Collection<ParkOrbit> orbits = m_parkOrbitContext.getParkOrbits(primary.getId());
+        assertEquals(2, orbits.size());
+        Location secondary = m_locationsManager.getLocationByFqdn("remote.example.org");
+        orbits = m_parkOrbitContext.getParkOrbits(secondary.getId());
+        assertEquals(0, orbits.size());
+    }
+
     public void testStoreParkOrbit() throws Exception {
+        Location primary = m_locationsManager.getPrimaryLocation();
         ParkOrbit orbit = new ParkOrbit();
         orbit.setName("kuku");
         orbit.setDescription("kukuLine");
         orbit.setExtension("202");
         orbit.setEnabled(true);
         orbit.setMusic("tango.wav");
+        orbit.setLocation(primary);
         m_parkOrbitContext.storeParkOrbit(orbit);
         // table will have 4 rows - 3 park orbits + 1 music on hold
         commit();
@@ -103,5 +118,9 @@ public class ParkOrbitTestIntegration extends IntegrationTestCase {
 
     public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
         m_parkOrbitContext = parkOrbitContext;
+    }
+
+    public void setLocationsManager(LocationsManager manager) {
+        m_locationsManager = manager;
     }
 }

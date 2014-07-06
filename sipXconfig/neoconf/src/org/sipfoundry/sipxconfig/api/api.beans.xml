@@ -87,6 +87,7 @@
         <property name="parkOrbitContext" ref="parkOrbitContext" />
         <property name="path" value="${sysdir.var}/parkserver/music"/>
         <property name="extensions" ref="audioExtensions"/>
+        <property name="locationsManager" ref="locationsManager"/>
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.MyBuddyApiImpl" id="imbotRestApi">
         <property name="imBot" ref="imBot" />

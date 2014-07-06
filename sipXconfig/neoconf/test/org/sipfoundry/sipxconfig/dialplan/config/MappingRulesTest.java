@@ -78,8 +78,6 @@ public class MappingRulesTest extends XMLTestCase {
         m_addressManager = createMock(AddressManager.class);
         m_addressManager.getSingleAddress(Rls.TCP_SIP, l);
         expectLastCall().andReturn(new Address(Rls.TCP_SIP, "192.168.1.5", 9906)).anyTimes();
-        m_addressManager.getSingleAddress(ParkOrbitContext.SIP_TCP_PORT, l);
-        expectLastCall().andReturn(new Address(ParkOrbitContext.SIP_TCP_PORT, "park.example.org", 100)).anyTimes();
         m_addressManager.getSingleAddress(PagingContext.SIP_TCP, l);
         expectLastCall().andReturn(new Address(PagingContext.SIP_TCP, "page.example.org", 101)).anyTimes();
         m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS, l);

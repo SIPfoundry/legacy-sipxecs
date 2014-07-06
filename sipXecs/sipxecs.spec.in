@@ -120,7 +120,6 @@ Requires: sipxmitel >= %version
 Requires: sipxnortel >= %version
 Requires: sipxopenfire >= %version
 Requires: sipxpage >= %version
-Requires: sipxpark >= %version
 Requires: sipxpolycom >= %version
 Requires: sipxprovision >= %version
 Requires: sipxproxy >= %version
