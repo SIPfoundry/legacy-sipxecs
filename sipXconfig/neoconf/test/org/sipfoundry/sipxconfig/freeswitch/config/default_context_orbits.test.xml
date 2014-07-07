@@ -10,7 +10,7 @@
       <action inline="true" application="set" data="slot_count=${fifo(count QPark12345)}"/>
       <action inline="true" application="set" data="slot_count=${slot_count:-9:2}"/>
     </condition>
-    <condition field="${slot_count}" expression="^\:0$" break="always">
+    <condition field="${slot_count}" expression="^\:0$|no" break="always">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
       <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}:120"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>

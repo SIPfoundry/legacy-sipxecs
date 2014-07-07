@@ -116,8 +116,15 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     }
 
     public String getUnparkExtension() {
+        return getUnparkExtension(true);
+    }
+
+    private String getUnparkExtension(boolean escape) {
         String callRetrieveCode = m_registrar.getSettings().getCallRetrieveCode();
-        return String.format("\\%s%s", callRetrieveCode, m_extension);
+        if (escape) {
+            return String.format("\\%s%s", callRetrieveCode, m_extension);
+        }
+        return String.format("%s%s", callRetrieveCode, m_extension);
     }
 
     @Override
@@ -156,7 +163,9 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
             String sipUriNoQuote = SipUri.format(m_extension, getHost(), fsAddres.getPort(), false);
             AliasMapping nameMapping = new AliasMapping(m_name, sipUriNoQuote, ALIAS_RELATION);
             AliasMapping lineMapping = new AliasMapping(m_extension, sipUri, ALIAS_RELATION);
-            AliasMapping unparkMapping = new AliasMapping(getUnparkExtension(), sipUri, ALIAS_UNPARK_RELATION);
+            String unparkExtension = getUnparkExtension(false);
+            String unparkSipUri = SipUri.format(unparkExtension, getHost(), fsAddres.getPort());
+            AliasMapping unparkMapping = new AliasMapping(unparkExtension, unparkSipUri, ALIAS_UNPARK_RELATION);
             mappings.addAll(Arrays.asList(nameMapping, lineMapping, unparkMapping));
         }
         return mappings;

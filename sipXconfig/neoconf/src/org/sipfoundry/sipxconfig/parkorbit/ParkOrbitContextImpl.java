@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -219,16 +218,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         List<ParkOrbit> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(PARK_ORBIT_BY_NAME,
                 VALUE, name);
         return (ParkOrbit) DataAccessUtils.singleResult(conferences);
-    }
-
-    @Override
-    public List<Replicable> getReplicables() {
-        if (m_featureManager.isFeatureEnabled(FEATURE)) {
-            List<Replicable> replicables = new ArrayList<Replicable>();
-            replicables.addAll(getParkOrbits());
-            return replicables;
-        }
-        return Collections.EMPTY_LIST;
     }
 
     @Override

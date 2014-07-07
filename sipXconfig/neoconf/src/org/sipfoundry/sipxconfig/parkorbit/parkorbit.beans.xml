@@ -22,4 +22,14 @@
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext" />
     <property name="target" ref="parkOrbitContextImpl"/>
   </bean>
+
+  <bean id="parkOrbitReplicationProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitReplicationProvider" />
+    <property name="target" ref="parkOrbitReplicationProviderImpl" />
+  </bean>
+
+  <bean id="parkOrbitReplicationProviderImpl" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitReplicationProviderImpl">
+    <property name="parkOrbitContext" ref="parkOrbitContextImpl"/>
+    <property name="featureManager" ref="featureManager"/>
+  </bean>
 </beans>
