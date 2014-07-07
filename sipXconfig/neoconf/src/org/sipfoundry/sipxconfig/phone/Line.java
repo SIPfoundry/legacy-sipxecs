@@ -9,22 +9,23 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import static org.sipfoundry.sipxconfig.common.SipUri.DEFAULT_SIP_PORT;
+import static org.sipfoundry.sipxconfig.common.SipUri.formatIgnoreDefaultPort;
+import static org.sipfoundry.sipxconfig.common.SipUri.parsePort;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
-
-import static org.sipfoundry.sipxconfig.common.SipUri.DEFAULT_SIP_PORT;
-import static org.sipfoundry.sipxconfig.common.SipUri.formatIgnoreDefaultPort;
-import static org.sipfoundry.sipxconfig.common.SipUri.parsePort;
 
 public class Line extends BeanWithGroups implements SystemAuditable {
     private static final String COMMA = ",";
@@ -35,7 +36,6 @@ public class Line extends BeanWithGroups implements SystemAuditable {
     private User m_user;
 
     private boolean m_initialized;
-
 
     private List<String> m_paths = new ArrayList<String>();
 
@@ -201,4 +201,13 @@ public class Line extends BeanWithGroups implements SystemAuditable {
     public ConfigChangeType getConfigChangeType() {
         return ConfigChangeType.LINE;
     }
+
+    public boolean isNotSpecialPhoneProvisionUserLine() {
+        boolean notProv = true;
+        if (getUser() != null && SpecialUserType.PHONE_PROVISION.getUserName().equals(getUser().getUserName())) {
+            notProv = false;
+        }
+        return notProv;
+    }
+
 }

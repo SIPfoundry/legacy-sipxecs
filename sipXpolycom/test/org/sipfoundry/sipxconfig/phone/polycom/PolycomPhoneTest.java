@@ -26,15 +26,20 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -50,6 +55,16 @@ public class PolycomPhoneTest extends TestCase {
 
     @Override
     protected void setUp() {
+        FeatureManager featureManagerMock = createMock(FeatureManager.class);
+        featureManagerMock.isFeatureEnabled(Mwi.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
+        featureManagerMock.isFeatureEnabled(MusicOnHoldManager.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+
         m_phone = new PolycomPhone();
         PolycomModel model = new PolycomModel();
         model.setDefaultVersion(PolycomModel.VER_3_1_X);
@@ -68,6 +83,8 @@ public class PolycomPhoneTest extends TestCase {
 
         VelocityProfileGenerator profileGenerator = TestHelper.getProfileGenerator(TestHelper.getEtcDir());
         m_phone.setProfileGenerator(profileGenerator);
+        m_phone.setFeatureManager(featureManagerMock);
+        EasyMock.replay(featureManagerMock);
     }
 
     // Firmware version 1.6 is no longer supported. For firmware version 2.0 and beyound,
@@ -129,7 +146,7 @@ public class PolycomPhoneTest extends TestCase {
         Setting settings = m_tester.getPrimaryLine().getSettings();
         Setting address = settings.getSetting("reg/server/1/address");
         assertEquals("sipfoundry.org", address.getValue());
-        
+
         Setting missedCallTracking = settings.getSetting("call/missedCallTracking/enabled");
         assertTrue((Boolean)missedCallTracking.getTypedValue());
     }

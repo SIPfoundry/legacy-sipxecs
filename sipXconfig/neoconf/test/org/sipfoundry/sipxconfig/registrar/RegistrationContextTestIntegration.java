@@ -29,11 +29,12 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
     private MongoTemplate m_nodeDb;
     private DomainManager m_mgr;
 
-    private Object[][] DATA = {
+    private final Object[][] DATA = {
         {
             "063b4c2f5e11bf66a232762a7cf9e73a", "2395", "sip:3000@example.org",
             "\"John Doe\"<sip:john.doe@example.org;LINEID=f57f2117d5997f8d03d8395732f463f3>", true,
-            "3000@example.org", 1299762967, 1299762667, "0004f22aa38a", "1", "3f404b64-fc8490c3-6b14ac9a@192.168.2.21"
+            "3000@example.org", 1299762967, 1299762667, "0004f22aa38a", "1",
+            "3f404b64-fc8490c3-6b14ac9a@192.168.2.21"
         },
         {
             "063b4c2f5e11bf66a232762a7cf9e73b", "2399", "sip:3001@example.org",
@@ -162,11 +163,12 @@ public class RegistrationContextTestIntegration extends ImdbTestCase {
                 "[ { \"_id\" : \"2\" , \"contact\" : \"\\\"John Doe\\\"<sip:jane.doe@example.org>\" , \"expirationTime\" : 1299762968 , \"uri\" : \"sip:3001@example.org\" , \"instrument\" : \"0004f2a9b633\" , \"expired\" : false , \"identity\" : \"3001@example.org\" , \"callId\" : \"3f404b64-fc8490c3-6b14ac9a@192.168.2.19\"}]",
                 list.toString());
     }
-    
+
     public void setNodeDb(MongoTemplate nodeDb) {
         m_nodeDb = nodeDb;
     }
 
+    @Override
     public void setDomainManager(DomainManager mgr) {
         m_mgr = mgr;
     }

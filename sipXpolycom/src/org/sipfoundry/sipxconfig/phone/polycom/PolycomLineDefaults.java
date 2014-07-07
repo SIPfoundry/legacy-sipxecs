@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -30,44 +32,51 @@ public class PolycomLineDefaults {
     @SettingEntry(path = "msg.mwi/subscribe")
     public String getMwiSubscribe() {
         String uri = null;
-        User u = m_line.getUser();
-        if (u != null) {
-            uri = u.getUserName();
+        if (isMwiEnabled()) {
+            User u = m_line.getUser();
+            if (u != null && m_line.isNotSpecialPhoneProvisionUserLine()) {
+                uri = u.getUserName();
+            }
         }
-
         return uri;
     }
 
     @SettingEntry(path = "msg.mwi/callBack")
     public String getCallBack() {
         String uri = null;
-        User u = m_line.getUser();
-        if (u != null) {
-            uri = m_defaults.getVoiceMail();
+        if (isMwiEnabled()) {
+            User u = m_line.getUser();
+            if (u != null && m_line.isNotSpecialPhoneProvisionUserLine()) {
+                uri = m_defaults.getVoiceMail();
+            }
         }
-
         return uri;
     }
 
     @SettingEntry(path = "msg.mwi/callBackMode")
     public String getCallBackMode() {
         String mode = "disabled";
-        User u = m_line.getUser();
-        if (u != null) {
-            mode = PolycomPhone.CONTACT_MODE;
+        if (isMwiEnabled()) {
+            User u = m_line.getUser();
+            if (u != null && m_line.isNotSpecialPhoneProvisionUserLine()) {
+                mode = PolycomPhone.CONTACT_MODE;
+            }
         }
-
         return mode;
     }
 
     @SettingEntry(path = "reg/musicOnHold.uri")
     public String getMusicOnHoldUri() {
-        String mohUri;
-        User u = m_line.getUser();
-        if (u != null) {
-            mohUri = u.getMusicOnHoldUri();
-        } else {
-            mohUri = m_defaults.getMusicOnHoldUri();
+        String mohUri = "";
+        if (isMohEnabled()) {
+            User u = m_line.getUser();
+            if (m_line.isNotSpecialPhoneProvisionUserLine()) {
+                if (u != null) {
+                    mohUri = u.getMusicOnHoldUri();
+                } else {
+                    mohUri = m_defaults.getMusicOnHoldUri();
+                }
+            }
         }
         return SipUri.stripSipPrefix(mohUri);
     }
@@ -144,6 +153,14 @@ public class PolycomLineDefaults {
     @SettingEntry(path = "reg/outboundProxy.address")
     public String getProxyServer() {
         return m_defaults.getDomainName();
+    }
+
+    private boolean isMwiEnabled() {
+        return m_line.getPhone().getFeatureManager().isFeatureEnabled(Mwi.FEATURE);
+    }
+
+    private boolean isMohEnabled() {
+        return m_line.getPhone().getFeatureManager().isFeatureEnabled(MusicOnHoldManager.FEATURE);
     }
 
 }

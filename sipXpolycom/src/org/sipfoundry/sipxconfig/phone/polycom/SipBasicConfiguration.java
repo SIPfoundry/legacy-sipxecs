@@ -57,7 +57,8 @@ public class SipBasicConfiguration extends ProfileContext {
         ArrayList<Setting> linesSettings = new ArrayList<Setting>(lineCount);
 
         for (Line line : lines) {
-            if (line.getUser() != null && !line.getUser().hasPermission(PermissionName.VOICEMAIL)) {
+            if (line.getUser() != null && line.getUser().getSettings() != null
+                    && !line.getUser().hasPermission(PermissionName.VOICEMAIL)) {
                 line.setSettingValue(MWI_SUBSCRIBE_SETTING, BLANK_STRING);
             }
             linesSettings.add(line.getSettings());

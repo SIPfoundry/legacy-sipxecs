@@ -88,6 +88,7 @@
     <property name="profileDir">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>
+    <property name="featureManager" ref="featureManager" />
   </bean>
 
   <bean id="abstractPhoneModel" abstract="true" class="org.sipfoundry.sipxconfig.phone.PhoneModel">

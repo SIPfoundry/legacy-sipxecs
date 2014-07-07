@@ -56,4 +56,5 @@ public interface RegistrationContext {
 
     @Deprecated
     DBCursor getMongoDbCursorRegistrationsByIp(String ip);
+
 }

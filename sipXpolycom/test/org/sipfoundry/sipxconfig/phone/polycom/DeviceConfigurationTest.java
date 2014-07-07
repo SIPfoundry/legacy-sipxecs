@@ -9,15 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import static org.easymock.EasyMock.createMock;
+
 import java.io.InputStream;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
-import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.test.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -36,7 +40,11 @@ public class DeviceConfigurationTest extends TestCase {
         phone.setModel(model);
         PhoneTestDriver.supplyTestData(phone);
         phone.setDefaults(PhoneTestDriver.getDeviceDefaults());
-
+        FeatureManager featureManagerMock = createMock(FeatureManager.class);
+        featureManagerMock.isFeatureEnabled(Rls.FEATURE);
+        EasyMock.expectLastCall().andReturn(true).anyTimes();
+        phone.setFeatureManager(featureManagerMock);
+        EasyMock.replay(featureManagerMock);
         m_location = TestHelper.setVelocityProfileGenerator(phone, TestHelper.getEtcDir());
         m_pg = phone.getProfileGenerator();
     }

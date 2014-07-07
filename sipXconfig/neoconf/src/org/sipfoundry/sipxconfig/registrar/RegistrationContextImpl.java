@@ -137,7 +137,7 @@ public class RegistrationContextImpl implements RegistrationContext {
         return getRegistrarCollection().find(getIpQuery(ip));
     }
 
-    private List<RegistrationItem> getItems(DBCursor cursor) {
+    private static List<RegistrationItem> getItems(DBCursor cursor) {
         List<RegistrationItem> items = new ArrayList<RegistrationItem>(cursor.size());
         while (cursor.hasNext()) {
             DBObject registration = cursor.next();

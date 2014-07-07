@@ -16,7 +16,7 @@ public class VideoConfigurationTest extends PolycomXmlTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        setUp404150Tests();
+        setUp404150TestsMwiMohRlsEnabled();
     }
 
     public void testGenerateProfile41() throws Exception {

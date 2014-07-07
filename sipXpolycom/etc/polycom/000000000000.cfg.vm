@@ -109,7 +109,8 @@
    MISC_FILES=""
    OVERRIDES_DIRECTORY="${optional_root_url_path}"
    CONTACTS_DIRECTORY="${optional_root_url_path}"
-   LOG_FILE_DIRECTORY="">
+   LOG_FILE_DIRECTORY="http://0.0.0.0"
+   CALL_LISTS_DIRECTORY="http://0.0.0.0">
 
 #ModelSpecificNode( "SPIP301", "3.1.X" )
 #ModelSpecificNode( "SPIP600", "3.1.X" )

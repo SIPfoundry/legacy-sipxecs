@@ -21,11 +21,13 @@ public class PolycomPhoneDefaults {
     private final DeviceDefaults m_defaults;
     private final SpeedDial m_speedDial;
     private final String m_model;
+    private final boolean m_presenceEnabled;
 
-    PolycomPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial, String model) {
+    PolycomPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial, String model, boolean presenceEnabled) {
         m_defaults = defaults;
         m_speedDial = speedDial;
         m_model = model;
+        m_presenceEnabled = presenceEnabled;
     }
 
     private DeviceTimeZone getZone() {
@@ -41,7 +43,6 @@ public class PolycomPhoneDefaults {
     public String getNtpServer() {
         return m_defaults.getNtpServer();
     }
-
 
     // The attributes that control Daylight Savings Time (DST) are explained here:
     // http://wiki.sipfoundry.org/display/xecsuser/Polycom#
@@ -120,7 +121,7 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(path = "attendant/uri")
     public String getAttendantUri() {
-        if (m_speedDial != null && m_speedDial.isBlf()) {
+        if (m_presenceEnabled && m_speedDial != null && m_speedDial.isBlf()) {
             return SipUri.format(m_speedDial.getResourceListId(true), m_defaults.getDomainName(), false);
         }
         return null;
@@ -128,7 +129,7 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(path = "attendant/reg")
     public String getAttendantReg() {
-        if (m_speedDial != null && m_speedDial.isBlf()) {
+        if (m_presenceEnabled && m_speedDial != null && m_speedDial.isBlf()) {
             return "1";
         }
         return null;
@@ -154,4 +155,5 @@ public class PolycomPhoneDefaults {
         }
         return null;
     }
+
 }
