@@ -125,4 +125,9 @@ public class DefaultContextConfiguration extends AbstractFreeswitchConfiguration
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
     }
+
+    @Required
+    public void setParkOrbitContext(ParkOrbitContext context) {
+        m_parkOrbitContext = context;
+    }
 }
