@@ -888,7 +888,7 @@ void SipSrvLookup::raiseDnsQueryAlarm(const char* queryName,
   }
 
   Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                "ALARM_DNS_QUERY_FAILED "
+                "ALARM_DNS_LOOKUP_FAILED "
                 "DNS query failed for '%s'. No valid '%s' records found",
                 queryName,
                 getRecordTypeStr(queryType));
