@@ -47,7 +47,7 @@ public class ProxyRouter extends DefaultRouter {
         }
 
         LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s ", uri.toString()));
-        Hop h = finder.findServer(uri, "org.sipfoundry.commons.siprouter.ProxyRouter.java; ");
+        Hop h = finder.findServer(uri);
         if (h == null) {
             LOG.debug(String.format("ProxyRouter::getNextHop could not find next hop for %s", uri.toString()));
             return super.getNextHop(request);

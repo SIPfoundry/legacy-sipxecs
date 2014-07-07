@@ -350,7 +350,7 @@ public class ItspAccountInfo  {
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundDomain);
             sipUri.setTransportParam(this.outboundTransport);
-            Hop hop = new FindSipServer(logger).findServer(sipUri, "sipXbridge");
+            Hop hop = new FindSipServer(logger).findServer(sipUri);
 
             if ( this.outboundProxyPort != 5060 ) {
               this.setOutboundProxyPort(hop.getPort());

@@ -25,3 +25,17 @@ action=shellcmd @SIPX_BINDIR@/sipxtrap <%= a %> %s
 <% 
   } 
 %>
+
+<%
+  data.each {|a, v|
+    next unless a =~ /^DNS_LOOKUP_FAILED/
+    next unless v[:groupName] != 'disabled'
+%>
+type=Single
+ptype=RegExp
+pattern=(.*):(sipx.*):"*ALARM_<%= a %> (.*)$
+desc=$2: $3
+action=shellcmd @SIPX_BINDIR@/sipxtrap <%= a %> %s
+<%
+  }
+%>

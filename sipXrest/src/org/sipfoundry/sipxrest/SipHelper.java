@@ -340,7 +340,7 @@ public class SipHelper {
                     Collections.singletonList(viaHeader), maxForwards);
 
             // Set loose routing to the target.
-            Hop hop = new FindSipServer(logger).findServer(requestURI, "sipXrest");
+            Hop hop = new FindSipServer(logger).findServer(requestURI);
             SipURI sipUri = getStackBean().getAddressFactory().createSipURI(null, hop.getHost());
             sipUri.setPort(hop.getPort());
             sipUri.setLrParam();

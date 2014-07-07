@@ -40,7 +40,7 @@ import org.xbill.DNS.Type;
  *
  */
 public class FindSipServer {
-    private static final String ALARM_DNS_LOOKUP = "ALARM_DNS_LOOKUP_FAILED Dns lookup failed for: %s. Details: time: %s; error: %s; additional details: %s";
+    private static final String ALARM_DNS_LOOKUP = "ALARM_DNS_LOOKUP_FAILED Dns lookup failed. %s.";
 	/**
 	 * Helper class to hold name/transport pair
 	 */
@@ -72,8 +72,8 @@ public class FindSipServer {
 			InetAddress addr = Address.getByName(name);
 			return addr;
 		} catch (UnknownHostException e) {
-			LOG.debug("FindSipServer::getByName Cannot resolve A record for "
-					+ name);
+			LOG.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer::getByName Cannot resolve A record for "
+					+ name));
 			return null;
 		}
 	}
@@ -91,8 +91,8 @@ public class FindSipServer {
 			records = new Lookup(name, Type.NAPTR).run();
 		} catch (TextParseException e) {
 			LOG
-					.warn("FindSipServer::getNaptrRecords Error parsing NAPTR record for "
-							+ name);
+					.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer::getNaptrRecords Error parsing NAPTR record for "
+							+ name));
 			return null;
 		}
 		return records;
@@ -111,8 +111,8 @@ public class FindSipServer {
 			records = new Lookup(name, Type.SRV).run();
 		} catch (TextParseException e) {
 			LOG
-					.warn("FindSipServer::getSrvRecords Error parsing SRV record for "
-							+ name);
+					.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer::getSrvRecords Error parsing SRV record for "
+							+ name));
 			return null;
 		}
 		return records;
@@ -209,7 +209,7 @@ public class FindSipServer {
 	 * @return The Hop with IP addr, port and transport. Null if it cannot be
 	 *         determined.
 	 */
-	public Hop findServer(SipURI uri, String sipXservice) {
+	public Hop findServer(SipURI uri) {
 		Vector<tupple> srvs = new Vector<tupple>();
 		InetAddress addr = null;
 		String transport = null;
@@ -371,8 +371,6 @@ public class FindSipServer {
 							+ uri.getHost());
 			addr = getByName(uri.getHost());
 			if (addr == null) {
-			    LOG.error(String.format(ALARM_DNS_LOOKUP, uri.toString(), sipXservice, new Date(),
-	                    "FindServer:: Cannot find SRV or A records trying to lookup " + uri.getHost()));
 				return null;
 			}
 
@@ -567,8 +565,6 @@ public class FindSipServer {
 		LOG.debug("FindSipServer::findServer Looking up A " + uri.getHost());
 		addr = getByName(uri.getHost());
 		if (addr == null) {
-		    LOG.error(String.format(ALARM_DNS_LOOKUP, uri.toString(), sipXservice, new Date(),
-                    "FindSipServer:: Cannot find SRV or A records trying to lookup " + uri.getHost()));
 			return null;
 		}
 
