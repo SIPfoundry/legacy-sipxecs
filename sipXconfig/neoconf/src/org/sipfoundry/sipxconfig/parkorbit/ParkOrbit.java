@@ -157,17 +157,20 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     @Override
     public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
+        int port = 15060;
         if (null != m_addressManager) {
+            // m_addressManager should never be null
             Address fsAddres = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-            String sipUri = SipUri.format(m_extension, getHost(), fsAddres.getPort());
-            String sipUriNoQuote = SipUri.format(m_extension, getHost(), fsAddres.getPort(), false);
-            AliasMapping nameMapping = new AliasMapping(m_name, sipUriNoQuote, ALIAS_RELATION);
-            AliasMapping lineMapping = new AliasMapping(m_extension, sipUri, ALIAS_RELATION);
-            String unparkExtension = getUnparkExtension(false);
-            String unparkSipUri = SipUri.format(unparkExtension, getHost(), fsAddres.getPort());
-            AliasMapping unparkMapping = new AliasMapping(unparkExtension, unparkSipUri, ALIAS_UNPARK_RELATION);
-            mappings.addAll(Arrays.asList(nameMapping, lineMapping, unparkMapping));
+            port = fsAddres.getPort();
         }
+        String sipUri = SipUri.format(m_extension, getHost(), port);
+        String sipUriNoQuote = SipUri.format(m_extension, getHost(), port, false);
+        AliasMapping nameMapping = new AliasMapping(m_name, sipUriNoQuote, ALIAS_RELATION);
+        AliasMapping lineMapping = new AliasMapping(m_extension, sipUri, ALIAS_RELATION);
+        String unparkExtension = getUnparkExtension(false);
+        String unparkSipUri = SipUri.format(unparkExtension, getHost(), port);
+        AliasMapping unparkMapping = new AliasMapping(unparkExtension, unparkSipUri, ALIAS_UNPARK_RELATION);
+        mappings.addAll(Arrays.asList(nameMapping, lineMapping, unparkMapping));
         return mappings;
     }
 
