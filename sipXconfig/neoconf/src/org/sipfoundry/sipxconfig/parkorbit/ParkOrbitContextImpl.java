@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -38,6 +40,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -57,6 +60,8 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     private FeatureManager m_featureManager;
     private JdbcTemplate m_jdbcTemplate;
     private ReplicationManager m_replicationManager;
+    private AddressManager m_addressManager;
+    private Registrar m_registrar;
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
         // Check for duplicate names and extensions before saving the park orbit
@@ -236,8 +241,19 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Override
     public List<Replicable> getReplicables() {
         if (m_featureManager.isFeatureEnabled(ParkOrbitContext.FEATURE)) {
+            // workaround to fix send profiles issue, registrar and address manager are not
+            // properly injected in ParkOrbit objects
+            // TODO redo this part
+            Address fsAddres = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
+            int fsPort = fsAddres.getPort();
+            String retrieveCode = m_registrar.getSettings().getCallRetrieveCode();
             List<Replicable> replicables = new ArrayList<Replicable>();
-            replicables.addAll(getParkOrbits());
+            Collection<ParkOrbit> orbits = getParkOrbits();
+            for (ParkOrbit orbit : orbits) {
+                orbit.setFsPort(fsPort);
+                orbit.setCallRetrieveCode(retrieveCode);
+            }
+            replicables.addAll(orbits);
             return replicables;
         }
         return Collections.EMPTY_LIST;
@@ -256,6 +272,14 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     @Required
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;
+    }
+
+    public void setRegistrar(Registrar registrar) {
+        m_registrar = registrar;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 
     @Override
