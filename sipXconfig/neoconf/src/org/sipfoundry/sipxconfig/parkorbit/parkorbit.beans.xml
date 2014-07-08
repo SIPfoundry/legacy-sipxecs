@@ -10,26 +10,16 @@
     <property name="registrar" ref="registrar"/>
   </bean>
 
+  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext" />
+    <property name="target" ref="parkOrbitContextImpl"/>
+  </bean>
+
   <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContextImpl" parent="abstractDaoImpl">
     <property name="aliasManager" ref="aliasManager" />
     <property name="settingDao" ref="settingDao"/>
     <property name="featureManager" ref="featureManager"/>
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>
     <property name="replicationManager" ref="replicationManagerImpl" />
-  </bean>
-
-  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext" />
-    <property name="target" ref="parkOrbitContextImpl"/>
-  </bean>
-
-  <bean id="parkOrbitReplicationProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitReplicationProvider" />
-    <property name="target" ref="parkOrbitReplicationProviderImpl" />
-  </bean>
-
-  <bean id="parkOrbitReplicationProviderImpl" class="org.sipfoundry.sipxconfig.parkorbit.ParkOrbitReplicationProviderImpl">
-    <property name="parkOrbitContext" ref="parkOrbitContextImpl"/>
-    <property name="featureManager" ref="featureManager"/>
   </bean>
 </beans>

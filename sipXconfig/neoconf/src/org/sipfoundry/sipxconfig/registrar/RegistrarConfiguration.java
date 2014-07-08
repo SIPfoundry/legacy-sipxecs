@@ -121,7 +121,6 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         file.write("SIP_REDIRECT_AUTHORITY_LEVEL.998-TIMEOFDAY", WEIGHT_100);
         file.write("SIP_REDIRECT_AUTHORITY_LEVEL.999-AUTHROUTER", WEIGHT_100);
 
-        file.write("SIP_REDIRECT.100-PICKUP.ORBIT_FILENAME", "$(sipx.SIPX_CONFDIR)/orbits.xml");
         file.write("SIP_REDIRECT.130-MAPPING.MAPPING_RULES_FILENAME", "$(sipx.SIPX_CONFDIR)/mappingrules.xml");
         file.write("SIP_REDIRECT.140-FALLBACK.MAPPING_RULES_FILENAME", "$(sipx.SIPX_CONFDIR)/fallbackrules.xml");
         file.write("SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM", "$(sipx.SIPX_LIBDIR)/libRedirectorUserParam.so");

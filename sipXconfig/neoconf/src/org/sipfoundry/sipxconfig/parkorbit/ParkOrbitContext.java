@@ -12,9 +12,10 @@ package org.sipfoundry.sipxconfig.parkorbit;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public interface ParkOrbitContext extends AliasOwner {
+public interface ParkOrbitContext extends AliasOwner, ReplicableProvider {
     public static final String PARK_ORBIT_GROUP_ID = "park_orbit";
     public static final String CONTEXT_BEAN_NAME = "parkOrbitContext";
     public static LocationFeature FEATURE = new LocationFeature("park");
