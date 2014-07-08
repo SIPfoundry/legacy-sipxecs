@@ -21,7 +21,5 @@
     <property name="featureManager" ref="featureManager"/>
     <property name="jdbcTemplate" ref="configJdbcTemplate"/>
     <property name="replicationManager" ref="replicationManagerImpl" />
-    <property name="addressManager" ref="addressManager"/>
-    <property name="registrar" ref="registrar"/>
   </bean>
 </beans>

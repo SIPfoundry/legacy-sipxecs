@@ -46,8 +46,6 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     private AddressManager m_addressManager;
     private Location m_location;
     private Registrar m_registrar;
-    private String m_callRetrieveCode;
-    private int m_fsPort;
 
     public String getDescription() {
         return m_description;
@@ -117,26 +115,16 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
         m_location = location;
     }
 
-    public void setCallRetrieveCode(String code) {
-        m_callRetrieveCode = code;
-    }
-
-    public void setFsPort(int port) {
-        m_fsPort = port;
-    }
-
     public String getUnparkExtension() {
         return getUnparkExtension(true);
     }
 
     private String getUnparkExtension(boolean escape) {
-        if (null != m_registrar) {
-            m_callRetrieveCode = m_registrar.getSettings().getCallRetrieveCode();
-        }
+        String callRetrieveCode = m_registrar.getSettings().getCallRetrieveCode();
         if (escape) {
-            return String.format("\\%s%s", m_callRetrieveCode, m_extension);
+            return String.format("\\%s%s", callRetrieveCode, m_extension);
         }
-        return String.format("%s%s", m_callRetrieveCode, m_extension);
+        return String.format("%s%s", callRetrieveCode, m_extension);
     }
 
     @Override
@@ -169,16 +157,18 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     @Override
     public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
+        int port = 15060;
         if (null != m_addressManager) {
+            // m_addressManager should never be null
             Address fsAddres = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-            m_fsPort = fsAddres.getPort();
+            port = fsAddres.getPort();
         }
-        String sipUri = SipUri.format(m_extension, getHost(), m_fsPort);
-        String sipUriNoQuote = SipUri.format(m_extension, getHost(), m_fsPort, false);
+        String sipUri = SipUri.format(m_extension, getHost(), port);
+        String sipUriNoQuote = SipUri.format(m_extension, getHost(), port, false);
         AliasMapping nameMapping = new AliasMapping(m_name, sipUriNoQuote, ALIAS_RELATION);
         AliasMapping lineMapping = new AliasMapping(m_extension, sipUri, ALIAS_RELATION);
         String unparkExtension = getUnparkExtension(false);
-        String unparkSipUri = SipUri.format(unparkExtension, getHost(), m_fsPort);
+        String unparkSipUri = SipUri.format(unparkExtension, getHost(), port);
         AliasMapping unparkMapping = new AliasMapping(unparkExtension, unparkSipUri, ALIAS_UNPARK_RELATION);
         mappings.addAll(Arrays.asList(nameMapping, lineMapping, unparkMapping));
         return mappings;
