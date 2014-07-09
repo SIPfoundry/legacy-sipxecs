@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response.Status;
 import org.sipfoundry.sipxconfig.api.PhoneGroupApi;
 import org.sipfoundry.sipxconfig.api.model.GroupBean;
 import org.sipfoundry.sipxconfig.api.model.GroupList;
-import org.sipfoundry.sipxconfig.api.model.PhoneBean.ModelList;
+import org.sipfoundry.sipxconfig.api.model.ModelBean.ModelList;
 import org.sipfoundry.sipxconfig.api.model.SettingsList;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.Phone;

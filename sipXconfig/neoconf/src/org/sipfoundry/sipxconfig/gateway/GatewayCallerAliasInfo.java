@@ -9,9 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.sipxconfig.common.User;
 
+@XmlRootElement(name = "CallerAliasInfo")
+@XmlType(propOrder = {
+        "defaultCallerAlias", "anonymous", "ignoreUserInfo", "transformUserExtension", "addPrefix",
+        "keepDigits", "displayName", "urlParameters"
+        })
+@JsonPropertyOrder({
+        "defaultCallerAlias", "anonymous", "ignoreUserInfo", "transformUserExtension", "addPrefix",
+        "keepDigits", "displayName", "urlParameters"
+        })
 public class GatewayCallerAliasInfo implements Cloneable {
     private String m_defaultCallerAlias;
 

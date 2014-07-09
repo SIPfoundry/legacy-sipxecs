@@ -15,7 +15,6 @@
 package org.sipfoundry.sipxconfig.api.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,11 +24,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
-import org.sipfoundry.sipxconfig.device.DeviceVersion;
+import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 @XmlRootElement(name = "Phone")
 @XmlType(propOrder = {
@@ -109,7 +107,7 @@ public class PhoneBean {
     }
 
     public static PhoneBean convertPhone(Phone phone) {
-        PhoneModel phoneModel = phone.getModel();
+        DeviceDescriptor phoneModel = phone.getModel();
         PhoneBean bean = new PhoneBean();
         bean.setId(phone.getId());
         bean.setSerialNo(phone.getSerialNumber());
@@ -125,79 +123,6 @@ public class PhoneBean {
 
     public static Phone convertToPhone() {
         return null;
-    }
-
-    @XmlType(propOrder = {
-            "modelId", "label", "vendor", "versions"
-            })
-    @JsonPropertyOrder({
-            "modelId", "label", "vendor", "versions"
-            })
-    public static class ModelBean {
-        private String m_modelId;
-        private String m_label;
-        private String m_vendor;
-        private List<String> m_versions;
-
-        public void setModelId(String model) {
-            m_modelId = model;
-        }
-
-        public String getModelId() {
-            return m_modelId;
-        }
-
-        public void setLabel(String label) {
-            m_label = label;
-        }
-
-        public String getLabel() {
-            return m_label;
-        }
-
-        public void setVendor(String vendor) {
-            m_vendor = vendor;
-        }
-
-        public String getVendor() {
-            return m_vendor;
-        }
-
-        public void setVersions(List<String> versions) {
-            m_versions = versions;
-        }
-
-        @XmlElementWrapper(name = "Versions")
-        @XmlElement(name = "Version")
-        public List<String> getVersions() {
-            return m_versions;
-        }
-
-        public static ModelBean convertModel(PhoneModel model) {
-            ModelBean modelBean = new ModelBean();
-            modelBean.setLabel(model.getLabel());
-            modelBean.setModelId(model.getModelId());
-            modelBean.setVendor(model.getVendor());
-            List<String> versions = new ArrayList<String>();
-            for (DeviceVersion deviceVersion : model.getVersions()) {
-                versions.add(deviceVersion.getName());
-            }
-            if (versions.size() > 0) {
-                modelBean.setVersions(versions);
-            }
-            return modelBean;
-        }
-
-        public static List<ModelBean> buildModelList(Collection<PhoneModel> phoneModels) {
-            List<ModelBean> models = new LinkedList<ModelBean>();
-            for (PhoneModel model : phoneModels) {
-                models.add(convertModel(model));
-            }
-            if (models.size() > 0) {
-                return models;
-            }
-            return null;
-        }
     }
 
     @XmlRootElement(name = "Line")
@@ -351,30 +276,6 @@ public class PhoneBean {
         public static LineList convertLineList(List<Line> lines) {
             LineList list = new LineList();
             list.setLines(LineBean.buildLineList(lines));
-            return list;
-        }
-    }
-
-    @XmlRootElement(name = "Models")
-    public static class ModelList {
-
-        private List<ModelBean> m_models;
-
-        public void setModels(List<ModelBean> models) {
-            m_models = models;
-        }
-
-        @XmlElement(name = "Model")
-        public List<ModelBean> getModels() {
-            if (m_models == null) {
-                m_models = new ArrayList<ModelBean>();
-            }
-            return m_models;
-        }
-
-        public static ModelList convertModelList(Collection<PhoneModel> models) {
-            ModelList list = new ModelList();
-            list.setModels(ModelBean.buildModelList(models));
             return list;
         }
     }

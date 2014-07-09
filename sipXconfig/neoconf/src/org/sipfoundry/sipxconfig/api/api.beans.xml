@@ -48,6 +48,7 @@
         <ref bean="mwiRestApi"/>
         <ref bean="dnsRestApi"/>
         <ref bean="mohRestApi"/>
+        <ref bean="gatewayRestApi"/>
     </util:list>
 
     <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneApiImpl" id="phoneRestApi">
@@ -126,5 +127,10 @@
         <property name="coreContext" ref="coreContext"/>
         <property name="path" value="${sysdir.var}/sipxpage/music"/>
         <property name="extensions" ref="audioExtensions"/>
+    </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.GatewayApiImpl" id="gatewayRestApi">
+        <property name="gatewayContext" ref="gatewayContext"/>
+        <property name="gatewayModelSource" ref="gatewayModelSource" />
+        <property name="branchManager" ref="branchManager" />
     </bean>
 </beans>

@@ -10,8 +10,11 @@ package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.Serializable;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
+@XmlRootElement(name = "Address")
 public class Address extends BeanWithId implements Serializable {
 
     private String m_street;
