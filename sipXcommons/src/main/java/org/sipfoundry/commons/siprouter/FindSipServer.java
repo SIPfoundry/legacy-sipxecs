@@ -11,7 +11,6 @@ package org.sipfoundry.commons.siprouter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Vector;
@@ -395,7 +394,7 @@ public class FindSipServer {
 	 * @param uri
 	 * @return
 	 */
-	public  Collection<Hop> findSipServers(SipURI uri, String sipXservice) {
+	public  Collection<Hop> findSipServers(SipURI uri) {
 		Vector<tupple> srvs = new Vector<tupple>();
 		InetAddress addr = null;
 		String transport = null;
@@ -585,10 +584,10 @@ public class FindSipServer {
      * Get the proxy addresses.
      */
 
-    public PriorityQueue<Hop> getSipxProxyAddresses(SipURI proxyUri, String service)
+    public PriorityQueue<Hop> getSipxProxyAddresses(SipURI proxyUri)
             throws SipRouterException {
         try {
-            Collection<Hop> hops = this.findSipServers(proxyUri, service);
+            Collection<Hop> hops = this.findSipServers(proxyUri);
             PriorityQueue<Hop> proxyAddressTable = new PriorityQueue<Hop>();
             proxyAddressTable.addAll(hops);
             LOG.debug("proxy address table = " + proxyAddressTable);

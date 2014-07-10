@@ -34,7 +34,7 @@ public class LocalOnlyFilter extends Filter {
             SipURI sipUri = RestServer.getAddressFactory().createSipURI(null, proxyDomain);
 
             logger.debug("Authentication request " + remoteAddr);
-            Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri, "sipXrest");
+            Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri);
 
             for (Hop hop : hops) {
                 if (InetAddress.getByName(hop.getHost()).getHostAddress().equals(remoteAddr)) {

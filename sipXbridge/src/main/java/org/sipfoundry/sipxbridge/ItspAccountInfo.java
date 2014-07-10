@@ -606,7 +606,7 @@ public class ItspAccountInfo  {
             if ( inBoundProxyPort != 5060) {
                 sipUri.setPort(inBoundProxyPort);
             }
-            Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri, "sipXbridge");
+            Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri);
             return hops;
         } catch ( Exception ex) {
             return null;
@@ -812,7 +812,7 @@ public class ItspAccountInfo  {
                 if ( this.outboundProxyPort != 5060 ) {
                     sipUri.setPort(this.outboundProxyPort);
                 }
-                return new FindSipServer(logger).findSipServers(sipUri, "sipXbridge");
+                return new FindSipServer(logger).findSipServers(sipUri);
             }
         } catch (Exception ex) {
             throw new SipXbridgeException(ex);

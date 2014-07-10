@@ -435,7 +435,7 @@ public class Gateway {
             FindSipServer serverFinder = new FindSipServer(logger);
             SipURI proxyUri = getProxyURI();
 
-            Collection<Hop> hops = serverFinder.findSipServers(proxyUri, "sipXbridge");
+            Collection<Hop> hops = serverFinder.findSipServers(proxyUri);
             PriorityQueue<Hop> proxyAddressTable = new PriorityQueue<Hop>();
             proxyAddressTable.addAll(hops);
             if (logger.isDebugEnabled()) {

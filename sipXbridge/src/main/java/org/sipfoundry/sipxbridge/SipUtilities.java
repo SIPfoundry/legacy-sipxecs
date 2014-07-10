@@ -567,7 +567,7 @@ class SipUtilities {
 				registrarUri.setPort(itspAccount.getInboundProxyPort());
 			}
 			Collection<Hop> hops = new FindSipServer(logger)
-					.findSipServers(registrarUri, "sipXbridge");
+					.findSipServers(registrarUri);
 
 			if (hops == null || hops.isEmpty()) {
 				throw new SipException("No route to registrar found");

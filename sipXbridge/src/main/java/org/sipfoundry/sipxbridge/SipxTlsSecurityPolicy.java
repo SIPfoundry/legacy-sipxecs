@@ -34,6 +34,7 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
      * @param transaction -- the transaction context for the connection
      * @throws SecurityException -- if the connection should be rejected
      */
+    @Override
     public void enforceTlsPolicy(ClientTransactionExt transaction) throws SecurityException
     {
        // accept only certificates that match the intended destination
@@ -71,7 +72,7 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
             OUTERMOST: for (String identity : certIdentities) {
                 try {
                     Collection<Hop> hops = new FindSipServer(logger).findSipServers(
-                            ProtocolObjects.addressFactory.createSipURI("", identity), "sipXbridge");
+                            ProtocolObjects.addressFactory.createSipURI("", identity));
                     Hop hop;
                     for (Iterator<Hop> it = hops.iterator(); it.hasNext();) {
                         hop = it.next();
