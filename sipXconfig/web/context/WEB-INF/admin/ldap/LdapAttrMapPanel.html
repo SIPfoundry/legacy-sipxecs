@@ -27,7 +27,16 @@
     	<input jwcid="authAccountName@PropertySelection" id="user: authAccountName", value="ognl:attrMap.attribute['userProfile.authAccountName']"
     		model="ognl:attributesOptionalSelectionModel"
     		displayName="message:label.authAccountName"/>
-    </tr>     
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="employeeId"
+    	for="user:employeeId"
+        field="component:employeeId"
+        label="message:label.employeeId"
+        description="message:description.employeeId">
+    	<input jwcid="employeeId@PropertySelection" id="user:employeeId", value="ognl:attrMap.attribute['userProfile.employeeId']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.employeeId"/>
+    </tr>      
     <tr jwcid="firstNamePanel">
       <input jwcid="firstName" />
     </tr>

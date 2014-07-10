@@ -21,7 +21,15 @@
           <td jwcid="authAccountName@TextField"
             value="ognl:user.userProfile.authAccountName"
             displayName="message:label.authAccountName" disabled="true"/>
-		</tr>        
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="employeeId"
+          field="component:employeeId"
+          label="message:label.employeeId">
+          <td jwcid="employeeId@TextField"
+            value="ognl:user.userProfile.employeeId"
+            displayName="message:label.employeeId" disabled="true"/>
+		</tr> 		   
         <tr jwcid="lastNamePanel" for="user:lastName">
           <input jwcid="lastName" id="user:lastName" type="text" />
         </tr>
