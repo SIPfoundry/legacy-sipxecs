@@ -833,6 +833,38 @@
     </group>
     <group name="sip">
         <label>SIP</label>
+	<setting name="P52">
+		<label>NAT Traversal</label>
+		<type>
+			<enum>
+				<option>
+					<label>No</label>
+					<value>0</value>
+				</option>
+				<option>
+					<label>STUN</label>
+					<value>1</value>
+				</option>
+				<option>
+					<label>keep alive</label>
+					<value>2</value>
+				</option>
+				<option>
+					<label>UPnP</label>
+					<value>3</value>
+				</option>
+				<option>
+					<label>Auto</label>
+					<value>4</value>
+				</option>
+				<option>
+					<label>VPN</label>
+					<value>5</value>
+				</option>
+			</enum>
+		</type>
+		<value>0</value>
+	</setting>
         <setting name="P76">
             <label>STUN server</label>
             <type>
@@ -1185,26 +1217,6 @@
 			</type>
 			<value>0</value>
 			<description>Check only if proxy supports 484 response.</description>
-		</setting>
-		<setting name="P52">
-			<label>NAT Traversal</label>
-                        <type>
-                                <enum>
-                                        <option>
-                                                <label>No</label>
-                                                <value>0</value>
-                                        </option>
-                                        <option>
-                                                <label>No but send keep-alive</label>
-                                                <value>2</value>
-                                        </option>
-                                        <option>
-                                                <label>Yes</label>
-                                                <value>1</value>
-                                        </option>
-                                </enum>
-                        </type>
-			<value>0</value>
 		</setting>
 		<setting name="P65">
 			<label>Send Anonymous</label>
