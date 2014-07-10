@@ -169,6 +169,9 @@ public interface MongoConstants {
     //hoteling
     static final String HOTELING = "htl";
 
+    // shared user AOR, empty in case not an shared user
+    static final String SHARED = "shared";
+
     //phones
     static final String SERIAL_NUMBER = "mac";
 }

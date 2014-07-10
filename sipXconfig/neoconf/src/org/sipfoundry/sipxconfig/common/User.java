@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.common;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOTELING;
+import static org.sipfoundry.commons.mongo.MongoConstants.SHARED;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
@@ -203,6 +204,11 @@ public class User extends AbstractUser implements Replicable {
         props.put(VOICEMAIL_ENABLED, isDepositVoicemail());
         props.put(TIMESTAMP, System.currentTimeMillis());
         props.put(HOTELING, getSettingValue("hotelling/enable"));
+        String sharedAor = StringUtils.EMPTY;
+        if (getIsShared()) {
+            sharedAor = getAddrSpec(domain);
+        }
+        props.put(SHARED, sharedAor);
         return props;
     }
 
