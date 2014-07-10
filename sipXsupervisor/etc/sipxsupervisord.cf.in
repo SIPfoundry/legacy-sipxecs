@@ -56,6 +56,7 @@ bundle server access_rules {
         "@SIPX_LOGDIR@",
         "@SIPX_VARDIR@/tmp",
         "@SIPX_VARDIR@/backup",
+        "@SIPX_VARDIR@/key",
         "@SIPX_IVRDATADIR@/prompts",
         "@SIPX_IVRDATADIR@/moh",
         "@SIPX_IVRDATADIR@/ivrscript",
