@@ -28,7 +28,6 @@ import org.sipfoundry.sipxconfig.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.springframework.beans.factory.BeanFactory;
@@ -53,7 +52,7 @@ public class ConfigGenerator implements ConfigProvider, BeanFactoryAware {
         // other contexts could announce changes in their system affect DialPlanContext.FEATURE
         //
         if (!request.applies(ProxyManager.FEATURE, DialPlanContext.FEATURE, LocalizationContext.FEATURE,
-                PagingContext.FEATURE, Rls.FEATURE, ParkOrbitContext.FEATURE, LocationsManager.FEATURE)) {
+                PagingContext.FEATURE, Rls.FEATURE, LocationsManager.FEATURE)) {
             return;
         }
 

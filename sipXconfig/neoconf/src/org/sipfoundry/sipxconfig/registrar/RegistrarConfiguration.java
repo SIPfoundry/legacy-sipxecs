@@ -39,7 +39,6 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.im.ImManager;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -59,7 +58,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Registrar.FEATURE, ParkOrbitContext.FEATURE, ProxyManager.FEATURE, ImManager.FEATURE)) {
+        if (!request.applies(Registrar.FEATURE, ProxyManager.FEATURE, ImManager.FEATURE)) {
             return;
         }
 
@@ -85,7 +84,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
                 //All resource limits for all services are globbaly agregated and replicated
                 //in ResLimitsConfiguration.java
                 //The replication of resource-limits.ini is effective on each node that runs
-                //at least one of the processes: mwi, registrar, proxy, park, rls, saa
+                //at least one of the processes: mwi, registrar, proxy, rls, saa
                 Writer registrarResLimitsWriter = new FileWriter(new File(dir, "resource-limits-registrar.ini"));
                 try {
                     m_registrarLimitsConfig.writeResourceLimits(registrarResLimitsWriter, settings);

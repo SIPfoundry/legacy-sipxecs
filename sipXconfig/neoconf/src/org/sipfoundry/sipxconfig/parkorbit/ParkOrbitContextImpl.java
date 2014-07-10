@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.parkorbit;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,9 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.alias.AliasManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
-import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.common.NameInUseException;
@@ -38,6 +34,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.registrar.RegistrarSettings;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
@@ -47,7 +44,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext, BeanFactoryAware,
-        FeatureProvider, DaoEventListener, ConfigProvider {
+        FeatureProvider, DaoEventListener {
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
     private static final String PARK_ORBIT_BY_NAME = "parkOrbitByName";
@@ -222,18 +219,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     }
 
     @Override
-    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(ParkOrbitContext.FEATURE)) {
-            return;
-        }
-        // in case call pickup code change, regenerate aliases
-        Collection<ParkOrbit> orbits = getParkOrbits();
-        for (ParkOrbit orbit : orbits) {
-            m_replicationManager.replicateEntity(orbit);
-        }
-    }
-
-    @Override
     public List<Replicable> getReplicables() {
         if (m_featureManager.isFeatureEnabled(ParkOrbitContext.FEATURE)) {
             List<Replicable> replicables = new ArrayList<Replicable>();
@@ -271,5 +256,11 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     @Override
     public void onSave(Object entity) {
+        if (entity instanceof RegistrarSettings) {
+            Collection<ParkOrbit> orbits = getParkOrbits();
+            for (ParkOrbit orbit : orbits) {
+                m_replicationManager.replicateEntity(orbit);
+            }
+        }
     }
 }
