@@ -364,6 +364,35 @@ UrlMapping::loadMappings(const UtlString& configFileName,
     return currentStatus;
 }
 
+static bool match_ports(int p1, int p2)
+{
+  //
+  // Exact match
+  //
+  if (p1 == p2)
+    return true;
+  
+  //
+  // Both ports are not set
+  //
+  if ((p1 == 0 || p1 == PORT_NONE) && (p2 == 0 || p2 == PORT_NONE))
+    return true;
+  
+  //
+  // p1 is not set and p2 is 5060 or 5061
+  //
+  if ((p1 == 0 || p1 == PORT_NONE)  && (p2 == SIP_PORT || p2 == SIP_TLS_PORT))
+    return true;
+  
+  //
+  // p1 is 5060 or 5061 and p2 is not set
+  //
+  if ((p1 == SIP_PORT || p1 == SIP_TLS_PORT) && (p2 == 0 || p2 == PORT_NONE))
+    return true;
+  
+  return false;
+}
+
 
 OsStatus
 UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
@@ -396,10 +425,6 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
 
     requestUri.getHostAddress(testHost);
     int testPort = requestUri.getHostPort();
-    if(testPort == SIP_PORT)
-    {
-        testPort = 0;
-    }
 
     OsStatus userMatchFound = OS_FAILED;
     TiXmlElement* pMappingElement = pPrevMappingNode->ToElement();
@@ -479,8 +504,10 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
                             xmlUrl.getHostAddress(xmlHost);
                             int xmlPort = xmlUrl.getHostPort();
 
-                            if( xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0
-                                && (xmlPort == SIP_PORT || xmlPort == testPort) )
+                            //
+                            // Strict matching of both host and port
+                            //
+                            if( xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0 &&   match_ports(xmlPort, testPort))
                             {
                                hostMatchFound = OS_SUCCESS;
                             }
