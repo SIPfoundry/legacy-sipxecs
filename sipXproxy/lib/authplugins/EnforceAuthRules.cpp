@@ -37,7 +37,7 @@ const unsigned int DefaultSignatureValiditySeconds = 10;
 /// Factory used by PluginHooks to dynamically link the plugin instance
 extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 {
-   return new EnforceAuthRules(pluginName);
+  return new EnforceAuthRules(pluginName);
 }
 
 /// constructor
@@ -52,6 +52,7 @@ EnforceAuthRules::EnforceAuthRules(const UtlString& pluginName ///< the name for
     Os::Logger::instance().log(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
                  mInstanceName.data());
     mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
+    mpRegDb = RegDB::CreateInstance();
 };
 
 /// Read (or re-read) the authorization rules.
@@ -169,15 +170,37 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
     *   to describe what permission is needed for the request to succeed and returns
     *   DENY.
     */
+   
+   
+   
 
    UtlString unused;
    
    // get the call-id to use in logging
    UtlString callId;
    request.getCallIdField(&callId);
-
+   
    if (priorResult == CONTINUE)
    {
+     
+      //
+      // This is a new check that allows calls towards registered endpoints
+      // handled by a transparent SBC to proceed without authentication even if
+      // the SBC is listed as a gateway in a dialing rule with permissions.
+      //
+      // A good side effect of this is it might save a good deal of time for
+      // normal registered calls as well since processing of authrules.xml
+      // will no longer be required for all calls to registered users.
+      //
+      if (mpRegDb->isRegisteredBinding(requestUri))
+      {
+        Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
+                          " no permission required for call %s because the target is a registered binding.",
+                          mInstanceName.data(), callId.data() );
+        return ALLOW;
+      }
+     
+     
       OsReadLock readLock(mRulesLock);
 
       if (mpAuthorizationRules)

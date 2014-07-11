@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 #include "sipdb/EntityDB.h"
+#include "sipdb/RegDB.h"
 #include "os/OsRWMutex.h"
 
 // APPLICATION INCLUDES
@@ -118,6 +119,7 @@ class EnforceAuthRules : public AuthPlugin
 
     SipRouter* mpSipRouter;
    EntityDB* mpEntityDb;
+   RegDB* mpRegDb;
 };
 
 #endif // _ENFORCEAUTHRULES_H_

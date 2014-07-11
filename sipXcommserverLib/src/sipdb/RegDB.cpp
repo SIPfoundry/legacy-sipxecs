@@ -64,6 +64,23 @@ void RegDB::updateBinding(RegBinding& binding)
 		string serverId = _localAddress;
 		binding.setLocalAddress(serverId);
 	}
+  
+  if (binding.getBinding().empty())
+  {
+    Url curl(binding.getContact().c_str());
+    UtlString hostPort;
+    UtlString user;
+    curl.getHostWithPort(hostPort);
+    curl.getUserId(user);
+    
+    std::ostringstream strm;
+    strm << "sip:";
+    if (!user.isNull())
+      strm << user.data() << "@";
+    strm << hostPort.data();
+    
+    binding.setBinding(strm.str());
+  }
 
 	mongo::BSONObj query = BSON(
 			"identity" << binding.getIdentity() <<
@@ -79,6 +96,7 @@ void RegDB::updateBinding(RegBinding& binding)
           "uri" << binding.getUri() <<
           "callId" << binding.getCallId() <<
           "contact" << binding.getContact() <<
+          "binding" << binding.getBinding() <<
           "qvalue" << binding.getQvalue() <<
           "instanceId" << binding.getInstanceId() <<
           "gruu" << binding.getGruu() <<
@@ -182,6 +200,46 @@ bool RegDB::isOutOfSequence(const string& identity, const string& callId, unsign
 {
     // Remove this method altogether?!?!? -- Conversation between douglas and joegen on 6/18/13
 	return false;
+}
+
+bool RegDB::isRegisteredBinding(const Url& curl, bool preferPrimary)
+{
+  bool isRegistered = false;
+  UtlString hostPort;
+  UtlString user;
+  curl.getHostWithPort(hostPort);
+  curl.getUserId(user);
+
+  std::ostringstream binding;
+  binding << "sip:";
+  if (!user.isNull())
+    binding << user.data() << "@";
+  binding << hostPort.data();
+  
+  mongo::BSONObjBuilder query;
+	query.append("binding", binding.str());
+
+	if (_local)
+  {
+		preferPrimary = false;
+		_local->isRegisteredBinding(curl, preferPrimary);
+		query.append("shardId", BSON("$ne" << _local->getShardId()));
+	} 
+
+	mongo::BSONObjBuilder builder;
+	if (!preferPrimary)
+	  BaseDB::nearest(builder, query.obj());
+	else
+	  BaseDB::primaryPreferred(builder, query.obj());
+
+	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+	isRegistered = pCursor.get() && pCursor->more();
+	conn->done();
+  
+  OS_LOG_INFO(FAC_SIP, "RegDB::isRegisteredBinding returning " << (isRegistered ? "TRUE" : "FALSE") << " for binding " <<  binding.str());
+   
+	return isRegistered;
 }
 
 bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeNow, Bindings& bindings, bool preferPrimary) const

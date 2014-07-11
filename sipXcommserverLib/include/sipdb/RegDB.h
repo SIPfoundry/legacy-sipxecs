@@ -22,6 +22,7 @@
 #include <vector>
 #include "sipdb/RegBinding.h"
 #include "sipdb/MongoDB.h"
+#include "net/Url.h"
 
 #ifndef GRUU_PREFIX
 #define GRUU_PREFIX "~~gr~"
@@ -113,6 +114,10 @@ public:
         unsigned long timeNow,
         Bindings& bindings,
         bool preferPrimary = false) const;
+    
+    bool isRegisteredBinding(
+      const Url& binding,
+      bool preferPrimary = false);
 
     void cleanAndPersist(int currentExpireTime);
 

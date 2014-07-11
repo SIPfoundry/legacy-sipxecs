@@ -19,6 +19,7 @@ const char* RegBinding::identity_fld(){ static std::string fld = "identity"; ret
 const char* RegBinding::uri_fld(){ static std::string fld = "uri"; return fld.c_str(); }
 const char* RegBinding::callId_fld(){ static std::string fld = "callId"; return fld.c_str(); }
 const char* RegBinding::contact_fld(){ static std::string fld = "contact"; return fld.c_str(); }
+const char* RegBinding::binding_fld(){ static std::string fld = "binding"; return fld.c_str(); }
 const char* RegBinding::qvalue_fld(){ static std::string fld = "qvalue"; return fld.c_str(); }
 const char* RegBinding::instanceId_fld(){ static std::string fld = "instanceId"; return fld.c_str(); }
 const char* RegBinding::gruu_fld(){ static std::string fld = "gruu"; return fld.c_str(); }
@@ -51,6 +52,7 @@ RegBinding::RegBinding(const RegBinding& binding) :
     _uri = binding._uri;
     _callId = binding._callId;
     _contact = binding._contact;
+    _binding = binding._binding;
     _qvalue = binding._qvalue;
     _instanceId = binding._instanceId;
     _gruu = binding._gruu;
@@ -74,6 +76,7 @@ void RegBinding::swap(RegBinding& binding)
     std::swap(_uri, binding._uri);
     std::swap(_callId, binding._callId);
     std::swap(_contact, binding._contact);
+    std::swap(_binding, binding._binding);
     std::swap(_qvalue, binding._qvalue);
     std::swap(_instanceId, binding._instanceId);
     std::swap(_gruu, binding._gruu);
@@ -105,6 +108,9 @@ RegBinding::RegBinding(const mongo::BSONObj& bson) :
 
     if (bson.hasField(RegBinding::contact_fld()))
       _contact = bson.getStringField(RegBinding::contact_fld());
+    
+    if (bson.hasField(RegBinding::binding_fld()))
+      _binding = bson.getStringField(RegBinding::binding_fld());
 
     if (bson.hasField(RegBinding::qvalue_fld()))
       _qvalue = bson.getStringField(RegBinding::qvalue_fld());
@@ -153,6 +159,9 @@ RegBinding& RegBinding::operator=(const mongo::BSONObj& bson)
 
     if (bson.hasField(RegBinding::contact_fld()))
       _contact = bson.getStringField(RegBinding::contact_fld());
+    
+    if (bson.hasField(RegBinding::binding_fld()))
+      _binding = bson.getStringField(RegBinding::binding_fld());
 
     if (bson.hasField(RegBinding::qvalue_fld()))
       _qvalue = bson.getStringField(RegBinding::qvalue_fld());
