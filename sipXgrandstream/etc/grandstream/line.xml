@@ -539,11 +539,11 @@
                                 <enum>
                                         <option>
                                                 <label>Enable</label>
-                                                <value>0</value>
+                                                <value>1</value>
                                         </option>
                                         <option>
                                                 <label>Disable</label>
-                                                <value>1</value>
+                                                <value>0</value>
                                         </option>
                                         <option>
                                                 <label>Disable, send keep-alive</label>
@@ -551,14 +551,14 @@
                                         </option>
                                 </enum>
                         </type>
-			<value>2</value>
+			<value>0</value>
 		</setting>
 		<setting name="P52-P752-P52-P752" if="gsHt.*">
 			<label>Disable NAT Traversal</label>
 			<type>
 				<boolean/>
 			</type>
-			<value>1</value>
+			<value>0</value>
 		</setting>
 		<setting name="P65-P765-P65-P765" if="gsHt.*">
 			<label>Send Anonymous</label>
