@@ -48,6 +48,17 @@ desc=Replica set error, node cannot see majority
 action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_CANNOT_SEE_MAJORITY %s
 <% 
   end
+  if MONGO_DNS_LOOKUP_FAILED[:groupName] != 'disabled'
+%>
+type=SingleWithThreshold
+ptype=RegExp
+pattern=getaddrinfo(.*)
+desc=<%= MONGO_DNS_LOOKUP_FAILED[:minThreshold] %> DNS lookup failures within a 60 second interval: $1
+action=shellcmd @SIPX_BINDIR@/sipxtrap MONGO_DNS_LOOKUP_FAILED %s
+window=60
+thresh=<%= MONGO_DNS_LOOKUP_FAILED[:minThreshold] %>
+<% 
+  end
 %>
 
 
