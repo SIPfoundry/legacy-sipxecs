@@ -34,7 +34,8 @@ BuildRequires: sipxesllib-devel >= %version
 BuildRequires: libjsonrpccpp-devel
 BuildRequires: cmake
 BuildRequires: libevent-devel
-BuildRequires:	python >= 2.3
+BuildRequires: python >= 2.3
+BuildRequires: python-devel >= 2.3
 
 Requires: sipxesllib
 Requires: sipxcommserverlib  >= %version
