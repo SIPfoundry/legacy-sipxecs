@@ -32,6 +32,9 @@ BuildRequires: sipxtacklib-devel        >= %version
 BuildRequires: sipxresiprocate-devel    >= %version
 BuildRequires: sipxesllib-devel >= %version
 BuildRequires: libjsonrpccpp-devel
+BuildRequires: cmake
+BuildRequires: libevent-devel
+BuildRequires:	python >= 2.3
 
 Requires: sipxesllib
 Requires: sipxcommserverlib  >= %version
@@ -44,6 +47,8 @@ Requires: sipxedgeservices-config
 Requires: monit
 Requires: freeswitch
 Requires: freeswitch-lang-en
+Requires: libevent
+Requires: python >= 2.3
 
 
 
@@ -69,6 +74,16 @@ Summary: Configuration files for sipX Edge Services
 
 %description config
 Configuration files for sipX Edge Services
+
+%package sems
+Summary:	SIP Express Media Server, an extensible SIP media server
+
+%description sems
+SEMS (SIP Express Media Server) is very extensible and programmable
+SIP media server for SER or OpenSER. The plug-in based SDK enables
+you to extend SEMS and write your own applications and integrate new
+codec. Voicemail, announcement and echo plug-ins are already included.
+SEMS supports g711u, g711a, GSM06.10 and wav file.
 
 %prep
 %setup -q
@@ -109,3 +124,54 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(0750,-,-) %{_sysconfdir}/sipxpbx/edge/.config
 %{_sysconfdir}/sipxpbx/edge/.config/*
 
+
+%files sems
+%defattr(-,root,root)
+%dir %{_sysconfdir}/sipxpbx
+%dir %{_sysconfdir}/sipxpbx/edge
+%dir %{_sysconfdir}/sipxpbx/edge/sems
+%dir %{_sysconfdir}/sipxpbx/edge/sems/etc
+%dir %{_sysconfdir}/sipxpbx/edge/sems/etc/sems
+%dir %{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc
+%{_sysconfdir}/sipxpbx/edge/sems/etc/sems/default.template
+%{_sysconfdir}/sipxpbx/edge/sems/etc/sems/sems.conf
+%{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/sbc.conf
+%{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/transparent.sbcprofile.conf
+%{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/*.conf
+
+#doc
+/share/sems/doc/sems-1.5.1/**
+
+%{_sbindir}/sems
+%{_sbindir}/sems-stats
+
+%dir %{_libdir}/sems
+%dir %{_libdir}/sems/audio
+%dir %{_libdir}/sems/audio/annrecorder
+%dir %{_libdir}/sems/audio/conference
+%dir %{_libdir}/sems/audio/voicebox
+%dir %{_libdir}/sems/audio/voicemail
+%dir %{_libdir}/sems/audio/mailbox
+%dir %{_libdir}/sems/audio/webconference
+%dir %{_libdir}/sems/audio/pin_collect
+%dir %{_libdir}/sems/plug-in
+
+
+%{_libdir}/sems/audio/*.wav
+%{_libdir}/sems/audio/annrecorder/*.wav
+%{_libdir}/sems/audio/conference/*.wav
+%{_libdir}/sems/audio/voicebox/*.wav
+%{_libdir}/sems/audio/voicemail/*.wav
+%{_libdir}/sems/audio/webconference/*.wav
+%{_libdir}/sems/audio/mailbox/*.wav
+%{_libdir}/sems/audio/pin_collect/*.wav
+%{_libdir}/sems/audio/precoded_announce/test.predef
+
+%{_libdir}/sems/plug-in/sbc.so
+%{_libdir}/sems/plug-in/*.so
+
+%{_libdir}/sems/dsm/*.so
+%{_libdir}/sems/dsm/*.dsm
+%{_sbindir}/sems-*
+
+%{_libdir}/sems/ivr/**
