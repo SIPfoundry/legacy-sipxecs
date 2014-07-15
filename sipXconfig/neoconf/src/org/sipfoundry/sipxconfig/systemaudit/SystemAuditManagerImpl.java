@@ -41,17 +41,28 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     private FeatureAuditHandler m_featureAuditHandler;
     private LoginLogoutAuditHandler m_loginLogoutAuditHandler;
 
+    /**
+     * This method will execute in a different thread not to interfere with the normal persistence logic
+     */
     @Override
-    public void onConfigChangeAction(Object entity, ConfigChangeAction configChangeAction,
-            String[] properties, Object[] oldValues, Object[] newValues) {
-        if (entity instanceof SystemAuditable) {
-            try {
-                m_generalAuditHandler.handleConfigChange((SystemAuditable) entity,
-                        configChangeAction, properties, oldValues, newValues);
-            } catch (Exception e) {
-                LOG.error(LOG_ERROR_MESSAGE, e);
+    public void onConfigChangeAction(final Object entity,
+            final ConfigChangeAction configChangeAction,
+            final String[] properties, final Object[] oldValues,
+            final Object[] newValues) {
+        new Thread() {
+            @Override
+            public void run() {
+                if (entity instanceof SystemAuditable) {
+                    try {
+                        m_generalAuditHandler.handleConfigChange(
+                                (SystemAuditable) entity, configChangeAction,
+                                properties, oldValues, newValues);
+                    } catch (Exception e) {
+                        LOG.error(LOG_ERROR_MESSAGE, e);
+                    }
+                }
             }
-        }
+        } .start();
     }
 
     /**
@@ -93,13 +104,23 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
         }
     }
 
+    /**
+     * This method will execute in a different thread not to interfere with the normal persistence logic
+     */
     @Override
-    public void onConfigChangeCollectionUpdate(Object collection, Serializable key) {
-        try {
-            m_generalAuditHandler.handleCollectionUpdate(collection, key);
-        } catch (Exception e) {
-            LOG.error(LOG_ERROR_MESSAGE, e);
-        }
+    public void onConfigChangeCollectionUpdate(final Object collection,
+            final Serializable key) {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    m_generalAuditHandler.handleCollectionUpdate(collection,
+                            key);
+                } catch (Exception e) {
+                    LOG.error(LOG_ERROR_MESSAGE, e);
+                }
+            }
+        } .start();
     }
 
     /**

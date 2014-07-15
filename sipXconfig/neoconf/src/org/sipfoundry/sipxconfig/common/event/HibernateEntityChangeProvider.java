@@ -20,7 +20,6 @@ package org.sipfoundry.sipxconfig.common.event;
 import java.io.Serializable;
 
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
-import org.springframework.scheduling.annotation.Async;
 
 /**
  * This interface handles operations like building and saving ConfigChange
@@ -31,14 +30,12 @@ public interface HibernateEntityChangeProvider {
     /**
      * Call this method to handle a Config Change Action
      */
-    @Async
     public void onConfigChangeAction(Object entity, ConfigChangeAction configChangeType, String[] properties,
             Object[] oldValues, Object[] newValues);
 
     /**
      * This method handles onCollectionUpdate hibernate logic
      */
-    @Async
     public void onConfigChangeCollectionUpdate(Object collection, Serializable key);
 
 }
