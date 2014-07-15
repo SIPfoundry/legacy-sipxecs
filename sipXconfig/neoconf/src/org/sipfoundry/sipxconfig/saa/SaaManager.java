@@ -23,6 +23,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
 public interface SaaManager {
     final AddressType SAA_TCP = new AddressType("saaTcp");
@@ -35,7 +36,7 @@ public interface SaaManager {
 
     final LocationFeature FEATURE = new LocationFeature("saa");
 
-    SaaSettings getSettings();
+    PersistableSettings getSettings();
 
-    void saveSettings(SaaSettings settings);
+    void saveSettings(PersistableSettings settings);
 }

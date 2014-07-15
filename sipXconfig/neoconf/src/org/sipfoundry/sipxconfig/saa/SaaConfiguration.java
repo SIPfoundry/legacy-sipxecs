@@ -27,6 +27,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
+import org.sipfoundry.sipxconfig.admin.ResLimitPluginConfig;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -36,9 +37,11 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SaaConfiguration implements ConfigProvider, DaoEventListener {
+public class SaaConfiguration implements ConfigProvider, DaoEventListener, ResLimitPluginConfig {
     private VelocityEngine m_velocityEngine;
     private SaaManager m_saaManager;
     private CoreContext m_coreContext;
@@ -51,7 +54,7 @@ public class SaaConfiguration implements ConfigProvider, DaoEventListener {
             return;
         }
 
-        SaaSettings settings = m_saaManager.getSettings();
+        SaaSettings settings = (SaaSettings) m_saaManager.getSettings();
         String domainName = manager.getDomainManager().getDomainName();
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
@@ -143,5 +146,25 @@ public class SaaConfiguration implements ConfigProvider, DaoEventListener {
     @Required
     public void setSaaLimitsConfig(AbstractResLimitsConfig saaLimitsConfig) {
         m_saaLimitsConfig = saaLimitsConfig;
+    }
+
+    @Override
+    public LocationFeature getLocationFeature() {
+        return SaaManager.FEATURE;
+    }
+
+    @Override
+    public AbstractResLimitsConfig getLimitsConfig() {
+        return m_saaLimitsConfig;
+    }
+
+    @Override
+    public PersistableSettings getSettings() {
+        return m_saaManager.getSettings();
+    }
+
+    @Override
+    public void saveSettings(PersistableSettings settings) {
+        m_saaManager.saveSettings(settings);
     }
 }

@@ -37,21 +37,23 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class SaaManagerImpl implements FeatureProvider, SaaManager, ProcessProvider, FirewallProvider,
         AddressProvider {
-    private BeanWithSettingsDao<SaaSettings> m_settingsDao;
+    private BeanWithSettingsDao<PersistableSettings> m_settingsDao;
 
     @Override
-    public SaaSettings getSettings() {
+    public PersistableSettings getSettings() {
         return m_settingsDao.findOrCreateOne();
     }
 
     @Override
-    public void saveSettings(SaaSettings settings) {
+    public void saveSettings(PersistableSettings settings) {
         m_settingsDao.upsert(settings);
     }
 
@@ -65,7 +67,8 @@ public class SaaManagerImpl implements FeatureProvider, SaaManager, ProcessProvi
         return Collections.singleton(FEATURE);
     }
 
-    public void setSettingsDao(BeanWithSettingsDao<SaaSettings> settingsDao) {
+    @Required
+    public void setSettingsDao(BeanWithSettingsDao<PersistableSettings> settingsDao) {
         m_settingsDao = settingsDao;
     }
 
@@ -105,9 +108,9 @@ public class SaaManagerImpl implements FeatureProvider, SaaManager, ProcessProvi
             Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
             for (Location location : locations) {
                 if (SAA_TCP.equals(type)) {
-                    addresses.add(new Address(SAA_TCP, location.getAddress(), getSettings().getTcpPort()));
+                    addresses.add(new Address(SAA_TCP, location.getAddress(), ((SaaSettings) getSettings()).getTcpPort()));
                 } else if (SAA_UDP.equals(type)) {
-                    addresses.add(new Address(SAA_UDP, location.getAddress(), getSettings().getUdpPort()));
+                    addresses.add(new Address(SAA_UDP, location.getAddress(), ((SaaSettings) getSettings()).getUdpPort()));
                 }
             }
         }

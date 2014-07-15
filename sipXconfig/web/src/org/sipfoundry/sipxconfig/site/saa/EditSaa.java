@@ -42,7 +42,7 @@ public abstract class EditSaa extends PageWithCallback implements PageBeginRende
     @Override
     public void pageBeginRender(PageEvent arg0) {
         if (getSettings() == null) {
-            setSettings(getSaaManager().getSettings());
+            setSettings((SaaSettings) getSaaManager().getSettings());
         }
     }
 

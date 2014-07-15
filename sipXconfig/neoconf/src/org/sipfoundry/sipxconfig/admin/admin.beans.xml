@@ -61,8 +61,7 @@
     <property name="saaManager" ref="saaManager" />
     <property name="registrar" ref="registrar" />
     <property name="proxyLimitsConfig" ref="proxyResLimits" />
-    <property name="publisherLimitsConfig" ref="publisherResLimits" />    
-    <property name="saaLimitsConfig" ref="saaResLimits" />
+    <property name="publisherLimitsConfig" ref="publisherResLimits" />
     <property name="registrarLimitsConfig" ref="registrarResLimits" />
   </bean>
 </beans>

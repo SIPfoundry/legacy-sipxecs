@@ -92,7 +92,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     private AbstractResLimitsConfig m_proxyLimitsConfig;
     private AbstractResLimitsConfig m_publisherLimitsConfig;
     private AbstractResLimitsConfig m_registrarLimitsConfig;
-    private AbstractResLimitsConfig m_saaLimitsConfig;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -106,8 +105,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         features.add(ProxyManager.FEATURE);
         features.add(Mwi.FEATURE);
         features.add(Registrar.FEATURE);
-        features.add(SaaManager.FEATURE);
-        features.add(SaaManager.FEATURE);
         if (!request.applies(features)) {
             return;
         }
@@ -130,7 +127,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         m_proxyLimitsConfig.writeResourceLimits(w, m_proxyManager.getSettings());
         m_publisherLimitsConfig.writeResourceLimits(w, m_mwi.getSettings());
         m_registrarLimitsConfig.writeResourceLimits(w, m_registrar.getSettings());
-        m_saaLimitsConfig.writeResourceLimits(w, m_saaManager.getSettings());
         Collection<ResLimitPluginConfig> pluginFeatures = getPluginFeatures();
         AbstractResLimitsConfig resLimitsConfig = null;
         for (ResLimitPluginConfig pluginConfig : pluginFeatures) {
@@ -181,7 +177,7 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
         setResLimitsValues(registrarSettings, fdSoft, fdHard, coreEnabled);
         m_registrar.saveSettings(registrarSettings);
 
-        SaaSettings saaSettings = m_saaManager.getSettings();
+        SaaSettings saaSettings = (SaaSettings) m_saaManager.getSettings();
         setResLimitsValues(saaSettings, fdSoft, fdHard, coreEnabled);
         m_saaManager.saveSettings(saaSettings);
 
@@ -262,11 +258,6 @@ public class ResLimitsConfiguration implements ConfigProvider, BeanFactoryAware 
     @Required
     public void setRegistrarLimitsConfig(AbstractResLimitsConfig registrarLimitsConfig) {
         m_registrarLimitsConfig = registrarLimitsConfig;
-    }
-
-    @Required
-    public void setSaaLimitsConfig(AbstractResLimitsConfig saaLimitsConfig) {
-        m_saaLimitsConfig = saaLimitsConfig;
     }
 
     @Override

@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.mwi.MwiSettings;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.proxy.ProxySettings;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
@@ -95,7 +94,6 @@ public class ResLimitsConfigurationTest {
 
         m_config.setRegistrarLimitsConfig(registrarResLimits);
         m_config.setProxyLimitsConfig(proxyResLimits);
-        m_config.setSaaLimitsConfig(sipxsaaResLimits);
         m_config.setPublisherLimitsConfig(mwiResLimits);
 
         AdminSettings settings = new AdminSettings();
