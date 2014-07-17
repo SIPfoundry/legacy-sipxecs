@@ -24,7 +24,5 @@ AC_CONFIG_FILES([
   Makefile
   include/Makefile
   src/Makefile
-  lib/Makefile
-  lib/yard_plugins/Makefile
 ])
 AC_OUTPUT

@@ -4,5 +4,4 @@ include config/project.am
 SUBDIRS = \
 	. \
 	src \
-	include \
-	lib
+	include
