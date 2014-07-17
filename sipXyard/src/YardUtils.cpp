@@ -26,6 +26,15 @@ std::vector<std::string> YardUtils::string_tokenize(const std::string& str, cons
   return tokens;
 }
 
+std::string YardUtils::string_from_boost_path(const boost::filesystem::path& path)
+{
+#if defined(BOOST_FILESYSTEM_VERSION) && BOOST_FILESYSTEM_VERSION >= 3
+  return path.native();
+#else
+  return path.string();
+#endif
+}
+
 void YardUtils::get_path_vector(const std::string& path, std::vector<std::string>& pathVector)
 {
   std::vector<std::string> tokens = string_tokenize(path, "/");

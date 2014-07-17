@@ -17,11 +17,14 @@ CHECK_XARGS_REPLACE
 AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 SFAC_INIT_FLAGS
 SFAC_LIB_COMMSERVER
+SFAC_LIB_YARD
 
 
 AC_CONFIG_FILES([
   Makefile
   include/Makefile
   src/Makefile
+  lib/Makefile
+  lib/yard_plugins/Makefile
 ])
 AC_OUTPUT

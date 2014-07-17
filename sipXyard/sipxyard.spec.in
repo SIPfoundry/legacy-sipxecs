@@ -58,10 +58,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_bindir}/sipxyard
 %attr(755,root,root) %{_libdir}/libsipXyard.so*
+%attr(755,root,root) %{_libdir}/yard_plugins/libConfigDumper.so*
+%attr(755,root,root) %{_libdir}/yard_plugins/libProcessControl.so*
 
 %files devel
 %defattr(644,root,root,755)
 %{_libdir}/libsipXyard.la
+%{_libdir}/yard_plugins/libConfigDumper.la
+%{_libdir}/yard_plugins/libProcessControl.la
 %{_includedir}/sipxyard/*
 
 %post

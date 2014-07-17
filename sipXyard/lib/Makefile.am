@@ -1,0 +1,1 @@
+SUBDIRS = yard_plugins

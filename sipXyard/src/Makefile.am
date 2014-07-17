@@ -1,7 +1,8 @@
 SIPXYARD_COMMON_CXX_FLAGS = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/include \
-	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" 
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPXYARD_PLUGIN_DIR=\"@SIPXYARD_PLUGIN_DIR@\"
 
 bin_PROGRAMS = sipxyard
 
@@ -17,11 +18,6 @@ sipxyard_LDADD = \
 	libsipXyard.la
 
 sipxyard_SOURCES =  \
-	YardProcessor.h \
-	ProcessControl.h \
-	ProcessControl.cpp \
-	ConfigDumper.h \
-	ConfigDumper.cpp \
 	sipXyard.cpp
 
 
@@ -46,7 +42,8 @@ libsipXyard_la_SOURCES = \
 	RESTClient.cpp \
 	RESTServer.cpp \
 	LevelDB.cpp \
-	YardUtils.cpp
+	YardUtils.cpp \
+	YardPlugin.cpp
 
 libsipXyard_la_CXXFLAGS = \
 	$(SIPXYARD_COMMON_CXX_FLAGS)
