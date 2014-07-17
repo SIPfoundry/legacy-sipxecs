@@ -25,6 +25,11 @@
 static const char* API_PREFIX = "/api/system-config";
 
 
+extern "C" YardPlugin::YardProcessorInstance create_yard_instance()
+{
+  return new ConfigDumper();
+}
+
 ConfigDumper::ConfigDumper()
 {
 }

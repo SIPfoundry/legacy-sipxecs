@@ -8,4 +8,6 @@ nobase_include_HEADERS = \
 	sipxyard/RESTClient.h \
 	sipxyard/RESTServer.h \
 	sipxyard/YardUtils.h \
+	sipxyard/YardProcessor.h \
+	sipxyard/YardPlugin.h \
 	sipxyard/pstream.h
