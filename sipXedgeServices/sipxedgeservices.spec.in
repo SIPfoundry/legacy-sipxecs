@@ -33,7 +33,7 @@ BuildRequires: sipxresiprocate-devel    >= %version
 BuildRequires: sipxesllib-devel >= %version
 BuildRequires: libjsonrpccpp-devel
 BuildRequires: cmake
-BuildRequires: libevent-devel
+BuildRequires: libevent2-devel
 BuildRequires: python >= 2.3
 BuildRequires: python-devel >= 2.3
 
@@ -48,7 +48,7 @@ Requires: sipxedgeservices-config
 Requires: monit
 Requires: freeswitch
 Requires: freeswitch-lang-en
-Requires: libevent
+Requires: libevent2
 Requires: python >= 2.3
 
 
@@ -141,7 +141,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/*.conf
 
 #doc
-/share/sems/doc/sems-1.5.1/**
+/share/sems/doc/sems-1.6.0/**
 
 %{_sbindir}/sems
 %{_sbindir}/sems-stats
