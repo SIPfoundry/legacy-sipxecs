@@ -53,7 +53,8 @@ public class DnsFailoverGroup extends BeanWithId {
                 }
                 break;
             case LOCATION:
-                if (target.getLocation().getAddress().equals(address)) {
+                if (target.getLocation().getAddress().equals(address)
+                        || target.getLocation().getHostname().equals(address)) {
                     return target;
                 }
                 break;

@@ -49,6 +49,7 @@
         <ref bean="dnsRestApi"/>
         <ref bean="mohRestApi"/>
         <ref bean="gatewayRestApi"/>
+        <ref bean="scheduleRestApi"/>
     </util:list>
 
     <bean class="org.sipfoundry.sipxconfig.api.impl.PhoneApiImpl" id="phoneRestApi">
@@ -133,4 +134,8 @@
         <property name="gatewayModelSource" ref="gatewayModelSource" />
         <property name="branchManager" ref="branchManager" />
     </bean>
+    <bean class="org.sipfoundry.sipxconfig.api.impl.ScheduleApiImpl" id="scheduleRestApi">
+        <property name="forwardingContext" ref="forwardingContext" />
+        <property name="coreContext" ref="coreContext" />
+    </bean>    
 </beans>

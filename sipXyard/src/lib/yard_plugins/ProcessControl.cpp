@@ -30,6 +30,12 @@
 static const char* API_PREFIX = "/api/proc";
 
 
+extern "C" YardPlugin::YardProcessorInstance create_yard_instance()
+{
+  return new ProcessControl();
+}
+
+
 using namespace redi;
 
 // explicit instantiations of template classes
