@@ -631,8 +631,8 @@ AC_DEFUN([SFAC_LIB_YARD],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${prefix}/lib'])
-        foundpath=${prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${libdir}'])
+        foundpath=${libdir}
     fi
     SIPXYARDLIB=$foundpath
 
