@@ -98,7 +98,7 @@ sipx_all = \
   $(sipx_lang) \
   $(sipx_config)
 
-# re: ruby-postgres, there's a new one we should be using ruby-pgsql i 
+# re: ruby-postgres, there's a new one we should be using ruby-pgsql i
 # think it's called as ruby-postgres is obsoleted.
 lib_all = \
   epel \
@@ -115,7 +115,8 @@ lib_all = \
   rubygem-net-sftp \
   ruby-postgres \
   jasperserver \
-  libjsonrpccpp
+  libjsonrpccpp \
+  libevent2
 
 lib_exclude_fedora_16 = \
   epel \
