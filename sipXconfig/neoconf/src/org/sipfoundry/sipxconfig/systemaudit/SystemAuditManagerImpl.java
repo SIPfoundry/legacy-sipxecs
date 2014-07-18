@@ -18,6 +18,8 @@
 package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +43,9 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     private FeatureAuditHandler m_featureAuditHandler;
     private LoginLogoutAuditHandler m_loginLogoutAuditHandler;
 
+    private ExecutorService m_changeExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService m_collectionExecutor = Executors.newSingleThreadExecutor();
+
     /**
      * This method will execute in a different thread not to interfere with the normal persistence logic
      */
@@ -49,7 +54,7 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
             final ConfigChangeAction configChangeAction,
             final String[] properties, final Object[] oldValues,
             final Object[] newValues) {
-        new Thread() {
+        Runnable thread = new Runnable() {
             @Override
             public void run() {
                 if (entity instanceof SystemAuditable) {
@@ -62,7 +67,8 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
                     }
                 }
             }
-        } .start();
+        };
+        m_changeExecutor.execute(thread);
     }
 
     /**
@@ -110,7 +116,7 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     @Override
     public void onConfigChangeCollectionUpdate(final Object collection,
             final Serializable key) {
-        new Thread() {
+        Runnable thread = new Runnable() {
             @Override
             public void run() {
                 try {
@@ -120,7 +126,8 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
                     LOG.error(LOG_ERROR_MESSAGE, e);
                 }
             }
-        } .start();
+        };
+        m_collectionExecutor.execute(thread);
     }
 
     /**
