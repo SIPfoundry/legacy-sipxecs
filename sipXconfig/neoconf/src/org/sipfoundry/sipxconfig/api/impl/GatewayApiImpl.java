@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.api.GatewayApi;
 import org.sipfoundry.sipxconfig.api.model.BranchBean;
+import org.sipfoundry.sipxconfig.api.model.DialingRuleList;
 import org.sipfoundry.sipxconfig.api.model.FxoPortBean.FxoPortList;
 import org.sipfoundry.sipxconfig.api.model.GatewayBean;
 import org.sipfoundry.sipxconfig.api.model.GatewayList;
@@ -35,6 +36,8 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport;
@@ -50,6 +53,7 @@ public class GatewayApiImpl implements GatewayApi {
     private GatewayContext m_gatewayContext;
     private ModelSource<GatewayModel> m_modelSource;
     private BranchManager m_branchManager;
+    private DialPlanContext m_dialPlanContext;
 
     @Override
     public Response getGateways() {
@@ -83,10 +87,10 @@ public class GatewayApiImpl implements GatewayApi {
     }
 
     @Override
-    public Response deleteGateway(Integer gatewayId) {
-        Gateway gateway = m_gatewayContext.getGateway(gatewayId);
+    public Response deleteGateway(String gatewayId) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
         if (gateway != null) {
-            m_gatewayContext.deleteGateway(gatewayId);
+            m_gatewayContext.deleteGateway(gateway.getId());
             return Response.ok().build();
         }
         return Response.status(Status.NOT_FOUND).build();
@@ -165,6 +169,72 @@ public class GatewayApiImpl implements GatewayApi {
         List<FxoPort> ports = gateway.getPorts();
         if (ports != null) {
             return Response.ok().entity(FxoPortList.convertPortsList(ports)).build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response getGatewayPortSettings(String gatewayId, Integer portId, HttpServletRequest request) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
+            if (fxoPort != null) {
+                return Response.ok().entity(
+                    SettingsList.convertSettingsList(fxoPort.getSettings(), request.getLocale())).build();
+            }
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response getGatewayPortSetting(String gatewayId, Integer portId, String path, HttpServletRequest request) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
+            if (fxoPort != null) {
+                return ResponseUtils.buildSettingResponse(fxoPort, path, request.getLocale());
+            }
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response setGatewayPortSetting(String gatewayId, Integer portId, String path, String value) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
+            if (fxoPort != null) {
+                fxoPort.setSettingValue(path, value);
+                m_gatewayContext.saveGateway(gateway);
+                return Response.ok().build();
+            }
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response deleteGatewayPortSetting(String gatewayId, Integer portId, String path) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
+            if (fxoPort != null) {
+                fxoPort.setSettingValue(path, fxoPort.getSettingDefaultValue(path));
+                m_gatewayContext.saveGateway(gateway);
+                return Response.ok().build();
+            }
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response getAvailableRules(String gatewayId) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            List<DialingRule> rules = m_dialPlanContext.getAvailableRules(gateway.getId());
+            if (rules != null) {
+                return Response.ok().entity(DialingRuleList.convertDialingRuleList(rules)).build();
+            }
+
         }
         return Response.status(Status.NOT_FOUND).build();
     }
@@ -251,56 +321,11 @@ public class GatewayApiImpl implements GatewayApi {
         m_branchManager = branchManager;
     }
 
-    @Override
-    public Response getGatewayPortSettings(String gatewayId, Integer portId, HttpServletRequest request) {
-        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
-        if (gateway != null) {
-            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
-            if (fxoPort != null) {
-                return Response.ok().entity(
-                    SettingsList.convertSettingsList(fxoPort.getSettings(), request.getLocale())).build();
-            }
-        }
-        return Response.status(Status.NOT_FOUND).build();
+    public DialPlanContext getDialPlanContext() {
+        return m_dialPlanContext;
     }
 
-    @Override
-    public Response getGatewayPortSetting(String gatewayId, Integer portId, String path, HttpServletRequest request) {
-        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
-        if (gateway != null) {
-            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
-            if (fxoPort != null) {
-                return ResponseUtils.buildSettingResponse(fxoPort, path, request.getLocale());
-            }
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response setGatewayPortSetting(String gatewayId, Integer portId, String path, String value) {
-        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
-        if (gateway != null) {
-            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
-            if (fxoPort != null) {
-                fxoPort.setSettingValue(path, value);
-                m_gatewayContext.saveGateway(gateway);
-                return Response.ok().build();
-            }
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response deleteGatewayPortSetting(String gatewayId, Integer portId, String path) {
-        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
-        if (gateway != null) {
-            FxoPort fxoPort = getFxoPort(gateway.getPorts(), portId);
-            if (fxoPort != null) {
-                fxoPort.setSettingValue(path, fxoPort.getSettingDefaultValue(path));
-                m_gatewayContext.saveGateway(gateway);
-                return Response.ok().build();
-            }
-        }
-        return Response.status(Status.NOT_FOUND).build();
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
     }
 }

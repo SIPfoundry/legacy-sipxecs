@@ -108,9 +108,11 @@ public class SaaManagerImpl implements FeatureProvider, SaaManager, ProcessProvi
             Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
             for (Location location : locations) {
                 if (SAA_TCP.equals(type)) {
-                    addresses.add(new Address(SAA_TCP, location.getAddress(), ((SaaSettings) getSettings()).getTcpPort()));
+                    addresses.add(new Address(SAA_TCP, location.getAddress(),
+                        ((SaaSettings) getSettings()).getTcpPort()));
                 } else if (SAA_UDP.equals(type)) {
-                    addresses.add(new Address(SAA_UDP, location.getAddress(), ((SaaSettings) getSettings()).getUdpPort()));
+                    addresses.add(new Address(SAA_UDP, location.getAddress(),
+                        ((SaaSettings) getSettings()).getUdpPort()));
                 }
             }
         }
