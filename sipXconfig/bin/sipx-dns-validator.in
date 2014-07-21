@@ -52,17 +52,41 @@ def parse_zone(filter, zone)
   return dat
 end
 
-def validate_naptr(metadata, expected, actual)
+def parse_string(filter, string)
+  dat = {}
+  id = nil
+  while line = string.gets
+    line.lstrip!
+    line.rstrip!
+    next if line.empty?
+    case line
+    when /^;; ([A-Z]+):(.*)$/
+      if $1 == filter
+        id = $2.lstrip.rstrip
+        return id
+      end
+    end
+  end
+  return dat
+end
+
+def validate_naptr(metadata, expected, actual, domain)
   #  Actual   : hubler.us. 1800 IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
   #  Zone     : hubler.us.      IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
   #  Test     : hubler.us.    ? IN NAPTR 2 0 "s" "SIP+D2U" "" _sip._udp.hubler.us.
+
+  # for priority expect a digit instead of a fixed value of 2
+  expected.map! {|e|
+    e.gsub('NAPTR 2 0', 'NAPTR \\d 0')
+  }
+
   validate_by_regexp(expected, actual) {|f|
     # response include ttl, allow any number
     %r[#{f[0]} \d+ #{f[1..-1].join(' ')}]
   }
 end
 
-def validate_proxy(metadata, expected, actual)
+def validate_proxy(metadata, expected, actual, domain)
   #  Actual   : _sip._tcp.hubler.us. 1800 IN SRV 10 10 5060 swift.hubler.us.
   #  Zone     : _sip._tcp.hubler.us.      IN SRV 10 10 5060 swift.hubler.us.
   #  Test     : _sip._tcp.hubler.us.    ? IN SRV  ?  ? 5060 swift.hubler.us.
@@ -71,7 +95,7 @@ def validate_proxy(metadata, expected, actual)
   }
 end
 
-def validate_rr(metadata, expected, actual)
+def validate_rr(metadata, expected, actual, domain)
   #  Actual   : _sip._tcp.rr.hubler.us. 1800 IN SRV 10 10 5060 swift.hubler.us.
   #  Zone     : _sip._tcp.rr.hubler.us.      IN SRV 10 10 5060 swift.hubler.us.
   #  Test     : _sip._tcp.rr.hubler.us.    ? IN SRV  ?  ? 5060 swift.hubler.us.
@@ -80,7 +104,7 @@ def validate_rr(metadata, expected, actual)
   }
 end
 
-def validate_im(metadata, expected, actual)
+def validate_im(metadata, expected, actual, domain)
   # Example : 
   # Actual :  _xmpp-server._tcp.hubler.us. 1800 IN   SRV   10  10  5269  swift.hubler.us.
   # Zone :    _xmpp-server._tcp.hubler.us.      IN   SRV   10  10  5269  swift.hubler.us.
@@ -90,13 +114,34 @@ def validate_im(metadata, expected, actual)
   }
 end
 
-def validate_a(metadata, expected, actual)
+def validate_a(metadata, expected, actual, domain)
   #  Actual   : A 1800 swift.hubler.us
   #  Zone     : A      swift.hubler.us
   #  Test     : A    ? swift.hubler.us
+  
+  # add domain name at the end of expected targed, if it does not end with domain name
+  expected.map! {|e|
+    earray = e.split(' ')
+    if earray[0].end_with? '.'
+      earray[0] = earray[0].chop()
+    end           
+    
+    final_expected = earray[0]
+    if !(earray[0].end_with? domain)
+    final_expected += '.' + domain + ' ';
+    end   
+                
+    counter = 1 
+    while counter < earray.size do
+      final_expected += " " + earray[counter]
+      counter=counter + 1
+    end
+    e = final_expected
+  }
+  
   validate_by_regexp(expected, actual) {|f|
     # response include ttl, allow any number
-    %r[#{f[0]}. \d+ #{f[1..-1].join(' ')}]
+    %r[#{f[0]}.? \d+ #{f[1..-1].join(' ')}]
   }
 end
 
@@ -132,16 +177,17 @@ def validate(dns_server)
   
   zone_meta = metadata.clone
   zone_meta[:print_record_ids] = true
+  dig_template = "#{$confdir}/sipxdns/digger.erb"
+  dig_query_contents = render(dig_template, metadata)
+  puts separator if $verbose
+  domain = parse_string('DOMAIN', StringIO.new(dig_query_contents))
+  puts dig_query_contents if $verbose
+  dig_queries_by_records_id = parse_zone('RECORDS', StringIO.new(dig_query_contents))
+  
   zone_contents = render($default_zone_template, zone_meta)
   puts separator if $verbose
   puts zone_contents if $verbose
   records_by_record_id = parse_zone('RECORDS', StringIO.new(zone_contents))
-
-  dig_template = "#{$confdir}/sipxdns/digger.erb"
-  dig_query_contents = render(dig_template, metadata)
-  puts separator if $verbose
-  puts dig_query_contents if $verbose
-  dig_queries_by_records_id = parse_zone('RECORDS', StringIO.new(dig_query_contents))
 
   puts separator if $verbose
   dig_queries_by_records_id.each_pair {|record_id, queries|
@@ -156,7 +202,7 @@ def validate(dns_server)
     }
     expected = records_by_record_id[record_id]
     puts "validating #{record_id} records" if $verbose
-    missing = send("validate_" + record_id, metadata, expected, actual)
+    missing = send("validate_" + record_id, metadata, expected, actual, domain)
     unless missing.empty?
       $out.puts "\n;; Missing #{record_id} records"
       $out.puts missing
