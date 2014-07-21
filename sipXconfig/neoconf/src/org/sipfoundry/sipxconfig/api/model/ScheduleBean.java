@@ -53,6 +53,9 @@ public class ScheduleBean {
     }
 
     public static ScheduleBean convertSchedule(Schedule schedule) {
+        if (schedule == null) {
+            return null;
+        }
         ScheduleBean scheduleBean = new ScheduleBean();
         scheduleBean.setId(schedule.getId());
         scheduleBean.setDescription(schedule.getDescription());

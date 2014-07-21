@@ -44,6 +44,11 @@ public interface GatewayApi {
     @GET
     public Response getGatewayModels();
 
+    @Path("{gatewayId}/availablerules")
+    @GET
+    public Response getAvailableRules(@Description("Gateway id")
+        @PathParam("gatewayId") String gatewayId);
+
     @Path("{gatewayId}")
     @GET
     public Response getGateway(@Description("Gateway id")
@@ -57,7 +62,7 @@ public interface GatewayApi {
 
     @Path("{gatewayId}")
     @DELETE
-    public Response deleteGateway(@Description("Gateway Id") @PathParam("gatewayId") Integer gatewayId);
+    public Response deleteGateway(@Description("Gateway Id") @PathParam("gatewayId") String gatewayId);
 
     @Path("{gatewayId}")
     @PUT
@@ -108,14 +113,14 @@ public interface GatewayApi {
     public Response getPorts(@Description("Gateway id")
         @PathParam("gatewayId") String gatewayId);
 
-    @Path("{gatewayId}/port/{portId}/settings")
+    @Path("{gatewayId}/ports/{portId}/settings")
     @GET
     public Response getGatewayPortSettings(
             @Description("Gateway id/serial number")
             @PathParam("gatewayId") String gatewayId, @PathParam("portId") Integer portId,
             @Context HttpServletRequest request);
 
-    @Path("{gatewayId}/port/{portId}/settings/{path:.*}")
+    @Path("{gatewayId}/ports/{portId}/settings/{path:.*}")
     @GET
     public Response getGatewayPortSetting(
             @Description("Gateway id or serial")
@@ -124,7 +129,7 @@ public interface GatewayApi {
             @Description("Path to Gateway Port setting") @PathParam("path") String path,
             @Context HttpServletRequest request);
 
-    @Path("{groupId}/port/{portId}/settings/{path:.*}")
+    @Path("{gatewayId}/ports/{portId}/settings/{path:.*}")
     @PUT
     @Consumes({
         MediaType.TEXT_PLAIN
@@ -135,7 +140,7 @@ public interface GatewayApi {
             @PathParam("portId") Integer portId,
             @Description("Path to Gateway Port setting") @PathParam("path") String path, String value);
 
-    @Path("{gatewayId}/port/{portId}/settings/{path:.*}")
+    @Path("{gatewayId}/ports/{portId}/settings/{path:.*}")
     @DELETE
     public Response deleteGatewayPortSetting(
             @Description("Gateway internal id or name")
