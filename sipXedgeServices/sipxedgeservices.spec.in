@@ -51,32 +51,34 @@ Requires: freeswitch-lang-en
 Requires: libevent2
 Requires: python >= 2.3
 
-
-
 Source:   %name-%version.tar.gz
 
 %description
 SIP Bridging Solutions for sipXecs
 
 %package utils
+Requires: %name
 Summary: Utility Applications for sipX Edge Services
 
 %description utils
 Utility Applications for sipX Edge Services
 
 %package rpc
+Requires: %name
 Summary: RPC Server for sipX Edge Services
 
 %description rpc
 RPC Server for sipX Edge Services
 
 %package config
+Requires: %name
 Summary: Configuration files for sipX Edge Services
 
 %description config
 Configuration files for sipX Edge Services
 
 %package sems
+Requires: %name
 Summary:	SIP Express Media Server, an extensible SIP media server
 
 %description sems

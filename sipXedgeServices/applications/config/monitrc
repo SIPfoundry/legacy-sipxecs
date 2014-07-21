@@ -24,3 +24,10 @@ check process freeswitch with pidfile  /var/log/sipxpbx/edge/freeswitch.pid
     start program "/usr/bin/freeswitch_edged start"
     stop program "/usr/bin/freeswitch_edged stop"
 
+#
+# Monitor SEMS Process
+#
+check process sems with pidfile  /var/log/sipxpbx/edge/sems.pid
+    start program "/usr/bin/sems_edged start"
+    stop program "/usr/bin/sems_edged stop"
+
