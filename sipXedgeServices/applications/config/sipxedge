@@ -19,10 +19,12 @@ PID_FROM_PATH=${EDGE_CONFIG}/pid_from_path.pl
 WEBRTC_PIDFILE=/var/log/sipxpbx/edge/sipxwebrtc.pid
 MONIT_PIDFILE=/var/log/sipxpbx/edge/monit.pid
 FREESWITCH_PIDFILE=/var/log/sipxpbx/edge/freeswitch.pid
+SEMS_PIDFILE=/var/log/sipxpbx/edge/sems.pid
 
 WEBRTC_PROC=/usr/bin/sipxwebrtc
 MONIT_PROC=/opt/sipxecs/edge/monit/bin/monit
 FREESWITCH_PROC=/opt/sipxecs/edge/freeswitch/bin/freeswitch
+SEMS_PROC=/usr/sbin/sems
 
 do_setlimits()
 {
@@ -139,7 +141,18 @@ do_check_freeswitch_process()
   fi
 }
 
-
+do_check_sems_process()
+{
+  if check_process "${SEMS_PIDFILE}" $1; then
+    echo_success
+    echo ""
+    return 0
+  else
+    echo_failure
+    echo ""
+    return 1
+  fi
+}
 
 killproc()
 {
@@ -238,6 +251,17 @@ do_assure_freeswitch_shutdown()
   echo ""
 }
 
+do_assure_sems_shutdown()
+{
+  assure_process_shutdown "${SEMS_PIDFILE}" 30
+  process_pid=`${PID_FROM_PATH} ${SEMS_PROC}`
+  if [ "$process_pid" != "" ]; then
+        kill -9 ${process_pid}
+  fi
+  echo_success
+  echo ""
+}
+
 do_start_monit()
 {
   ${MONIT_PROC} -c ${EDGE_CONFIG}/monitrc -p ${MONIT_PIDFILE}
@@ -271,6 +295,12 @@ obliterate()
         echo "${FREESWITCH_PROC} shutdown signal 9 sent"
         kill -9 `${PID_FROM_PATH} ${pid}`
     fi
+
+    pid=`${PID_FROM_PATH} ${SEMS_PROC}`
+    if [ "$pid" != "" ]; then
+        echo "${SEMS_PROC} shutdown signal 9 sent"
+        kill -9 `${PID_FROM_PATH} ${pid}`
+    fi
 }
 
 do_start()
@@ -297,6 +327,9 @@ do_stop()
   echo -n "Stopping FreeSWITCH "
   do_assure_freeswitch_shutdown
 
+  echo -n "Stopping SEMS "
+  do_assure_sems_shutdown
+
   sleep 1
 
   Status=$?
@@ -316,6 +349,8 @@ do_status()
   do_check_webrtc_process 1
   echo -n "Checking FreeSWITCH "
   do_check_freeswitch_process 1
+  echo -n "Checking SEMS "
+  do_check_sems_process 1
   ${MONIT_PROC} -c ${EDGE_CONFIG}/monitrc -p ${MONIT_PIDFILE} status
   Status=$?
 }

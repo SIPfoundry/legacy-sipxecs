@@ -85,7 +85,7 @@ edge_setup()
         #
         # Determine the system host ip
         #
-        
+
 
         #
         # Configure freeswitch.xml
@@ -129,6 +129,11 @@ edge_setup()
         sed -i "s:%SIPXEDGE_REALM%:${SIPXEDGE_REALM}:g" ./sipxwebrtcd
 
         #
+        # Configure sems
+        #
+        sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" /etc/sipxpbx/edge/sems/etc/sems/sems.conf
+
+        #
         # Set file permissions
         #
         chmod 0700 ./monitrc
@@ -153,6 +158,8 @@ edge_setup()
         chmod +x /usr/bin/sipxwebrtcd
         mv ./freeswitch_edged /usr/bin
         chmod +x /usr/bin/freeswitch_edged
+        mv ./sems_edged /usr/bin
+        chmod +x /usr/bin/sems_edged
 
         #
         # Move the setup-script

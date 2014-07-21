@@ -45,6 +45,7 @@ Requires: sipxresiprocate-libs    >= %version
 Requires: sipxesllib >= %version
 Requires: libjsonrpccpp
 Requires: sipxedgeservices-config
+Requires: sipxedgeservices-sems
 Requires: monit
 Requires: freeswitch
 Requires: freeswitch-lang-en
