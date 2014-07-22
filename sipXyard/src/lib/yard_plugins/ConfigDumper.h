@@ -13,22 +13,20 @@
  * details.
  */
 
-#ifndef PROCESSCONTROL_H_INCLUDED
-#define	PROCESSCONTROL_H_INCLUDED
+#ifndef CONFIGDUMPER_H_INCLUDED
+#define	CONFIGDUMPER_H_INCLUDED
 
-#include "YardProcessor.h"
+#include "sipxyard/YardPlugin.h"
 
-class ProcessControl : public YardProcessor
+class ConfigDumper : public YardProcessor
 {
 public:
-  ProcessControl();
-  virtual ~ProcessControl();
+  ConfigDumper();
+  virtual ~ConfigDumper();
   virtual bool willHandleRequest(const std::string& path);
   virtual void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
-  virtual void handleStatusRequest(const std::string& procName, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
-  virtual void handleInitRequest(const std::string& procName, const std::string& cmd, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
-  virtual void handleKillRequest(const std::string& procName, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+  bool dumpKeysAsIni(const std::string& path, const std::string& fileName, bool lastLeafAskey);
 };
 
-#endif	/* PROCESSCONTROL_H */
+#endif	// CONFIGDUMPER_H_INCLUDED
 

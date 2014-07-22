@@ -33,7 +33,7 @@ BuildRequires: sipxresiprocate-devel    >= %version
 BuildRequires: sipxesllib-devel >= %version
 BuildRequires: libjsonrpccpp-devel
 BuildRequires: cmake
-BuildRequires: libevent-devel
+BuildRequires: libevent2-devel
 BuildRequires: python >= 2.3
 BuildRequires: python-devel >= 2.3
 
@@ -45,13 +45,12 @@ Requires: sipxresiprocate-libs    >= %version
 Requires: sipxesllib >= %version
 Requires: libjsonrpccpp
 Requires: sipxedgeservices-config
+Requires: sipxedgeservices-sems
 Requires: monit
 Requires: freeswitch
 Requires: freeswitch-lang-en
-Requires: libevent
+Requires: libevent2
 Requires: python >= 2.3
-
-
 
 Source:   %name-%version.tar.gz
 
@@ -59,24 +58,28 @@ Source:   %name-%version.tar.gz
 SIP Bridging Solutions for sipXecs
 
 %package utils
+Requires: %name
 Summary: Utility Applications for sipX Edge Services
 
 %description utils
 Utility Applications for sipX Edge Services
 
 %package rpc
+Requires: %name
 Summary: RPC Server for sipX Edge Services
 
 %description rpc
 RPC Server for sipX Edge Services
 
 %package config
+Requires: %name
 Summary: Configuration files for sipX Edge Services
 
 %description config
 Configuration files for sipX Edge Services
 
 %package sems
+Requires: %name
 Summary:	SIP Express Media Server, an extensible SIP media server
 
 %description sems
@@ -141,7 +144,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/*.conf
 
 #doc
-/share/sems/doc/sems-1.5.1/**
+/share/sems/doc/sems-1.6.0/**
 
 %{_sbindir}/sems
 %{_sbindir}/sems-stats

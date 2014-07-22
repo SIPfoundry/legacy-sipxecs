@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/filesystem.hpp>
 #include <unistd.h>
 #include <sipxyard/LevelDB.h>
 
@@ -19,6 +20,8 @@ public:
   static bool string_starts_with(const std::string& str, const char* key);
 
   static bool string_ends_with(const std::string& str, const char* key);
+  
+  static std::string string_from_boost_path(const boost::filesystem::path& path);
 
   static std::vector<std::string> string_tokenize(const std::string& str, const char* tok);
 

@@ -13,6 +13,7 @@
  * details.
  */
 
+#include <boost/filesystem.hpp>
 #include <sipXecsService/SipXApplication.h>
 #include <sipxyard/RESTServer.h>
 #include "Poco/Net/SSLManager.h"
@@ -22,9 +23,9 @@
 #include "config.h"
 #endif
 
-#include "YardProcessor.h"
-#include "ProcessControl.h"
-#include "ConfigDumper.h"
+#include "sipxyard/YardProcessor.h"
+#include "sipxyard/YardPlugin.h"
+#include "sipxyard/YardUtils.h"
 
 
 #define APPLICATION_NAME "sipxyard"
@@ -39,6 +40,8 @@ typedef std::vector<YardProcessor*> CustomHandlers;
 static CustomHandlers _gCustomHandlers;
 static RESTServer _gHttpServer;
 static RESTServer _gHttpsServer;
+static std::vector<YardPlugin*> _gPlugins;
+static std::string _gPluginDir = SIPXYARD_PLUGIN_DIR;
 
 static void custom_handler(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
 {
@@ -63,13 +66,49 @@ static void custom_handler(Poco::Net::HTTPServerRequest& request, Poco::Net::HTT
 
 static void init_custom_handlers()
 {
-  ProcessControl* pProcessControl = new ProcessControl();
-  pProcessControl->announceAssociatedServer(&_gHttpServer);
-  _gCustomHandlers.push_back(pProcessControl);
+  if (!boost::filesystem::exists(_gPluginDir))
+    return;
   
-  ConfigDumper* pConfigDumper = new ConfigDumper();
-  pConfigDumper->announceAssociatedServer(&_gHttpServer);
-  _gCustomHandlers.push_back(pConfigDumper);
+  boost::filesystem::directory_iterator end_itr; // default construction yields past-the-end
+  for (boost::filesystem::directory_iterator itr(_gPluginDir); itr != end_itr; ++itr)
+  {
+    if (boost::filesystem::is_directory(itr->status()))
+    {
+      continue;
+    }
+    else
+    {
+      boost::filesystem::path currentFile = itr->path();
+      if (boost::filesystem::is_regular(currentFile))
+      {
+        std::string pluginFile = YardUtils::string_from_boost_path(currentFile);
+        
+        if (YardUtils::string_ends_with(pluginFile, ".so"))
+        {
+          YardPlugin* pPlugin = new YardPlugin();
+          if (!pPlugin->loadPlugin(pluginFile))
+          {
+            delete pPlugin;
+            continue;
+          }
+          
+          
+          YardProcessor* pProcessor = pPlugin->createInstance();
+          if (pProcessor)
+          {
+            _gPlugins.push_back(pPlugin);
+            pProcessor->announceAssociatedServer(&_gHttpServer);
+            _gCustomHandlers.push_back(pProcessor);
+          }
+          else
+          {
+            delete pPlugin;
+            continue;
+          }
+        }
+      }
+    }
+  }
 }
 
 static void destroy_custom_handlers()
@@ -79,6 +118,13 @@ static void destroy_custom_handlers()
     YardProcessor* pHandler = *iter;
     delete pHandler;
     pHandler = 0;
+  }
+  
+  for (std::vector<YardPlugin*>::iterator iter = _gPlugins.begin(); iter != _gPlugins.end(); iter++)
+  {
+    YardPlugin* pPlugin = *iter;
+    delete pPlugin;
+    pPlugin = 0;
   }
 }
 
@@ -161,6 +207,8 @@ int main(int argc, char** argv)
   // Initialize the custom handlers
   //
   init_custom_handlers();
+  
+
   RESTServer::Handler handler = boost::bind(custom_handler, _1, _2);
   _gHttpServer.setCustomHandler(handler);
   _gHttpsServer.setCustomHandler(handler);

@@ -18,7 +18,11 @@
 <%
   if all_servers
     all_servers.each { |server| 
+    if (server[:name].end_with? domain or server[:name].end_with? domain + ".")
 %>-t A <%= server[:name] %>
-<%  }
+<% else 
+%>-t A <%= server[:name] %>.<%= domain %>
+<%    end }
   end
 %>
+;; DOMAIN: <%= domain%>
