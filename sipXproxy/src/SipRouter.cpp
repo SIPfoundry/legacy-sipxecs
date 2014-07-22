@@ -200,6 +200,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
 #endif
    
    mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
+   mpRegDb = RegDB::CreateInstance();
 
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
@@ -340,6 +341,12 @@ SipRouter::~SipRouter()
    {
 	   delete mpEntityDb;
 	   mpEntityDb = NULL;
+   }
+   
+   if (mpRegDb != NULL)
+   {
+	   delete mpRegDb;
+	   mpRegDb = NULL;
    }
 }
 
@@ -706,9 +713,35 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                // have to evaluate the forwarding rules so that request will
                // be routed to the redirect server where the GRUU can be resolved.
                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                             "SipRouter::proxyMessage domain is us");
-               bRequestShouldBeAuthorized         = true;
-               bForwardingRulesShouldBeEvaluated  = true;
+                             "SipRouter::proxyMessage detected GRUU mid-dialog request.");
+               
+               RegDB::Bindings registrations;
+               UtlString identity;
+               unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
+               normalizedRequestUri.getIdentity(identity);
+               mpRegDb->getUnexpiredContactsUser(identity.str(), timeNow, registrations, true);
+               
+               if (!registrations.empty())
+               {
+                 Url contactUri(registrations[0].getContact().c_str());
+                 
+                 UtlString changedUri;
+                 UtlString previousUri;
+                 normalizedRequestUri.getUri(previousUri);
+                 contactUri.getUri(changedUri);
+                 
+                 OS_LOG_INFO(FAC_SIP, "GRUU normalizing " << previousUri.data() << " -> " <<  changedUri.data());
+                 normalizedRequestUri = contactUri;
+                 sipRequest.changeRequestUri(changedUri);
+                 
+                 bRequestShouldBeAuthorized         = true;
+                 bForwardingRulesShouldBeEvaluated  = false;
+               }
+               else
+               {
+                 bRequestShouldBeAuthorized         = true;
+                 bForwardingRulesShouldBeEvaluated  = true;
+               }
             }
             else
             {
