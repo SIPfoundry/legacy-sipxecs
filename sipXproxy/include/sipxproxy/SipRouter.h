@@ -19,6 +19,7 @@
 #include <utl/PluginHooks.h>
 #include <sipxproxy/AuthPlugin.h>
 #include <net/SipBidirectionalProcessorPlugin.h>
+#include <sipdb/RegDB.h>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -245,6 +246,7 @@ class SipRouter : public OsServerTask
 	 friend class SipBridgeRouter;
 
    EntityDB* mpEntityDb;
+   RegDB* mpRegDb;
 };
 
 /* ============================ INLINE METHODS ============================ */
