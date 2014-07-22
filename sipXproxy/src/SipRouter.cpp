@@ -708,10 +708,14 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                bForwardingRulesShouldBeEvaluated  = false;
             }
             else if ( isLocalDomain(normalizedRequestUri, false) && normalizedRequestUri.isGRUU() )
-            {
-               // final target is in our own domain and URI is GRUU.  We
-               // have to evaluate the forwarding rules so that request will
-               // be routed to the redirect server where the GRUU can be resolved.
+            {             
+               //
+               // The domain points to us and the uri is a GRUU.  We will attempt to query the
+               // registration database locally if there is a registration for this GRUU.
+               // If a registration is found, we will retarget the request-uri.
+               // If no registration is found, we will revert to the old rule and evaluate forwarding rules
+               // and hope or the best.
+               // 
                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipRouter::proxyMessage detected GRUU mid-dialog request.");
                
@@ -730,6 +734,11 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                  normalizedRequestUri.getUri(previousUri);
                  contactUri.getUri(changedUri);
                  
+                 if (registrations.size() > 1)
+                 {
+                   OS_LOG_WARNING(FAC_SIP, "GRUU normalizing " << previousUri.data() << " resolves to multiple target.  Using first record with extreme prejudice.");
+                 }
+                 
                  OS_LOG_INFO(FAC_SIP, "GRUU normalizing " << previousUri.data() << " -> " <<  changedUri.data());
                  normalizedRequestUri = contactUri;
                  sipRequest.changeRequestUri(changedUri);
@@ -739,6 +748,9 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                }
                else
                {
+                 UtlString gruuUri;
+                 normalizedRequestUri.getUri(gruuUri);
+                 OS_LOG_WARNING(FAC_SIP, "Unable to resolve GRUU " << gruuUri.data() << " through the registration database.");
                  bRequestShouldBeAuthorized         = true;
                  bForwardingRulesShouldBeEvaluated  = true;
                }
