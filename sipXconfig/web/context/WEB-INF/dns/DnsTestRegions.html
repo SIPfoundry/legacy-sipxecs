@@ -1,0 +1,22 @@
+<span jwcid="@common/QuickHelp" value="message:quick.help" />
+<span jwcid="@common/ErrorMsg" validator="bean:validator"/>
+<form jwcid="dnsTestForm@Form" delegate="bean:validator">
+  <fieldset>
+  <tr jwcid="@region/RegionSelection" regionId="ognl:regionId"/>
+    <span jwcid="@common/FieldPanel"
+      for="dnsServer"
+      field="component:dnsServer"
+      label="message:label.dnsServer">
+      <span jwcid="dnsServer@TextField"
+      id="dnsServer"
+      value="ognl:dnsServer"
+      validators="validators:required"/>
+    </span>
+    <p>
+      <input jwcid="runTest@Submit" listener="listener:execute" value="message:button.runtest"/>
+    </p>
+  </fieldset>
+  <span jwcid="@If" condition="ognl:resultsNotBlank" renderTag="false">
+    <textarea jwcid="resultsReadOnly@TextArea" disabled="true" rows="30" class="textBox" value="ognl:results"/>
+  </span>
+</form>

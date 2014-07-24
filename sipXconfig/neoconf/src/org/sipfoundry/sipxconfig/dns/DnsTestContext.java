@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+import org.sipfoundry.sipxconfig.region.Region;
+
 public interface DnsTestContext {
 
     /**
@@ -16,4 +18,6 @@ public interface DnsTestContext {
      * @return
      */
     public String missingRecords(String server);
+
+    String missingRecords(Region region, String server);
 }

@@ -20,13 +20,13 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
 // order is
 @JsonPropertyOrder(alphabetic = true)
 public class DnsSrvRecord {
-    private String m_host;
+    private final String m_host;
     private int m_priority = 30;
     private int m_weight = 10;
-    private String m_destination;
-    private String m_protocol;
-    private String m_resource;
-    private int m_port;
+    private final String m_destination;
+    private final String m_protocol;
+    private final String m_resource;
+    private final int m_port;
     private boolean m_internal;
 
     public DnsSrvRecord(String protocol, String resource, String host, int port, String destination) {
@@ -45,7 +45,8 @@ public class DnsSrvRecord {
     }
 
     /**
-     * Useful for internal "RR" records that select a local host first e.g. _sip._tcp.host1.example.org
+     * Useful for internal "RR" records that select a local host first e.g.
+     * _sip._tcp.host1.example.org
      */
     public static final DnsSrvRecord hostLevel(String protocol, String resource, String host, int port,
             String destination) {
@@ -105,5 +106,12 @@ public class DnsSrvRecord {
 
     public void setInternal(boolean internal) {
         m_internal = internal;
+    }
+
+    @Override
+    public String toString() {
+        return "DnsSrvRecord [m_host=" + m_host + ", m_priority=" + m_priority + ", m_weight=" + m_weight
+                + ", m_destination=" + m_destination + ", m_protocol=" + m_protocol + ", m_resource=" + m_resource
+                + ", m_port=" + m_port + ", m_internal=" + m_internal + "]";
     }
 }

@@ -200,13 +200,13 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     }
 
     static class PlanRowReader implements RowCallbackHandler {
-        private List<DnsFailoverPlan> m_plans;
+        private final List<DnsFailoverPlan> m_plans;
         private DnsFailoverPlan m_plan;
         private List<DnsFailoverGroup> m_groups;
-        private Map<Integer, Region> m_regions = new HashMap<Integer, Region>();
+        private final Map<Integer, Region> m_regions = new HashMap<Integer, Region>();
         private List<DnsTarget> m_targets;
         private DnsFailoverGroup m_group;
-        private Map<Integer, Location> m_locations = new HashMap<Integer, Location>();
+        private final Map<Integer, Location> m_locations = new HashMap<Integer, Location>();
 
         PlanRowReader(List<DnsFailoverPlan> plans, Collection<Region> regions, Collection<Location> locations) {
             m_plans = plans;
@@ -334,8 +334,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         }
         List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
         if (plan != null) {
-            for (DnsProvider provider : m_providers) {
-                Collection<ResourceRecords> rrs = provider.getResourceRecords(this);
+            Collection<ResourceRecords> rrs = getResourceRecords();
                 if (rrs != null) {
                     for (ResourceRecords rr : rrs) {
                         for (ResourceRecord record : rr.getRecords()) {
@@ -343,10 +342,22 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
                         }
                     }
                 }
-            }
         }
 
         return srvs;
+    }
+
+    @Override
+    public Collection<ResourceRecords> getResourceRecords() {
+        List<ResourceRecords> rrs = new ArrayList<ResourceRecords>();
+            for (DnsProvider provider : m_providers) {
+                Collection<ResourceRecords> resRecords =  provider.getResourceRecords(this);
+                if (resRecords != null) {
+                    rrs.addAll(provider.getResourceRecords(this));
+                }
+            }
+
+        return rrs;
     }
 
     public DnsFailoverPlan createFairlyTypicalDnsFailoverPlan() {
@@ -427,6 +438,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 
+    @Override
     public AddressManager getAddressManager() {
         return m_addressManager;
     }

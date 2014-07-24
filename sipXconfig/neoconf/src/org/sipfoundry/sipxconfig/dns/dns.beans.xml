@@ -42,6 +42,12 @@
 
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.dns.DnsTestContextImpl">
     <property name="validatorScript" value="${sysdir.libexec}/sipx-dns-validator"/>
+    <property name="validatorScriptRegions" value="sipx-dns-validator-regions"/>
+    <property name="dnsManager" ref="dnsManager"/>
+    <property name="configManager" ref="configManager"/>
+    <property name="regionManager" ref="regionManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="domainManager" ref="domainManager"/>
   </bean>
 
   <bean id="dnsTestContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

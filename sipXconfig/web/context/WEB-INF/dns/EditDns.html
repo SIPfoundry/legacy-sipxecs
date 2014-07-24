@@ -33,6 +33,11 @@
       <li id="advisor-tab" class="tab">
         <a id="advisor-tab-link" href="#"><span key="tab.advisor">Advisor</span></a>
       </li>
+      <span jwcid="@If" condition="ognl:regionsPresent" renderTag="false">
+      <li id="advisor-regions-tab" class="tab">
+        <a id="advisor-regions-tab-link" href="#"><span key="tab.advisor.regions">Advisor Regions</span></a>
+      </li>
+      </span>
     </ul>
     </div>
     <div id="settings">
@@ -50,6 +55,9 @@
     </div>
     <div id="advisor" style="display: none;">
        <span jwcid="@dns/DnsTest"></span>    
+    </div>
+    <div id="advisor-regions" style="display: none;">
+       <span jwcid="@dns/DnsTestRegions"></span>    
     </div>
     <div id="views" style="display: none;">
       <div class="help">

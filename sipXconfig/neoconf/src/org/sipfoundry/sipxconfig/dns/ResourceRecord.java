@@ -17,8 +17,8 @@
 package org.sipfoundry.sipxconfig.dns;
 
 public class ResourceRecord {
-    private String m_address;
-    private int m_port;
+    private final String m_address;
+    private final int m_port;
     private Integer m_regionId;
 
     public ResourceRecord(String address, int port) {
@@ -42,5 +42,10 @@ public class ResourceRecord {
 
     public Integer getRegionId() {
         return m_regionId;
+    }
+
+    @Override
+    public String toString() {
+        return "ResourceRecord [m_address=" + m_address + ", m_port=" + m_port + ", m_regionId=" + m_regionId + "]";
     }
 }

@@ -25,6 +25,7 @@ bundle agent sipxconfig {
       "any" usebundle => "sipxconfig_logwatcher";
     any::
       "any" usebundle => "sipxconfig_services";
+      "any" usebundle => allow_ssh_command("sipx-dns-validator-regions");
 }
 
 bundle agent sipxconfig_logwatcher {

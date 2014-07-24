@@ -19,7 +19,7 @@ import 'package:sipxconfig/sipxconfig.dart';
 var api = new Api(test : false);
 
 main() {
-  var tabIds = [ "settings", "views", "failover", "custom", "advisor" ];
+  var tabIds = [ "settings", "views", "failover", "custom", "advisor", "advisor-regions" ];
   var tabs = new Tabs(querySelector("#leftNavAbsolute"), tabIds);
   tabs.setPersistentStateId("editDns");
   new Views();

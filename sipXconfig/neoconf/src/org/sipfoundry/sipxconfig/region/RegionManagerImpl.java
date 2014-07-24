@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -67,6 +68,13 @@ public class RegionManagerImpl implements RegionManager {
         } catch (DuplicateKeyException e) {
             throw new UserException(ERROR_NAME_IN_USE, region.getName());
         }
+    }
+
+    @Override
+    public List<Integer> getServersByRegion(int regionId) {
+        String sql = "select location_id from location where region_id=%d";
+        return m_db.queryForList(String.format(sql, regionId),Integer.class);
+
     }
 
     void validateRegion(Region region) {

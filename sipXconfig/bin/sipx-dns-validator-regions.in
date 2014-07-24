@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+#
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# Check DNS records from a given system
+#
+
+#defaults:
+host="localhost";
+type="SRV";
+
+while [[ $# > 1 ]]
+do
+key="$1"
+shift
+
+case $key in
+        -h|--host)
+        host="$1"
+        shift
+        ;;
+        -r|--record)
+        record="$1"
+        shift
+        ;;
+        -d|--domain)
+        domain="$1"
+        shift
+        ;;
+        -t|--type)
+        type="$1"
+        shift
+        ;;
+        -o|--out)
+        file="$1"
+        shift
+        ;;
+        *)
+        ;;
+esac
+done
+
+if [ -z "$record" ] || [ -z "$domain" ]
+then
+  echo -e "USAGE\n\tsipx-dns-validator-regions -r|--record {record} -d|--domain {domainname} [-h|--host {hostname|IP}] [-t|--type {record type}] [-o|--out {filename}]"
+  echo -e "\nOPTIONS"
+  echo -e "\t-r|--record\trecord to dig; example: _sip._tcp.vm; REQUIRED"
+  echo -e "\t-d|--domain\tdomain name; the record to will be formed by record.domain; example: domain.com; REQUIRED"
+  echo -e "\t-h|--host\tIP address or fqdn of the DNS server to query; defaults to localhost"
+  echo -e "\t-t|--type\ttype of the record to query; defaults to SRV"
+  echo -e "\t-o|--out\tname (and path) of the file to write the output to; if missing, result will be written to standard output"
+  exit 1;
+fi 
+
+if [ -n "$file" ] 
+then
+  dig @$host $record.$domain $type | awk -vrecord="^$record.$domain" '$0 ~ record{print $8}' > $file
+else
+  dig @$host $record.$domain $type | awk -vrecord="^$record.$domain" '$0 ~ record{print $8}'
+fi
+

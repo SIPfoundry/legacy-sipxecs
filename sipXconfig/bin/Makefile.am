@@ -31,7 +31,8 @@ bin_SCRIPTS = \
 	mongodb-admin \
 	sipxtrap \
 	system-audit-cleanup \
-	system-audit-cleanup.rb
+	system-audit-cleanup.rb \
+	sipx-dns-validator-regions
 
 libexecdir = $(SIPX_LIBEXECDIR)
 libexec_SCRIPTS = \

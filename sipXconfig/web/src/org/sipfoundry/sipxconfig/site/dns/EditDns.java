@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsSettings;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 
 public abstract class EditDns extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "dns/EditDns";
@@ -38,11 +39,18 @@ public abstract class EditDns extends PageWithCallback implements PageBeginRende
 
     public abstract void setSettings(DnsSettings settings);
 
+    @InjectObject(value = "spring:regionManager")
+    public abstract RegionManager getRegionManager();
+
     @Override
     public void pageBeginRender(PageEvent arg0) {
         if (getSettings() == null) {
             setSettings(getDnsManager().getSettings());
         }
+    }
+
+    public boolean isRegionsPresent() {
+        return !getRegionManager().getRegions().isEmpty();
     }
 
     public void apply() {
