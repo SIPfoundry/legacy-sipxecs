@@ -99,7 +99,7 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         }
         String details = filter.getDetails();
         if (details != null) {
-            crit.add(Restrictions.eq(DETAILS, details));
+            crit.add(Restrictions.eq(DETAILS, details).ignoreCase());
         }
     }
 
@@ -114,21 +114,32 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
     }
 
     public void storeConfigChange(final ConfigChange configChange) throws SystemAuditException {
-        getHibernateTemplate().executeWithNewSession(new HibernateCallback<ConfigChange>() {
-            @Override
-            public ConfigChange doInHibernate(Session session) throws HibernateException, SQLException {
-                UserIpAddress userIpAddress = configChange.getUserIpAddress();
-                if (userIpAddress != null && userIpAddress.isNew()) {
-                    session.save(userIpAddress);
-                }
-                if (!configChange.isNew()) {
-                    session.merge(configChange);
-                } else {
-                    session.save(configChange);
-                }
-                return configChange;
-            }
-        });
+        getHibernateTemplate().executeWithNewSession(
+                new HibernateCallback<ConfigChange>() {
+                    @Override
+                    public ConfigChange doInHibernate(Session session)
+                        throws HibernateException, SQLException {
+                        // handle UserIpAddress
+                        UserIpAddress userIpAddress = configChange.getUserIpAddress();
+                        UserIpAddress persistedUserIpAddress = m_coreContext
+                                .getUserIpAddress(userIpAddress.getUserName(),
+                                        userIpAddress.getIpAddress());
+                        if (persistedUserIpAddress != null) {
+                            configChange.setUserIpAddress(persistedUserIpAddress);
+                        } else {
+                            if (userIpAddress != null && userIpAddress.isNew()) {
+                                session.save(userIpAddress);
+                            }
+                        }
+                        //handle configChange
+                        if (!configChange.isNew()) {
+                            session.merge(configChange);
+                        } else {
+                            session.save(configChange);
+                        }
+                        return configChange;
+                    }
+                });
     }
 
     @Override
