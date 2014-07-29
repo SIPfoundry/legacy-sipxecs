@@ -18,8 +18,6 @@
 package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,9 +41,6 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     private FeatureAuditHandler m_featureAuditHandler;
     private LoginLogoutAuditHandler m_loginLogoutAuditHandler;
 
-    private ExecutorService m_changeExecutor = Executors.newSingleThreadExecutor();
-    private ExecutorService m_collectionExecutor = Executors.newSingleThreadExecutor();
-
     /**
      * This method will execute in a different thread not to interfere with the normal persistence logic
      */
@@ -54,21 +49,15 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
             final ConfigChangeAction configChangeAction,
             final String[] properties, final Object[] oldValues,
             final Object[] newValues) {
-        Runnable thread = new Runnable() {
-            @Override
-            public void run() {
-                if (entity instanceof SystemAuditable) {
-                    try {
-                        m_generalAuditHandler.handleConfigChange(
-                                (SystemAuditable) entity, configChangeAction,
-                                properties, oldValues, newValues);
-                    } catch (Exception e) {
-                        LOG.error(LOG_ERROR_MESSAGE, e);
-                    }
-                }
+        if (entity instanceof SystemAuditable) {
+            try {
+                m_generalAuditHandler.handleConfigChange(
+                        (SystemAuditable) entity, configChangeAction,
+                        properties, oldValues, newValues);
+            } catch (Exception e) {
+                LOG.error(LOG_ERROR_MESSAGE, e);
             }
-        };
-        m_changeExecutor.execute(thread);
+        }
     }
 
     /**
@@ -116,18 +105,11 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     @Override
     public void onConfigChangeCollectionUpdate(final Object collection,
             final Serializable key) {
-        Runnable thread = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    m_generalAuditHandler.handleCollectionUpdate(collection,
-                            key);
-                } catch (Exception e) {
-                    LOG.error(LOG_ERROR_MESSAGE, e);
-                }
-            }
-        };
-        m_collectionExecutor.execute(thread);
+        try {
+            m_generalAuditHandler.handleCollectionUpdate(collection, key);
+        } catch (Exception e) {
+            LOG.error(LOG_ERROR_MESSAGE, e);
+        }
     }
 
     /**

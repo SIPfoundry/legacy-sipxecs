@@ -4,30 +4,31 @@
 
 	<form jwcid="@Form">
 		<table>
-			<tr jwcid="@common/DateTimeEditor" datetime="ognl:configChange.dateTime"
-					readonly="readonly"
-					label="message:dateTime"/>
+			<tr jwcid="@common/FieldPanel" label="message:dateTime">
+				<td jwcid="@TextField" value="ognl:configChange.dateTime"
+					readonly="readonly" disabled="true" />
+			</tr>
 			<span jwcid="@If" condition="ognl:configChange.userIpAddress != null" renderTag="false">
 				<tr jwcid="@common/FieldPanel" label="message:user">
 					<td jwcid="@TextField" value="ognl:configChange.userIpAddress.userName"
-						readonly="readonly" />
+						readonly="readonly" disabled="true" />
 				</tr>
 				<tr jwcid="@common/FieldPanel" label="message:ipAddress">
 					<td jwcid="@TextField" value="ognl:configChange.userIpAddress.ipAddress"
-						readonly="readonly" />
+						readonly="readonly" disabled="true" />
 				</tr>
 			</span>
 			<tr jwcid="@common/FieldPanel" label="message:configChangeType">
 				<td jwcid="@TextField" value="ognl:configChangeType"
-					readonly="readonly" />
+					readonly="readonly" disabled="true" />
 			</tr>
 			<tr jwcid="@common/FieldPanel" label="message:configChangeAction">
 				<td jwcid="@TextField" value="ognl:configChangeAction"
-					readonly="readonly" />
+					readonly="readonly" disabled="true" />
 			</tr>
 			<tr jwcid="@common/FieldPanel" label="message:details">
 				<td jwcid="@TextField" value="ognl:details"
-					readonly="readonly" />
+					readonly="readonly" disabled="true" />
 			</tr>
 		</table>
 

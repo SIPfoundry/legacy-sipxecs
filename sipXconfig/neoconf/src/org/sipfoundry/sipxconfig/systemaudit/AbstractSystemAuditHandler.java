@@ -78,10 +78,7 @@ public abstract class AbstractSystemAuditHandler {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeAction(configChangeAction);
         configChange.setConfigChangeType(configChangeType);
-        UserIpAddress userIpAddress = m_coreContext.getUserIpAddress(userName, ipAddress);
-        if (userIpAddress == null) {
-            userIpAddress = new UserIpAddress(userName, ipAddress);
-        }
+        UserIpAddress userIpAddress = new UserIpAddress(userName, ipAddress);
         configChange.setUserIpAddress(userIpAddress);
 
         return configChange;
