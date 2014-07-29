@@ -218,7 +218,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
                 handleSetIterator(newIterator, valueAfterBuilder, configChangeValue, collection);
             }
             String valueBefore = valueBeforeBuilder.substring(0, valueBeforeBuilder.length());
-            String valueAfter = valueAfterBuilder.substring(0, valueAfterBuilder.length() - 1);
+            String valueAfter = valueAfterBuilder.substring(0, valueAfterBuilder.length());
             if (!valueBefore.equals(valueAfter)) {
                 configChangeValue.setValueBefore(valueBefore);
                 configChangeValue.setValueAfter(valueAfter);
