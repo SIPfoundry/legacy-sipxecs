@@ -15,6 +15,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsServerTask.h>
+#include "os/OsThreadPool.h"
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
 #include <sipxproxy/AuthPlugin.h>
@@ -214,6 +215,8 @@ class SipRouter : public OsServerTask
                                 );
    
 
+   void handleRequest(SipMessage* pMsg);
+   
    SipUserAgent* mpSipUserAgent;         ///< SIP stack interface
    bool          mAuthenticationEnabled; ///< based on SIPX_PROXY_AUTHENTICATE_ALGORITHM
    UtlString     mRealm;                 ///< realm for challenges - common to replicatants
@@ -254,6 +257,7 @@ class SipRouter : public OsServerTask
 
    EntityDB* mpEntityDb;
    RegDB* mpRegDb;
+   OsThreadPool<SipMessage*> _threadPool;
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -32,7 +32,6 @@
 #include "ForwardRules.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
-#include "SipBridgeRouter.h"
 #include "net/HttpRequestContext.h"
 #include "net/NameValuePairInsensitive.h"
 
@@ -57,13 +56,6 @@ static const char* P_PID_HEADER = "P-Preferred-Identity";
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-
-#define SIPX_PROXY_ENABLE_BRIDGE_ROUTER 0
-
-#if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
-static SipBridgeRouter* _pBridgeRouter = 0;
-#endif
-
 /* ============================ CREATORS ================================== */
 
 // Constructor
@@ -78,9 +70,9 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mpForwardingRules(&forwardingRules)
    ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix)
    ,mTransactionPlugins(SipBidirectionalProcessorPlugin::Factory, SipBidirectionalProcessorPlugin::Prefix)
-   ,mpEntityDb(0)
    ,mEnsureTcpLifetime(FALSE)
    ,mRelayAllowed(TRUE)
+   ,mpEntityDb(0)
 
 {
    // Get Via info to use as defaults for route & realm
@@ -186,19 +178,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                                       NULL     // observerData
                                       );
 
-#if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
-   if (_pBridgeRouter)
-    delete _pBridgeRouter;
-   _pBridgeRouter = new SipBridgeRouter(this);
-   if (!_pBridgeRouter->initialize())
-   {
-     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
-                    "Unable to initialize SipBridgeRouter.");
-      delete _pBridgeRouter;
-      _pBridgeRouter = 0;
-   }
-#endif
-   
    mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
    mpRegDb = RegDB::CreateInstance();
 
@@ -385,73 +364,25 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                }
                else
                {
-                  bool isBridgeRelay = false;
-  #if SIPX_PROXY_ENABLE_BRIDGE_ROUTER
-                  if (_pBridgeRouter && _pBridgeRouter->isEnabled())
+                  //
+                  // Schedule the processing using the threadPool
+                  //
+                  SipMessage* pMsg = new SipMessage(*sipRequest);
+                  if (!_threadPool.schedule(boost::bind(&SipRouter::handleRequest, this, _1), pMsg))
                   {
-                    SipMessage bridgeResponse;
-                    switch (_pBridgeRouter->proxyMessage(*sipRequest, bridgeResponse))
-                    {
-                      case SipBridgeRouter::DoneSending:
-                        //
-                        // The bridge router relayed the message internally.
-                        // One use case is the relay of stateless acks
-                        //
-                        isBridgeRelay = true;
-                        break;
-                      case SipBridgeRouter::SendRequest:
-                        // sipRequest may have been rewritten entirely by proxyMessage().
-                        // clear timestamps, protocol, and port information
-                        // so send will recalculate it
-                        isBridgeRelay = true;
-                        sipRequest->resetTransport();
-                        mpSipUserAgent->send(*sipRequest);
-                        break;
+                    SipMessage finalResponse;
+                    finalResponse.setResponseData(pMsg, SIP_5XX_CLASS_CODE, "No Thread Available");
+                    mpSipUserAgent->send(finalResponse);
 
-                      case SipBridgeRouter::SendResponse:
-                        isBridgeRelay = true;
-                        bridgeResponse.resetTransport();
-                        mpSipUserAgent->send(bridgeResponse);
-                        break;
+                    OS_LOG_ERROR(FAC_SIP, "SipRegistrarServer::handleMessage failed to create pooled thread!  Threadpool size="
+                      << _threadPool.threadPool().available());
 
-                      case SipBridgeRouter::DoNothing:
-                        // this message is just ignored
-                        break;
-
-                      default:
-                        Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-                          "SipBridgeRouter::proxyMessage returned invalid action");
-                        assert(false);
-                    }
+                    delete pMsg;
                   }
-  #endif
-                  if (!isBridgeRelay)
+                  else
                   {
-                    SipMessage sipResponse;
-                    switch (proxyMessage(*sipRequest, sipResponse))
-                    {
-                    case SendRequest:
-                       // sipRequest may have been rewritten entirely by proxyMessage().
-                       // clear timestamps, protocol, and port information
-                       // so send will recalculate it
-                       sipRequest->resetTransport();
-                       mpSipUserAgent->send(*sipRequest);
-                       break;
-
-                    case SendResponse:
-                       sipResponse.resetTransport();
-                       mpSipUserAgent->send(sipResponse);
-                       break;
-
-                    case DoNothing:
-                       // this message is just ignored
-                       break;
-
-                    default:
-                       Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-                                     "SipRouter::proxyMessage returned invalid action");
-                       assert(false);
-                    }
+                    OS_LOG_INFO(FAC_SIP, "SipRouter::handleMessage scheduled new request.  Threadpool size="
+                      << _threadPool.threadPool().available());
                   }
                }
            }
@@ -506,6 +437,37 @@ SipRouter::handleMessage( OsMsg& eventMessage )
   }
 
   return(TRUE);
+}
+
+void SipRouter::handleRequest(SipMessage* pSipRequest)
+{
+  SipMessage sipResponse;
+  switch (proxyMessage(*pSipRequest, sipResponse))
+  {
+  case SendRequest:
+     // sipRequest may have been rewritten entirely by proxyMessage().
+     // clear timestamps, protocol, and port information
+     // so send will recalculate it
+     pSipRequest->resetTransport();
+     mpSipUserAgent->send(*pSipRequest);
+     break;
+
+  case SendResponse:
+     sipResponse.resetTransport();
+     mpSipUserAgent->send(sipResponse);
+     break;
+
+  case DoNothing:
+     // this message is just ignored
+     break;
+
+  default:
+     Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+                   "SipRouter::proxyMessage returned invalid action");
+     assert(false);
+  }
+  
+  delete pSipRequest;
 }
 
 void SipRouter::addRuriParams(SipMessage& sipRequest, const UtlString& ruriParams)
