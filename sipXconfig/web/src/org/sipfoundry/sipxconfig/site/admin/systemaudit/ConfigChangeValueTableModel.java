@@ -23,14 +23,17 @@ import java.util.List;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChange;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContext;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeValue;
 
 public class ConfigChangeValueTableModel implements IBasicTableModel {
 
+    private ConfigChangeContext m_configChangeContext;
     private ConfigChange m_configChange;
 
-    public ConfigChangeValueTableModel(ConfigChange configChange) {
+    public ConfigChangeValueTableModel(ConfigChangeContext configChangeContext, ConfigChange configChange) {
         setConfigChange(configChange);
+        setConfigChangeContext(configChangeContext);
     }
 
     public ConfigChangeValueTableModel() {
@@ -48,9 +51,18 @@ public class ConfigChangeValueTableModel implements IBasicTableModel {
         return m_configChange.getValues().size();
     }
 
-    public Iterator<ConfigChangeValue> getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
-            boolean orderAscending) {
-        List<ConfigChangeValue> page = m_configChange.getValues();
+    public Iterator<ConfigChangeValue> getCurrentPageRows(int firstRow,
+            int pageSize, ITableColumn objSortColumn, boolean orderAscending) {
+        String orderBy = objSortColumn != null ? objSortColumn.getColumnName()
+                : null;
+        String[] orderByArray = new String[] {orderBy};
+        List<ConfigChangeValue> page = m_configChangeContext
+                .loadConfigChangeValuesByPage(getConfigChange().getId(), null, firstRow, pageSize,
+                        orderByArray, orderAscending);
         return page.iterator();
+    }
+
+    public void setConfigChangeContext(ConfigChangeContext configChangeContext) {
+        m_configChangeContext = configChangeContext;
     }
 }

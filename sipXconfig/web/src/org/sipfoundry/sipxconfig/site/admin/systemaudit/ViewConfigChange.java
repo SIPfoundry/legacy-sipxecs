@@ -18,6 +18,7 @@
 package org.sipfoundry.sipxconfig.site.admin.systemaudit;
 
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -25,6 +26,8 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChange;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContext;
 
 public abstract class ViewConfigChange extends PageWithCallback implements PageBeginRenderListener {
 
@@ -46,6 +49,9 @@ public abstract class ViewConfigChange extends PageWithCallback implements PageB
     public abstract String getDetails();
     public abstract void setDetails(String details);
 
+    @InjectObject(value = "spring:configChangeContext")
+    public abstract ConfigChangeContext getConfigChangeContext();
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -53,7 +59,7 @@ public abstract class ViewConfigChange extends PageWithCallback implements PageB
     }
 
     public IBasicTableModel getTableModel() {
-        return new ConfigChangeValueTableModel(getConfigChange());
+        return new ConfigChangeValueTableModel(getConfigChangeContext(), getConfigChange());
     }
 
     public String cancel() {
@@ -62,6 +68,14 @@ public abstract class ViewConfigChange extends PageWithCallback implements PageB
 
     public boolean getHasConfigChangeValues() {
         return !getConfigChange().getValues().isEmpty();
+    }
+
+    public String getQuickHelp() {
+        if (getConfigChange().getConfigChangeAction().equals(ConfigChangeAction.MODIFIED)) {
+            return getMessages().getMessage("systemaudit.modifiedaction.quick.help");
+        } else {
+            return getMessages().getMessage("systemaudit.quick.help");
+        }
     }
 
 }

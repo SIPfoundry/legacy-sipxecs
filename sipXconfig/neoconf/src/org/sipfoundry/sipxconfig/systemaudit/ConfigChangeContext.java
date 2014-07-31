@@ -54,4 +54,7 @@ public interface ConfigChangeContext extends DataObjectSource<ConfigChange> {
      */
     public void dumpSystemAuditLogs(PrintWriter writer, SystemAuditFilter filter);
 
+    public List<ConfigChangeValue> loadConfigChangeValuesByPage(Integer configChangeId, Integer groupId,
+            int firstRow, int pageSize, String[] orderBy, boolean orderAscending);
+
 }

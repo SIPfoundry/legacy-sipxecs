@@ -34,9 +34,12 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserIpAddress;
+import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChange;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContext;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ConfigChangeTable extends BaseComponent implements PageBeginRenderListener {
@@ -60,6 +63,9 @@ public abstract class ConfigChangeTable extends BaseComponent implements PageBeg
 
     @InjectObject("spring:configChangeContext")
     public abstract ConfigChangeContext getConfigChangeContext();
+
+    @InjectObject("spring:standardUserDetailsService")
+    public abstract UserDetailsService getUserDetailsService();
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -120,7 +126,15 @@ public abstract class ConfigChangeTable extends BaseComponent implements PageBeg
     public User getUser() {
         UserIpAddress userIpAddress = getConfigChange().getUserIpAddress();
         if (userIpAddress != null) {
-            return getCoreContext().loadUserByUserName(userIpAddress.getUserName());
+            try {
+                UserDetailsImpl userDetails = (UserDetailsImpl) getUserDetailsService()
+                        .loadUserByUsername(userIpAddress.getUserName());
+                User user = getCoreContext().loadUserByUserName(
+                        userDetails.getCanonicalUserName());
+                return user;
+            } catch (UsernameNotFoundException e) {
+                return null;
+            }
         }
         return null;
     }

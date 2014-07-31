@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class GeneralAuditHandler extends AbstractSystemAuditHandler {
 
     private static final String PROPERTY_DELIMITATOR = " / ";
+    private static final String VALUE_DELIMITATOR = "/";
     private UserProfileService m_userProfileService;
 
     /**
@@ -381,7 +382,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
             Object valueAfter = propUtils.getProperty(newObject, propertyName);
             if (valueBefore != null || valueAfter != null) {
                 if (!propertyPrefix.isEmpty()) {
-                    propertyName = propertyPrefix + PROPERTY_DELIMITATOR + propertyName;
+                    propertyName = propertyPrefix + VALUE_DELIMITATOR + propertyName;
                 }
                 if (valueBefore instanceof Address) {
                     buildConfigChangeFromDifferentObjects(valueBefore, valueAfter, configChange, propertyName);
