@@ -36,6 +36,8 @@ import org.sipfoundry.commons.userdb.profile.Address;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
@@ -52,6 +54,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     private static final String PROPERTY_DELIMITATOR = " / ";
     private static final String VALUE_DELIMITATOR = "/";
     private UserProfileService m_userProfileService;
+    private RegionManager m_regionManager;
 
     /**
      * Handles ConfigChange actions coming from Hibernate: ADDED, MODIFIED,
@@ -67,9 +70,41 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
             handleModifiedConfigChangeProperties(configChange, properties, oldValues, newValues);
         }
 
-        handleAddingOfPersistableSettings(configChange, auditedEntity, configChangeAction);
+        handleCustomScenarios(configChange, auditedEntity, configChangeAction);
 
         getConfigChangeContext().storeConfigChange(configChange);
+    }
+
+    private void handleCustomScenarios(ConfigChange configChange, SystemAuditable auditedEntity,
+            ConfigChangeAction configChangeAction) {
+        handleAddingOfPersistableSettings(configChange, auditedEntity, configChangeAction);
+        handleServerRegion(configChange, auditedEntity);
+    }
+
+    private void handleServerRegion(ConfigChange configChange,
+            SystemAuditable auditedEntity) {
+        if (configChange.getConfigChangeType().equals(ConfigChangeType.SERVER)) {
+            for (ConfigChangeValue value : configChange.getValues()) {
+                if (value.getPropertyName().equals("regionId")) {
+                    String valueBefore = value.getValueBefore();
+                    if (valueBefore != null) {
+                        Region regionBefore = m_regionManager.getRegion(Integer
+                                .parseInt(valueBefore));
+                        if (regionBefore != null) {
+                            value.setValueBefore(regionBefore.getName());
+                        }
+                    }
+                    String valueAfter = value.getValueAfter();
+                    if (valueAfter != null) {
+                        Region regionAfter = m_regionManager.getRegion(Integer
+                                .parseInt(valueAfter));
+                        if (regionAfter != null) {
+                            value.setValueAfter(regionAfter.getName());
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -399,6 +434,11 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     @Required
     public void setUserProfileService(UserProfileService profileService) {
         m_userProfileService = profileService;
+    }
+
+    @Required
+    public void setRegionManager(RegionManager regionManager) {
+        m_regionManager = regionManager;
     }
 
 }

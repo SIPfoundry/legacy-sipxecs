@@ -114,7 +114,7 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
 
     /**
      * This method only handles UserProfile saves, which don't go through
-     * hibernate but are persisted in mongo
+     * hibernate but are persisted in mongo db
      */
     @Override
     public void onSave(Object entity) {

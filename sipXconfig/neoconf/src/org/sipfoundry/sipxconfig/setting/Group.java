@@ -266,7 +266,7 @@ public class Group extends ValueStorage implements Comparable<Group>, NamedObjec
 
     @Override
     public String getEntityIdentifier() {
-        return getResource() + "/" + getName();
+        return "[" + getResource() + "Group]" + " " + getName();
     }
 
     @Override

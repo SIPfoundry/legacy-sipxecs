@@ -49,6 +49,8 @@ public final class ConfigChangeType extends Enum {
     public static final ConfigChangeType DIALING_RULE = new ConfigChangeType("DialingRule", "20");
     public static final ConfigChangeType CALL_PARK = new ConfigChangeType("CallPark", "21");
     public static final ConfigChangeType SERVER = new ConfigChangeType("Server", "22");
+    public static final ConfigChangeType REGION = new ConfigChangeType("Region", "23");
+    public static final ConfigChangeType E911_LOCATION = new ConfigChangeType("E911Location", "24");
 
     private String m_type;
     private String m_value;
