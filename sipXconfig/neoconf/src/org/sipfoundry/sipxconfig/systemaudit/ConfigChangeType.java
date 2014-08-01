@@ -51,6 +51,9 @@ public final class ConfigChangeType extends Enum {
     public static final ConfigChangeType SERVER = new ConfigChangeType("Server", "22");
     public static final ConfigChangeType REGION = new ConfigChangeType("Region", "23");
     public static final ConfigChangeType E911_LOCATION = new ConfigChangeType("E911Location", "24");
+    public static final ConfigChangeType SPEED_DIAL_GROUP = new ConfigChangeType("SpeedDialGroup", "25");
+    public static final ConfigChangeType EXTENSION_POOL = new ConfigChangeType("ExtensionPool", "26");
+    public static final ConfigChangeType ADMIN_ROLE = new ConfigChangeType("AdminRole", "27");
 
     private String m_type;
     private String m_value;

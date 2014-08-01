@@ -36,6 +36,7 @@ import org.sipfoundry.commons.userdb.profile.Address;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.region.Region;
 import org.sipfoundry.sipxconfig.region.RegionManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -55,6 +56,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     private static final String VALUE_DELIMITATOR = "/";
     private UserProfileService m_userProfileService;
     private RegionManager m_regionManager;
+    private PermissionManager m_permissionManager;
 
     /**
      * Handles ConfigChange actions coming from Hibernate: ADDED, MODIFIED,
@@ -367,7 +369,10 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
                 BeanWithSettings beanWithSettings = (BeanWithSettings) systemAuditable;
                 defaultValue = beanWithSettings.getSettingDefaultValue((String) valueKey);
             } else if (systemAuditable instanceof Group) {
-                Setting groupSettings = ((Group) systemAuditable).inherhitSettingsForEditing(new User());
+                User user = new User();
+                user.setPermissionManager(m_permissionManager);
+                user.getSettings();
+                Setting groupSettings = ((Group) systemAuditable).inherhitSettingsForEditing(user);
                 defaultValue = groupSettings.getSetting((String) valueKey).getDefaultValue();
             }
         }
@@ -413,6 +418,9 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
 
         for (Object propNameObject : map.keySet()) {
             String propertyName = propNameObject.toString();
+            if (propertyName.equals("timestamp")) {
+                continue;
+            }
             Object valueBefore = propUtils.getProperty(oldObject, propertyName);
             Object valueAfter = propUtils.getProperty(newObject, propertyName);
             if (valueBefore != null || valueAfter != null) {
@@ -441,4 +449,8 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
         m_regionManager = regionManager;
     }
 
+    @Required
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
 }

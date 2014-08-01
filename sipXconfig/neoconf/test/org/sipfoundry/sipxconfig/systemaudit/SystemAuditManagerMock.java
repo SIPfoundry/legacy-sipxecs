@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
 
+import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.stereotype.Component;
 
 @Component("systemAuditManager")
@@ -33,6 +34,11 @@ public class SystemAuditManagerMock implements SystemAuditManager{
     @Override
     public void onConfigChangeCollectionUpdate(Object collection,
             Serializable key) {
+        // Do Nothing
+    }
+
+    @Override
+    public void auditUserProfile(User user) {
         // Do Nothing
     }
 

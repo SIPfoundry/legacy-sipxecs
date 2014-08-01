@@ -22,7 +22,6 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
@@ -32,7 +31,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListener,
-        ApplicationListener<ApplicationEvent>, DaoEventListener {
+        ApplicationListener<ApplicationEvent> {
 
     private static final Log LOG = LogFactory.getLog(SystemAuditManagerImpl.class);
     private static final String LOG_ERROR_MESSAGE = "Exception when processing entry for System Audit: ";
@@ -116,27 +115,16 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
      * This method only handles UserProfile saves, which don't go through
      * hibernate but are persisted in mongo db
      */
-    @Override
-    public void onSave(Object entity) {
-        // This is a workaround for handling UserProfile which don't go through hibernate
-        if (entity instanceof SystemAuditable && entity instanceof User) {
-            User user = (User) entity;
-            if (!user.isNew()) {
-                try {
-                    m_generalAuditHandler.handleUserProfileConfigChange(user);
-                } catch (Exception e) {
-                    LOG.error(LOG_ERROR_MESSAGE, e);
-                }
+    public void auditUserProfile(User user) {
+        // This is a workaround for handling UserProfile which don't go through
+        // hibernate
+        if (!user.isNew()) {
+            try {
+                m_generalAuditHandler.handleUserProfileConfigChange(user);
+            } catch (Exception e) {
+                LOG.error(LOG_ERROR_MESSAGE, e);
             }
         }
-    }
-
-    /**
-     * Delete events are handled in SpringHibernateInstantiator.
-     */
-    @Override
-    public void onDelete(Object entity) {
-        // Do nothing
     }
 
     @Required

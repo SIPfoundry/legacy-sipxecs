@@ -8,9 +8,21 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+
 /**
  * Internal user, can be a TLS Peer or auth code
  */
 public class InternalUser extends AbstractUser {
+
+    @Override
+    public String getEntityIdentifier() {
+        return getUserName();
+    }
+
+    @Override
+    public ConfigChangeType getConfigChangeType() {
+        return ConfigChangeType.TLS_PEER;
+    }
 
 }

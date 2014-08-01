@@ -14,7 +14,8 @@
   <bean id="userProfileContext" class="org.sipfoundry.sipxconfig.common.profile.UserProfileContext">
     <property name="userProfileService" ref="userProfileService"/>
     <property name="locationManager" ref="locationsManager" />
-    <property name="jdbc" ref="configJdbcTemplate"/> 
+    <property name="jdbc" ref="configJdbcTemplate"/>
+    <property name="systemAuditManager" ref="systemAuditManager"/> 
   </bean>
 
   <bean id="userDecorator" class="org.sipfoundry.sipxconfig.common.profile.UserDecorator">
