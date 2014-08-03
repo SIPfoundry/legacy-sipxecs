@@ -236,6 +236,8 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
             } else if (configChange.getConfigChangeType() == ConfigChangeType.CALL_PARK) {
                 ParkOrbit parkOrbit = getParkOrbitContext().loadParkOrbitByName(configChange.getDetails());
                 return getLocalizedBeanWithSettingsMessage(parkOrbit, message);
+            } else if (configChange.getConfigChangeType() == ConfigChangeType.SERVER) {
+                return getMessages().getMessage("label." + message);
             }
         } catch (Exception e) {
             LOG.debug("Can't localize string: " + e.getMessage());

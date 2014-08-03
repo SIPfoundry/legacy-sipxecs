@@ -42,7 +42,7 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
         userIpAddress.setUserName("superadmin");
         configChange.setUserIpAddress(userIpAddress);
 
-        ConfigChangeValue configChangeValue = new ConfigChangeValue();
+        ConfigChangeValue configChangeValue = new ConfigChangeValue(configChange);
         configChangeValue.setPropertyName("description");
         configChangeValue.setValueBefore("oldDescription");
         configChangeValue.setValueAfter("newDescription");

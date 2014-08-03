@@ -336,8 +336,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     private void handleConfigChangeValue(SystemAuditable systemAuditable, ConfigChange configChange,
             Object valueKey, Map<Object, Object[]> oldPersistentMap,
             PersistentMap newPersistentMap) {
-        ConfigChangeValue configChangeValue = new ConfigChangeValue();
-        configChangeValue.setConfigChange(configChange);
+        ConfigChangeValue configChangeValue = new ConfigChangeValue(configChange);
         configChangeValue.setPropertyName(valueKey.toString());
         Object valueBefore = oldPersistentMap.get(valueKey);
         Object valueAfter = newPersistentMap.get(valueKey);
@@ -347,12 +346,12 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
             return;
         }
         if (valueBefore != null) {
-            configChangeValue.setValueBefore(valueBefore.toString());
+            configChangeValue.setValueBefore(getObjectName(valueBefore));
         } else {
             configChangeValue.setValueBefore(getSettingDefaultValue(systemAuditable, valueKey));
         }
         if (valueAfter != null) {
-            configChangeValue.setValueAfter(valueAfter.toString());
+            configChangeValue.setValueAfter(getObjectName(valueAfter));
         } else {
             configChangeValue.setValueAfter(getSettingDefaultValue(systemAuditable, valueKey));
         }
@@ -439,6 +438,26 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
         }
     }
 
+    public void handleLicenseUpload(String licenseName) throws SystemAuditException {
+        ConfigChange configChange = buildConfigChange(ConfigChangeAction.ADDED,
+                ConfigChangeType.LICENSE_UPLOAD);
+        getConfigChangeContext().storeConfigChange(configChange);
+    }
+
+    public void handleServiceRestart(String serverName,
+            List<String> serviceNameList) throws SystemAuditException {
+        ConfigChange configChange = buildConfigChange(
+                ConfigChangeAction.SERVICE_RESTART, ConfigChangeType.SERVER);
+        configChange.setDetails(serverName);
+        for (String serviceName : serviceNameList) {
+            ConfigChangeValue configChangeValue = new ConfigChangeValue(
+                    configChange);
+            configChangeValue.setPropertyName(serviceName);
+            configChange.addValue(configChangeValue);
+        }
+        getConfigChangeContext().storeConfigChange(configChange);
+    }
+
     @Required
     public void setUserProfileService(UserProfileService profileService) {
         m_userProfileService = profileService;
@@ -453,4 +472,5 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
     }
+
 }

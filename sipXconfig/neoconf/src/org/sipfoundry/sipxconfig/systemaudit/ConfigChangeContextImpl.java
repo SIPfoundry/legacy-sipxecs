@@ -19,6 +19,7 @@ package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.InExpressionIgnoringCase;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -107,8 +109,16 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
             crit.add(Restrictions.in(userNameKey, userNames));
         }
         String details = filter.getDetails();
+        String localizedDetails = filter.getLocalizedDetails();
+        List<String> detailsList = new ArrayList<String>();
         if (details != null) {
-            crit.add(Restrictions.eq(DETAILS, details).ignoreCase());
+            detailsList.add(details);
+        }
+        if (localizedDetails != null) {
+            detailsList.add(localizedDetails);
+        }
+        if (!detailsList.isEmpty()) {
+            crit.add(new InExpressionIgnoringCase(DETAILS, detailsList.toArray()));
         }
     }
 

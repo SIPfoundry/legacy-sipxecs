@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.stereotype.Component;
@@ -39,6 +40,16 @@ public class SystemAuditManagerMock implements SystemAuditManager{
 
     @Override
     public void auditUserProfile(User user) {
+        // Do Nothing
+    }
+
+    @Override
+    public void auditLicenseUpload(String licenseName) {
+        // Do Nothing
+    }
+
+    @Override
+    public void auditServiceRestart(String serverName, List<String> serviceNameList) {
         // Do Nothing
     }
 

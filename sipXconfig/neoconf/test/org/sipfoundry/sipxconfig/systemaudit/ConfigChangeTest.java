@@ -37,7 +37,7 @@ public class ConfigChangeTest extends TestCase {
         configChange.setUserIpAddress(userIpAddress);
         assertEquals(userIpAddress, configChange.getUserIpAddress());
 
-        ConfigChangeValue configChangeValue = new ConfigChangeValue();
+        ConfigChangeValue configChangeValue = new ConfigChangeValue(configChange);
         configChangeValue.setPropertyName("description");
         configChangeValue.setValueBefore("oldDescription");
         configChangeValue.setValueAfter("newDescription");
@@ -55,7 +55,7 @@ public class ConfigChangeTest extends TestCase {
     }
 
     public void testConfigChangeValueFields() {
-        ConfigChangeValue configChangeValue = new ConfigChangeValue();
+        ConfigChangeValue configChangeValue = new ConfigChangeValue(new ConfigChange());
         configChangeValue.setPropertyName("description");
         assertEquals("description", configChangeValue.getPropertyName());
         configChangeValue.setValueBefore("oldDescription");

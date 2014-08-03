@@ -54,6 +54,8 @@ public final class ConfigChangeType extends Enum {
     public static final ConfigChangeType SPEED_DIAL_GROUP = new ConfigChangeType("SpeedDialGroup", "25");
     public static final ConfigChangeType EXTENSION_POOL = new ConfigChangeType("ExtensionPool", "26");
     public static final ConfigChangeType ADMIN_ROLE = new ConfigChangeType("AdminRole", "27");
+    public static final ConfigChangeType LICENSE_UPLOAD = new ConfigChangeType("LicenseUpload", "28");
+    public static final ConfigChangeType PERSONAL_ATTENDANT = new ConfigChangeType("PersonalAttendant", "29");
 
     private String m_type;
     private String m_value;
@@ -108,6 +110,10 @@ public final class ConfigChangeType extends Enum {
         } else if (this == FEATURE) {
             supportedActions.add(ConfigChangeAction.ENABLED);
             supportedActions.add(ConfigChangeAction.DISABLED);
+        } else if (this == SERVER) {
+            supportedActions.add(ConfigChangeAction.SEND_PROFILE);
+            supportedActions.add(ConfigChangeAction.RESET_KEYS);
+            supportedActions.add(ConfigChangeAction.SERVICE_RESTART);
         } else {
             supportedActions.add(ConfigChangeAction.ADDED);
             supportedActions.add(ConfigChangeAction.MODIFIED);

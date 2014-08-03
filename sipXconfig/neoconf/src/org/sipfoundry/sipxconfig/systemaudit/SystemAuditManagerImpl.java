@@ -18,6 +18,7 @@
 package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -140,5 +141,23 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     @Required
     public void setLoginLogoutAuditHandler(LoginLogoutAuditHandler loginLogoutAuditHandler) {
         m_loginLogoutAuditHandler = loginLogoutAuditHandler;
+    }
+
+    @Override
+    public void auditLicenseUpload(String licenseName) {
+        try {
+            m_generalAuditHandler.handleLicenseUpload(licenseName);
+        } catch (Exception e) {
+            LOG.error(LOG_ERROR_MESSAGE, e);
+        }
+    }
+
+    @Override
+    public void auditServiceRestart(String serverName, List<String> serviceNameList) {
+        try {
+            m_generalAuditHandler.handleServiceRestart(serverName, serviceNameList);
+        } catch (Exception e) {
+            LOG.error(LOG_ERROR_MESSAGE, e);
+        }
     }
 }

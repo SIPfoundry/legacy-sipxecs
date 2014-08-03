@@ -207,9 +207,15 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
     }
 
     private SystemAuditFilter getCurrentFilter() {
+        String details = getDetails();
+        String localizedDetails = null;
+        if (details != null) {
+            localizedDetails = getMessages().getMessage(
+                    details.replaceAll(" ", "").toLowerCase());
+        }
         SystemAuditFilter filter = new SystemAuditFilter(getStartDate(),
-                getEndDate(), getType(), getAction(), getUser(), getDetails(),
-                getGroups());
+                getEndDate(), getType(), getAction(), getUser(), details,
+                localizedDetails, getGroups());
         return filter;
     }
 }

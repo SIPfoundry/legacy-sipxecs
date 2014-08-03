@@ -17,6 +17,8 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.HibernateEntityChangeProvider;
 
@@ -32,4 +34,7 @@ public interface SystemAuditManager extends HibernateEntityChangeProvider {
      */
     public void auditUserProfile(User user);
 
+    public void auditLicenseUpload(String licenseName);
+
+    public void auditServiceRestart(String serverName, List<String> serviceNameList);
 }

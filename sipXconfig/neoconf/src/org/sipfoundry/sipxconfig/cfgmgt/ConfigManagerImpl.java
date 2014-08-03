@@ -479,6 +479,11 @@ public class ConfigManagerImpl implements AddressProvider, ConfigManager, BeanFa
         if (remoteHosts.exists()) {
             remoteHosts.delete();
         }
+
+        for (Location location : locations) {
+            m_systemAuditManager.onConfigChangeAction(location,
+                    ConfigChangeAction.RESET_KEYS, null, null, null);
+        }
     }
 
     @Override

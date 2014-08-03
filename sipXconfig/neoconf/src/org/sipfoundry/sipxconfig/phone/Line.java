@@ -195,7 +195,7 @@ public class Line extends BeanWithGroups implements NamedObject, SystemAuditable
 
     @Override
     public String getEntityIdentifier() {
-        return getAuthenticationUserName();
+        return getUri();
     }
 
     @Override

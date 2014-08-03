@@ -147,7 +147,11 @@ public abstract class ConfigChangeTable extends BaseComponent implements PageBeg
         ConfigChangeType configChangeType = getConfigChange().getConfigChangeType();
         if (configChangeType.hasTranslatedDetails()) {
             if (configChangeType == ConfigChangeType.FEATURE) {
-                return getMessages().getMessage(FEATURE_PREFIX + getConfigChange().getDetails());
+                return getMessages().getMessage(
+                        FEATURE_PREFIX + getConfigChange().getDetails());
+            } else if (configChangeType == ConfigChangeType.SERVER) {
+                return getMessages().getMessage(
+                        "label." + getConfigChange().getDetails());
             }
             return getMessages().getMessage(getConfigChange().getDetails());
         }

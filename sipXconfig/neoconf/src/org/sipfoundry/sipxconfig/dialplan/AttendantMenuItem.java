@@ -9,11 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.dialplan;
 
+import org.sipfoundry.sipxconfig.common.NamedObject;
+
 
 /**
  * This represent the expected response of the auto attendant after user presses a dial-pad key
  */
-public class AttendantMenuItem {
+public class AttendantMenuItem implements NamedObject {
 
     private AttendantMenuAction m_action;
 
@@ -92,5 +94,15 @@ public class AttendantMenuItem {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String getName() {
+        return getParameter();
+    }
+
+    @Override
+    public void setName(String name) {
+        //Do Nothing
     }
 }
