@@ -227,15 +227,19 @@ public class DnsTestContextImpl implements DnsTestContext {
             }
             PrivateResourceRecord other = (PrivateResourceRecord) obj;
             if (getDestination() == null) {
-                if (other.getDestination() != null)
+                if (other.getDestination() != null) {
                     return false;
-            } else if (!getDestination().equals(other.getDestination()))
+                }
+            } else if (!getDestination().equals(other.getDestination())) {
                 return false;
+            }
             if (m_key == null) {
-                if (other.m_key != null)
+                if (other.m_key != null) {
                     return false;
-            } else if (!m_key.equals(other.m_key))
+                }
+            } else if (!m_key.equals(other.m_key)) {
                 return false;
+            }
             return true;
         }
 

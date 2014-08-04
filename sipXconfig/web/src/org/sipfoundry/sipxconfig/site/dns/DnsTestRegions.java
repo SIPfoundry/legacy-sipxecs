@@ -94,7 +94,8 @@ public abstract class DnsTestRegions extends BaseComponent implements PageBeginR
 
     public void execute() {
         setResults(null);
-        String missingRecords = getDnsTestContext().missingRecords(getRegionManager().getRegion(getRegionId()), getDnsServer());
+        String missingRecords = getDnsTestContext().
+            missingRecords(getRegionManager().getRegion(getRegionId()), getDnsServer());
         setResults(missingRecords);
         if (StringUtils.isBlank(missingRecords)) {
             setResults(null);

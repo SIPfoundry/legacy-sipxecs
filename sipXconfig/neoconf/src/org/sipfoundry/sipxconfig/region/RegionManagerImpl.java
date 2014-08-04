@@ -72,7 +72,7 @@ public class RegionManagerImpl implements RegionManager {
     @Override
     public List<Integer> getServersByRegion(int regionId) {
         String sql = "select location_id from location where region_id=%d";
-        return m_db.queryForList(String.format(sql, regionId),Integer.class);
+        return m_db.queryForList(String.format(sql, regionId), Integer.class);
 
     }
 
