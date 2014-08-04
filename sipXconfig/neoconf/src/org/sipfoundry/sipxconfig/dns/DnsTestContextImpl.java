@@ -37,6 +37,7 @@ public class DnsTestContextImpl implements DnsTestContext {
     private static final String RESOURCE_FORMAT = "%s%s";
     private static final String DOT = ".";
     private static final String SRV = "SRV";
+    private static final String NEW_LINE = "\n";
     private static final Log LOG = LogFactory.getLog(DnsTestContextImpl.class);
     private String m_validatorScript;
     private String m_validatorScriptRegions;
@@ -124,16 +125,14 @@ public class DnsTestContextImpl implements DnsTestContext {
                     PrivateResourceRecord prvSrvRecord;
                     prvSrvRecord = new PrivateResourceRecord(resourceRecords.getProto(),
                             resourceRecords.getResource(), EMPTY, rr.getPort(), rr.getAddress());
-                    prvSrvRecord
-                            .setKey(String.format(
-                                    RESOURCE_FORMAT,
-                                    resourceRecords.getProto(),
-                                    StringUtils.isNotBlank(resourceRecords.getResource()) ? (DOT + resourceRecords
-                                            .getResource()) : EMPTY));
+                    prvSrvRecord.setKey(String.format(RESOURCE_FORMAT, resourceRecords.getProto(), StringUtils
+                            .isNotBlank(resourceRecords.getResource()) ? (DOT + resourceRecords.getResource())
+                            : EMPTY));
                     srvRecords.add(prvSrvRecord);
                 }
-                rrs.put(String.format(RESOURCE_FORMAT, resourceRecords.getProto(), StringUtils.isNotBlank(resourceRecords
-                        .getResource()) ? (DOT + resourceRecords.getResource()) : EMPTY), srvRecords);
+                rrs.put(String.format(RESOURCE_FORMAT, resourceRecords.getProto(), StringUtils
+                        .isNotBlank(resourceRecords.getResource()) ? (DOT + resourceRecords.getResource()) : EMPTY),
+                        srvRecords);
             }
         }
         return rrs;
@@ -180,7 +179,7 @@ public class DnsTestContextImpl implements DnsTestContext {
     private Map<String, List<PrivateResourceRecord>> parseOutput(String rr, String out, String domain) {
         Map<String, List<PrivateResourceRecord>> rrs = new HashMap<String, List<PrivateResourceRecord>>();
         List<PrivateResourceRecord> hosts = new ArrayList<PrivateResourceRecord>();
-        String[] lines = StringUtils.split(out, "\n");
+        String[] lines = StringUtils.split(out, NEW_LINE);
         for (int i = 0; i < lines.length; i++) {
             String host = StringUtils.removeEnd(lines[i], DOT + domain + DOT);
             PrivateResourceRecord prvRr = new PrivateResourceRecord(EMPTY, EMPTY, EMPTY, 0, host);
@@ -193,7 +192,6 @@ public class DnsTestContextImpl implements DnsTestContext {
     }
 
     private class PrivateResourceRecord extends DnsSrvRecord {
-        private static final String NEW_LINE = "\n";
         private static final String SPACE = " ";
         private String m_key;
 
@@ -218,12 +216,15 @@ public class DnsTestContextImpl implements DnsTestContext {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             PrivateResourceRecord other = (PrivateResourceRecord) obj;
             if (getDestination() == null) {
                 if (other.getDestination() != null)

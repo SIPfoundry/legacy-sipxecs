@@ -163,7 +163,9 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
             saveSql = "insert into dns_plan (name, dns_plan_id) values (?,?)";
         } else {
             saveSql = "update dns_plan set name = ? where dns_plan_id = ?";
-            m_db.update("delete from dns_group where dns_plan_id = ?", plan.getId()); // cascades to targets
+            m_db.update("delete from dns_group where dns_plan_id = ?", plan.getId()); // cascades
+                                                                                      // to
+                                                                                      // targets
         }
         m_db.update(saveSql, plan.getName(), plan.getId());
         int position = 0;
@@ -335,13 +337,13 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
         if (plan != null) {
             Collection<ResourceRecords> rrs = getResourceRecords();
-                if (rrs != null) {
-                    for (ResourceRecords rr : rrs) {
-                        for (ResourceRecord record : rr.getRecords()) {
-                            srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
-                        }
+            if (rrs != null) {
+                for (ResourceRecords rr : rrs) {
+                    for (ResourceRecord record : rr.getRecords()) {
+                        srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
                     }
                 }
+            }
         }
 
         return srvs;
@@ -350,12 +352,12 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     @Override
     public Collection<ResourceRecords> getResourceRecords() {
         List<ResourceRecords> rrs = new ArrayList<ResourceRecords>();
-            for (DnsProvider provider : m_providers) {
-                Collection<ResourceRecords> resRecords =  provider.getResourceRecords(this);
-                if (resRecords != null) {
-                    rrs.addAll(provider.getResourceRecords(this));
-                }
+        for (DnsProvider provider : m_providers) {
+            Collection<ResourceRecords> resRecords = provider.getResourceRecords(this);
+            if (resRecords != null) {
+                rrs.addAll(provider.getResourceRecords(this));
             }
+        }
 
         return rrs;
     }
