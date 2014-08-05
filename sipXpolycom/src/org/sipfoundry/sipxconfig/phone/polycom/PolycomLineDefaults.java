@@ -150,11 +150,6 @@ public class PolycomLineDefaults {
         return m_defaults.getEmergencyPort();
     }
 
-    @SettingEntry(path = "reg/outboundProxy.address")
-    public String getProxyServer() {
-        return m_defaults.getDomainName();
-    }
-
     private boolean isMwiEnabled() {
         return m_line.getPhone().getFeatureManager().isFeatureEnabled(Mwi.FEATURE);
     }
