@@ -18,7 +18,6 @@ public class AudioCodesPhoneLineDefaults {
     public static final String AUTH_ID_SETTING = "voip/auth_name";
     public static final String PASSWORD_SETTING = "voip/auth_password";
     public static final String DISPLAY_NAME = "voip/description";
-    public static final String OUTBOUND_PROXY_ADDRESS = "voip/signalling/sip/sip_outbound_proxy/addr";
     public static final String MWI_SUBSCRIBE_ADDRESS = "voip/services/msg_waiting_ind/subscribe_address";
     public static final String VOICEMAIL_ACCESS_NUMBER = "voip/services/msg_waiting_ind/voice_mail_number";
     public static final String SYSLOG_SERVER = "system/syslog/server_address";

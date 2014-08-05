@@ -21,7 +21,6 @@ public class AudioCodesPhoneDefaults {
     public static final String PASSWORD_SETTING = "voip/auth_password";
     public static final String DISPLAY_NAME = "voip/description";
     public static final String REGISTRAR_ADDRESS = "sip/sip_registrar/addr";
-    public static final String OUTBOUND_PROXY_ADDRESS = "sip/sip_outbound_proxy/addr";
     public static final String PROXY_ADDRESS = "sip/proxy_address";
     public static final String MWI_SUBSCRIBE_ADDRESS = "services/msg_waiting_ind/subscribe_address";
     public static final String VOICEMAIL_ACCESS_NUMBER = "services/msg_waiting_ind/voice_mail_number";
@@ -33,7 +32,7 @@ public class AudioCodesPhoneDefaults {
 
     public static final String GMT_LONDON = "+00:00 GMT London";
 
-    private DeviceDefaults m_defaults;
+    private final DeviceDefaults m_defaults;
 
     AudioCodesPhoneDefaults(DeviceDefaults defaults) {
         m_defaults = defaults;
@@ -62,11 +61,6 @@ public class AudioCodesPhoneDefaults {
 
     @SettingEntry(path = REGISTRAR_ADDRESS)
     public String getRegistrationServer() {
-        return m_defaults.getDomainName();
-    }
-
-    @SettingEntry(path = OUTBOUND_PROXY_ADDRESS)
-    public String getOutboundProxy() {
         return m_defaults.getDomainName();
     }
 
