@@ -3,7 +3,7 @@ Version: @VERSION@
 Release: @PACKAGE_REVISION@
 
 Summary: Utilities for sipX
-License: LGPL
+License: AGPL
 Group:    Productivity/Telephony/SIP/Utilities
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
@@ -20,6 +20,8 @@ BuildRequires: sipxtacklib-devel >= %version
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
+Requires: python-pymongo
+Requires: python-pymongo-gridfs
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -46,7 +48,4 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  LICENSE README   ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/*
-%if %{_vendor} == redhat
-%{_mandir}/man1
-%endif
 

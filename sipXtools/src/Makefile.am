@@ -2,22 +2,13 @@ include $(top_srcdir)/config/utility.am
 
 SUBDIRS = \
 	. \
-	man \
-	syslog2siptrace \
-	test
+	syslog2siptrace
 
 LOCAL_SHELLSCRIPTS = \
-	sipx-alarm \
-	sipx-servtest \
-	sipx-mrtg-threshexceeded \
-	sipx-mrtg-threshok \
+	sipx-network-trace \
 	sipx-readroute \
-	sipx-trace \
-	expire-spread \
-	monitor-spread \
-	sipxproc \
-	sipxreplicate \
-	sipx-network-trace
+	sipx-servtest \
+	sipx-trace
 
 bin_SCRIPTS = \
    $(LOCAL_SHELLSCRIPTS)
@@ -26,16 +17,13 @@ EXTRA_DIST = \
 	$(LOCAL_SHELLSCRIPTS:=.in)
 
 dist_bin_SCRIPTS = \
-	regtimes \
-	sipx-stats \
-	sipx-alias2dot \
-	sipx-trace \
+	sipx-dbutil \
+	sipx-sipsend \
+	sipx-audit-time \
 	sipx-dialog-count \
-	sipx-logtrans \
 	sipx-response-correlator \
-	sipdb-dump \
-	sipsend \
-	polycom-config
+	sipx-stats \
+	sipx-tcpdump2siptrace
 
 $(LOCAL_SHELLSCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
