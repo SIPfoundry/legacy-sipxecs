@@ -431,15 +431,15 @@ void getMessageData(UtlString& content,
 
 void convertToXml(UtlString& bufferString, int outputFileDescriptor)
 {
-    std::string date;
-    std::string eventCount;
-    std::string facility;
-    std::string priority;
-    std::string hostname;
-    std::string taskname;
-    std::string taskId;
-    std::string processId;
-    std::string content;
+    UtlString date;
+    UtlString eventCount;
+    UtlString facility;
+    UtlString priority;
+    UtlString hostname;
+    UtlString taskname;
+    UtlString taskId;
+    UtlString processId;
+    UtlString content;
 
     Os::LoggerHelper::parseLogString(bufferString.data(),
                              date,
@@ -452,21 +452,16 @@ void convertToXml(UtlString& bufferString, int outputFileDescriptor)
                              processId,
                              content);
 
-    UtlString content_ = content.c_str();
-    UtlString date_ = date.c_str();
-    UtlString hostname_ = hostname.c_str();
-    UtlString eventCount_ = eventCount.c_str();
-
     if(facility == "OUTGOING")
     {
         hostname += "-";
         hostname += processId;
 
-        getMessageData(content_,
+        getMessageData(content,
                        TRUE,
-                       date_,
-                       hostname_,
-                       eventCount_,
+                       date,
+                       hostname,
+                       eventCount,
                        outputFileDescriptor);
 
 
@@ -477,11 +472,11 @@ void convertToXml(UtlString& bufferString, int outputFileDescriptor)
         hostname += "-";
         hostname += processId;
 
-        getMessageData(content_,
+        getMessageData(content,
                        FALSE,
-                       date_,
-                       hostname_,
-                       eventCount_,
+                       date,
+                       hostname,
+                       eventCount,
                        outputFileDescriptor);
     }
 }

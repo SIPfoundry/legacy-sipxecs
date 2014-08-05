@@ -53,91 +53,182 @@ namespace Os
     {
       return Logger::instance().initialize<LoggerHelper>(path, *this);
     }
-
-    static bool parseLogString(const std::string& logData,
-                             std::string& date,
-                             std::string& eventCount,
-                             std::string& facility,
-                             std::string& priority,
-                             std::string& hostName,
-                             std::string& taskName,
-                             std::string& taskId,
-                             std::string& processId,
-                             std::string& content)
+    
+    static UtlString unescape(const UtlString& source)
     {
-      enum parser_state
-      {
-        ParseDate,
-        ParseEventCount,
-        ParseFacility,
-        ParsePriority,
-        ParseHostName,
-        ParseTaskName,
-        ParseTaskId,
-        ParseProcessId,
-        ParseContent
-      };
+       UtlString    results ;
+       const char* pStart = source.data() ;
+       const char* pTraverse = pStart ;
+       const char* pLast = pStart ;
+       UtlBoolean   bLastWasEscapeChar = false;
 
-      parser_state state = ParseDate;
-      for (std::string::const_iterator iter = logData.begin(); iter != logData.end(); iter++)
-      {
-        switch(state)
-        {
-        case ParseDate:
-          if (*iter != ':')
-            date += *iter;
+       while (*pTraverse)
+       {
+          if (bLastWasEscapeChar)
+          {
+             switch (*pTraverse)
+             {
+                case '\\':
+                case '"':
+                   if (pLast < pTraverse)
+                   {
+                      results.append(pLast, pTraverse-pLast-1);
+                   }
+                   pLast = pTraverse + 1 ;
+                   results.append(*pTraverse) ;
+                   break ;
+                case 'r':
+                   if (pLast < pTraverse)
+                   {
+                      results.append(pLast, pTraverse-pLast-1);
+                   }
+                   pLast = pTraverse + 1 ;
+                   results.append("\r") ;
+                   break ;
+                case 'n':
+                   if (pLast < pTraverse)
+                   {
+                      results.append(pLast, pTraverse-pLast-1);
+                   }
+                   pLast = pTraverse + 1 ;
+                   results.append("\n") ;
+                   break;
+                default:
+                   // Invalid/Illegal Escape Character
+                   break ;
+             }
+             bLastWasEscapeChar = false ;
+          }
           else
-            state = ParseEventCount;
-          break;
-        case ParseEventCount:
-          if (*iter != ':')
-            eventCount += *iter;
-          else
-            state = ParseFacility;
-          break;
-        case ParseFacility:
-          if (*iter != ':')
-            facility += *iter;
-          else
-            state = ParsePriority;
-          break;
-        case ParsePriority:
-          if (*iter != ':')
-            priority += *iter;
-          else
-            state = ParseHostName;
-          break;
-        case ParseHostName:
-          if (*iter != ':')
-            hostName += *iter;
-          else
-            state = ParseTaskName;
-          break;
-        case ParseTaskName:
-          if (*iter != ':')
-            taskName += *iter;
-          else
-            state = ParseTaskId;
-          break;
-        case ParseTaskId:
-          if (*iter != ':')
-            taskId += *iter;
-          else
-            state = ParseProcessId;
-          break;
-        case ParseProcessId:
-          if (*iter != ':')
-            processId += *iter;
-          else
-            state = ParseContent;
-          break;
-        case ParseContent:
-          if (*iter != ':')
-            content += *iter;
-          break;
-        }
-      }
-      return state == ParseContent;
+          {
+             if (*pTraverse == '\\')
+             {
+                bLastWasEscapeChar = true ;
+             }
+          }
+
+          pTraverse++ ;
+       }
+
+       // if nothing to escape, short-circuit
+       if (pLast == pStart)
+       {
+          return source ;
+       }
+       else if (pLast < pTraverse)
+       {
+          results.append(pLast, (pTraverse-1)-pLast);
+       }
+
+       return results ;
+    }
+
+    //:Parses a log string into its parts.
+    static OsStatus parseLogString(const char *szSource,
+                                      UtlString& date,
+                                      UtlString& eventCount,
+                                      UtlString& facility,
+                                      UtlString& priority,
+                                      UtlString& hostname,
+                                      UtlString& taskname,
+                                      UtlString& taskId,
+                                      UtlString& processId,
+                                      UtlString& content)
+    {
+       #define PS_DATE         0
+       #define PS_EVENTCOUNT   1
+       #define PS_FACILITY     2
+       #define PS_PRIORITY     3
+       #define PS_HOSTNAME     4
+       #define PS_TASKNAME     5
+       #define PS_TASKID       6
+       #define PS_PROCESSID    7
+       #define PS_CONTENT      8
+
+       const char* pTraverse = szSource ;  // Traverses the source string
+       UtlBoolean   bWithinQuote = FALSE;   // Are we within a quoted string?
+       UtlBoolean   bEscapeNext = FALSE;    // The next char is an escape char.
+       int         iParseState ;           // What are we parsing (PS_*)
+
+       // Clean all of the passed objects
+       date.remove(0) ;
+       eventCount.remove(0) ;
+       facility.remove(0) ;
+       priority.remove(0) ;
+       hostname.remove(0) ;
+       taskname.remove(0) ;
+       processId.remove(0) ;
+       content.remove(0) ;
+
+       // Loop through the source string and add characters to the appropriate
+       // data object
+       iParseState = PS_DATE ;
+       while (*pTraverse)
+       {
+          switch (*pTraverse)
+          {
+             case ':':
+                if (!bWithinQuote)
+                {
+                   iParseState++ ;
+                   pTraverse++ ;
+                   continue ;
+                }
+                break ;
+             case '"':
+                if (!bEscapeNext)
+                {
+                   bWithinQuote = !bWithinQuote;
+                   pTraverse++ ;
+                   continue ;
+                }
+                break ;
+             case '\\':
+                bEscapeNext = true ;
+                break ;
+          default:
+                break;
+          }
+
+          switch (iParseState)
+          {
+             case PS_DATE:
+                date.append(*pTraverse) ;
+                break ;
+             case PS_EVENTCOUNT:
+                eventCount.append(*pTraverse) ;
+                break ;
+             case PS_FACILITY:
+                facility.append(*pTraverse) ;
+                break ;
+             case PS_PRIORITY:
+                priority.append(*pTraverse) ;
+                break ;
+             case PS_HOSTNAME:
+                hostname.append(*pTraverse) ;
+                break ;
+             case PS_TASKNAME:
+                taskname.append(*pTraverse) ;
+                break ;
+             case PS_TASKID:
+                taskId.append(*pTraverse) ;
+                break ;
+             case PS_PROCESSID:
+                processId.append(*pTraverse) ;
+                break ;
+             case PS_CONTENT:
+                content.append(*pTraverse) ;
+                break ;
+             default:
+                break;
+          }
+
+          pTraverse++ ;
+       }
+
+       content = unescape(content) ;
+
+       return OS_SUCCESS ;
     }
 
     std::string hostName;

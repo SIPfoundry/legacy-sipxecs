@@ -19,6 +19,7 @@ package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.InExpressionIgnoringCase;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -57,8 +59,17 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
     public List<ConfigChange> loadConfigChangesByPage(Integer groupId,
             int firstRow, int pageSize, String[] orderBy,
             boolean orderAscending, SystemAuditFilter filter) {
-        DetachedCriteria c = createCriteria(groupId, orderBy, orderAscending,
+        DetachedCriteria c = createCriteria(ConfigChange.class, groupId, orderBy, orderAscending,
                 filter);
+        return getHibernateTemplate().findByCriteria(c, firstRow, pageSize);
+    }
+
+    @Override
+    public List<ConfigChangeValue> loadConfigChangeValuesByPage(Integer configChangeId, Integer groupId,
+            int firstRow, int pageSize, String[] orderBy,
+            boolean orderAscending) {
+        DetachedCriteria c = createCriteria(ConfigChangeValue.class, groupId, orderBy, orderAscending, null);
+        c.add(Restrictions.eq("configChange.id", configChangeId));
         return getHibernateTemplate().findByCriteria(c, firstRow, pageSize);
     }
 
@@ -98,8 +109,16 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
             crit.add(Restrictions.in(userNameKey, userNames));
         }
         String details = filter.getDetails();
+        String localizedDetails = filter.getLocalizedDetails();
+        List<String> detailsList = new ArrayList<String>();
         if (details != null) {
-            crit.add(Restrictions.eq(DETAILS, details));
+            detailsList.add(details);
+        }
+        if (localizedDetails != null) {
+            detailsList.add(localizedDetails);
+        }
+        if (!detailsList.isEmpty()) {
+            crit.add(new InExpressionIgnoringCase(DETAILS, detailsList.toArray()));
         }
     }
 
@@ -114,21 +133,32 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
     }
 
     public void storeConfigChange(final ConfigChange configChange) throws SystemAuditException {
-        getHibernateTemplate().executeWithNewSession(new HibernateCallback<ConfigChange>() {
-            @Override
-            public ConfigChange doInHibernate(Session session) throws HibernateException, SQLException {
-                UserIpAddress userIpAddress = configChange.getUserIpAddress();
-                if (userIpAddress != null && userIpAddress.isNew()) {
-                    session.save(userIpAddress);
-                }
-                if (!configChange.isNew()) {
-                    session.merge(configChange);
-                } else {
-                    session.save(configChange);
-                }
-                return configChange;
-            }
-        });
+        getHibernateTemplate().executeWithNewSession(
+                new HibernateCallback<ConfigChange>() {
+                    @Override
+                    public ConfigChange doInHibernate(Session session)
+                        throws HibernateException, SQLException {
+                        // handle UserIpAddress
+                        UserIpAddress userIpAddress = configChange.getUserIpAddress();
+                        UserIpAddress persistedUserIpAddress = m_coreContext
+                                .getUserIpAddress(userIpAddress.getUserName(),
+                                        userIpAddress.getIpAddress());
+                        if (persistedUserIpAddress != null) {
+                            configChange.setUserIpAddress(persistedUserIpAddress);
+                        } else {
+                            if (userIpAddress != null && userIpAddress.isNew()) {
+                                session.save(userIpAddress);
+                            }
+                        }
+                        //handle configChange
+                        if (!configChange.isNew()) {
+                            session.merge(configChange);
+                        } else {
+                            session.save(configChange);
+                        }
+                        return configChange;
+                    }
+                });
     }
 
     @Override
@@ -145,11 +175,13 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         m_coreContext = coreContext;
     }
 
-    private DetachedCriteria createCriteria(Integer groupId, String[] orderBy,
+    private DetachedCriteria createCriteria(Class clazz, Integer groupId, String[] orderBy,
             boolean orderAscending, SystemAuditFilter filter) {
-        DetachedCriteria c = DetachedCriteria.forClass(ConfigChange.class);
+        DetachedCriteria c = DetachedCriteria.forClass(clazz);
         addByGroupCriteria(c, groupId);
-        addFilterCriteria(c, filter);
+        if (filter != null) {
+            addFilterCriteria(c, filter);
+        }
         if (orderBy != null) {
             for (String o : orderBy) {
                 Order order = orderAscending ? Order.asc(o) : Order.desc(o);
@@ -161,7 +193,7 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
 
     private List<ConfigChange> loadConfigChangesByFilter(String[] orderBy,
             boolean orderAscending, SystemAuditFilter filter) {
-        DetachedCriteria c = createCriteria(null, orderBy, orderAscending,
+        DetachedCriteria c = createCriteria(ConfigChange.class, null, orderBy, orderAscending,
                 filter);
         return getHibernateTemplate().findByCriteria(c);
     }

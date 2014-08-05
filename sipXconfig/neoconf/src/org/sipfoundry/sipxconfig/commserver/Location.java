@@ -459,7 +459,7 @@ public class Location extends BeanWithId implements KeepsOriginalCopy<Location>,
 
     @Override
     public String getEntityIdentifier() {
-        return getName();
+        return getFqdn();
     }
 
     @Override

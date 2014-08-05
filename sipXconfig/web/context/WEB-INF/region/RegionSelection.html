@@ -4,5 +4,7 @@
     <span jwcid="regionSelection@PropertySelection"
       model="ognl:regionsModel"
       value="ognl:selectedAction" />
+   <span jwcid="displayLink@If" condition="ognl:displayManageLink">
      <a jwcid="@PageLink" page="region/Regions"><span key="label.regionsLink"/></a>
+   </span>
 </span>

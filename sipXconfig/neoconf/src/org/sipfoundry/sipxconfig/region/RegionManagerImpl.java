@@ -69,6 +69,13 @@ public class RegionManagerImpl implements RegionManager {
         }
     }
 
+    @Override
+    public List<Integer> getServersByRegion(int regionId) {
+        String sql = "select location_id from location where region_id=%d";
+        return m_db.queryForList(String.format(sql, regionId), Integer.class);
+
+    }
+
     void validateRegion(Region region) {
         if (Region.DEFAULT.getName().equals(region.getName())) {
             throw new UserException(ERROR_NAME_IN_USE, region.getName());

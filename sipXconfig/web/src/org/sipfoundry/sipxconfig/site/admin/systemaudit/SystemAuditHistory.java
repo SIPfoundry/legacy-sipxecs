@@ -36,6 +36,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.web.WebResponse;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
@@ -137,6 +138,9 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
     @InjectObject(value = "spring:settingDao")
     public abstract SettingDao getSettingDao();
 
+    @InjectObject(value = "spring:coreContext")
+    public abstract CoreContext getCoreContext();
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -203,9 +207,15 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
     }
 
     private SystemAuditFilter getCurrentFilter() {
+        String details = getDetails();
+        String localizedDetails = null;
+        if (details != null) {
+            localizedDetails = getMessages().getMessage(
+                    details.replaceAll(" ", "").toLowerCase());
+        }
         SystemAuditFilter filter = new SystemAuditFilter(getStartDate(),
-                getEndDate(), getType(), getAction(), getUser(), getDetails(),
-                getGroups());
+                getEndDate(), getType(), getAction(), getUser(), details,
+                localizedDetails, getGroups());
         return filter;
     }
 }

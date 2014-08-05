@@ -18,6 +18,11 @@
 package org.sipfoundry.sipxconfig.moh;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 
 public class GroupMusicOnHoldManagerImpl extends AbstractMusicOnHoldManagerImpl {
 
@@ -27,6 +32,11 @@ public class GroupMusicOnHoldManagerImpl extends AbstractMusicOnHoldManagerImpl 
 
     public boolean isAliasInUse(String alias) {
         return false;
+    }
+
+    @Override
+    public List<DialingRule> getDialingRules(Location location) {
+        return Collections.EMPTY_LIST;
     }
 
 }

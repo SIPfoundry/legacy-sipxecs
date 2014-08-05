@@ -28,4 +28,6 @@ public interface RegionManager {
     public void saveRegion(Region region);
 
     public void deleteRegion(Region region);
+
+    List<Integer> getServersByRegion(int regionId);
 }

@@ -163,7 +163,9 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
             saveSql = "insert into dns_plan (name, dns_plan_id) values (?,?)";
         } else {
             saveSql = "update dns_plan set name = ? where dns_plan_id = ?";
-            m_db.update("delete from dns_group where dns_plan_id = ?", plan.getId()); // cascades to targets
+            m_db.update("delete from dns_group where dns_plan_id = ?", plan.getId()); // cascades
+                                                                                      // to
+                                                                                      // targets
         }
         m_db.update(saveSql, plan.getName(), plan.getId());
         int position = 0;
@@ -200,13 +202,13 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     }
 
     static class PlanRowReader implements RowCallbackHandler {
-        private List<DnsFailoverPlan> m_plans;
+        private final List<DnsFailoverPlan> m_plans;
         private DnsFailoverPlan m_plan;
         private List<DnsFailoverGroup> m_groups;
-        private Map<Integer, Region> m_regions = new HashMap<Integer, Region>();
+        private final Map<Integer, Region> m_regions = new HashMap<Integer, Region>();
         private List<DnsTarget> m_targets;
         private DnsFailoverGroup m_group;
-        private Map<Integer, Location> m_locations = new HashMap<Integer, Location>();
+        private final Map<Integer, Location> m_locations = new HashMap<Integer, Location>();
 
         PlanRowReader(List<DnsFailoverPlan> plans, Collection<Region> regions, Collection<Location> locations) {
             m_plans = plans;
@@ -334,19 +336,30 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         }
         List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
         if (plan != null) {
-            for (DnsProvider provider : m_providers) {
-                Collection<ResourceRecords> rrs = provider.getResourceRecords(this);
-                if (rrs != null) {
-                    for (ResourceRecords rr : rrs) {
-                        for (ResourceRecord record : rr.getRecords()) {
-                            srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
-                        }
+            Collection<ResourceRecords> rrs = getResourceRecords();
+            if (rrs != null) {
+                for (ResourceRecords rr : rrs) {
+                    for (ResourceRecord record : rr.getRecords()) {
+                        srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
                     }
                 }
             }
         }
 
         return srvs;
+    }
+
+    @Override
+    public Collection<ResourceRecords> getResourceRecords() {
+        List<ResourceRecords> rrs = new ArrayList<ResourceRecords>();
+        for (DnsProvider provider : m_providers) {
+            Collection<ResourceRecords> resRecords = provider.getResourceRecords(this);
+            if (resRecords != null) {
+                rrs.addAll(provider.getResourceRecords(this));
+            }
+        }
+
+        return rrs;
     }
 
     public DnsFailoverPlan createFairlyTypicalDnsFailoverPlan() {
@@ -427,6 +440,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
 
+    @Override
     public AddressManager getAddressManager() {
         return m_addressManager;
     }

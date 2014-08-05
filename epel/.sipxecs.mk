@@ -116,5 +116,6 @@ RUNTIME_EPEL = \
 	wxGTK-2.* \
 	wxGTK-gl-* \
 	zeromq-* \
-	leveldb-*
+	leveldb-* \
+	python-pymongo-gridfs-2.5*
 

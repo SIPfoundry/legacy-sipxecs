@@ -49,6 +49,7 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -64,6 +65,7 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
     private BeanWithSettingsDao<SnmpSettings> m_settingsDao;
     private ConfigManager m_configManager;
     private LocationsManager m_locationsManager;
+    private SystemAuditManager m_systemAuditManager;
 
     @Override
     public List<ProcessDefinition> getProcessDefinitions(Location location) {
@@ -193,12 +195,15 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
         RunRequest restart = new RunRequest("restart services", Collections.singleton(location));
         String[] restarts = new String[processes.size()];
         Iterator<ProcessDefinition> iProcesses = processes.iterator();
+        List<String> serviceNames = new ArrayList<String>();
         for (int i = 0; iProcesses.hasNext(); i++) {
-            restarts[i] = iProcesses.next().getRestartClass();
+            ProcessDefinition process = iProcesses.next();
+            restarts[i] = process.getRestartClass();
+            serviceNames.add(process.getProcess());
         }
         restart.setDefines(restarts);
         m_configManager.run(restart);
-
+        m_systemAuditManager.auditServiceRestart(location.getFqdn(), serviceNames);
     }
 
     public void setConfigManager(ConfigManager configManager) {
@@ -207,5 +212,9 @@ public class SnmpManagerImpl implements BeanFactoryAware, SnmpManager, FeaturePr
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    public void setSystemAuditManager(SystemAuditManager systemAuditManager) {
+        m_systemAuditManager = systemAuditManager;
     }
 }

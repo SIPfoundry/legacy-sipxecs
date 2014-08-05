@@ -30,6 +30,8 @@
   </bean>
   <bean id="generalAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.GeneralAuditHandler" parent="abstractSystemAuditHandler">
     <property name="userProfileService" ref="userProfileService" />
+    <property name="regionManager" ref="regionManager" />
+    <property name="permissionManager" ref="permissionManager" />
   </bean>
   <bean id="featureAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.FeatureAuditHandler" parent="abstractSystemAuditHandler">
     <property name="featureManager" ref="featureManager" />

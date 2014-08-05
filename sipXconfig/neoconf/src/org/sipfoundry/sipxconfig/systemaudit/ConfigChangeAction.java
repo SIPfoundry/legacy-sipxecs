@@ -32,6 +32,8 @@ public final class ConfigChangeAction extends Enum {
     public static final ConfigChangeAction ENABLED = new ConfigChangeAction("Enabled", "6");
     public static final ConfigChangeAction DISABLED = new ConfigChangeAction("Disabled", "7");
     public static final ConfigChangeAction SEND_PROFILE = new ConfigChangeAction("SendProfile", "8");
+    public static final ConfigChangeAction RESET_KEYS = new ConfigChangeAction("ResetKeys", "9");
+    public static final ConfigChangeAction SERVICE_RESTART = new ConfigChangeAction("ServiceRestart", "10");
 
     private String m_action;
     private String m_value;

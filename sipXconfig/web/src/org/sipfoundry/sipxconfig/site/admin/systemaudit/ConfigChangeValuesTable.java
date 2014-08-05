@@ -236,6 +236,8 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
             } else if (configChange.getConfigChangeType() == ConfigChangeType.CALL_PARK) {
                 ParkOrbit parkOrbit = getParkOrbitContext().loadParkOrbitByName(configChange.getDetails());
                 return getLocalizedBeanWithSettingsMessage(parkOrbit, message);
+            } else if (configChange.getConfigChangeType() == ConfigChangeType.SERVER) {
+                return getMessages().getMessage("label." + message);
             }
         } catch (Exception e) {
             LOG.debug("Can't localize string: " + e.getMessage());
@@ -245,9 +247,15 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
 
     private String getLocalizedBeanWithSettingsMessage(
             BeanWithSettings beanWithSettings, String message) throws Exception {
-        Setting settings = beanWithSettings.getSettings();
-        return LocalizationUtils.getSettingLabel(this,
-                settings.getSetting(message));
+        // workaround to handle phantom/enabled setting which is implemented
+        // differently that all other settings
+        if (!message.equals("phantom/enabled")) {
+            return getMessages().getMessage(message);
+        } else {
+            Setting settings = beanWithSettings.getSettings();
+            return LocalizationUtils.getSettingLabel(this,
+                    settings.getSetting(message));
+        }
     }
 
     /**

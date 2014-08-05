@@ -75,4 +75,6 @@ public interface DnsManager {
     public void deleteCustomRecords(DnsCustomRecords custom);
 
     public Collection<DnsCustomRecords> getCustomRecordsByIds(Collection<Integer> customIds);
+
+    Collection<ResourceRecords> getResourceRecords();
 }

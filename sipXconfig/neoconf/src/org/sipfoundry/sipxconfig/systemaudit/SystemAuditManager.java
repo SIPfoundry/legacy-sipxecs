@@ -17,6 +17,9 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.HibernateEntityChangeProvider;
 
 /**
@@ -25,4 +28,13 @@ import org.sipfoundry.sipxconfig.common.event.HibernateEntityChangeProvider;
  */
 public interface SystemAuditManager extends HibernateEntityChangeProvider {
 
+    /**
+     * This method only handles UserProfile saves, which don't go through
+     * hibernate but are persisted in mongo db
+     */
+    public void auditUserProfile(User user);
+
+    public void auditLicenseUpload(String licenseName);
+
+    public void auditServiceRestart(String serverName, List<String> serviceNameList);
 }

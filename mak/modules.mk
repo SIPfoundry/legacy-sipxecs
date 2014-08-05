@@ -53,7 +53,8 @@ sipx_extra = \
   sipXevent \
   sipXrecording \
   sipXhomer \
-  sipXcallQueue
+  sipXcallQueue \
+  sipXtools
 
 # sipxecs projects that are NOT essential for a running communication system
 # and are related to configuration system. Many are phone plugins
@@ -170,6 +171,7 @@ sipXexample_DEPS = sipXcommserverLib sipXconfig
 sipXsss_DEPS = sipXsqa sipXcommserverLib sipXresiprocate
 sipXyard = sipXcommserverLib
 sipXedgeServices_DEPS =  sipXeslLib sipXresiprocate sipXcommserverLib sipXyard
+sipXtools_DEPS = sipXtackLib sipXcommserverLib
 
 all = \
   $(lib) \

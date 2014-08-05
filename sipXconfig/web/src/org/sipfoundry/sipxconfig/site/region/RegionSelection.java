@@ -51,6 +51,10 @@ public abstract class RegionSelection extends BaseComponent {
 
     public abstract IActionListener getSelectedAction();
 
+    public abstract boolean isDisplayManageLink();
+
+    public abstract void setDisplayManageLink(boolean display);
+
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         Region region = null;
@@ -110,6 +114,7 @@ public abstract class RegionSelection extends BaseComponent {
             super(region);
         }
 
+        @Override
         public void actionTriggered(IComponent component, final IRequestCycle cycle) {
             Region selected = getSelectedRegion();
             Integer id = (selected == null ? null : selected.getId());

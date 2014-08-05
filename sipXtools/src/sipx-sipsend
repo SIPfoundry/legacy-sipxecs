@@ -13,7 +13,7 @@ use Getopt::Long;
 use Socket;
 use Digest::MD5 qw(md5_hex);
 
-$VERSION = '0.04';
+$VERSION = '14.10';
 
 #') fix the perl indenting funnies caused by the above
 

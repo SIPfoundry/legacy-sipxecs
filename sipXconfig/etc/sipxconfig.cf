@@ -25,6 +25,7 @@ bundle agent sipxconfig {
       "any" usebundle => "sipxconfig_logwatcher";
     any::
       "any" usebundle => "sipxconfig_services";
+      "any" usebundle => allow_ssh_command("sipx-dns-validator-regions");
 }
 
 bundle agent sipxconfig_logwatcher {
@@ -135,8 +136,8 @@ bundle edit_line sipx_log4j_properties_contents {
 bundle agent system_audit_cleanup {
   vars:
 	# execute it every day after midnight
-	"cron" string => "20 0 * * * $(sipx.SIPX_BINDIR)/system_audit_cleanup &>> $(sipx.SIPX_LOGDIR)/system_audit_cleanup.log";
-	"cron_id" string => ".*/system_audit_cleanup .*"; #regex
+	"cron" string => "20 0 * * * $(sipx.SIPX_BINDIR)/system-audit-cleanup &>> $(sipx.SIPX_LOGDIR)/system-audit-cleanup.log";
+	"cron_id" string => ".*/system-audit-cleanup .*"; #regex
 
   methods:
 	primary::

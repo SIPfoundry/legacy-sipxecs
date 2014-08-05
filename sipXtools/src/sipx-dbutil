@@ -1,0 +1,862 @@
+#!/usr/bin/python
+#
+# Expanded expires-spread and db utilities
+# -- jnolen@ezuce.com 20 May 2013
+#
+# Requires pymongo, pymongo-gridfs
+#
+#
+
+import time
+import os
+import sys
+import subprocess
+from optparse import OptionParser		# n.b. to be depricated in 2.7
+
+try:
+		
+	import pymongo
+	from gridfs import GridFS
+
+except Exception, e:
+		
+	print '*** caught exception: ' + str(e) + ' ***'
+	print 'Program requires pymongo and pymongo-gridfs.'
+	print 'yum install pymongo pymongo-gridfs'
+	sys.exit(0)
+
+#IP Addresses of all registrar servers
+server_ips = ['192.168.0.39', '10.1.33.27', '10.1.33.30']
+
+test_flag = False		# remote testing only
+
+subscribe_component_list = ['saa', 'rls', 'status', 'reg']
+error_list = []
+collection = None	# global 
+########################################################
+
+# color utility routines:
+colorCodes = {
+    'black':    '0;30',     'bright gray':  '0;37',
+    'blue':     '0;34',     'white':        '1;37',
+    'green':    '0;32',     'bright blue':  '1;34',
+    'cyan':     '0;36',     'bright green': '1;32',
+    'red':      '0;31',     'bright cyan':  '1;36',
+    'purple':   '0;35',     'bright red':   '1;31',
+    'yellow':   '0;33',     'bright purple':'1;35',
+    'dark gray':'1;30',     'bright yellow':'1;33',
+    'normal':   '0'
+}
+
+def printc(text, color):
+	
+	print "\033["+colorCodes[color]+"m"+text+"\033[0m"
+
+		
+def spread():
+	
+	
+	total =  int(collection.count())
+	
+	if total <=0:
+		
+		printc('No registrations in datatbase', 'red')
+		sys.exit(0)						# ToDo
+	
+	expired_count = 0
+	#registration_count = 0
+	registrations = []
+
+	for ip_index in range(len(server_ips)):
+		server_query = server_ips[ip_index] + '/RegDB::_bindingsNameSpace' 
+		results = list(collection.find({'localAddress' : server_query}))
+		registrations = []
+		
+		if options.expanded:
+			registrations.append(['URI', 'Contact', 'Expires', 'Instrument'])
+		else:
+			registrations.append(['URI', 'Expires', 'Instrument'])
+		
+		for item in results:
+			regexpire = int(item.get('expirationTime', 'undefined')) - int(time.time())
+			
+			if options.expanded:
+				registrations.append([item.get('uri', 'undefined'), item.get('contact', 'undefined'), str(regexpire), item.get('instrument', 'undefined')])
+			else:	
+				registrations.append([item.get('uri', 'undefined'), str(regexpire), item.get('instrument', 'undefined')])	
+			
+			# =================================================================================  ToDo
+			#expired = item.get('expired')  # n.b. not redorded in db -- item is  removed
+			
+			if regexpire <= 0:	# but the count does go to zero
+				expired_count += 1
+				
+			
+		print ''
+		
+		
+		count = float(len(registrations) -1)
+		
+		percent = count / float(total) * 100
+		
+		print "Total registrations on server", server_ips[ip_index] , ":\x1B[32m" , int(count), '%.2f' %percent + '%' "\033[0m"
+		
+		if options.verbose:
+				
+			print_column_list(registrations)
+				
+	print ''
+	print 'Total Registrations ', ':\x1B[32m' , str(total), '\033[0m'
+	print 'Expired Registrations ', ':\x1B[32m' , str(expired_count), '\033[0m'
+	
+	print '------------------------------------------------------------'
+
+
+def do_psql_query(sql):
+	
+	'''simple psql to avoid extra driver'''
+	
+	process = subprocess.Popen(sql, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	out, err = process.communicate()
+	
+	result = out.split('\n')
+	return result
+	
+
+def print_list(in_list):
+	
+	for line in in_list:
+		print line.replace('\n', '')
+		
+		
+def print_column_list(in_list):
+	
+	widths = [max(map(len, col)) for col in zip(*in_list)]
+	for row in in_list:
+		print "  ".join((val.ljust(width) for val, width in zip(row, widths)))
+		
+		
+def contains(string, line):
+
+        index = line.find(string)
+
+        if index == -1:
+                return False
+        else:
+                return True
+	
+	
+def get_servers():
+	
+	cmd = "psql SIPXCONFIG -U postgres -c 'select location_id, name, fqdn, ip_address from location;'"
+	
+	result = do_psql_query(cmd)
+	
+	if options.verbose:
+		
+		print 'Servers: '
+		print_list(result)
+	
+	return result
+
+
+def get_registrars():
+	
+	cmd = '''psql SIPXCONFIG -U postgres -c "select feature_id, location_id from feature_local where feature_id = 'registrar';"'''
+	
+	result = do_psql_query(cmd)
+	
+	if options.verbose:
+		
+		print 'Registrars: '
+		print_list(result)
+			
+	return result
+	
+	
+def get_registrar_ips(server_list, registrar_list):
+	
+	registrar_ips = []
+	location = ''
+	ip = ''
+	
+	for registrar in registrar_list:
+		
+		line = str(registrar)
+		
+		registrar_split = line.split('|')
+		
+		if registrar_split[0].strip() == 'registrar':
+			
+			location = registrar_split[1].strip()
+			
+			for server in server_list:
+				
+				sline = str(server)
+				
+				server_split = sline.split('|')
+				
+				if server_split[0].strip() == location:
+					
+					registrar_ips.append(server_split[3].strip())
+						
+	server_ips = registrar_ips
+	return registrar_ips
+		
+
+def view_collection(db_collection):
+	
+	for doc in collection.find():
+		
+		#print doc
+		print '---------------------------------------'
+		
+		keys = doc.keys()
+		values = doc.values()
+	
+		i = 0
+		for key in keys:
+			
+			i += 1
+			
+			print key, doc[key]
+			
+# subscribe utilities
+
+def print_subscribes(in_list, header, count):
+	
+	print ''
+	
+	print header, ':\x1B[32m' , str(count), '\033[0m'
+	
+	if options.verbose:
+		
+		print_column_list(in_list)
+			
+		print ''
+	
+	
+def do_subscriptions(db_collection, component_list, print_totals = True):
+	
+	# components as of 8 May 2013
+	#
+	# rls
+	# saa
+	# reg
+	# status
+	
+	# eventTypes:
+	#
+	# eventType dialog
+	# eventTypeKey dialog
+	# eventType message-summary
+	# eventTypeKey message-summary
+	# eventType reg
+	# eventTypeKey reg
+	# eventType dialog
+	# eventTypeKey dialog;sla
+		
+	rls_list = []
+	rls_list.append(['Contact', 'eventTypeKey'])
+	
+	saa_list = []
+	saa_list.append(['Contact', 'eventTypeKey'])
+	
+	status_list = []
+	status_list.append(['Contact', 'eventTypeKey'])
+	
+	reg_list = []
+	reg_list.append(['toURI', 'fromURI', 'Contact', 'eventTypeKey'])	# column headers
+	
+	line = []
+
+	for doc in collection.find():
+		
+		line = []
+		
+		keys = doc.keys()
+		values = doc.values()
+		
+		value =  doc.get('component')
+		
+		if value == 'saa':
+			
+			#line.append(doc.get('key'))
+			#line.append(doc.get('toUri'))
+			#line.append(doc.get('fromUri'))
+			line.append(doc.get('contact'))
+			#line.append(doc.get('eventType'))
+			line.append(doc.get('eventTypeKey'))
+			
+			saa_list.append(line)
+			
+		elif value == 'rls':
+			
+			#line.append(doc.get('key'))
+			#line.append(doc.get('toUri'))
+			#line.append(doc.get('fromUri'))
+			line.append(doc.get('contact'))
+			#line.append(doc.get('eventType'))
+			line.append(doc.get('eventTypeKey'))
+			
+			rls_list.append(line)
+			
+		elif value == 'status':
+			
+			#line.append(doc.get('key'))
+			#line.append(doc.get('toUri'))
+			#line.append(doc.get('fromUri'))
+			line.append(doc.get('contact'))
+			#line.append(doc.get('eventType'))
+			line.append(doc.get('eventTypeKey'))
+			
+			status_list.append(line)
+			
+		elif value == 'reg':
+			
+			#line.append(doc.get('key'))
+			
+			#line.append(doc.get('toUri'))
+			tmp = doc.get('toUri')
+			i = tmp.find(';')
+			tmp = tmp[:i]
+			tmp = tmp.replace('<', '')
+			tmp = tmp.replace('>', '')
+			line.append(tmp)
+			
+			#line.append(doc.get('fromUri'))	# strip tags  
+			tmp = doc.get('fromUri')
+			i = tmp.find(';tag')
+			tmp = tmp[:i]
+			tmp = tmp.replace('<', '')
+			tmp = tmp.replace('>', '')
+			line.append(tmp)
+			
+			#line.append(doc.get('contact'))
+			tmp = doc.get('contact')
+			i = tmp.find(';')
+			tmp = tmp[:i]
+			tmp = tmp.replace('<', '')
+			tmp = tmp.replace('>', '')
+			line.append(tmp)
+			
+			
+			
+			#line.append(doc.get('eventType'))
+			line.append(doc.get('eventTypeKey'))
+			
+			reg_list.append(line)
+			
+		else:
+			
+			msg = 'Unrecognized subscribe component: ' + value
+			error_list.append(msg)
+		
+	if 'saa' in component_list:
+		print_subscribes(saa_list, 'Total saa subscribes:', len(saa_list)-1)	# minus header
+	if 'rls' in component_list:
+		print_subscribes(rls_list, 'Total rls subscribes:', len(rls_list)-1)
+	if 'status' in component_list:
+		print_subscribes(status_list, 'Total status subscribes:', len(status_list)-1)
+	if 'reg' in component_list:
+		print_subscribes(reg_list, 'Total reg subscribes:', len(reg_list)-1)
+	
+	if print_totals:
+		
+		total =  int(collection.count())
+		
+		print ''
+		print 'Total Subscriptions: ', ':\x1B[32m' , str(total), '\033[0m'
+		print '------------------------------------------------------------'
+	
+	
+# genreal parsing utilities
+	
+def has_dict(in_list):
+	
+	result = False
+	
+	for item in in_list:
+		
+		if type(item[1]) is dict: 
+			result = True
+			break
+		else:
+			result = False
+	return result
+	
+	
+def list_to_list(in_list, depth):
+	
+	sp = '    ' * depth
+	
+	new_list = []
+	
+	for item in in_list:
+		
+		key = item[0]
+		value = item[1]
+		
+		if type(value) is dict:
+			
+			line = []
+			line.append(key)
+			line.append(' ')
+			
+			new_list.append(line)
+			
+			keys = value.keys()
+			values = value.values()
+			
+			for key in keys:
+				
+				line = []
+				
+				line.append(sp + key)
+				line.append(value[key])
+				
+				new_list.append(line)
+				
+		else:
+			
+			line = []
+			line.append(key)
+			line.append(value)
+			
+			new_list.append(line)
+			
+	return new_list
+	
+	
+def doc_to_string(mongo_doc):
+	
+	keys = mongo_doc.keys()
+	values = mongo_doc.values()
+	
+	db_list = []
+	
+	
+	for key in keys:
+		
+		line_list = []
+		
+		line_list.append(key)
+		line_list.append(mongo_doc[key])
+		
+		db_list.append(line_list)
+		
+	count = 1
+	while has_dict(db_list):
+		
+		db_list = list_to_list(db_list, count)
+		count += 1
+		
+	for line in db_list:
+		
+		print line[0] + ':', line[1]
+		
+	
+def get_vm_summary(collection):
+	
+	vm_list = []
+	header = ['User', 'From', 'Directory', 'Duration', 'Filename', 'ObjectId']
+	vm_list.append(header)
+		
+	for doc in collection.find():
+		
+		#print doc
+		#print '------------------------------------'
+		
+		line = []
+		#keys = doc.keys()
+		#values = doc.values()
+		
+		origin = ''
+		filename = ''
+		uploadDate = ''
+		timestamp = ''
+		folder = ''
+		user = ''
+		user_id = ''
+		msgid = ''
+		durationsecs = ''
+		ObjectId = ''
+		
+		#print doc
+		#print '=============================='
+		
+		filename = doc['filename']
+		uploadDate = doc['uploadDate']
+		metadata = doc['metadata']
+		ObjectId = doc['_id']
+		
+		if filename == 'name.wav':
+			continue
+		if filename == 'standard.wav':
+			continue
+		
+		if metadata.has_key('from'):
+			origin = metadata['from']
+			timestamp = metadata['timestamp']
+			folder = metadata['folder']
+			user = metadata['user']
+			user_id = metadata['id']
+			msgid = metadata['msgid']
+			durationsecs = metadata['durationsecs']
+			
+		#else:
+			
+			#user_id = metadata['user']
+		
+		#print 'filename: ' + filename
+		#print 'uploadDate: ' + str(uploadDate)
+		#print 'timestamp: ' + str(timestamp)
+		#print 'from: ' + origin
+		#print 'folder: ' + folder
+		#print 'user: ' + user
+		#print 'user_id: ' + user_id
+		#print 'msgid: ' + msgid
+		#print 'durationsecs: ' + durationsecs
+		#print 'ObjectId: ' + str(ObjectId)
+		
+		line.append(user_id)
+		line.append(origin)
+		line.append(folder)
+		line.append(durationsecs)
+		line.append(filename)
+		line.append(str(ObjectId))
+		
+		vm_list.append(line)
+		
+		
+		#print '=============================='
+		
+		#doc_to_string(doc)
+		#print '-----------------------------------------------'
+		
+	print_column_list(vm_list)
+	
+	
+	
+
+if __name__ == '__main__':
+	
+	usage = '''
+	\n%prog [options]  [arg1 [arg2]....]         version 0.3
+	\nexamples:
+	\n%prog -rsv -- shows all registrations and subscribes in detail
+	\n%prog -sv status rls -- show status and rls subscribes in detail  
+	\n%prog -g 100000002-00.wav -o test2.wav  -- extract 100000002-00.wav to test.wav
+	\n%prog -m 10.10.10.0 10.10.10.1 10.10.10.3 -- bypass server lookup (registration spread only)
+	
+	\nNotes:
+	1. Acceptable componet types for subscribes: saa, rls, status, mwi (status), reg
+	'''
+	parser = OptionParser(usage=usage)
+	
+	parser.add_option("-r", "--registrations",
+		action="store_true", dest="registrations", default = False,
+		help="print registration spread")
+		
+	parser.add_option("-s", "--subscribes",
+		action="store_true", dest="subscribes", default = False,
+		help="print subscription info")
+		
+	parser.add_option("-m", "--manual",
+		action="store_true", dest="manual", default=False,
+		help="enter registrar ip addresses space separated as arguments -- spread only")
+		
+	parser.add_option("-k", "--mongo-status",
+		action="store_true", dest="mongostatus", default=False,
+		help="display mongo server statistics")
+		
+	parser.add_option("-l", "--list-vm",
+		action="store_true", dest="list_vm", default=False,
+		help="list voice mail files")
+						
+	parser.add_option("-v", "--verbose",
+		action="store_true", dest="verbose", default=False,
+		help="show detailed output")
+		
+	parser.add_option("-e", "--expanded",
+		action="store_true", dest="expanded", default=False,
+		help="even more data")
+		
+	parser.add_option("-g", "--get-vm", dest="get_vm",
+		help="Get voicemail wav file.", metavar="file_name")
+		
+	parser.add_option("-o", "--out-file", dest="out_file",
+		help="Output file name.", metavar="out-file")
+		
+	parser.add_option("-x", "--test",
+		action="store_true", dest="test", default = False, 
+		help="execute optional test code -- not for production use")
+		
+	#parser.add_option("-y", "--test2",
+		#action="store_true", dest="test2", default = False, 
+		#help="execute optional test code -- not for production use")
+					
+	
+	(options, args) = parser.parse_args()
+	
+	
+	options_flag = False
+	
+
+	if test_flag:
+		client = pymongo.Connection('192.168.0.39', 27017)	# remote testing
+	else:
+		client = pymongo.Connection('localhost', 27017)
+			
+	
+		
+	db = client.node
+	collection = db.registrar
+	
+	
+	
+	if options.manual:	# registrations only
+		
+		options_flag = True
+		
+		if len(args) == 0:
+			
+			printc('No server ip address supplied.', 'red')
+			parser.print_help()
+			system.exit(0)
+			
+		else:
+			
+			server_ips = args
+			
+			spread()
+			options.registrations = False	# inhibit server lookup
+			client.close()
+			sys.exit(0)
+			
+			
+	# not manual, so attempt to find registration servers.
+	
+	if options.registrations:
+		
+		options_flag = True
+		
+		server_list = get_servers()
+		registrar_list = get_registrars()
+	
+		registrar_ips = get_registrar_ips(server_list, registrar_list)
+		
+		if options.verbose:
+		
+			print 'Registration servers: ' + str(registrar_ips)
+		
+		if test_flag:
+			pass
+		else:
+			server_ips = registrar_ips
+		
+		spread()
+		
+	
+	
+	if options.subscribes:
+		
+		options_flag = True
+		
+		#db = client.node
+		collection = db.subscription
+		
+		component_list = []
+		is_filtered = False
+		
+		if len(args) == 0:
+			
+			component_list = subscribe_component_list
+	
+			do_subscriptions(collection, component_list)	
+			
+		else:
+			
+			for item in args:
+				
+				arg = item.strip()
+				
+				if arg == 'saa':
+					component_list.append('saa')
+					is_filtered = True
+				if arg == 'rls':
+					component_list.append('rls')
+					is_filtered = True
+				if arg == 'status':
+					component_list.append('status')
+					is_filtered = True
+				if arg == 'reg':
+					component_list.append('reg')
+					is_filtered = True
+				if arg == 'mwi':				# alias
+					component_list.append('status')
+					is_filtered = True
+				
+			if is_filtered:
+				do_subscriptions(collection, component_list, False)
+			else:
+				do_subscriptions(collection, component_list, True)
+				
+	if options.mongostatus:
+		
+		options_flag = True
+		
+		status = db.command('serverStatus')
+		doc_to_string(status)
+		
+		
+	if options.list_vm:
+		
+		options_flag = True
+		
+		db = client.vmdb
+		fs = GridFS(db)
+		
+		file_list = fs.list()
+				
+		collection = db.fs.files
+		
+		get_vm_summary(collection)
+		
+		#file_list = fs.list()
+		#print file_list
+		
+		
+	if options.get_vm:
+		
+		options_flag = True
+		
+		file_name = options.get_vm
+		out_file = ''
+		
+		if options.out_file:
+	
+			out_file = options.out_file
+					
+		else:
+			
+			printc('*** Reuires out file option ***', 'cyan')
+			sys.exit(0)
+			
+		msg = 'file name: ' + file_name
+		printc(msg, 'cyan')
+		
+		db = client.vmdb
+		fs = GridFS(db)
+		
+		#collection = db.fs.files
+		
+		try:
+			
+			fp = fs.get_last_version(file_name)
+			
+		except Exception, e:
+			
+			msg = 'File: ' + file_name + ' does not exixt!'
+			printc(msg, 'red')
+			sys.exit(0)
+		
+		print fp
+		print fp._id
+		
+		#if fs.exists(file_id):
+		if fs.exists(fp._id):
+			
+			printc('File exists!', 'green')
+		else:
+			msg = 'File: ' + file_name + ' does not exixt!'
+			printc(msg, 'red')
+			sys.exit(0)
+		
+
+		fd = fs.get(fp._id)
+		
+		buffer_size = 100000
+		file = open(out_file, 'w')
+		
+		flag = True
+		while flag:
+		
+			wfile = fd.read(buffer_size)
+			
+			file.write(wfile)
+			
+			print '***'
+			
+			if wfile == '':
+				
+				file.close()
+				
+				flag = False
+		
+		print wfile
+		
+		
+		
+		
+	# Test
+		
+	if options.test:
+		
+		options_flag = True
+		
+		#db = client.node
+		
+		#collection = db.registrar
+		#collection = db.subscription
+	
+		#view_collection(collection)
+		
+		#status = db.command('serverStatus')
+		#status = db.command('getParameter')
+		
+		#status = client.nodes
+		#status = client.server_info()
+		
+		#db = client.imdb
+		#collection = db.entity
+		
+		db = client.node
+		collection = db.registrar
+		
+		for doc in collection.find():
+		
+			#line = []
+			
+			#keys = doc.keys()
+			#values = doc.values()
+			
+			doc_to_string(doc)
+			
+			print '-------------------------------'
+		
+		
+		
+	#if options.test2:
+		
+		#options_flag = True
+		
+		
+	if options_flag:
+		pass	# no options selectes
+	else:	# then defautl behavior
+		print 'No options selected.'
+		#parser.print_usage()
+		parser.print_help()
+		
+	if len(error_list) != 0:
+		
+		print ''
+		printc('The gollowing errors were encountered:', 'red')
+		for item in error_list:
+			printc(item, 'red')
+		
+	client.close()	
+	
+	#printc('---fini---', 'red')
+	

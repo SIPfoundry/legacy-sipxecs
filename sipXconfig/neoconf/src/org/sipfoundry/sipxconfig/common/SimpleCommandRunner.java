@@ -48,7 +48,7 @@ public class SimpleCommandRunner implements CommandRunner {
     private String[] m_command;
     private int m_foregroundTimeout;
     private int m_backgroundTimeout;
-    private JobContext m_jobContext;
+    private final JobContext m_jobContext;
     private String m_jobName;
 
     public SimpleCommandRunner(JobContext jobContext) {
@@ -60,10 +60,12 @@ public class SimpleCommandRunner implements CommandRunner {
         m_jobName = null;
     }
 
+    @Override
     public String getStderr() {
         return m_stderr.toString();
     }
 
+    @Override
     public String getStdout() {
         return m_stdout.toString();
     }
@@ -76,10 +78,12 @@ public class SimpleCommandRunner implements CommandRunner {
         return m_stdin;
     }
 
+    @Override
     public Integer getExitCode() {
         return m_exitCode;
     }
 
+    @Override
     public boolean isInProgress() {
         return m_procThread != null && m_procThread.isAlive();
     }
@@ -112,6 +116,7 @@ public class SimpleCommandRunner implements CommandRunner {
         return run();
     }
 
+    @Override
     public boolean run() {
         // clean-up in case this is reused
         kill();
@@ -255,8 +260,8 @@ public class SimpleCommandRunner implements CommandRunner {
     }
 
     class StreamGobbler implements Runnable {
-        private InputStream m_in;
-        private OutputStream m_out;
+        private final InputStream m_in;
+        private final OutputStream m_out;
         private IOException m_error;
 
         StreamGobbler(InputStream in) {
@@ -314,5 +319,11 @@ public class SimpleCommandRunner implements CommandRunner {
             cmd.add(param.toString());
             param.setLength(0);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleCommandRunner [m_command=" + Arrays.toString(m_command) + ", m_foregroundTimeout="
+                + m_foregroundTimeout + ", m_backgroundTimeout=" + m_backgroundTimeout + "]";
     }
 }

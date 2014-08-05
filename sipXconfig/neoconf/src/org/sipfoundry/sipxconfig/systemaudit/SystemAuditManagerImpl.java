@@ -18,13 +18,11 @@
 package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.io.Serializable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
@@ -34,7 +32,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListener,
-        ApplicationListener<ApplicationEvent>, DaoEventListener {
+        ApplicationListener<ApplicationEvent> {
 
     private static final Log LOG = LogFactory.getLog(SystemAuditManagerImpl.class);
     private static final String LOG_ERROR_MESSAGE = "Exception when processing entry for System Audit: ";
@@ -42,9 +40,6 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     private GeneralAuditHandler m_generalAuditHandler;
     private FeatureAuditHandler m_featureAuditHandler;
     private LoginLogoutAuditHandler m_loginLogoutAuditHandler;
-
-    private ExecutorService m_changeExecutor = Executors.newSingleThreadExecutor();
-    private ExecutorService m_collectionExecutor = Executors.newSingleThreadExecutor();
 
     /**
      * This method will execute in a different thread not to interfere with the normal persistence logic
@@ -54,21 +49,15 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
             final ConfigChangeAction configChangeAction,
             final String[] properties, final Object[] oldValues,
             final Object[] newValues) {
-        Runnable thread = new Runnable() {
-            @Override
-            public void run() {
-                if (entity instanceof SystemAuditable) {
-                    try {
-                        m_generalAuditHandler.handleConfigChange(
-                                (SystemAuditable) entity, configChangeAction,
-                                properties, oldValues, newValues);
-                    } catch (Exception e) {
-                        LOG.error(LOG_ERROR_MESSAGE, e);
-                    }
-                }
+        if (entity instanceof SystemAuditable) {
+            try {
+                m_generalAuditHandler.handleConfigChange(
+                        (SystemAuditable) entity, configChangeAction,
+                        properties, oldValues, newValues);
+            } catch (Exception e) {
+                LOG.error(LOG_ERROR_MESSAGE, e);
             }
-        };
-        m_changeExecutor.execute(thread);
+        }
     }
 
     /**
@@ -116,45 +105,27 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     @Override
     public void onConfigChangeCollectionUpdate(final Object collection,
             final Serializable key) {
-        Runnable thread = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    m_generalAuditHandler.handleCollectionUpdate(collection,
-                            key);
-                } catch (Exception e) {
-                    LOG.error(LOG_ERROR_MESSAGE, e);
-                }
-            }
-        };
-        m_collectionExecutor.execute(thread);
-    }
-
-    /**
-     * This method only handles UserProfile saves, which don't go through
-     * hibernate but are persisted in mongo
-     */
-    @Override
-    public void onSave(Object entity) {
-        // This is a workaround for handling UserProfile which don't go through hibernate
-        if (entity instanceof SystemAuditable && entity instanceof User) {
-            User user = (User) entity;
-            if (!user.isNew()) {
-                try {
-                    m_generalAuditHandler.handleUserProfileConfigChange(user);
-                } catch (Exception e) {
-                    LOG.error(LOG_ERROR_MESSAGE, e);
-                }
-            }
+        try {
+            m_generalAuditHandler.handleCollectionUpdate(collection, key);
+        } catch (Exception e) {
+            LOG.error(LOG_ERROR_MESSAGE, e);
         }
     }
 
     /**
-     * Delete events are handled in SpringHibernateInstantiator.
+     * This method only handles UserProfile saves, which don't go through
+     * hibernate but are persisted in mongo db
      */
-    @Override
-    public void onDelete(Object entity) {
-        // Do nothing
+    public void auditUserProfile(User user) {
+        // This is a workaround for handling UserProfile which don't go through
+        // hibernate
+        if (!user.isNew()) {
+            try {
+                m_generalAuditHandler.handleUserProfileConfigChange(user);
+            } catch (Exception e) {
+                LOG.error(LOG_ERROR_MESSAGE, e);
+            }
+        }
     }
 
     @Required
@@ -170,5 +141,23 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     @Required
     public void setLoginLogoutAuditHandler(LoginLogoutAuditHandler loginLogoutAuditHandler) {
         m_loginLogoutAuditHandler = loginLogoutAuditHandler;
+    }
+
+    @Override
+    public void auditLicenseUpload(String licenseName) {
+        try {
+            m_generalAuditHandler.handleLicenseUpload(licenseName);
+        } catch (Exception e) {
+            LOG.error(LOG_ERROR_MESSAGE, e);
+        }
+    }
+
+    @Override
+    public void auditServiceRestart(String serverName, List<String> serviceNameList) {
+        try {
+            m_generalAuditHandler.handleServiceRestart(serverName, serviceNameList);
+        } catch (Exception e) {
+            LOG.error(LOG_ERROR_MESSAGE, e);
+        }
     }
 }

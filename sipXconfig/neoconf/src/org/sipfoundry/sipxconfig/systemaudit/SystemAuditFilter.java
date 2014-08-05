@@ -32,9 +32,10 @@ public class SystemAuditFilter implements Serializable {
     private String m_userName;
     private Set<Group> m_userGroups;
     private String m_details;
+    private String m_localizedDetails;
 
     public SystemAuditFilter(Date startDate, Date endDate, ConfigChangeType type,
-            ConfigChangeAction action, String userName, String details, Set<Group> userGroup) {
+            ConfigChangeAction action, String userName, String details, String localizedDetails, Set<Group> userGroup) {
         super();
         this.m_startDate = startDate;
         this.m_endDate = endDate;
@@ -42,6 +43,7 @@ public class SystemAuditFilter implements Serializable {
         this.m_action = action;
         this.m_userName = userName;
         this.m_userGroups = userGroup;
+        this.m_localizedDetails = localizedDetails;
         this.m_details = details;
     }
 
@@ -99,5 +101,13 @@ public class SystemAuditFilter implements Serializable {
 
     public void setDetails(String details) {
         this.m_details = details;
+    }
+
+    public String getLocalizedDetails() {
+        return m_localizedDetails;
+    }
+
+    public void setLocalizedDetails(String localizedDetails) {
+        this.m_localizedDetails = localizedDetails;
     }
 }
