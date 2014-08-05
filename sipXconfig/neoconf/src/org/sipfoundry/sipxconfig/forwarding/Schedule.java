@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.Interval;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public abstract class Schedule extends BeanWithId implements SystemAuditable {
@@ -101,13 +100,4 @@ public abstract class Schedule extends BeanWithId implements SystemAuditable {
         }
     }
 
-    @Override
-    public String getEntityIdentifier() {
-        return m_user.getEntityIdentifier();
-    }
-
-    @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.USER_SCHEDULE;
-    }
 }

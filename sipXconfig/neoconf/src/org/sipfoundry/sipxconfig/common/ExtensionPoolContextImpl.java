@@ -34,7 +34,11 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
     }
 
     public void saveExtensionPool(ExtensionPool pool) {
-        getHibernateTemplate().saveOrUpdate(pool);
+        if (pool.isNew()) {
+            getHibernateTemplate().save(pool);
+        } else {
+            getHibernateTemplate().merge(pool);
+        }
     }
 
     /**

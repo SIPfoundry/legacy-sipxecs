@@ -96,6 +96,6 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
 
     @Override
     public ConfigChangeType getConfigChangeType() {
-        return null;
+        return ConfigChangeType.REGION;
     }
 }

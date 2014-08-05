@@ -98,7 +98,7 @@ public class ExtensionPool extends BeanWithId implements NamedObject, SystemAudi
 
     @Override
     public String getEntityIdentifier() {
-        return getName();
+        return getFirstExtension() + " - " + getLastExtension();
     }
 
     @Override

@@ -30,12 +30,24 @@
   </bean>
   <bean id="generalAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.GeneralAuditHandler" parent="abstractSystemAuditHandler">
     <property name="userProfileService" ref="userProfileService" />
-    <property name="regionManager" ref="regionManager" />
-    <property name="permissionManager" ref="permissionManager" />
+    <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
   <bean id="featureAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.FeatureAuditHandler" parent="abstractSystemAuditHandler">
     <property name="featureManager" ref="featureManager" />
   </bean>
   <bean id="loginLogoutAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.LoginLogoutAuditHandler" parent="abstractSystemAuditHandler"/>
+
+  <bean id="systemAuditLocalizationProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.systemaudit.SystemAuditLocalizationProvider" />
+    <property name="target" ref="systemAuditLocalizationProviderImpl" />
+  </bean>
+
+  <bean id="systemAuditLocalizationProviderImpl" class="org.sipfoundry.sipxconfig.systemaudit.SystemAuditLocalizationProviderImpl">
+    <property name="permissionManager" ref="permissionManager" />
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="parkOrbitContext" ref="parkOrbitContext" />
+  </bean>
 
 </beans>
