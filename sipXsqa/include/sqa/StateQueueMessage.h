@@ -16,7 +16,7 @@
 #ifndef STATEQUEUEMESSAGE_H
 #define	STATEQUEUEMESSAGE_H
 
-
+#include <cstdlib>
 #include "utl/cJSON.h"
 #include <cassert>
 #include <map>
