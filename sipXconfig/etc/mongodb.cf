@@ -280,6 +280,22 @@ bundle agent mongodb_config {
         perms => m("644"),
         edit_line => set_variable_values("mongodb_config.server"),
         classes => if_repaired("restart_mongod");
+
+      "/etc/security/limits.d/99-mongodb-nproc.conf"
+        comment => "setup mongodb limits",
+        create => "true",
+        perms => m("644"),
+        edit_line => mongodb_limits_contents,
+        classes => if_repaired("restart_mongod");
+}
+
+bundle edit_line mongodb_limits_contents {
+  insert_lines:
+"mongodb       soft    nproc     64000
+mongodb       hard    nproc     64000
+mongodb       soft    nofile    64000
+mongodb       hard    nofile    64000
+";
 }
 
 bundle edit_line mongo_client_config {
