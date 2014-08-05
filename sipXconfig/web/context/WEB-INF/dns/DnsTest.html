@@ -2,6 +2,9 @@
 <span jwcid="@common/ErrorMsg" validator="bean:validator"/>
 <form jwcid="dnsTestForm@Form" delegate="bean:validator">
   <fieldset>
+    <span jwcid="@If" condition="ognl:getRegionId() != null" renderTag="false">
+  		<tr jwcid="@region/RegionSelection" regionId="ognl:regionId"/>
+   </span>
     <span jwcid="@common/FieldPanel" for="dnsServer" field="component:dnsServer"
       label="message:label.dnsServer"
       description="message:description.dnsServer">
@@ -11,7 +14,12 @@
       <input jwcid="runTest@Submit" listener="listener:execute" value="message:button.runtest"/>
     </p>
   </fieldset>
+  <span jwcid="@If" condition="ognl:computedNotBlank" renderTag="false">
+    <div key="label.computedRecords">Computed records</div>
+    <textarea jwcid="computedReadOnly@TextArea" disabled="true" rows="30" class="textBox" value="ognl:computedRecords"/>
+  </span>
   <span jwcid="@If" condition="ognl:resultsNotBlank" renderTag="false">
+    <div key="label.missingRecords">Computed records</div>
     <textarea jwcid="resultsReadOnly@TextArea" disabled="true" rows="30" class="textBox" value="ognl:results"/>
   </span>
 </form>

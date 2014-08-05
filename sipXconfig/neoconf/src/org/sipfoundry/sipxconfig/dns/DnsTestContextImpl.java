@@ -84,6 +84,7 @@ public class DnsTestContextImpl implements DnsTestContext {
 
     @Override
     public String missingRecords(Region region, String dnsHost) {
+        String missing = EMPTY;
         // get a host from the region, ideally primary
         String remoteHost = null;
         for (Integer locationId : m_regionManager.getServersByRegion(region.getId())) {
@@ -93,35 +94,38 @@ public class DnsTestContextImpl implements DnsTestContext {
                 break;
             }
         }
-        Map<String, List<PrivateResourceRecord>> resultRrs = new HashMap<String, List<PrivateResourceRecord>>();
-        Map<String, List<PrivateResourceRecord>> rrs = getComputedRecords(region.getId());
-        for (String rr : rrs.keySet()) {
-            SimpleCommandRunner runner = createRemoteCommand(remoteHost, dnsHost, rr, m_domainManager.getDomain()
-                    .getName(), SRV, EMPTY);
-            LOG.debug("Running: " + runner.toString());
-            boolean done = runner.run();
-            if (done) {
-                if (runner.getExitCode() != 0) {
-                    throw new UserException("Command did not complete properly. " + runner.getStderr());
+        if (StringUtils.isNotBlank(remoteHost)) {
+            Map<String, List<PrivateResourceRecord>> resultRrs = new HashMap<String, List<PrivateResourceRecord>>();
+            Map<String, List<PrivateResourceRecord>> rrs = getComputedRecords(region.getId());
+            for (String rr : rrs.keySet()) {
+                SimpleCommandRunner runner = createRemoteCommand(remoteHost, dnsHost, rr, m_domainManager
+                        .getDomain().getName(), SRV, EMPTY);
+                LOG.debug("Running: " + runner.toString());
+                boolean done = runner.run();
+                if (done) {
+                    if (runner.getExitCode() != 0) {
+                        throw new UserException("Command did not complete properly. " + runner.getStderr());
+                    }
                 }
+                resultRrs.putAll(parseOutput(rr, StringUtils.remove(runner.getStdout(), m_validatorScriptRegions),
+                        m_domainManager.getDomainName()));
             }
-            resultRrs.putAll(parseOutput(rr, StringUtils.remove(runner.getStdout(), m_validatorScriptRegions),
-                    m_domainManager.getDomainName()));
-        }
 
-        LOG.debug("Computed: " + rrs.toString());
-        LOG.debug("DIGged:   " + resultRrs.toString());
-        String missing = extractMissingRecords(rrs, resultRrs);
-        LOG.debug("Missing: " + missing);
-        return extractMissingRecords(rrs, resultRrs);
+            LOG.debug("Computed: " + rrs.toString());
+            LOG.debug("DIGged:   " + resultRrs.toString());
+            missing = extractMissingRecords(rrs, resultRrs);
+            LOG.debug("Missing: " + missing);
+        }
+        return missing;
     }
 
-    private Map<String, List<PrivateResourceRecord>> getComputedRecords(int regionId) {
+    @Override
+    public Map<String, List<PrivateResourceRecord>> getComputedRecords(int regionId) {
         Map<String, List<PrivateResourceRecord>> rrs = new HashMap<String, List<PrivateResourceRecord>>();
         for (ResourceRecords resourceRecords : m_dnsManager.getResourceRecords()) {
             List<PrivateResourceRecord> srvRecords = new ArrayList<PrivateResourceRecord>();
             for (ResourceRecord rr : resourceRecords.getRecords()) {
-                if (rr.getRegionId() == regionId) {
+                if (rr.getRegionId() != null && rr.getRegionId() == regionId) {
                     PrivateResourceRecord prvSrvRecord;
                     prvSrvRecord = new PrivateResourceRecord(resourceRecords.getProto(),
                             resourceRecords.getResource(), EMPTY, rr.getPort(), rr.getAddress());
@@ -191,7 +195,7 @@ public class DnsTestContextImpl implements DnsTestContext {
         return rrs;
     }
 
-    private class PrivateResourceRecord extends DnsSrvRecord {
+    public class PrivateResourceRecord extends DnsSrvRecord {
         private static final String SPACE = " ";
         private String m_key;
 

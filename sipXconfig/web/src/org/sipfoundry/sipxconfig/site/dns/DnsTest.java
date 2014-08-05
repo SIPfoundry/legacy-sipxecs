@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site.dns;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
@@ -24,7 +25,10 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.dns.DnsManager;
 import org.sipfoundry.sipxconfig.dns.DnsSettings;
 import org.sipfoundry.sipxconfig.dns.DnsTestContext;
+import org.sipfoundry.sipxconfig.dns.DnsTestContextImpl.PrivateResourceRecord;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.region.Region;
+import org.sipfoundry.sipxconfig.region.RegionManager;
 
 public abstract class DnsTest extends BaseComponent implements PageBeginRenderListener {
 
@@ -35,7 +39,18 @@ public abstract class DnsTest extends BaseComponent implements PageBeginRenderLi
 
     @Persist
     public abstract String getResults();
+
     public abstract void setResults(String results);
+
+    @Persist
+    public abstract String getComputedRecords();
+
+    public abstract void setComputedRecords(String tested);
+
+    @Persist
+    public abstract Integer getRegionId();
+
+    public abstract void setRegionId(Integer id);
 
     @InjectObject(value = "spring:dnsTestContext")
     public abstract DnsTestContext getDnsTestContext();
@@ -55,6 +70,13 @@ public abstract class DnsTest extends BaseComponent implements PageBeginRenderLi
         return StringUtils.isNotBlank(getResults());
     }
 
+    public boolean isComputedNotBlank() {
+        return StringUtils.isNotBlank(getComputedRecords());
+    }
+
+    @InjectObject(value = "spring:regionManager")
+    public abstract RegionManager getRegionManager();
+
     @Override
     public void pageBeginRender(PageEvent event) {
         String dns = getDnsServer();
@@ -71,10 +93,33 @@ public abstract class DnsTest extends BaseComponent implements PageBeginRenderLi
             }
             setDnsServer(dns);
         }
+        List<Region> regions = getRegionManager().getRegions();
+        if (!regions.isEmpty()) {
+            if (getRegionId() == null) {
+                setRegionId(regions.get(0).getId());
+            }
+        }
     }
 
     public void execute() {
-        String missingRecords = getDnsTestContext().missingRecords(getDnsServer());
+        String missingRecords = "";
+        setComputedRecords(null);
+        if (getRegionId() != null) {
+            missingRecords = getDnsTestContext().missingRecords(getRegionManager().getRegion(getRegionId()),
+                    getDnsServer());
+            Map<String, List<PrivateResourceRecord>> computedRecords = getDnsTestContext().getComputedRecords(
+                    getRegionId());
+            StringBuilder computedResults = new StringBuilder();
+            for (String key : computedRecords.keySet()) {
+                for (PrivateResourceRecord prr : computedRecords.get(key)) {
+                    computedResults.append(prr);
+                }
+            }
+            setComputedRecords(computedResults.toString());
+
+        } else {
+            missingRecords = getDnsTestContext().missingRecords(getDnsServer());
+        }
         setResults(missingRecords);
         if (StringUtils.isBlank(missingRecords)) {
             TapestryUtils.recordSuccess(this, getMessages().getMessage("validationDns.labelSuccess"));
