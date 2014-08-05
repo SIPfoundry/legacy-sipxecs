@@ -1,0 +1,184 @@
+#set($serial = "$phone.SerialNumber")
+#set($maxLineCount = $phone.MaxLineCount)
+#set($signatureL1 = '####################################################')
+#set($signatureL2 = '##         MAC-Oriented CFG File                  ##')
+#set($signatureL3 = '####################################################')
+#set($signatureL4 = '#!version:1.0.0.1')
+#set($signatureL5 = '#File header "#!version:1.0.0.1" cannot be edited or deleted.##')
+$signatureL4
+$signatureL5
+##
+#macro (phonebooksSettings $setting)
+#set ($selected = $setting.getTypedValue())
+#set ($book_keys = $setting.getType().getEnums().keySet())
+## Loop through each item
+#set($pb = 0)
+#foreach ($book_key in $book_keys)
+#if (${selected.contains(${book_key})})
+#set($pbId = 1 + ${selected.indexOf($book_key)})
+remote_phonebook.data.${pbId}.url = $!{TFTPServer}${serial}-${pb}-directory.xml
+remote_phonebook.data.${pbId}.name = $book_key
+#set($pb = $pb + 1)
+#end
+#end
+#set ($pbLast = ${selected.size()} + 1)
+#foreach($pbId in [${pbLast}..5])
+remote_phonebook.data.${pbId}.url = %NULL%
+remote_phonebook.data.${pbId}.name = %NULL%
+#end
+#end
+##
+#macro (linesSetting $setting, $prefix)
+#set ($selected = $setting.getTypedValue())
+#set ($keys = $setting.getType().getEnums().keySet())
+## Loop through each item
+#set($value = "")
+#foreach ($key in $selected)
+#if(${value} == "")
+#set($value = ${key.substring(4)})
+#else
+#set($value = "$value,${key.substring(4)}")
+#end
+#end
+${prefix}${setting.profileName} = ${value}
+#end
+##
+#macro (arraySettings $array)
+#set($settingsIndexMax = ${array.getSize()} - 1)
+#foreach ($settingIndex in [0..$settingsIndexMax])
+#foreach ($settingName in ${array.getSettingNames()})
+#set($s = ${array.getSetting($settingIndex,$settingName)})
+#if(${s.Value})
+#if(${s.name.matches("(dial_out|incoming)_lines")})
+#linesSetting($s,"${array.name}.$math.add(${settingIndex},1).")
+#else
+${array.name}.$math.add(${settingIndex},1).${settingName} = $!{s.value}
+#end
+#else
+${array.name}.$math.add(${settingIndex},1).${settingName} = %NULL%
+#end
+#end
+#end
+#end
+##
+#macro (codecSetting $setting, $account)
+#set ($selected = $setting.getTypedValue())
+#set ($keys = $setting.getType().getEnums().keySet())
+## Loop through each item
+#set($i = 1)
+#foreach ($key in $keys)
+#set($pt = $key.substring($math.add($key.indexOf(":"),1)))
+#set($m = $key.substring(0,$key.indexOf(":")))
+#if (${selected.contains($key)})
+account.${account}.codec.${i}.enable = 1
+account.${account}.codec.${i}.priority = $!{selected.indexOf($key)}
+#else
+account.${account}.codec.${i}.enable = 0
+account.${account}.codec.${i}.priority = %NULL%
+#end
+account.${account}.codec.${i}.rtpmap = $!{m}
+account.${account}.codec.${i}.payload_type = $!{pt}
+#set($i = $i + 1)
+#end
+#end
+##
+#macro (phoneSetting $settings)
+#if(${settings.getSize()})
+#arraySettings($settings)
+#else
+#foreach ($s in $settings.Values)
+#if(${s.isLeaf()})
+#if(${s.name.matches("((dial_out|incoming)_lines)|(dialplan.area_code.line_id)")})
+#linesSetting($s,"")
+#elseif(${s.name} == "_RemotePhonebooks")
+#phonebooksSettings($s)
+#else
+#if(${s.Value})
+${s.ProfileName} = $!{s.Value}
+#else
+${s.ProfileName} = %NULL%
+#end
+#end
+#else
+#phoneSetting($s)
+#end
+#end
+#end
+#end
+
+# Enable configured lines
+#foreach ($line in $phone.lines)
+#set ($lastLineID = $velocityCount)
+#set ($SLP = $lastLineID - 1)
+#set ($SLP = $SLP * 10)
+#set ($SLP = $SLP + 5060)
+# Line ${lastLineID} settings
+#foreach ($group in $line.Settings.Values)
+#${group.name}
+#foreach ($setting in $group.Values)
+#if(${setting.ProfileName} == "voice_mail.number")
+${setting.ProfileName}.${lastLineID} = $!{setting.Value}
+#elseif (${setting.ProfileName} == "label")
+#elseif (${setting.ProfileName} == "user_name")
+account.${lastLineID}.label = $!{setting.Value}
+account.${lastLineID}.user_name = $!{setting.Value}/$serial
+#else
+#if (${setting.name} == "codec")
+#codecSetting($setting, $lastLineID)
+#else
+#if (${setting.Value})
+account.${lastLineID}.${setting.ProfileName} = $!{setting.Value}
+#else
+account.${lastLineID}.${setting.ProfileName} = %NULL%
+#end
+#end
+#end
+#end
+#end
+account.${lastLineID}.sip_listen_port = ${SLP}
+#end
+
+#set ($lastLineID = $lastLineID + 1)
+#if (${lastLineID}<${maxLineCount})
+# Disable other lines
+#foreach($L in [${lastLineID}..${maxLineCount}])
+#set ($SLP = $L - 1)
+#set ($SLP = $SLP * 10)
+#set ($SLP = $SLP + 5060)
+account.${L}.enable = 0
+account.${L}.label = %NULL%
+account.${L}.display_name = %NULL%
+account.${L}.user_name = %NULL%
+account.${L}.auth_name = %NULL%
+account.${L}.password = %NULL%
+account.${L}.sip_listen_port = ${SLP}
+account.${L}.sip_server_host = %NULL%
+account.${L}.sip_server_port = 5060
+account.${L}.outbound_proxy_enable = 0
+account.${L}.outbound_host = %NULL%
+account.${L}.outbound_port = 5060
+account.${L}.transport = 3
+account.${L}.backup_outbound_host = %NULL%
+account.${L}.backup_outbound_port = 5060
+#end
+#end
+
+#Phone settings
+#phoneSetting($phone.Settings)
+
+#Downloads
+local_contact.data_photo_tar.url = $!{TFTPServer}yealink/Contacts/contacts.tar
+favorite_setting.url = $!{TFTPServer}yealink/Contacts/favorites.xml
+super_search.url = $!{TFTPServer}yealink/Contacts/search.xml
+#foreach ($f in $phone.RingTones)
+ringtone.url = $!{TFTPServer}yealink/RingTones/$!{f}
+#end
+#foreach ($f in $phone.WallPapers)
+wallpaper_upload.url = $!{TFTPServer}yealink/WallPapers/$!{f}
+#end
+#foreach ($f in $phone.ScreenSavers)
+screen_saver.pic.url = $!{TFTPServer}yealink/ScreenSavers/$!{f}
+#end
+#foreach ($f in $phone.Languages)
+gui_lang.url = $!{TFTPServer}yealink/Languages/$!{f}
+#end

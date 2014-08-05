@@ -1,0 +1,255 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+<group name="yealinkFiles">
+	<label>Firmware</label>
+	<description>Firmware for Yealink phones</description>
+	<setting name="yealink_SIP-T12.rom">
+    		<label>SIP-T12(P)</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T12.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 5.x.x.x.rom </description>
+        </setting>
+	<setting name="yealink_SIP-T18.rom">
+    		<label>SIP-T18(P)</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T18.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 18.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T20.rom">
+    		<label>SIP-T20(P)</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T20.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 9.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T22.rom">
+    		<label>SIP-T22(P)</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T22.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 7.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T26.rom">
+    		<label>SIP-T26(P)</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T26.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 6.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T28.rom">
+    		<label>SIP-T28(P)</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T28.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 2.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T32.rom">
+    		<label>SIP-T32G</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T32.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>32.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T38.rom">
+    		<label>SIP-T38G</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T38.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>38.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_VP530.rom">
+    		<label>VP530</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>VP530.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>23.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_W52.rom">
+    		<label>W52</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>W52.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 25.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T41.rom">
+    		<label>SIP-T41G</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T41.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 36.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T42.rom">
+    		<label>SIP-T42G</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T42.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 29.x.x.x.rom</description>
+        </setting>
+	<setting name="yealink_SIP-T46.rom">
+    		<label>SIP-T46G</label>
+    		<type>
+    			<file>
+    				<contentType>application/binary</contentType>
+    				<rename>T46.rom</rename>
+    				<moveTo>../</moveTo>
+    			</file>
+    		</type>
+		<description>Firmware binary in 28.x.x.x.rom</description>
+        </setting>
+        <setting name="Logo132x64.dob">
+            <label>SIP-T2X LCD Logo (screensaver)</label>
+            <type>
+                <file>
+                    <contentType>application/binary</contentType>
+                    <rename>yealinkLogo132x64.dob</rename>
+                    <moveTo>../</moveTo>
+                </file>
+            </type>
+            <description>Logo in DOB format for SIP-T2X phones</description>
+        </setting>
+        <setting name="ringtones.zip">
+            <label>Custom RingTones</label>
+            <type>
+                <file>
+                    <contentType>application/zip</contentType>
+                    <moveTo>RingTones/</moveTo>
+                </file>
+            </type>
+            <description>ZIP archive with WAV files</description>
+        </setting>
+        <setting name="wallpapers.zip">
+            <label>Wallpapers for colour LCDs</label>
+            <type>
+                <file>
+                    <contentType>application/zip</contentType>
+                    <moveTo>WallPapers/</moveTo>
+                </file>
+            </type>
+            <description>ZIP archive with JPG and PNG files</description>
+        </setting>
+        <setting name="screensavers.zip">
+            <label>Screensavers for colour LCDs</label>
+            <type>
+                <file>
+                    <contentType>application/zip</contentType>
+                    <moveTo>ScreenSavers/</moveTo>
+                </file>
+            </type>
+            <description>ZIP archive with JPG and PNG files</description>
+        </setting>
+        <setting name="yealink_SIP-T38G_idle_screen.xml">
+            <label>Idle screen XML</label>
+            <type>
+                <file>
+                    <contentType>text/xml</contentType>
+                    <rename>yealink_SIP-T38G_idle_screen.xml</rename>
+                </file>
+            </type>
+            <description>IdleScreen.xml</description>
+        </setting>
+        <setting name="languages.zip">
+            <label>Custom LCD Language correction files</label>
+            <type>
+                <file>
+                    <contentType>application/zip</contentType>
+                    <moveTo>Languages/</moveTo>
+                </file>
+            </type>
+            <description>ZIP archive with UTF16LE text file, named lang+English.txt or lang-LangName.txt by default</description>
+        </setting>
+        <setting name="contacts.tar">
+            <label>Local contacts</label>
+            <type>
+                <file>
+                    <contentType>application/binary</contentType>
+                    <moveTo>Contacts/</moveTo>
+                    <rename>contacts.tar</rename>
+                </file>
+            </type>
+            <description>TARball with PNG images in TARball and ContactData.xml.</description>
+        </setting>
+        <setting name="contacts.zip">
+            <label>Custom Contacts sources files</label>
+            <type>
+                <file>
+                    <contentType>application/zip</contentType>
+                    <moveTo>Contacts/</moveTo>
+                </file>
+            </type>
+            <description>ZIP archive with XML files: search.xml and favorites.xml</description>
+        </setting>
+        <setting name="customsoftkeys.zip">
+            <label>Custom Softkeys Layout files</label>
+            <type>
+                <file>
+                    <contentType>application/zip</contentType>
+                    <moveTo>CustomSoftkeyLayout/</moveTo>
+                </file>
+            </type>
+            <description>ZIP archive with XML file</description>
+        </setting>
+        <setting name="certs.zip">
+            <label>SSL Certificates</label>
+            <type>
+                <file>
+                    <contentType>application/zip</contentType>
+                    <moveTo>Certs/</moveTo>
+                </file>
+            </type>
+            <description>ZIP archive with SSL Certificates in PEM format</description>
+        </setting>
+</group>
+</model>

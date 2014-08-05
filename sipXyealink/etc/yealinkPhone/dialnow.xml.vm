@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DialNow>
+#foreach($group in $phone.Settings.Values)
+#foreach($subgroup in $group.Values)
+#if ($subgroup.name == "DialNow")
+#foreach ($setting in $subgroup.Values)
+#if ($setting.ProfileName == "path")
+#elseif ($setting.ProfileName == "path_")
+#elseif ($setting.ProfileName == "server_address")
+#elseif ($setting.ProfileName == "URL")
+#else
+	<Data DialNowRule="$!{setting.Value}" LineID="" />
+#end
+#end
+#end
+#end
+#end
+</DialNow>
