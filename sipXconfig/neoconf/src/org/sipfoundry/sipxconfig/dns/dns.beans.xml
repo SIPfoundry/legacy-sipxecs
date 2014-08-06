@@ -93,6 +93,11 @@
 
   <bean name="editDnsViewApi" parent="baseDnsViewApi"/>
   <alias name="editDnsViewApi" alias="/dnsView/{id}" />
+  
+  <bean name="editDnsDefaultViewApi" class="org.sipfoundry.sipxconfig.dns.DnsDefaultViewApi">
+      <property name="dnsManager" ref="dnsManager"/>
+  </bean>
+  <alias name="editDnsDefaultViewApi" alias="/dnsDefaultView" />
 
   <!-- DNS VIEW MOVE REST API -->
   <bean id="dnsMoveViewApi" class="org.sipfoundry.sipxconfig.dns.DnsViewMoveApi">
@@ -110,6 +115,14 @@
   <!-- See DnsPreview.Show for legal values for show -->
   <alias name="dnsPreviewApi" alias="/dnsPreview/{show}" />
 
+    <bean id="dnsDefaultPreviewApi" class="org.sipfoundry.sipxconfig.dns.DnsDefaultPreviewApi">
+    <property name="dnsPreview" ref="dnsPreview"/>
+    <property name="dnsManager" ref="dnsManager"/>    
+  </bean>
+
+  <!-- See DnsPreview.Show for legal values for show -->
+  <alias name="dnsDefaultPreviewApi" alias="/dnsDefaultPreview" />
+  
   <!-- DNS CUSTOM REST API -->
   <bean id="baseDnsCustomApi" class="org.sipfoundry.sipxconfig.dns.DnsCustomApi">
     <property name="dnsManager" ref="dnsManager"/>    

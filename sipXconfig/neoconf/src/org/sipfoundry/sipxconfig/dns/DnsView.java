@@ -63,10 +63,12 @@ public class DnsView extends BeanWithId implements NamedObject, DeployConfigOnEd
         m_regionId = regionId;
     }
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -112,4 +114,13 @@ public class DnsView extends BeanWithId implements NamedObject, DeployConfigOnEd
     public void setExcluded(ExcludedRecords[] excluded) {
         m_excluded = excluded;
     }
+
+    @Override
+    public String toString() {
+        return "DnsView [m_regionId=" + m_regionId + ", m_name=" + m_name + ", m_planId=" + m_planId
+                + ", m_excluded=" + Arrays.toString(m_excluded) + ", m_enabled=" + m_enabled
+                + ", m_customRecordsIds=" + m_customRecordsIds + "]";
+    }
+
+
 }

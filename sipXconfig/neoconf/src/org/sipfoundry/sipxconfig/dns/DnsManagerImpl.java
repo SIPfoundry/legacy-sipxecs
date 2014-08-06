@@ -543,7 +543,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     @Override
     public Collection<DnsView> getViews() {
-        return loadViews(StringUtils.EMPTY);
+        return loadViews(String.format(" where name != '%s' ", DEFAULT_VIEW_NAME));
     }
 
     @Override
@@ -553,8 +553,16 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
         return DaoUtils.requireOneOrZero(views, filter);
     }
 
+    @Override
+    public DnsView getDefaultView() {
+        String filter = "where name = '" + DEFAULT_VIEW_NAME + "'";
+        Collection<DnsView> views = loadViews(filter);
+        return DaoUtils.requireOneOrZero(views, filter);
+    }
+
     List<DnsView> loadViews(String filter) {
         String sql = format("select * from dns_view as v %s" + " order by v.position", filter);
+        LOG.debug(sql);
         final List<DnsView> views = new ArrayList<DnsView>();
         m_db.query(sql, new RowCallbackHandler() {
             @Override
@@ -583,7 +591,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
 
     @Override
     public void saveView(DnsView view) {
-        if (view.getRegionId() == null) {
+        if (view.getRegionId() == null && !view.getName().equals(DEFAULT_VIEW_NAME)) {
             throw new UserException("&err.regionRequired");
         }
         String sql;

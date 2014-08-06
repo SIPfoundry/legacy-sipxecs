@@ -140,6 +140,19 @@ class Views {
   loadTable(data) {
     var tbody = querySelector("#view-items");    
     tbody.children.clear();
+    var def = new Element.html('''
+    <table>
+  <tbody>
+        <tr>
+      <td></td>
+      <td><a href="EditDefaultView.html">default</a></td>
+      <td></td>
+      <td></td>
+    </tr>
+      </tbody>
+</table>
+    ''');
+    tbody.children.add(def.querySelector("tr"));
     var meta = JSON.decode(data);
     for (var view in meta) {
       var e = new Element.html('''

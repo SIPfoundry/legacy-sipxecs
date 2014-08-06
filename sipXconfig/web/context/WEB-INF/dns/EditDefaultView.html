@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet"
+  href="../../../src/org/sipfoundry/sipxconfig/site/skin/sipxecs.css">
+<style>
+  /* only for development - stripped in product*/
+</style>
+</head>
+<body jwcid="$content$">
+  <div jwcid="@common/Border" id="content" restricted="false"
+    borderTitle="ognl:borderTitle">
+    <div id="breadcrumbs">
+      <a href="EditDns.html" class=""><span key="title.dns">DNS</span></a>
+      <img src="/sipxconfig/images/breadcrumb_separator.png" align="absmiddle">
+      <span key="title">DNS View</span>
+    </div>
+    <div class="help">
+        <span jwcid="@Insert" raw="true" value="message:help">DNS view help</span>
+    </div>
+    <p id="message"></p>
+    <fieldset id="edit-plan">
+      <table>
+        <tr>
+          <td><label class="settingLabel" for="name"><span key="name">Name</span></label></td>
+          <td><input type="text" value="default" disabled="disabled"/></td>
+        </tr>
+        <tr id="customRecordsIdsRow">
+          <td>
+            <label class="settingLabel" for="customRecordsIds">
+              <span key="label.customRecordsIds">Additional Custom Records</span>:
+            </label>
+          </td>
+          <td>
+            <select id="customRecordsIds" multiple="multiple" rows="3">
+            </select>
+          </td>
+        </tr>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li>
+        <button id="ok"><span key="button.ok">OK</span></button>
+      </li>
+      <li>
+        <button id="apply"><span key="button.apply">Apply</span></button>
+      </li>
+      <li>
+        <button id="cancel"><span key="button.cancel">Cancel</span></button>
+      </li>
+    </ul>
+    <div>
+      <h2><span key="preview">Preview</span></h2>
+      <br/>
+      <textarea id="preview" readonly="readonly" rows="30" cols="80">    
+      </textarea>
+    </div>
+    <span id="rc" style="display:none">
+      <span jwcid="@common/Message" key="msg.actionSuccess">save OK</span>      
+    </span>
+  </div>
+        <script jwcid="@common/DartCode" type="application/dart"
+      src="EditDefaultView.dart"></script>
+    <script jwcid="@common/DartCode"
+      src="../../../packages/browser/dart.js"></script>
+</body>
+</html>

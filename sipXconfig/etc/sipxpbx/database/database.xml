@@ -470,6 +470,7 @@
     <antcall target="add-orbit-location" />
     <antcall target="add-schedule-feature" />
     <antcall target="config-change-update-type" />
+    <antcall target="insert_default_dns_view" />
   </target>
 
   <target name="plugin-patches">
@@ -1427,7 +1428,9 @@
   <target name="config-change-update-type" unless="config-change-update-type">
     <db-patch patch="config-change-update-type"/>
   </target>
-
+  <target name="insert_default_dns_view" unless="insert_default_dns_view">
+    <db-patch patch="insert_default_dns_view" />
+  </target>
   <!--
     - SUPPORT UTILITIES
   -->

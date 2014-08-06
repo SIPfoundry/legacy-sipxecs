@@ -85,7 +85,10 @@ public class DnsConfig implements ConfigProvider {
         Set<Location> locations = request.locations(manager);
         List<Address> dns = am.getAddresses(DnsManager.DNS_ADDRESS, null);
         List<DnsView> views = new ArrayList<DnsView>(m_dnsManager.getViews());
-        DnsView fallbackView = new DnsView("default");
+        DnsView fallbackView = m_dnsManager.getDefaultView();
+        //the fallback (default) view has no region; we set the value to
+        //null, since it is by default 0;
+        fallbackView.setRegionId(null);
         fallbackView.setPlanId(DnsFailoverPlan.FALLBACK);
         views.add(fallbackView);
 
