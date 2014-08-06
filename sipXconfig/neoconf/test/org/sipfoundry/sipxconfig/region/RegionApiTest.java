@@ -18,7 +18,7 @@ public class RegionApiTest {
     public void write() throws IOException {
         List<Region> rs = Arrays.asList(new Region("r1"), new Region("r2"));
         rs.get(0).setAddresses(new String[]{"1.1.1.1", "1.1.2.0/24"});
-        String expected = IOUtils.toString(getClass().getResourceAsStream("regions.expected.json"));        
+        String expected = IOUtils.toString(getClass().getResourceAsStream("regions.expected.json"));
         TestHelper.assertEquals(expected, rs);
     }
 
