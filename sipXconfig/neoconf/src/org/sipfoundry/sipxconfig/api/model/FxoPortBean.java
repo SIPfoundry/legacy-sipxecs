@@ -65,7 +65,7 @@ public class FxoPortBean {
         }
 
         @XmlElement(name = "Port")
-        public List<FxoPortBean> getModels() {
+        public List<FxoPortBean> getPorts() {
             if (m_ports == null) {
                 m_ports = new ArrayList<FxoPortBean>();
             }

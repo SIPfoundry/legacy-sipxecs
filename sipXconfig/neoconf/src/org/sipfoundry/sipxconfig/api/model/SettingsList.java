@@ -15,6 +15,7 @@
 package org.sipfoundry.sipxconfig.api.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,12 +23,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingArray;
 
 @XmlRootElement(name = "Settings")
 public class SettingsList {
 
     private List<SettingBean> m_settings;
-
     public void setSettings(List<SettingBean> settings) {
         m_settings = settings;
     }
@@ -42,14 +43,35 @@ public class SettingsList {
 
     public static SettingsList convertSettingsList(Setting settings, Locale locale) {
         List<SettingBean> settingsList = new ArrayList<SettingBean>();
+
         addSettingToList(settingsList, settings, locale);
+
         SettingsList list = new SettingsList();
         list.setSettings(settingsList);
         return list;
     }
 
     private static void addSettingToList(List<SettingBean> settingsList, Setting settings, Locale locale) {
-        for (Setting setting : settings.getValues()) {
+        Collection<Setting> settingsToIterate = null;
+        if (settings instanceof SettingArray) {
+            SettingArray settingsArray = (SettingArray) settings;
+            String[] settingNames = settingsArray.getSettingNames();
+            settingsToIterate = new ArrayList<Setting>();
+
+            for (int i = 0; i < settingsArray.getSize(); i++) {
+                for (int j = 0; j < settingNames.length; j++) {
+                    settingsToIterate.add(settingsArray.getSetting(i, settingNames[j]));
+                }
+            }
+        } else {
+            settingsToIterate = settings.getValues();
+        }
+
+        addSettingsToList(settingsList, settingsToIterate, locale);
+    }
+
+    private static void addSettingsToList(List<SettingBean> settingsList, Collection<Setting> settings, Locale locale) {
+        for (Setting setting : settings) {
             if (!setting.isHidden()) {
                 if (setting.isLeaf()) {
                     settingsList.add(SettingBean.convertSetting(setting, locale));
@@ -58,6 +80,7 @@ public class SettingsList {
                 }
             }
         }
+
     }
 
 }
