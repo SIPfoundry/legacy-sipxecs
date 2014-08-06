@@ -98,4 +98,25 @@ public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizat
             String propertyName, String value) {
         return null;
     }
+
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
+
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+
+    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
+        m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
+    public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
+        m_autoAttendantManager = autoAttendantManager;
+    }
+
+    public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
+        m_parkOrbitContext = parkOrbitContext;
+    }
+
 }
