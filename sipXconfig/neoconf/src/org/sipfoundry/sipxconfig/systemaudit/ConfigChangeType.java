@@ -59,6 +59,7 @@ public final class ConfigChangeType extends Enum {
     public static final ConfigChangeType LICENSE_UPLOAD = new ConfigChangeType("LicenseUpload", "30");
     public static final ConfigChangeType PERSONAL_ATTENDANT = new ConfigChangeType("PersonalAttendant", "31");
     public static final ConfigChangeType LDAP = new ConfigChangeType("LDAP", "32");
+    public static final ConfigChangeType FEATURE_SCHEDULE = new ConfigChangeType("FeatureSchedule", "33");
 
     private String m_type;
     private String m_value;

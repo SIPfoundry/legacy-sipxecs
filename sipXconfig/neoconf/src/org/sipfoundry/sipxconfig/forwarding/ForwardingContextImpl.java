@@ -44,6 +44,7 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";
     private static final String PARAM_USER_GROUP_ID = "userGroupId";
+    private static final String PARAM_FEATURE_ID = "featureId";
     private static final String PARAM_NAME = "name";
     private static final String SQL_CALLSEQUENCE_IDS = "select distinct u.user_id from users u";
     private CoreContext m_coreContext;
@@ -209,6 +210,9 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
         } else if (schedule instanceof GeneralSchedule) {
             count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherGeneralScheduleWithTheSameName",
                     PARAM_NAME, schedule.getName());
+        } else if (schedule instanceof FeatureSchedule) {
+            count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherFeatureScheduleWithTheSameName",
+                PARAM_NAME, schedule.getName());
         }
 
         return DataAccessUtils.intResult(count) > 0;
@@ -262,6 +266,17 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
     @Override
     public List<GeneralSchedule> getAllGeneralSchedules() {
         return getHibernateTemplate().loadAll(GeneralSchedule.class);
+    }
+
+    @Override
+    public List<FeatureSchedule> getAllFeatureSchedules() {
+        return getHibernateTemplate().loadAll(FeatureSchedule.class);
+    }
+
+    @Override
+    public List<FeatureSchedule> getSchedulesForFeatureId(String featureId) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("schedulesForFeatureId", PARAM_FEATURE_ID,
+            featureId);
     }
 
     @Override

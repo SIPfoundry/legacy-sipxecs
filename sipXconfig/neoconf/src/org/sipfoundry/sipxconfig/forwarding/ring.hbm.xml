@@ -66,6 +66,12 @@
 
     <subclass name="UserGroupSchedule" discriminator-value="U"></subclass>
 
+    <subclass name="FeatureSchedule" discriminator-value="F">
+      <join table="schedule_feature">
+        <key column="schedule_id"/>
+        <property name="featureId" column="feature_id"/>
+      </join>
+    </subclass>
   </class>
 
   <query name="userSchedulesForUserId">
@@ -78,6 +84,10 @@
 
   <query name="ringsForScheduleId">
     <![CDATA[from Ring ring where ring.schedule.id = :scheduleId]]>
+  </query>
+
+  <query name="schedulesForFeatureId">
+    <![CDATA[from FeatureSchedule schedule where schedule.featureId = :featureId order by schedule.name]]>
   </query>
 
   <query name="countScheduleWithSameName">
@@ -94,5 +104,9 @@
 
   <query name="anotherGeneralScheduleWithTheSameName">
     <![CDATA[select count (*) from GeneralSchedule sch where sch.name = :name]]>
+  </query>
+
+  <query name="anotherFeatureScheduleWithTheSameName">
+    <![CDATA[select count (*) from FeatureSchedule sch where sch.name = :name]]>
   </query>
 </hibernate-mapping>

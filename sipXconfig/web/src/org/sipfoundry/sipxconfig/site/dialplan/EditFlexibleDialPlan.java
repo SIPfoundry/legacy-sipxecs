@@ -133,7 +133,7 @@ public abstract class EditFlexibleDialPlan extends SipxBasePage {
         EditSchedule page = (EditSchedule) cycle.getPage(EditSchedule.PAGE);
         page.setUserId(null);
         page.setUserGroup(null);
-        page.newSchedule("general_sch", PAGE);
+        page.newSchedule("general_sch", null, PAGE);
         return page;
     }
 }

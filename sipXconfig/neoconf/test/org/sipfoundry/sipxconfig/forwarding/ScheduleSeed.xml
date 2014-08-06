@@ -5,4 +5,6 @@
   <schedule schedule_id="102" user_id="1001" name="MondaySchedule" description="Monday Schedule" schedule_type="S" />
   <schedule schedule_id="103" user_id="1001" name="MondaySchedule" description="Monday Schedule" schedule_type="U" group_id="1001"/>
   <schedule schedule_id="104" user_id="1001" name="GeneralSchedule" description="Schedule for dialing rule" schedule_type="G"/>
+  <schedule schedule_id="105" user_id="1001" name="FeatureSchedule" description="Schedule for proxy feature" schedule_type="F"/>
+  <schedule_feature schedule_id="105" feature_id="proxy"/>
 </dataset>

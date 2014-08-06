@@ -468,6 +468,7 @@
     <antcall target="update-polycom-version" />
     <antcall target="config-change" />
     <antcall target="add-orbit-location" />
+    <antcall target="add-schedule-feature" />
   </target>
 
   <target name="plugin-patches">
@@ -1418,6 +1419,9 @@
   </target>
   <target name="add-orbit-location" unless="add-orbit-location">
     <db-patch patch="add-orbit-location" />
+  </target>
+  <target name="add-schedule-feature" unless="add-schedule-feature">
+    <db-patch patch="add-schedule-feature" />
   </target>
 
   <!--
