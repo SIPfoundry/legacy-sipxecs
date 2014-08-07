@@ -44,9 +44,9 @@ public class FreeswitchApiResultParserTest {
 
         Assert.assertEquals(0, m_parser.getActiveConferenceCount("Something else..."));
 
-        resultString = "Conference myconf2 (1 member rate: 8000)\n"
+        resultString = "Conference myconf2 (1 member rate: 8000 flags: running|answered|enforce_min|dynamic|exit_sound|enter_sound)\n"
                 + "4>,<sofia/eng.bluesocket.com/202@192.168.100.233>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n"
-                + "Conference myconf1 (2 members rate: 8000)\n"
+                + "Conference myconf1 (2 members rate: 8000 flags: running|answered|enforce_min|dynamic|exit_sound|enter_sound)\n"
                 + "2>,<sofia/eng.bluesocket.com/201@192.168.100.233>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
                 + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n";
 
@@ -64,14 +64,14 @@ public class FreeswitchApiResultParserTest {
         activeConferences = m_parser.getActiveConferences("Something else...");
         Assert.assertEquals(0, activeConferences.size());
 
-        String resultString = "Conference myconf3 (1 member rate: 8000)\n"
+        String resultString = "Conference myconf3 (1 member rate: 8000 flags: running|answered|enforce_min|dynamic|exit_sound|enter_sound)\n"
                 + "4>,<sofia/eng.bluesocket.com/202@192.168.100.233>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n"
-                + "Conference myconf2 (2 members rate: 8000)\n"
+                + "Conference myconf2 (2 members rate: 8000 flags: running|answered|enforce_min|dynamic|exit_sound|enter_sound)\n"
                 + "2>,<sofia/eng.bluesocket.com/201@192.168.100.233>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
                 + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n"
-                + "Conference myconf1 (1 member rate: 8000 locked)\n"
+                + "Conference myconf1 (1 member rate: 8000 locked flags: locked|running|answered|enforce_min|dynamic|exit_sound|enter_sound)\n"
                 + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n"
-                + "Conference user200-conf (1 member rate: 8000)\n"
+                + "Conference user200-conf (1 member rate: 8000 flags: running|answered|enforce_min|dynamic|exit_sound|enter_sound)\n"
                 + "5>,<sofia/eng.bluesocket.com/202@192.168.100.233>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n";
 
         activeConferences = m_parser.getActiveConferences(resultString);

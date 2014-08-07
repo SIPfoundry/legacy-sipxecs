@@ -37,8 +37,8 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
 
     private static final Pattern CONFERENCE_NOT_FOUND_PATTERN = Pattern.compile("Conference (.+) not found\\n");
 
-    private static final Pattern CONFERENCE_NAME_PATTERN = Pattern
-            .compile("Conference ([" + SipUriSetting.USER_NAME + "]+) \\((\\d+) members? rate: \\d+( locked)?\\)");
+    private static final Pattern CONFERENCE_NAME_PATTERN = Pattern.compile("Conference ([" + SipUriSetting.USER_NAME
+            + "]+) \\((\\d+) members? rate: \\d+( locked)? flags: .*\\)");
 
     private static final int CONFERENCE_NAME_PATTERN_GROUP_INDEX = 1;
     private static final int CONFERENCE_MEMBERS_PATTERN_GROUP_INDEX = 2;
