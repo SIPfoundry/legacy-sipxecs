@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 import org.springframework.ldap.core.support.LdapContextSource;
 
@@ -186,7 +185,7 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.LDAP;
+    public String getConfigChangeType() {
+        return LdapConnectionParams.class.getSimpleName();
     }
 }

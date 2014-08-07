@@ -35,7 +35,7 @@ public abstract class PersistableSettings extends BeanWithSettings implements Sy
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.SETTINGS;
+    public String getConfigChangeType() {
+        return ConfigChangeType.SETTINGS.getName();
     }
 }

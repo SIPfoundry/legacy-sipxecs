@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -293,8 +292,8 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject, Deploy
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.AUTO_ATTENDANT;
+    public String getConfigChangeType() {
+        return AutoAttendant.class.getSimpleName();
     }
 
 }

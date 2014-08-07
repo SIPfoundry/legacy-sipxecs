@@ -422,7 +422,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
 
     public void handleLicenseUpload(String licenseName) throws SystemAuditException {
         ConfigChange configChange = buildConfigChange(ConfigChangeAction.ADDED,
-                ConfigChangeType.LICENSE_UPLOAD);
+                ConfigChangeType.LICENSE_UPLOAD.getName());
         configChange.setDetails(licenseName);
         getConfigChangeContext().storeConfigChange(configChange);
     }
@@ -430,7 +430,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     public void handleServiceRestart(String serverName,
             List<String> serviceNameList) throws SystemAuditException {
         ConfigChange configChange = buildConfigChange(
-                ConfigChangeAction.SERVICE_RESTART, ConfigChangeType.SERVER);
+                ConfigChangeAction.SERVICE_RESTART, ConfigChangeType.SERVER.getName());
         configChange.setDetails(serverName);
         for (String serviceName : serviceNameList) {
             ConfigChangeValue configChangeValue = new ConfigChangeValue(

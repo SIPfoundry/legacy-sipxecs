@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.systemaudit;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -26,4 +28,16 @@ public interface SystemAuditLocalizationProvider {
     public BeanWithSettings getLocalizedBeanWithSettings(ConfigChange configChange, String message);
 
     public String getLocalizedPropertyName(ConfigChange configChange, String propertyName, String value);
+
+    /**
+     * Returns an array ith the package names it will scan to detect
+     * ConfigChangeTypes
+     */
+    public List<String> getPackageNamesForSystemAudit();
+
+    /**
+     * Builds a String array with all the ConfigChangeTypes it will find in the
+     * ClassLoader it uses @getPackageNamesForSystemAudit for scanning classes
+     */
+    public String[] getConfigChangeTypeArray();
 }

@@ -36,7 +36,6 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.sip.SipService;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
@@ -398,8 +397,8 @@ public abstract class Phone extends Device implements Replicable, SystemAuditabl
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.PHONE;
+    public String getConfigChangeType() {
+        return Phone.class.getSimpleName();
     }
 
     public void setFeatureManager(FeatureManager featureManager) {

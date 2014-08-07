@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.forwarding;
 
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 
 public class UserGroupSchedule extends Schedule {
 
@@ -19,8 +18,8 @@ public class UserGroupSchedule extends Schedule {
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.GROUP_SCHEDULE;
+    public String getConfigChangeType() {
+        return getClass().getSimpleName();
     }
 
 }

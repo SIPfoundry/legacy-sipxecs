@@ -93,7 +93,7 @@ public abstract class ConfigChangeTable extends BaseComponent implements PageBeg
     }
 
     public String getConfigChangeType() {
-        return getMessages().getMessage(getConfigChange().getConfigChangeType().getType());
+        return getMessages().getMessage(getConfigChange().getConfigChangeType());
     }
 
     public String getConfigChangeAction() {
@@ -144,12 +144,13 @@ public abstract class ConfigChangeTable extends BaseComponent implements PageBeg
     }
 
     public String getDetails() {
-        ConfigChangeType configChangeType = getConfigChange().getConfigChangeType();
-        if (configChangeType.hasTranslatedDetails()) {
-            if (configChangeType == ConfigChangeType.FEATURE) {
+        String configChangeType = getConfigChange().getConfigChangeType();
+        if (ConfigChangeType.hasTranslatedDetails(configChangeType)) {
+            if (configChangeType.equals(ConfigChangeType.FEATURE.getName())) {
                 return getMessages().getMessage(
                         FEATURE_PREFIX + getConfigChange().getDetails());
-            } else if (configChangeType == ConfigChangeType.SERVER) {
+            } else if (configChangeType.equals(ConfigChangeType.SERVER
+                    .getName())) {
                 return getMessages().getMessage(
                         "label." + getConfigChange().getDetails());
             }

@@ -121,14 +121,18 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
 
     private String getLocalizeSettingValue(String propertyName, String value) {
         try {
-            ConfigChange configChange = getConfigChangeValue().getConfigChange();
+            ConfigChange configChange = getConfigChangeValue()
+                    .getConfigChange();
             Setting setting = null;
-            if (configChange.getConfigChangeType() == ConfigChangeType.SETTINGS) {
+            if (configChange.getConfigChangeType().equals(
+                    ConfigChangeType.SETTINGS.getName())) {
                 Class<?> clazz = Class.forName(configChange.getDetails());
-                PersistableSettings settingObject = (PersistableSettings) clazz.newInstance();
+                PersistableSettings settingObject = (PersistableSettings) clazz
+                        .newInstance();
                 settingObject.setModelFilesContext(getModelFilesContext());
                 if (settingObject instanceof AdminSettings) {
-                    ((AdminSettings) settingObject).setPasswordPolicy(getPasswordPolicy());
+                    ((AdminSettings) settingObject)
+                            .setPasswordPolicy(getPasswordPolicy());
                 }
                 setting = settingObject.getSettings().getSetting(propertyName);
             } else {
@@ -143,7 +147,8 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
                 if (localizedValue != null) {
                     return localizedValue;
                 }
-                return getEnumLocalizedValue(setting, setting.getMessageSource(), value);
+                return getEnumLocalizedValue(setting,
+                        setting.getMessageSource(), value);
             }
         } catch (Exception e) {
             LOG.debug("Can't localize value: " + e.getMessage());
@@ -189,16 +194,18 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
         try {
             ConfigChange configChange = getConfigChangeValue()
                     .getConfigChange();
-            if (configChange.getConfigChangeType() == ConfigChangeType.SETTINGS) {
+            if (configChange.getConfigChangeType().equals(
+                    ConfigChangeType.SETTINGS.getName())) {
                 return getLocalizedSettingsMessage(configChange, message);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.SERVER) {
+            } else if (configChange.getConfigChangeType().equals(
+                    ConfigChangeType.SERVER.getName())) {
                 return getMessages().getMessage("label." + message);
             } else {
                 BeanWithSettings beanWithSettings = getSystemAuditLocalizationProvider()
                         .getLocalizedBeanWithSettings(configChange, message);
                 if (beanWithSettings != null) {
-                    return getLocalizedBeanWithSettingsMessage(beanWithSettings,
-                            message);
+                    return getLocalizedBeanWithSettingsMessage(
+                            beanWithSettings, message);
                 }
             }
         } catch (Exception e) {

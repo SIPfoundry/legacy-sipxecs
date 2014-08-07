@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 
@@ -102,8 +101,8 @@ public class ExtensionPool extends BeanWithId implements NamedObject, SystemAudi
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.EXTENSION_POOL;
+    public String getConfigChangeType() {
+        return ExtensionPool.class.getSimpleName();
     }
 
 }

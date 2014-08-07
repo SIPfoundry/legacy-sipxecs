@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.forwarding;
 
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 
 public class FeatureSchedule extends Schedule {
 
@@ -28,8 +27,8 @@ public class FeatureSchedule extends Schedule {
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.FEATURE_SCHEDULE;
+    public String getConfigChangeType() {
+        return FeatureSchedule.class.getSimpleName();
     }
 
     public String getFeatureId() {

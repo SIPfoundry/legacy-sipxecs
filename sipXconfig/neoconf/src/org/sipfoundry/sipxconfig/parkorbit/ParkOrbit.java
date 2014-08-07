@@ -31,7 +31,6 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployConfigOnEdit, SystemAuditable,
@@ -138,8 +137,8 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.CALL_PARK;
+    public String getConfigChangeType() {
+        return "CallPark";
     }
 
     @Override
@@ -183,7 +182,7 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
 
     @Override
     public String getEntityName() {
-        return getClass().getSimpleName();
+        return ParkOrbit.class.getSimpleName();
     }
 
     @Override

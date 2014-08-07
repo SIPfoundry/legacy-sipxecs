@@ -51,7 +51,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class Conference extends BeanWithSettings implements Replicable, DeployConfigOnEdit, SystemAuditable {
@@ -528,7 +527,7 @@ public class Conference extends BeanWithSettings implements Replicable, DeployCo
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.CONFERENCE;
+    public String getConfigChangeType() {
+        return Conference.class.getSimpleName();
     }
 }

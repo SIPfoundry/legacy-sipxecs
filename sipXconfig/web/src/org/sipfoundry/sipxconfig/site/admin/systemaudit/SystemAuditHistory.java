@@ -35,6 +35,7 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -51,6 +52,7 @@ import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContext;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditFilter;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditLocalizationProvider;
 
 public abstract class SystemAuditHistory extends BaseComponent implements PageBeginRenderListener {
 
@@ -68,17 +70,17 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
     public abstract void setEndDate(Date date);
 
     @Persist(value = SESSION)
-    public abstract ConfigChangeType getType();
-    public abstract void setType(ConfigChangeType type);
+    public abstract String getType();
+    public abstract void setType(String type);
 
     public IPropertySelectionModel getTypeModel() {
-        EnumPropertySelectionModel typeModel = new EnumPropertySelectionModel() {
+        StringPropertySelectionModel typeModel = new StringPropertySelectionModel(
+                getSystemAuditLocalizationProvider().getConfigChangeTypeArray()) {
             @Override
             public String getLabel(int index) {
                 return super.getOption(index).toString();
             }
         };
-        typeModel.setEnumClass(ConfigChangeType.class);
         return new LocalizedOptionModelDecorator(typeModel, getMessages(), null);
     }
 
@@ -94,7 +96,7 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
                     return super.isDisabled(index);
                 }
                 ConfigChangeAction configChangeAction = ConfigChangeAction.getEnum(String.valueOf(index));
-                return getType().isActionDisabled(configChangeAction);
+                return ConfigChangeType.isActionDisabled(getType(), configChangeAction);
             }
 
             @Override
@@ -140,6 +142,9 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject(value = "spring:systemAuditLocalizationProvider")
+    public abstract SystemAuditLocalizationProvider getSystemAuditLocalizationProvider();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -218,4 +223,5 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
                 localizedDetails, getGroups());
         return filter;
     }
+
 }

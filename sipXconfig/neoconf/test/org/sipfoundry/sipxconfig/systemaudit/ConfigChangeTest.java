@@ -28,8 +28,8 @@ public class ConfigChangeTest extends TestCase {
         configChange.setConfigChangeAction(ConfigChangeAction.ADDED);
         assertEquals(ConfigChangeAction.ADDED,
                 configChange.getConfigChangeAction());
-        configChange.setConfigChangeType(ConfigChangeType.PHONE);
-        assertEquals(ConfigChangeType.PHONE, configChange.getConfigChangeType());
+        configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
+        assertEquals(ConfigChangeType.PHONE.getName(), configChange.getConfigChangeType());
 
         UserIpAddress userIpAddress = new UserIpAddress();
         userIpAddress.setIpAddress("localhost");

@@ -11,11 +11,10 @@ package org.sipfoundry.sipxconfig.callgroup;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
-import org.sipfoundry.sipxconfig.dialplan.ForkQueueValue;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
-import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
+import org.sipfoundry.sipxconfig.dialplan.ForkQueueValue;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public abstract class AbstractRing extends BeanWithId implements SystemAuditable {
     public static final String TYPE_PROP = "type";
@@ -127,7 +126,7 @@ public abstract class AbstractRing extends BeanWithId implements SystemAuditable
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.CALL_FORWARDING;
+    public String getConfigChangeType() {
+        return AbstractRing.class.getSimpleName();
     }
 }

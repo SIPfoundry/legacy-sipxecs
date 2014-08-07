@@ -16,7 +16,14 @@
  */
 package org.sipfoundry.sipxconfig.systemaudit;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
+import org.reflections.Reflections;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -29,6 +36,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.springframework.beans.factory.annotation.Required;
 
 public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizationProvider {
 
@@ -41,25 +49,31 @@ public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizat
     private ParkOrbitContext m_parkOrbitContext;
 
     @Override
-    public Setting getLocalizedSetting(ConfigChange configChange, String propertyName, String value) {
+    public Setting getLocalizedSetting(ConfigChange configChange,
+            String propertyName, String value) {
         Setting setting = null;
-        if (configChange.getConfigChangeType() == ConfigChangeType.USER) {
+        if (configChange.getConfigChangeType().equals(
+                ConfigChangeType.USER.getName())) {
             User user = new User();
             user.setPermissionManager(m_permissionManager);
             setting = user.getSettings().getSetting(propertyName);
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.PHONE) {
+        } else if (configChange.getConfigChangeType().equals(
+                ConfigChangeType.PHONE.getName())) {
             Phone phone = m_phoneContext.getPhoneBySerialNumber(configChange
                     .getDetails());
             setting = phone.getSettings().getSetting(propertyName);
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.CONFERENCE) {
+        } else if (configChange.getConfigChangeType().equals(
+                new Conference().getConfigChangeType())) {
             Conference conference = m_conferenceBridgeContext
                     .findConferenceByName(configChange.getDetails());
             setting = conference.getSettings().getSetting(propertyName);
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.AUTO_ATTENDANT) {
+        } else if (configChange.getConfigChangeType().equals(
+                new AutoAttendant().getConfigChangeType())) {
             AutoAttendant aa = m_autoAttendantManager
                     .getAutoAttendantBySystemName(configChange.getDetails());
             setting = aa.getSettings().getSetting(propertyName);
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.CALL_PARK) {
+        } else if (configChange.getConfigChangeType().equals(
+                new ParkOrbit().getConfigChangeType())) {
             ParkOrbit parkOrbit = m_parkOrbitContext
                     .loadParkOrbitByName(configChange.getDetails());
             setting = parkOrbit.getSettings().getSetting(propertyName);
@@ -68,24 +82,30 @@ public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizat
     }
 
     @Override
-    public BeanWithSettings getLocalizedBeanWithSettings(ConfigChange configChange, String message) {
-        if (configChange.getConfigChangeType() == ConfigChangeType.USER) {
+    public BeanWithSettings getLocalizedBeanWithSettings(
+            ConfigChange configChange, String message) {
+        if (configChange.getConfigChangeType().equals(
+                ConfigChangeType.USER.getName())) {
             User user = new User();
             user.setPermissionManager(m_permissionManager);
             return user;
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.PHONE) {
+        } else if (configChange.getConfigChangeType().equals(
+                ConfigChangeType.PHONE.getName())) {
             Phone phone = m_phoneContext.getPhoneBySerialNumber(configChange
                     .getDetails());
             return phone;
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.CONFERENCE) {
+        } else if (configChange.getConfigChangeType().equals(
+                new Conference().getConfigChangeType())) {
             Conference conference = m_conferenceBridgeContext
                     .findConferenceByName(configChange.getDetails());
             return conference;
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.AUTO_ATTENDANT) {
+        } else if (configChange.getConfigChangeType().equals(
+                new AutoAttendant().getConfigChangeType())) {
             AutoAttendant aa = m_autoAttendantManager
                     .getAutoAttendantByName(configChange.getDetails());
             return aa;
-        } else if (configChange.getConfigChangeType() == ConfigChangeType.CALL_PARK) {
+        } else if (configChange.getConfigChangeType().equals(
+                new ParkOrbit().getConfigChangeType())) {
             ParkOrbit parkOrbit = m_parkOrbitContext
                     .loadParkOrbitByName(configChange.getDetails());
             return parkOrbit;
@@ -99,24 +119,68 @@ public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizat
         return null;
     }
 
+    @Required
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
     }
 
+    @Required
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
     }
 
+    @Required
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
     }
 
+    @Required
     public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
         m_autoAttendantManager = autoAttendantManager;
     }
 
+    @Required
     public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
         m_parkOrbitContext = parkOrbitContext;
+    }
+
+    @Override
+    public List<String> getPackageNamesForSystemAudit() {
+        List<String> packageNames = new ArrayList<String>();
+        packageNames.add("org.sipfoundry.sipxconfig");
+        return packageNames;
+    }
+
+    @Override
+    public String[] getConfigChangeTypeArray() {
+        Set<String> configChangeTypes = new LinkedHashSet<String>(
+                ConfigChangeType.getValues());
+        for (String packageName : getPackageNamesForSystemAudit()) {
+            configChangeTypes
+                    .addAll(getConfigChangeTypesFromPackage(packageName));
+        }
+        return configChangeTypes.toArray(new String[] {});
+    }
+
+    private Set<String> getConfigChangeTypesFromPackage(String packageName) {
+        Reflections reflections = new Reflections(packageName);
+        Set<Class<? extends SystemAuditable>> systemAuditableClasses = reflections
+                .getSubTypesOf(SystemAuditable.class);
+        Set<String> configChangeTypes = new HashSet<String>();
+        for (Class<? extends SystemAuditable> sa : systemAuditableClasses) {
+            SystemAuditable instantiatedSystemAuditable = null;
+            try {
+                instantiatedSystemAuditable = sa.newInstance();
+            } catch (Exception e) {
+                // Do nothing, we expect some classes not to be initialized
+                LOG.debug(e);
+            }
+            if (instantiatedSystemAuditable != null) {
+                configChangeTypes.add(instantiatedSystemAuditable
+                        .getConfigChangeType());
+            }
+        }
+        return configChangeTypes;
     }
 
 }

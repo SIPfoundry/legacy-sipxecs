@@ -53,7 +53,7 @@ public abstract class AbstractSystemAuditHandler {
     }
 
     public ConfigChange buildConfigChange(ConfigChangeAction configChangeAction,
-            ConfigChangeType configChangeType) throws SystemAuditException {
+            String configChangeType) throws SystemAuditException {
         // default userName is "superadmin" to cover the cases where the update is done by the system
         String userName = User.SUPERADMIN;
         String ipAddress = LOCALHOST;
@@ -74,7 +74,7 @@ public abstract class AbstractSystemAuditHandler {
     }
 
     public ConfigChange buildConfigChange(ConfigChangeAction configChangeAction,
-            ConfigChangeType configChangeType, String userName, String ipAddress) {
+            String configChangeType, String userName, String ipAddress) {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeAction(configChangeAction);
         configChange.setConfigChangeType(configChangeType);

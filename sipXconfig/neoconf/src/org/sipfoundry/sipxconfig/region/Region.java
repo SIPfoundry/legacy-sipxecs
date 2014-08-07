@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 @JsonPropertyOrder(alphabetic = true)
@@ -95,7 +94,7 @@ public class Region extends BeanWithId implements NamedObject, DeployConfigOnEdi
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.REGION;
+    public String getConfigChangeType() {
+        return Region.class.getSimpleName();
     }
 }
