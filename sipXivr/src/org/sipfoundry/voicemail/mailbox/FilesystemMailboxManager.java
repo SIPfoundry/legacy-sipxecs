@@ -106,7 +106,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         return new VmMessage(messageId, audioFile, descriptor, urgent);
     }
 
-    //Automatically saves in INBOX
+    // Automatically saves in INBOX
     @Override
     protected VmMessage saveTempMessageInStorage(User destUser, TempMessage message, MessageDescriptor descriptor,
             String messageId) {
@@ -357,21 +357,26 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             Folder originalFolder = originalMessage.getParentFolder();
             FilenameFilter filterById = new FileFilterByMessageId(originalMessage.getMessageId());
             File[] filesToForward = getFolder(originalMessage.getUserName(), originalFolder).listFiles(filterById);
+            File audio = null;
+            File forwardedAudio = null;
 
             for (File fileToForward : filesToForward) {
                 if (fileToForward.getName().endsWith(URGENT_IDENTIFIER)) {
                     FileUtils.touch(destUrg);
                     urgent = true;
                 } else if (fileToForward.getName().endsWith(String.format(AUDIO_IDENTIFIER, getAudioFormat()))) {
-                    FileUtils.copyFile(fileToForward, originalDestAudio, true);
-                    if (comments.getTempPath() != null) {
-                        concatAudio(destCombined, destAudio, fileToForward);
-                    } else {
-                        FileUtils.copyFile(fileToForward, destCombined, true);
-                    }
+                    audio = fileToForward;
+                } else if (fileToForward.getName().endsWith(String.format(FW_AUDIO_IDENTIFIER, getAudioFormat()))) {
+                    forwardedAudio = fileToForward;
                 } else if (fileToForward.getName().endsWith(MESSAGE_IDENTIFIER)) {
                     FileUtils.copyFile(fileToForward, originalDestDescriptor, true);
                 }
+            }
+
+            if (forwardedAudio != null) {
+                copyForwardedAudio(forwardedAudio, originalDestAudio, comments, destAudio, destCombined);
+            } else if (audio != null) {
+                copyForwardedAudio(audio, originalDestAudio, comments, destAudio, destCombined);
             }
 
             m_descriptorWriter.writeObject(descriptor, destDescriptor);
@@ -381,6 +386,16 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             return null;
         }
         return new VmMessage(newMessageId, destCombined, descriptor, urgent);
+    }
+
+    private void copyForwardedAudio(File audio, File originalDestAudio, TempMessage comments, File destAudio,
+            File destCombined) throws Exception {
+        FileUtils.copyFile(audio, originalDestAudio, true);
+        if (comments.getTempPath() != null) {
+            concatAudio(destCombined, destAudio, audio);
+        } else {
+            FileUtils.copyFile(audio, destCombined, true);
+        }
     }
 
     @Override
