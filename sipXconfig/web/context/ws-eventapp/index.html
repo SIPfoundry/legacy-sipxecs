@@ -25,7 +25,10 @@
                 });
                 stompClient.subscribe('/user/topic/receive-vm', function(voicemail){
                     showEvent('VOICEMAIL ** Message: ' + JSON.parse(voicemail.body).description);
-                });                
+                });
+                stompClient.subscribe('/user/topic/conference', function(voicemail){
+                    showEvent('CONFERENCE ** Message: ' + JSON.parse(voicemail.body).description);
+                });
             });
         }
 
