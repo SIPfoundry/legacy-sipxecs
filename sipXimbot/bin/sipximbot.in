@@ -44,6 +44,7 @@ start() {
       -Dconf.dir=@SIPX_CONFDIR@ \
       -Dlog.dir=@SIPX_LOGDIR@ \
       -Dvar.dir=@SIPX_VARDIR@ \
+      -Dhazelcast.config=@SIPX_CONFDIR@/hz-config.xml \
       $JavaSslOpts \
       ${SIPXIMBOT_OPTS} \
          org.sipfoundry.sipximbot.SipXimbot \

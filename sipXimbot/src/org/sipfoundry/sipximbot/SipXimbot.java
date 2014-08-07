@@ -9,6 +9,13 @@
 package org.sipfoundry.sipximbot;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.hz.HzConstants;
+import org.sipfoundry.commons.hz.HzImEvent;
+import org.sipfoundry.commons.hz.HzMediaEvent;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ITopic;
 
 public class SipXimbot {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
@@ -27,10 +34,14 @@ public class SipXimbot {
         // Load the configuration
         s_config = ImbotConfiguration.get();
 
-        // Create Web Server
-        WebServer webServer = new WebServer(s_config);
-        webServer.addServlet("IM", "/IM/*", ImbotServlet.class.getName());
-        webServer.start();
+        // Create & configure hazelcast instance
+        HazelcastInstance hzInstance = Hazelcast.newHazelcastInstance();
+        ITopic<HzMediaEvent> vmTopic = hzInstance.getTopic(HzConstants.VM_TOPIC);
+        vmTopic.addMessageListener(new MediaMessageListener());
+        ITopic<HzMediaEvent> confTopic = hzInstance.getTopic(HzConstants.CONF_TOPIC);
+        confTopic.addMessageListener(new MediaMessageListener());
+        ITopic<HzImEvent> imTopic = hzInstance.getTopic(HzConstants.IM_TOPIC);
+        imTopic.addMessageListener(new ImMessageListener());
 
         IMBot.init();
 

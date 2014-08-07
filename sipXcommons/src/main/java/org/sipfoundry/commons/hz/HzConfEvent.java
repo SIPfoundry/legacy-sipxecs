@@ -1,7 +1,5 @@
 /**
- *
- *
- * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2014 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
  * This software is free software; you can redistribute it and/or modify it under
@@ -14,11 +12,17 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.recording;
+package org.sipfoundry.commons.hz;
 
+public class HzConfEvent extends HzMediaEvent {
+    private static final long serialVersionUID = 1L;
 
-public interface Recording extends RecordingManager {
-    public RecordingSettings getSettings();
+    public enum ConfType implements HzMediaEvent.Type {
+        ENTER_CONFERENCE,
+        EXIT_CONFERENCE
+    }
+    public HzConfEvent(String userIdFrom, String userIdTo, String description, Type type) {
+        super(userIdFrom, userIdTo, description, type);
+    }
 
-    public void saveSettings(RecordingSettings settings);
 }

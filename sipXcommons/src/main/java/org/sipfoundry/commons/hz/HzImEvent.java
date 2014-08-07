@@ -1,7 +1,5 @@
 /**
- *
- *
- * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2014 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
  * This software is free software; you can redistribute it and/or modify it under
@@ -14,11 +12,28 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.recording;
+package org.sipfoundry.commons.hz;
 
+import java.io.Serializable;
 
-public interface Recording extends RecordingManager {
-    public RecordingSettings getSettings();
+public class HzImEvent implements Serializable {
+    private String m_userId;
+    private Type m_type;
 
-    public void saveSettings(RecordingSettings settings);
+    public enum Type {
+        ADD_MYBUDDY_TO_ROSTER
+    }
+
+    public HzImEvent(String userId, Type type) {
+        m_userId = userId;
+        m_type = type;
+    }
+
+    public String getUserId() {
+        return m_userId;
+    }
+
+    public Type getType() {
+        return m_type;
+    }
 }

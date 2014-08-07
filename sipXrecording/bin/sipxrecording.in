@@ -54,6 +54,7 @@ start() {
     -Dprocname=sipxrecording \
     -Dconf.dir=@SIPX_CONFDIR@ \
     -Dvar.dir=@SIPX_VARDIR@ \
+    -Dhazelcast.config=@SIPX_CONFDIR@/hz-config.xml \
     org.sipfoundry.sipxrecording.SipXrecording \
     $Args"
   if [ -n "${NoFork}" ] ; then

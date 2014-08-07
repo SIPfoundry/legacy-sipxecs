@@ -15,6 +15,7 @@
 package org.sipfoundry.commons.hz;
 
 public class HzConstants {
-
     public static final String VM_TOPIC = "vm-topic";
+    public static final String CONF_TOPIC = "conf-topic";
+    public static final String IM_TOPIC = "im-topic";
 }

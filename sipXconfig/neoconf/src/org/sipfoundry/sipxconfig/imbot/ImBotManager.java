@@ -16,32 +16,20 @@
  */
 package org.sipfoundry.sipxconfig.imbot;
 
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.sipfoundry.commons.hz.HzConstants;
+import org.sipfoundry.commons.hz.HzImEvent;
+import org.sipfoundry.commons.hz.HzPublisherTask;
 
 public class ImBotManager {
-    private static final String ADD_TO_ROSTER_URL = "{address}/{userName}/addToRoster";
-    private AddressManager m_addressManager;
-    private RestTemplate m_restTemplate;
 
-    public boolean requestToAddMyAssistantToRoster(String userName) {
-        Address imbotRestAddress = m_addressManager.getSingleAddress(ImBot.REST_API);
-        try {
-            m_restTemplate.put(ADD_TO_ROSTER_URL, null, imbotRestAddress.toString(), userName);
-        } catch (RestClientException ex) {
-            return false;
-        }
-        return true;
-
-    }
-
-    public void setAddressManager(AddressManager addressManager) {
-        m_addressManager = addressManager;
-    }
-
-    public void setRestTemplate(RestTemplate restTemplate) {
-        m_restTemplate = restTemplate;
+    public Future<Object> requestToAddMyAssistantToRoster(String userName) {
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        return service.submit(new HzPublisherTask(
+            new HzImEvent(userName, HzImEvent.Type.ADD_MYBUDDY_TO_ROSTER),
+            HzConstants.IM_TOPIC));
     }
 }

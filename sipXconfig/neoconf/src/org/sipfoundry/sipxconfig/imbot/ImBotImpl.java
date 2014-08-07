@@ -23,10 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
-import org.sipfoundry.sipxconfig.address.AddressProvider;
-import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.imdb.ReplicationManager;
@@ -37,9 +33,6 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.FeatureProvider;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
-import org.sipfoundry.sipxconfig.firewall.FirewallManager;
-import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
@@ -48,8 +41,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, ProcessProvider,
-    FirewallProvider {
+public class ImBotImpl implements FeatureProvider, ImBot, ProcessProvider {
 
     private static final int PASS_LENGTH = 8;
     private BeanWithSettingsDao<ImBotSettings> m_settingsDao;
@@ -74,26 +66,6 @@ public class ImBotImpl implements AddressProvider, FeatureProvider, ImBot, Proce
     @Override
     public Collection<LocationFeature> getAvailableLocationFeatures(FeatureManager featureManager, Location l) {
         return Collections.singleton(FEATURE);
-    }
-
-    @Override
-    public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Collections.singleton(new DefaultFirewallRule(REST_API));
-    }
-
-    @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(REST_API)) {
-            return null;
-        }
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
-        List<Address> addresses = new ArrayList<Address>(locations.size());
-        ImBotSettings settings = getSettings();
-        for (Location location : locations) {
-            Address address = new Address(REST_API, location.getAddress(), settings.getHttpPort());
-            addresses.add(address);
-        }
-        return addresses;
     }
 
     public void setSettingsDao(BeanWithSettingsDao<ImBotSettings> settingsDao) {

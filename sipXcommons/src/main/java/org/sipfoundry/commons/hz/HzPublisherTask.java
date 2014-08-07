@@ -14,8 +14,10 @@
  */
 package org.sipfoundry.commons.hz;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
 
@@ -23,10 +25,8 @@ public class HzPublisherTask implements Callable<Object> {
 
     private Object m_event;
     private String m_structureName;
-    private HazelcastInstance m_instance;
 
-    public HzPublisherTask(HazelcastInstance instance, Object event, String structureName) {
-        m_instance = instance;
+    public HzPublisherTask(Object event, String structureName) {
         m_event = event;
         m_structureName = structureName;
     }
@@ -34,7 +34,13 @@ public class HzPublisherTask implements Callable<Object> {
     @Override
     public Boolean call() {
         try {
-            ITopic<Object> topic = m_instance.getTopic(m_structureName);
+            Set<HazelcastInstance> hzInstances = Hazelcast.getAllHazelcastInstances();
+            if (hzInstances.size() == 0) {
+                return false;
+            }
+            //There should be one single hazelcast instance per process that uses sipXcommons api
+            HazelcastInstance hzInstance = hzInstances.iterator().next();
+            ITopic<Object> topic = hzInstance.getTopic(m_structureName);
             topic.publish(m_event);
         } catch (Exception ex) {
             return false;

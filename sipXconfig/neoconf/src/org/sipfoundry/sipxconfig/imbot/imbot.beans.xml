@@ -29,8 +29,6 @@
   </bean>
 
   <bean id="imBotManager" class="org.sipfoundry.sipxconfig.imbot.ImBotManager">
-    <property name="addressManager" ref="addressManager" />
-    <property name="restTemplate" ref="restTemplate"/>
   </bean>
 
 </beans>

@@ -36,12 +36,6 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="imbot.httpport" advanced="yes">
-      <type>
-        <integer />
-      </type>
-      <value>8076</value>
-    </setting>
     <setting name="_imbot.paUserName">
       <type>
         <string required="yes" />

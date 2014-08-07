@@ -37,7 +37,6 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     private String m_cdrSecureURL;
     private String m_openfireHost; // The host name where the Openfire service runs
     private int    m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
-    private int    m_httpPort;
     private String m_myAsstAcct;
     private String m_myAsstPswd;
     private String m_voicemailRootUrl;
@@ -78,9 +77,9 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     void properties() {
         // Configure log4j
         String m_configDirectory = System.getProperty("conf.dir");
-        PropertyConfigurator.configureAndWatch(m_configDirectory+"/sipximbot/log4j.properties", 
+        PropertyConfigurator.configureAndWatch(m_configDirectory+"/sipximbot/log4j.properties",
                 SipFoundryLayout.LOG4J_MONITOR_FILE_DELAY);
-        
+
         if (m_configDirectory == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
@@ -136,7 +135,6 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
 
             m_openfireHost = props.getProperty(prop = "imbot.openfireHost");
             m_openfireXmlRpcPort = Integer.parseInt(props.getProperty(prop = "imbot.openfireXmlRpcPort"));
-            m_httpPort = Integer.parseInt(props.getProperty(prop = "imbot.httpport"));
 
             m_myAsstAcct =  props.getProperty(prop = "imbot.paUserName");
             m_myAsstPswd =  props.getProperty(prop = "imbot.paPassword");
@@ -167,11 +165,6 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     @Override
     public String getLogFile() {
         return m_logFile;
-    }
-
-
-    public int getHttpPort() {
-        return m_httpPort;
     }
 
     @Override

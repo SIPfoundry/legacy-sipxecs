@@ -34,4 +34,5 @@ recording_PKGS = \
 	org.springframework.transaction \
 	spring-expression \
 	commons-lang \
-	jetty
+	jetty \
+	hazelcast-all

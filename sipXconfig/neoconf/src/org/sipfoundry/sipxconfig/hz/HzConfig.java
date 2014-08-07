@@ -27,8 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
@@ -36,7 +34,9 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.sipfoundry.sipxconfig.recording.RecordingManager;
 import org.springframework.beans.factory.annotation.Required;
 
 public class HzConfig implements ConfigProvider {
@@ -47,20 +47,22 @@ public class HzConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(AdminContext.FEATURE, Ivr.FEATURE)) {
+        if (!request.applies(AdminContext.FEATURE, Ivr.FEATURE, ImBot.FEATURE, RecordingManager.FEATURE)) {
             return;
         }
 
         VelocityContext context = new VelocityContext();
-        AddressManager addressManager = manager.getAddressManager();
-
-        List<Address> addresses = addressManager.getAddresses(Ivr.REST_API);
-        addresses.add(addressManager.getSingleAddress(AdminContext.HTTP_ADDRESS));
 
         //ensure unique address
+        Set<Location> hzLocations = new HashSet<Location>();
+        hzLocations.add(manager.getLocationManager().getPrimaryLocation());
+        hzLocations.addAll(manager.getFeatureManager().getLocationsForEnabledFeature(Ivr.FEATURE));
+        hzLocations.addAll(manager.getFeatureManager().getLocationsForEnabledFeature(ImBot.FEATURE));
+        hzLocations.addAll(manager.getFeatureManager().getLocationsForEnabledFeature(RecordingManager.FEATURE));
+
         Set<String> addressesSet = new HashSet<String>();
-        for (Address address : addresses) {
-            addressesSet.add(address.getAddress().trim());
+        for (Location location : hzLocations) {
+            addressesSet.add(location.getAddress());
         }
 
         context.put("addresses", addressesSet);
