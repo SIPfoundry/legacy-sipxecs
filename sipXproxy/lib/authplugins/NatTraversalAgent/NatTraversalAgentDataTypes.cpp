@@ -15,12 +15,84 @@
 #include "SipRouter.h"
 #include "net/SdpBody.h"
 #include "sipdb/RegistrationDB.h"
+#include "sipdb/PermissionDB.h"
+#include "sipdb/AliasDB.h"
+#include "sipdb/ResultSet.h"
 
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+
+SipDBs::SipDBs() : mpRegistrationDB( 0 ),
+                   mpPermissionDB( 0 ),
+                   mpAliasDB( 0 ),
+                   mIsInitialized( false )
+{
+}
+
+SipDBs::~SipDBs()
+{
+   done();
+}
+
+void SipDBs::init()
+{
+   if (true == mIsInitialized)
+   {
+      return;
+   }
+
+   mpRegistrationDB = RegistrationDB::getInstance();
+   mpPermissionDB = PermissionDB::getInstance();
+   mpAliasDB = AliasDB::getInstance();
+
+   mIsInitialized = true;
+}
+
+void SipDBs::done()
+{
+   if (false == mIsInitialized)
+   {
+      return;
+   }
+
+   if (mpRegistrationDB)
+   {
+      mpRegistrationDB->releaseInstance();
+      mpRegistrationDB = 0;
+   }
+
+   if (mpAliasDB)
+   {
+       mpAliasDB->releaseInstance();
+       mpAliasDB = 0;
+   }
+
+   if (mpPermissionDB)
+   {
+      mpPermissionDB->releaseInstance();
+      mpPermissionDB = 0;
+   }
+
+   mIsInitialized = false;
+}
+
+const RegistrationDB* SipDBs::getRegistrationDB() const
+{
+   return mpRegistrationDB;
+}
+
+const PermissionDB* SipDBs::getPermissionDB() const
+{
+   return mpPermissionDB;
+}
+
+const AliasDB* SipDBs::getAliasDB() const
+{
+    return mpAliasDB;
+}
 
 NativeTransportData::NativeTransportData( const Url& url )
 {
@@ -217,27 +289,34 @@ bool TransportData::isInitialized( void ) const
    return mAddress.compareTo( UNKNOWN_IP_ADDRESS_STRING );
 }
 
-EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, const RegistrationDB* pRegistrationDB ) :
-   mNativeTransport( url ),
-   mPublicTransport( url )
+EndpointDescriptor::EndpointDescriptor( const Url& computeLocationUrl,
+                                        const Url& verifyRecordingEnabledUrl,
+                                        const NatTraversalRules& natRules,
+                                        const PermissionDB* pPermissionDB,
+                                        const AliasDB* pAliasDB,
+                                        const RegistrationDB* pRegistrationDB ) : mNativeTransport( computeLocationUrl ),
+                                                                                  mPublicTransport( computeLocationUrl ),
+                                                                                  mpRegistrationDB( pRegistrationDB ),
+                                                                                  mCallRecording( verifyRecordingEnabledUrl,
+                                                                                                  pPermissionDB,
+                                                                                                  pAliasDB )
 {
-   mLocation = computeLocation( url, natRules, pRegistrationDB );
+   mLocation = computeLocation( computeLocationUrl, natRules );
 }
 
 LocationCode EndpointDescriptor::computeLocation( const Url& url,
-                                                  const NatTraversalRules& natRules,
-                                                  const RegistrationDB* pRegistrationDB )
+                                                  const NatTraversalRules& natRules )
 {
    LocationCode computedLocation = computeLocationFromPublicAndNativeTransports( natRules );
    if( computedLocation == UNKNOWN )
    {
-      if( pRegistrationDB )
+      if( mpRegistrationDB )
       {
          // we could not establish the location of the user based on public and 
          // native transport information alone, however we got supplied with
          // a pointer to the registration DB.  Look it up in search of an
          // entry that will give us the information we need to compute the location.
-         computedLocation = computeLocationFromRegDbData( url, natRules, pRegistrationDB );
+         computedLocation = computeLocationFromRegDbData( url, natRules );
       }
       if( computedLocation == UNKNOWN )
       {
@@ -309,13 +388,125 @@ LocationCode EndpointDescriptor::computeLocationFromPublicAndNativeTransports( c
    return computedLocation;
 }
 
+EndpointDescriptor::CallRecording::CallRecording(const Url& url,
+                                                 const PermissionDB* pPermissionDB,
+                                                 const AliasDB* pAliasDB) : mpPermissionDB(pPermissionDB),
+                                                                            mpAliasDB(pAliasDB),
+                                                                            mIsEnabled(false)
+{
+    verifyIfEnabled(url);
+}
+
+const bool EndpointDescriptor::CallRecording::isEnabled() const
+{
+    return mIsEnabled;
+}
+
+const EndpointDescriptor::CallRecording&  EndpointDescriptor::getCallRecording() const
+{
+    return mCallRecording;
+}
+
+void EndpointDescriptor::CallRecording::verifyIfEnabledForAliases( const Url& url)
+{
+    if (!mpAliasDB)
+    {
+        return;
+    }
+
+    UtlString identity;
+    url.getIdentity(identity);
+
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "EndpointDescriptor::CallRecording::verifyIfEnabledForAliases: identity '%s'",
+            identity.data());
+
+    ResultSet aliases;
+    mpAliasDB->getContacts(url, aliases);
+
+    int numAliasContacts = aliases.getSize();
+    if (numAliasContacts > 0)
+    {
+       OsSysLog::add(FAC_SIP, PRI_DEBUG, "EndpointDescriptor::CallRecording::verifyIfEnabledForAliases: "
+                     "got %d AliasDB contacts", numAliasContacts);
+
+       for (int i = 0; i < numAliasContacts; i++)
+       {
+          static UtlString contactKey("contact");
+          static UtlString relationKey("relation");
+          static UtlString aliasDBRelationAlias("alias");
+
+          UtlHashMap record;
+          if (!aliases.getIndex(i, record))
+          {
+              continue;
+          }
+
+          // only if relation value is "alias" verify the call recording permission for contact
+          if ( 0 != ((UtlString*) record.findValue(&relationKey))->compareTo(aliasDBRelationAlias) )
+          {
+              continue;
+          }
+
+          UtlString contact = *((UtlString*) record.findValue(&contactKey));
+          Url contactUrl(contact);
+
+          OsSysLog::add(FAC_SIP, PRI_DEBUG, "EndpointDescriptor::CallRecording::verifyIfEnabledForAliases: "
+                        "Got alias contact: %s", contact.data());
+
+          verifyIfEnabledForIdentity(contactUrl);
+       }
+    }
+}
+
+void EndpointDescriptor::CallRecording::verifyIfEnabledForIdentity( const Url& url)
+{
+    if ( !mpPermissionDB )
+    {
+        return;
+    }
+
+    UtlBoolean hasRecordCallsPermission = FALSE;
+    static UtlString recordCallsPermission("RecordCalls");
+
+    hasRecordCallsPermission = mpPermissionDB->hasPermission(url, recordCallsPermission );
+    if ( TRUE == hasRecordCallsPermission )
+    {
+        UtlString identity;
+        url.getIdentity(identity);
+
+        OsSysLog::add(FAC_NAT, PRI_DEBUG, "EndpointDescriptor::CallRecordig::verifyIfEnabledForIdentity: %s returned enabled", identity.data() );
+        mIsEnabled = true;
+    }
+}
+
+void EndpointDescriptor::CallRecording::verifyIfEnabled( const Url& url)
+{
+
+   verifyIfEnabledForIdentity( url );
+
+   if ( false == mIsEnabled )
+   {
+       verifyIfEnabledForAliases(url);
+   }
+
+   UtlString identity;
+   url.getIdentity(identity);
+
+   if ( true == mIsEnabled )
+   {
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "EndpointDescriptor::CallRecording::verifyIfEnabled: for %s returned enabled", identity.data() );
+   }
+   else
+   {
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "EndpointDescriptor::CallRecording::verifyIfEnabled: for %s returned not enabled", identity.data() );
+   }
+}
 
 LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
-                                                               const NatTraversalRules& natRules,
-                                                               const RegistrationDB* pRegistrationDB )
+                                                               const NatTraversalRules& natRules )
 {
    LocationCode computedLocation = UNKNOWN;
-   if( pRegistrationDB )
+   if( mpRegistrationDB )
    {
       //  Search the Registration DB looking for a
       // Contact entry matching the supplied URI's user@hostport hoping to find
@@ -327,7 +518,7 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
       
       int timeNow = OsDateTime::getSecsSinceEpoch();
       UtlSList resultList;
-      pRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
+      mpRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
       UtlString* pMatchingContact;
       if( !resultList.isEmpty() )
       {
@@ -363,7 +554,7 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
             tmpStringToMatch.appendNumber( port );
          }
       
-         pRegistrationDB->getUnexpiredContactsFieldsContaining( tmpStringToMatch, timeNow, resultList );
+         mpRegistrationDB->getUnexpiredContactsFieldsContaining( tmpStringToMatch, timeNow, resultList );
          UtlSListIterator iter( resultList );
          UtlContainable* pEntry;
          while( ( pEntry = iter() ) != NULL )

@@ -27,13 +27,13 @@ ssize_t CallTracker::sNextAvailableSessionContextHandle = 0;
 CallTracker::CallTracker( ssize_t handle,
                           const NatTraversalRules* pNatRules,
                           MediaRelay* pMediaRelayToUse,
-                          const RegistrationDB* pRegistrationDB,
+                          const SipDBs& sipDBs,
                           NatMaintainer* pNatMaintainer,
                           UtlString instanceNameForRouteState ) :
    mHandle( handle ),
    mpNatTraversalRules( pNatRules ),
    mpMediaRelayToUse( pMediaRelayToUse ),
-   mpRegistrationDB( pRegistrationDB ),
+   mSipDBs( sipDBs ),
    mInstanceNameForRouteState( instanceNameForRouteState ),
    mNumberOfTicksWithoutActiveDialogs( 0 ),
    mpNatMaintainer( pNatMaintainer ),
@@ -485,7 +485,7 @@ SessionContext* CallTracker::createSessionContextAndSetHandle( const SipMessage&
       // session context handle successfully generated - allocate a new SessionContext
       // object to track the session and insert it into our mSessionContextsMap.
       UtlString* pMapKey = new UtlString( sessionContextHandle );
-      pSessionContext = new SessionContext( request, mpNatTraversalRules, sessionContextHandle, mpMediaRelayToUse, mpRegistrationDB, this );
+      pSessionContext = new SessionContext( request, mpNatTraversalRules, sessionContextHandle, mpMediaRelayToUse, mSipDBs, this );
       if( pSessionContext && mSessionContextsMap.insertKeyAndValue( pMapKey, pSessionContext ) )
       {
          // Session Context successfully inserted into our mSessionContextsMap.  Encode

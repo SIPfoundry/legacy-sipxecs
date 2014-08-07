@@ -163,7 +163,7 @@ public:
                    const NatTraversalRules* pNatRules,
                    const UtlString& handle,
                    MediaRelay* pMediaRelayToUse,
-                   const RegistrationDB* pRegistrationDB,
+                   const SipDBs& sipDBs,
                    CallTrackerInterfaceForSessionContext* pOwningCallTracker );
 
    // destructor
@@ -236,7 +236,8 @@ public:
     *         is responsible for deleting the instance once it is done with it.
     */
    static EndpointDescriptor* createCallerEndpointDescriptor( const SipMessage& sipRequest,
-                                                              const NatTraversalRules& natTraversalRules );
+                                                              const NatTraversalRules& natTraversalRules,
+                                                              const SipDBs& sipDBs );
 
    /**
     * Creates an endpoint descriptor representing the callee
@@ -248,7 +249,7 @@ public:
     */
    static EndpointDescriptor* createCalleeEndpointDescriptor( const SipMessage& sipRequest,
                                                               const NatTraversalRules& natTraversalRules,
-                                                              const RegistrationDB* pRegistrationDB );
+                                                              const SipDBs& sipDBs );
 
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 

@@ -80,8 +80,6 @@ NatTraversalAgent::NatTraversalAgent(const UtlString& pluginName ) ///< the name
      mpMediaRelay( 0 ),
      mpNatMaintainer( 0 ),
      mCleanupTimer( *this ),
-     mpRegistrationDB( 0 ),
-     mbConnectedToRegistrationDB( false ),
      mNextAvailableCallTrackerHandle( 0 )
 {
    OsSysLog::add(FAC_NAT,PRI_INFO,"NatTraversalAgent plugin instantiated '%s'",
@@ -163,9 +161,8 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          // complete the initialization required by the feature
          mbNatTraversalFeatureEnabled = true;
 
-         // connect to regDB as we may need to consult it from time to time.
-         mpRegistrationDB = RegistrationDB::getInstance();
-         mbConnectedToRegistrationDB = true;
+         // connect to all databases from SipDBs class as we may need to consult it from time to time.
+         mSipDBs.init();
 
          // start the timer that will be the heartbeat to delete stale session context objects
          OsTime cleanUpTimerPeriod( CLEAN_UP_TIMER_IN_SECS, 0 );
@@ -270,8 +267,8 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                // create endpoint descriptors for the caller and callee.  The location information
                // they contain will be needed to encode the endpoints' public transport in the
                // route state later
-               pCaller = SessionContext::createCallerEndpointDescriptor( request, mNatTraversalRules );
-               pCallee = SessionContext::createCalleeEndpointDescriptor( request, mNatTraversalRules, mpRegistrationDB );
+               pCaller = SessionContext::createCallerEndpointDescriptor( request, mNatTraversalRules, mSipDBs );
+               pCallee = SessionContext::createCalleeEndpointDescriptor( request, mNatTraversalRules, mSipDBs );
                // set flag that will cause caller and callee endpoint descriptors to be deleted
                // once this routine is done - for non-INVITE dialogs, endpoint descriptors are only
                // needed for the dialog-forming requests and never after.
@@ -857,7 +854,7 @@ CallTracker* NatTraversalAgent::createCallTrackerAndAddToMap( const UtlString& c
 {
    // Allocate new CallTracker object and its key and insert it into our mCallTrackersMap.
    UtlString*   pMapKey      = new UtlString( callId );
-   CallTracker* pCallTracker = new CallTracker( trackerHandle, &mNatTraversalRules, mpMediaRelay, mpRegistrationDB, mpNatMaintainer, mInstanceName );
+   CallTracker* pCallTracker = new CallTracker( trackerHandle, &mNatTraversalRules, mpMediaRelay, mSipDBs, mpNatMaintainer, mInstanceName );
    if( !pCallTracker ||  !mCallTrackersMap.insertKeyAndValue( pMapKey, pCallTracker ) )
    {
       delete pMapKey;
@@ -925,10 +922,7 @@ NatTraversalAgent::~NatTraversalAgent()
    }
    mCallTrackersMap.destroyAll();
 
-   if( mbConnectedToRegistrationDB )
-   {
-      mpRegistrationDB->releaseInstance();
-      mpRegistrationDB = 0;
-   }
+   mSipDBs.done();
+
    delete mpMediaRelay;
 }

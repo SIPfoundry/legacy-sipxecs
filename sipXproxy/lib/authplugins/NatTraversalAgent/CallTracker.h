@@ -61,7 +61,7 @@ public:
    CallTracker( const ssize_t handle,
                 const NatTraversalRules* pNatRules,
                 MediaRelay* pMediaRelayToUse,
-                const RegistrationDB* pRegistrationDB,
+                const SipDBs& sipDBs,
                 NatMaintainer* pNatMaintainer,
                 UtlString instanceNameForRouteState );
 
@@ -298,8 +298,9 @@ private:
    const NatTraversalRules* mpNatTraversalRules;
    /// Pointer to object that abstracts the Media Relay
    MediaRelay*              mpMediaRelayToUse;
-   /// Pointer to registration DB used in some instances to resolve the location of certain endpoints
-   const RegistrationDB*    mpRegistrationDB;
+   /// Reference to SipDBs which contain registration DB and permission DB.
+   // Registration DB is used in some instances to resolve the location of certain endpoints
+   const SipDBs& mSipDBs;
    /// Map that holds the SessionContext objects allocated by the CallTracker.  Map is indexed by SessionContextHandles
    UtlHashMap               mSessionContextsMap;
    /// Map that maps BranchIds to the handle of the SessionContext that can handle the request or response that bears the branchId

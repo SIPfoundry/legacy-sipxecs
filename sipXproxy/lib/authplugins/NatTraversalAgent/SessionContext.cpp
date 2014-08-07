@@ -25,7 +25,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
                                 const NatTraversalRules* pNatRules,
                                 const UtlString& handle,
                                 MediaRelay* pMediaRelayToUse,
-                                const RegistrationDB* pRegistrationDB,
+                                const SipDBs& sipDBs,
                                 CallTrackerInterfaceForSessionContext* pOwningCallTracker ) :
    mpReferenceDialogTracker( 0 ),
    mpCaller( 0 ),
@@ -42,7 +42,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 
    // First, initialize the caller descriptor
    {
-      mpCaller = createCallerEndpointDescriptor( sipRequest, *mpNatTraversalRules );
+      mpCaller = createCallerEndpointDescriptor( sipRequest, *mpNatTraversalRules, sipDBs );
       mpCaller->toString( tmpString );
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Caller transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
@@ -50,7 +50,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 
    // Second, initialize the callee descriptor based on the Request URI header
    {
-      mpCallee = createCalleeEndpointDescriptor( sipRequest, *mpNatTraversalRules, pRegistrationDB );
+      mpCallee = createCalleeEndpointDescriptor( sipRequest, *mpNatTraversalRules, sipDBs );
       mpCallee->toString( tmpString );
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Callee transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
@@ -69,7 +69,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 }
 
 EndpointDescriptor*
-SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules )
+SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules, const SipDBs& sipDBs )
 {
    // The Caller endpoint descriptor is initialized based on the information contained in the
    // contact URI.  This is where the NAT traversal feature encodes location information about
@@ -77,11 +77,19 @@ SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, co
    UtlString tmpString;
    sipRequest.getContactEntry( 0, &tmpString );
    Url contactUri( tmpString );
-   return new EndpointDescriptor( contactUri, natTraversalRules );
+   Url fromUrl;
+
+   sipRequest.getFromUrl(fromUrl);
+
+   return new EndpointDescriptor( contactUri,
+                                  fromUrl,
+                                  natTraversalRules,
+                                  sipDBs.getPermissionDB(),
+                                  sipDBs.getAliasDB() );
 }
 
 EndpointDescriptor*
-SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules, const RegistrationDB* pRegistrationDB )
+SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules, const SipDBs& sipDBs )
 {
    // The Callee endpoint descriptor is initialized based on the information contained in the
    // Route if present or the Request URI.  The R-URI is where the NAT traversal feature encodes location
@@ -94,7 +102,15 @@ SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, co
       sipRequest.getRequestUri( &tmpString );
    }
    Url requestUri( tmpString, bIsAddrSpec );
-   return new EndpointDescriptor( requestUri, natTraversalRules, pRegistrationDB );
+   Url toUrl;
+   sipRequest.getToUrl(toUrl);
+
+   return new EndpointDescriptor( requestUri,
+                                   toUrl,
+                                   natTraversalRules,
+                                   sipDBs.getPermissionDB(),
+                                   sipDBs.getAliasDB(),
+                                   sipDBs.getRegistrationDB() );
 }
 
 SessionContext::~SessionContext()
@@ -445,6 +461,15 @@ bool SessionContext::doesEndpointsLocationImposeMediaRelay( void ) const
          }
       }
    }
+
+   // we need to relay the media in case that call recording is enabled
+   if ( mpCaller->getCallRecording().isEnabled() ||
+        mpCallee->getCallRecording().isEnabled() )
+   {
+	  OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext::doesEndpointsLocationImposeMediaRelay: call recording enabled. Media will be relayed." );
+      bMediaRelayNeeded = true;
+   }
+
    return bMediaRelayNeeded;
 }
 

@@ -114,8 +114,7 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    MediaRelay*       mpMediaRelay;
    NatMaintainer*    mpNatMaintainer;
    OsTimer           mCleanupTimer;
-   RegistrationDB*   mpRegistrationDB;
-   bool              mbConnectedToRegistrationDB;
+   SipDBs            mSipDBs;
    ssize_t           mNextAvailableCallTrackerHandle;
 
    friend AuthPlugin* getAuthPlugin(const UtlString& name);

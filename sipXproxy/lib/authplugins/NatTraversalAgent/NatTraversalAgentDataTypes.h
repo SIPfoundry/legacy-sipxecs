@@ -29,6 +29,8 @@ typedef UtlInt tMediaRelayHandle;
 // FORWARD DECLARATIONS
 class MediaBridgePair;
 class RegistrationDB;
+class PermissionDB;
+class AliasDB;
 struct PacketProcessingStatistics;
 
 typedef enum
@@ -62,6 +64,26 @@ typedef enum
 
 // FORWARD DECLARATIONS
 class NatTraversalRules;
+
+class SipDBs
+{
+public:
+   SipDBs();
+   ~SipDBs();
+
+   void init();
+   void done();
+
+   const RegistrationDB* getRegistrationDB() const;
+   const PermissionDB* getPermissionDB() const;
+   const AliasDB* getAliasDB() const;
+
+private:
+   RegistrationDB*   mpRegistrationDB;
+   PermissionDB*     mpPermissionDB;
+   AliasDB*        mpAliasDB;
+   bool mIsInitialized;
+};
 
 class TransportData : public UtlContainable
 {
@@ -140,6 +162,9 @@ public:
 /// REMOTE_NATED: The endpoint is behind a remote NAT
 /// UNKNOWN:      The location of the endpoint cannot be determined.
 ///
+/// This class is also used to check if call recording feature is enabled or not for an endpoint.
+/// If call recording is enabled, then the media needs to be relayed
+///
 /// Note that in some call scenarios (call pick-up and call park, notably)
 /// the URIs that are provided do not contain our proprietary location markers.
 /// When a pointer to a RegistrationDB is provided, the EndpointDescriptor
@@ -150,29 +175,54 @@ public:
 class EndpointDescriptor
 {
 public:
-   EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, const RegistrationDB* pRegistrationDB = NULL );
+   class CallRecording
+   {
+   public:
+       CallRecording(const Url& url,
+                     const PermissionDB* pPermissionDB,
+                     const AliasDB* pAliasDB);
+
+       const bool isEnabled() const;
+
+   private:
+       const PermissionDB*     mpPermissionDB;
+       const AliasDB*          mpAliasDB;
+       bool                    mIsEnabled;
+
+       void verifyIfEnabled( const Url& url);
+       void verifyIfEnabledForIdentity( const Url& url);
+       void verifyIfEnabledForAliases( const Url& url);
+   };
+
+   EndpointDescriptor( const Url& computeLocationUrl,
+                       const Url& verifyRecordingEnabledUrl,
+                       const NatTraversalRules& natRules,
+                       const PermissionDB* pPermissionDB,
+                       const AliasDB* mpAliasDB,
+                       const RegistrationDB* pRegistrationDB = NULL);
 
    // GETTERS
    const TransportData& getNativeTransportAddress( void ) const;
    const TransportData& getPublicTransportAddress( void ) const;
    LocationCode getLocationCode( void ) const;
+   const CallRecording& getCallRecording() const;
 
    void toString( UtlString& outputString ) const;
 
 protected:
 private:
-   NativeTransportData  mNativeTransport;
-   PublicTransportData  mPublicTransport;
-   LocationCode         mLocation;
-   Url                  mCurrentContact;
+   NativeTransportData     mNativeTransport;
+   PublicTransportData     mPublicTransport;
+   LocationCode            mLocation;
+   Url                     mCurrentContact;
+   const RegistrationDB*   mpRegistrationDB;
+   CallRecording           mCallRecording;
 
    LocationCode computeLocation( const Url& url,
-                                 const NatTraversalRules& natRules,
-                                 const RegistrationDB* pRegistrationDB );
+                                 const NatTraversalRules& natRules );
    LocationCode computeLocationFromPublicAndNativeTransports( const NatTraversalRules& natRules );
    LocationCode computeLocationFromRegDbData( const Url& url,
-                                              const NatTraversalRules& natRules,
-                                              const RegistrationDB* pRegistrationDB );
+                                              const NatTraversalRules& natRules );
    LocationCode computeLocationFromNetworkTopology( const NatTraversalRules& natRules );
 };
 
