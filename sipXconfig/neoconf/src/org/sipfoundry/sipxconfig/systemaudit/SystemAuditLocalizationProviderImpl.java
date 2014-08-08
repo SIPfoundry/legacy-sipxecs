@@ -16,7 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.systemaudit;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -47,6 +46,8 @@ public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizat
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private AutoAttendantManager m_autoAttendantManager;
     private ParkOrbitContext m_parkOrbitContext;
+    private List<String> m_configChangeTypesPackageNames;
+    private String[] m_configChangeTypes;
 
     @Override
     public Setting getLocalizedSetting(ConfigChange configChange,
@@ -146,20 +147,21 @@ public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizat
 
     @Override
     public List<String> getPackageNamesForSystemAudit() {
-        List<String> packageNames = new ArrayList<String>();
-        packageNames.add("org.sipfoundry.sipxconfig");
-        return packageNames;
+        return m_configChangeTypesPackageNames;
     }
 
     @Override
     public String[] getConfigChangeTypeArray() {
-        Set<String> configChangeTypes = new LinkedHashSet<String>(
-                ConfigChangeType.getValues());
-        for (String packageName : getPackageNamesForSystemAudit()) {
-            configChangeTypes
-                    .addAll(getConfigChangeTypesFromPackage(packageName));
+        if (m_configChangeTypes == null) {
+            Set<String> configChangeTypes = new LinkedHashSet<String>(
+                    ConfigChangeType.getValues());
+            for (String packageName : getPackageNamesForSystemAudit()) {
+                configChangeTypes
+                        .addAll(getConfigChangeTypesFromPackage(packageName));
+            }
+            m_configChangeTypes = configChangeTypes.toArray(new String[] {});
         }
-        return configChangeTypes.toArray(new String[] {});
+        return m_configChangeTypes;
     }
 
     private Set<String> getConfigChangeTypesFromPackage(String packageName) {
@@ -181,6 +183,11 @@ public class SystemAuditLocalizationProviderImpl implements SystemAuditLocalizat
             }
         }
         return configChangeTypes;
+    }
+
+    @Required
+    public void setConfigChangeTypesPackageNames(List<String> configChangePackageNames) {
+        m_configChangeTypesPackageNames = configChangePackageNames;
     }
 
 }

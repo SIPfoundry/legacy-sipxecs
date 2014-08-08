@@ -138,7 +138,7 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
 
     @Override
     public String getConfigChangeType() {
-        return "CallPark";
+        return ParkOrbit.class.getSimpleName();
     }
 
     @Override
@@ -182,7 +182,7 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
 
     @Override
     public String getEntityName() {
-        return ParkOrbit.class.getSimpleName();
+        return getClass().getSimpleName();
     }
 
     @Override

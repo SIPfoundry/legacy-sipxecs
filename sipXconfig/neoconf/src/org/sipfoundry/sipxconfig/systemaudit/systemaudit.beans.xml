@@ -48,6 +48,11 @@
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
+    <property name="configChangeTypesPackageNames">
+        <list>
+            <value>org.sipfoundry.sipxconfig</value>
+        </list>
+    </property>
   </bean>
 
 </beans>
