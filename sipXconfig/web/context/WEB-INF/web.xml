@@ -211,5 +211,9 @@
     <servlet-name>ws</servlet-name>
     <url-pattern>/api/ws/*</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ws</servlet-name>
+    <url-pattern>/api/my/ws/*</url-pattern>
+  </servlet-mapping>  
   <!-- END WEB SOCKET -->
 </web-app>

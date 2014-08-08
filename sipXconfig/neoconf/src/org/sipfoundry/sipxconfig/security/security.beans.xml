@@ -219,7 +219,7 @@
     <security:intercept-url pattern="/rest/auto-attendant/specialmode" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
     <security:intercept-url pattern="/rest/auto-attendant" access="ROLE_ADMIN,ROLE_ATTENDANT_ADMIN"/>
     <security:intercept-url pattern="/rest/call/.*" access="ROLE_USER"/>
-    <security:intercept-url pattern="/rest/my/.*" access="ROLE_USER"/>
+    <security:intercept-url pattern="/(rest|api)/my/.*" access="ROLE_USER"/>
     <security:intercept-url pattern="/rest/avatar/.*" access="ROLE_ANONYMOUS,ROLE_ADMIN,ROLE_USER"/>
     <security:intercept-url pattern="/rest/private/.*" access="ROLE_USER"/>
     <security:intercept-url pattern="/(services|rest|api)/.*" access="ROLE_ADMIN"/>
