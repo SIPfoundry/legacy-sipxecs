@@ -60,12 +60,6 @@ bundle agent sipxopenfire_config {
         copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file_restart)"),
         classes => if_repaired("restart_openfire");
 
-      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
-        comment => "install openfire config $(this.promiser)",
-        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
-        copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/openfire/openfire.xml"),
-        classes => if_repaired("restart_openfire");
-
       "$(sipx.OPENFIRE_HOME)/resources/security/truststore"
         comment => "openfire authorities",
         create => "false",
@@ -107,12 +101,24 @@ bundle agent sipxopenfire_config {
         edit_line => openfire_properties,
         classes => if_repaired("update_openfire_conf");
 
+      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"
+        comment => "install openfire.xml.sipx $(this.promiser)",
+        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/openfire/openfire.xml"),
+        classes => if_repaired("update_openfire_conf");
+
     update_openfire_conf::
       # Phase 2.
       "$(sipx.OPENFIRE_HOME)/conf/openfire.properties"
         comment => "install openfire properties $(this.promiser)",
         perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
         copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.properties.sipx"),
+        classes => if_repaired("restart_openfire");
+
+      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
+        comment => "install openfire xml $(this.promiser)",
+        perms => mog("644", "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
+        copy_from => local_cp_by_digest("$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"),
         classes => if_repaired("restart_openfire");
 }
 
