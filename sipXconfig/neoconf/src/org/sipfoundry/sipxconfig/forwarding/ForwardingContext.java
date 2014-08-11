@@ -43,6 +43,10 @@ public interface ForwardingContext {
 
     List<GeneralSchedule> getAllGeneralSchedules();
 
+    List<FeatureSchedule> getAllFeatureSchedules();
+
+    List<FeatureSchedule> getSchedulesForFeatureId(String featureId);
+
     void clear();
 
     void clearSchedules();

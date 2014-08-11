@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
@@ -270,7 +269,7 @@ public class Group extends ValueStorage implements Comparable<Group>, NamedObjec
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.GROUP;
+    public String getConfigChangeType() {
+        return Group.class.getSimpleName();
     }
 }

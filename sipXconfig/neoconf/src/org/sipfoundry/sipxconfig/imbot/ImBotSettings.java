@@ -68,10 +68,6 @@ public class ImBotSettings extends PersistableSettings implements DeployConfigOn
         setSettingValue(PA_PASSWORD_SETTING, password);
     }
 
-    public int getHttpPort() {
-        return (Integer) getSettingTypedValue(HTTP_PORT);
-    }
-
     public void setLocale(String localeString) {
         getSettings().getSetting(LOCALE_SETTING).setValue(localeString);
     }

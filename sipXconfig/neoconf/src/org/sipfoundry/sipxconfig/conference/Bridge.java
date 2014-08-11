@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class Bridge extends BeanWithSettings implements DeployConfigOnEdit, SystemAuditable {
@@ -166,7 +165,7 @@ public class Bridge extends BeanWithSettings implements DeployConfigOnEdit, Syst
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.CONFERENCE;
+    public String getConfigChangeType() {
+        return Conference.class.getSimpleName();
     }
 }

@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.phonebook.Address;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 
@@ -83,7 +82,7 @@ public class Branch extends BeanWithId implements NamedObject, SystemAuditable {
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.BRANCH;
+    public String getConfigChangeType() {
+        return Branch.class.getSimpleName();
     }
 }

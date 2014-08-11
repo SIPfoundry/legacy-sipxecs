@@ -30,7 +30,7 @@ public interface HibernateEntityChangeProvider {
     /**
      * Call this method to handle a Config Change Action
      */
-    public void onConfigChangeAction(Object entity, ConfigChangeAction configChangeType, String[] properties,
+    public void onConfigChangeAction(Object entity, ConfigChangeAction configChangeAction, String[] properties,
             Object[] oldValues, Object[] newValues);
 
     /**

@@ -47,4 +47,6 @@ commons_PKGS = \
 	spring-security-ldap \
 	spring-security-web \
 	joda-time \
-	hazelcast-all
+	hazelcast-all \
+	reflections \
+	guava

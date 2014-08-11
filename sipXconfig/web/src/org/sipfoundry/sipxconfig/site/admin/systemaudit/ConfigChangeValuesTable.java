@@ -27,20 +27,9 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.AdminSettings;
 import org.sipfoundry.sipxconfig.admin.PasswordPolicy;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.conference.Conference;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.dialplan.AutoAttendantManager;
-import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbit;
-import org.sipfoundry.sipxconfig.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.permission.PermissionManager;
-import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
@@ -52,13 +41,14 @@ import org.sipfoundry.sipxconfig.site.setting.SettingEditor;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChange;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeValue;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditLocalizationProvider;
 import org.springframework.context.MessageSource;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ConfigChangeValuesTable extends BaseComponent implements PageBeginRenderListener {
 
     public static final String COMPONENT = "ConfigChangeValuesTable";
-    private static final Logger LOG = Logger.getLogger(ConfigChangeValuesTable.class);
+    protected static final Logger LOG = Logger.getLogger(ConfigChangeValuesTable.class);
     private static final String LOCALIZATION_PREFIX = "[";
 
     public abstract ConfigChangeValue getConfigChangeValue();
@@ -75,29 +65,14 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
     @InjectObject("spring:passwordPolicyImpl")
     public abstract PasswordPolicy getPasswordPolicy();
 
-    @InjectObject("spring:permissionManager")
-    public abstract PermissionManager getPermissionManager();
-
-    @InjectObject("spring:phoneContext")
-    public abstract PhoneContext getPhoneContext();
-
-    @InjectObject("spring:gatewayContext")
-    public abstract GatewayContext getGatewayContext();
-
-    @InjectObject("spring:conferenceBridgeContext")
-    public abstract ConferenceBridgeContext getConferenceBridgeContext();
-
-    @InjectObject("spring:autoAttendantManager")
-    public abstract AutoAttendantManager getAutoAttendantManager();
-
-    @InjectObject("spring:parkOrbitContext")
-    public abstract ParkOrbitContext getParkOrbitContext();
-
     @InjectObject("spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
 
     @InjectObject("spring:localizedLanguageMessages")
     public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
+
+    @InjectObject("spring:systemAuditLocalizationProvider")
+    public abstract SystemAuditLocalizationProvider getSystemAuditLocalizationProvider();
 
     public String getPropertyName() {
         String propertyName = getConfigChangeValue().getPropertyName();
@@ -117,13 +92,21 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
         return getLocalizedValue(getConfigChangeValue().getValueAfter());
     }
 
-    private String getLocalizedValue(String value) {
+    protected String getLocalizedValue(String value) {
         // if is null, nothing to localize
         if (value == null) {
             return value;
         }
+        // custom localization
+        String localizedValue = getSystemAuditLocalizationProvider()
+                .getLocalizedPropertyName(
+                        getConfigChangeValue().getConfigChange(),
+                        getConfigChangeValue().getPropertyName(), value);
+        if (localizedValue != null) {
+            return localizedValue;
+        }
         // localize the normal way
-        String localizedValue = getMessages().getMessage(value);
+        localizedValue = getMessages().getMessage(value);
         if (!localizedValue.startsWith(LOCALIZATION_PREFIX)) {
             return localizedValue;
         }
@@ -138,32 +121,23 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
 
     private String getLocalizeSettingValue(String propertyName, String value) {
         try {
-            ConfigChange configChange = getConfigChangeValue().getConfigChange();
+            ConfigChange configChange = getConfigChangeValue()
+                    .getConfigChange();
             Setting setting = null;
-            if (configChange.getConfigChangeType() == ConfigChangeType.SETTINGS) {
+            if (configChange.getConfigChangeType().equals(
+                    ConfigChangeType.SETTINGS.getName())) {
                 Class<?> clazz = Class.forName(configChange.getDetails());
-                PersistableSettings settingObject = (PersistableSettings) clazz.newInstance();
+                PersistableSettings settingObject = (PersistableSettings) clazz
+                        .newInstance();
                 settingObject.setModelFilesContext(getModelFilesContext());
                 if (settingObject instanceof AdminSettings) {
-                    ((AdminSettings) settingObject).setPasswordPolicy(getPasswordPolicy());
+                    ((AdminSettings) settingObject)
+                            .setPasswordPolicy(getPasswordPolicy());
                 }
                 setting = settingObject.getSettings().getSetting(propertyName);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.USER) {
-                User user = new User();
-                user.setPermissionManager(getPermissionManager());
-                setting = user.getSettings().getSetting(propertyName);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.PHONE) {
-                Phone phone = getPhoneContext().getPhoneBySerialNumber(configChange.getDetails());
-                setting = phone.getSettings().getSetting(propertyName);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.CONFERENCE) {
-                Conference conference = getConferenceBridgeContext().findConferenceByName(configChange.getDetails());
-                setting = conference.getSettings().getSetting(propertyName);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.AUTO_ATTENDANT) {
-                AutoAttendant aa = getAutoAttendantManager().getAutoAttendantBySystemName(configChange.getDetails());
-                setting = aa.getSettings().getSetting(propertyName);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.CALL_PARK) {
-                ParkOrbit parkOrbit = getParkOrbitContext().loadParkOrbitByName(configChange.getDetails());
-                setting = parkOrbit.getSettings().getSetting(propertyName);
+            } else {
+                setting = getSystemAuditLocalizationProvider()
+                        .getLocalizedSetting(configChange, propertyName, value);
             }
             if (setting != null) {
                 String localizedValue = null;
@@ -173,7 +147,8 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
                 if (localizedValue != null) {
                     return localizedValue;
                 }
-                return getEnumLocalizedValue(setting, setting.getMessageSource(), value);
+                return getEnumLocalizedValue(setting,
+                        setting.getMessageSource(), value);
             }
         } catch (Exception e) {
             LOG.debug("Can't localize value: " + e.getMessage());
@@ -217,27 +192,21 @@ public abstract class ConfigChangeValuesTable extends BaseComponent implements P
 
     private String getLocalizedPropertyName(String message) {
         try {
-            ConfigChange configChange = getConfigChangeValue().getConfigChange();
-            if (configChange.getConfigChangeType() == ConfigChangeType.SETTINGS) {
+            ConfigChange configChange = getConfigChangeValue()
+                    .getConfigChange();
+            if (configChange.getConfigChangeType().equals(
+                    ConfigChangeType.SETTINGS.getName())) {
                 return getLocalizedSettingsMessage(configChange, message);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.USER) {
-                User user = new User();
-                user.setPermissionManager(getPermissionManager());
-                return getLocalizedBeanWithSettingsMessage(user, message);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.PHONE) {
-                Phone phone = getPhoneContext().getPhoneBySerialNumber(configChange.getDetails());
-                return getLocalizedBeanWithSettingsMessage(phone, message);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.CONFERENCE) {
-                Conference conference = getConferenceBridgeContext().findConferenceByName(configChange.getDetails());
-                return getLocalizedBeanWithSettingsMessage(conference, message);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.AUTO_ATTENDANT) {
-                AutoAttendant aa = getAutoAttendantManager().getAutoAttendantByName(configChange.getDetails());
-                return getLocalizedBeanWithSettingsMessage(aa, message);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.CALL_PARK) {
-                ParkOrbit parkOrbit = getParkOrbitContext().loadParkOrbitByName(configChange.getDetails());
-                return getLocalizedBeanWithSettingsMessage(parkOrbit, message);
-            } else if (configChange.getConfigChangeType() == ConfigChangeType.SERVER) {
+            } else if (configChange.getConfigChangeType().equals(
+                    ConfigChangeType.SERVER.getName())) {
                 return getMessages().getMessage("label." + message);
+            } else {
+                BeanWithSettings beanWithSettings = getSystemAuditLocalizationProvider()
+                        .getLocalizedBeanWithSettings(configChange, message);
+                if (beanWithSettings != null) {
+                    return getLocalizedBeanWithSettingsMessage(
+                            beanWithSettings, message);
+                }
             }
         } catch (Exception e) {
             LOG.debug("Can't localize string: " + e.getMessage());

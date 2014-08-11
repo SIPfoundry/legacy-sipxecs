@@ -1,0 +1,205 @@
+<?xml version="1.0" ?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd"
+    [
+	<!ENTITY types SYSTEM "types.xml">
+	<!ENTITY types_v71 SYSTEM "types_v71.xml">
+	<!ENTITY types_v70 SYSTEM "types_v70.xml">
+    ]
+>
+<model>
+&types;
+&types_v70;
+&types_v71;
+    <group name="basic">
+	<!-- Enable or disable the account 1; 0-Disabled (default), 1-Enabled;-->
+	<setting name="enable" hidden="yes"><type><boolean/></type><value>1</value></setting>
+	<!-- Configure the label displayed on the LCD screen for account 1.-->
+	<setting name="label"><type><string/></type></setting>
+	<!-- Configure the display name of account 1.-->
+	<setting name="display_name"><type><string/></type></setting>
+	<!-- Configure the register user name.-->
+	<setting name="user_name"><type><string/></type></setting>
+	<!-- Configure the username and password for register authentication.-->
+	<setting name="auth_name"><type><string/></type></setting>
+	<setting name="password"><type><string/></type></setting>
+	<!-- Configure the SIP server address.-->
+	<setting name="sip_server_host"><type><string/></type></setting>
+	<!-- Specify the port for the SIP server. The default value is 5060.-->
+	<setting name="sip_server_port"><type><integer/></type><value>5060</value></setting>
+	<!-- Enable or disable the use of the outbound proxy server; 0-Disabled (default), 1-Enabled; -->
+	<setting name="outbound_proxy_enable"><type><boolean/></type><value>0</value></setting>
+	<!-- Specify the IP address or domain name of the outbound proxy server.-->
+	<setting name="outbound_host"><type><string/></type></setting>
+	<!-- Specify the server port, the default value is 5060.-->
+	<setting name="outbound_port"><type><integer/></type><value>5060</value></setting>
+	<!-- Configure the transport type; 0-UDP (default), 1-TCP, 2-TLS, 3-DNS SRV;-->
+	<setting name="transport"><type refid="SIPTransport_type"/><value>3</value></setting>
+	<!-- Configure the address of the backup outbound proxy server.-->
+	<setting name="backup_outbound_host"><type><string/></type></setting>
+	<!-- Specify the port, the default value is 5060.-->
+	<setting name="backup_outbound_port"><type><integer/></type><value>5060</value></setting>
+	<!-- Enable or disable the NAT traversal; 0-Disabled (default), 1-STUN;-->
+	<setting name="nat.nat_traversal"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the STUN server address.-->
+	<setting name="nat.stun_server"><type><string/></type><value></value></setting>
+	<!-- Configure the STUN server port, the default value is 3478.-->
+	<setting name="nat.stun_port"><type><integer/></type><value>3478</value></setting>
+	<!-- Configure the voice mail number of account.-->
+	<setting name="voice_mail.number"><type><string/></type><value></value></setting>
+	<!-- Enable or disable the anonymous call feature; 0-Disabled (default), 1-Enabled;-->
+	<setting name="anonymous_call"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the on code and off code of the anonymous call feature.-->
+	<setting name="anonymous_call_oncode"><type><string/></type><value></value></setting>
+	<setting name="anonymous_call_offcode"><type><string/></type><value></value></setting>
+	<!-- Enable or disable the reject anonymous call feature; 0-Disabled (default), 1-Enabled;-->
+	<setting name="reject_anonymous_call"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the on code and off code of the reject anonymous call feature.-->
+	<setting name="anonymous_reject_oncode"><type><string/></type><value></value></setting>
+	<setting name="anonymous_reject_offcode"><type><string/></type><value></value></setting>
+	<!-- Enable or disable the phone to record the missed call; 0-Disabled, 1-Enabled (default);-->
+	<setting name="missed_calllog"><type><boolean/></type><value>1</value></setting>
+	<!-- Enable or disable the auto answer feature; 0-Disabled (default), 1-Enabled;-->
+	<setting name="auto_answer"><type><boolean/></type><value>0</value></setting>
+	<!-- Assign a ringtone for account 1. The system ring tones are: common.wav (default), Ring1.wav, Ring2.wav-->
+	<!-- You can configure the custom ring tone (Family.wav) for the account 1, the value format is: account.1.ringtone.ring_type = Family.wav-->
+	<setting name="ringtone.ring_type"><type refid="yealink_ring_type"/><value>common</value></setting>
+    </group>
+
+    <group name="advanced">
+	<!-- Enable or disable the NAT keep-alive; 0-Disabled, 1-Enabled (default);-->
+	<setting name="nat.udp_update_enable"><type><boolean/></type><value>1</value></setting>
+	<!-- Specify the keep-alive interval (in seconds), the default value is 30.-->
+	<setting name="nat.udp_update_time"><type><integer/></type><value>30</value></setting>
+	<!-- Configure the register expiry time (in seconds), the default value is 3600.-->
+	<setting name="expires"><type><integer/></type><value>3600</value></setting>
+	<!-- Configure the SIP port for account 1, the default value is 5060. -->
+	<!-- <setting name="sip_listen_port"><type><integer/></type></setting> -->
+	<!-- Enable or disable the NAT Rport; 0-Disabled (default), 1-Enabled;-->
+	<setting name="nat.rport"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the session timer (in seconds), the default values of T1, T2, T3 are 0.5, 4, 5.-->
+	<setting name="advanced.timer_t1"><type><float/></type><value>0.5</value></setting>
+	<setting name="advanced.timer_t2"><type><float/></type><value>4</value></setting>
+	<setting name="advanced.timer_t4"><type><float/></type><value>5</value></setting>
+	<!-- Configure the DTMF type; 0-INBAND, 1-RFC2833 (default), 2-SIP INFO, 3-AUTO+SIP INFO;-->
+	<setting name="dtmf.type"><type refid="DTMFInbandTransfer_type"/><value>1</value></setting>
+	<!-- Configure the DTMF info type when using the SIP INFO; 0-Disabled (default), 1-DTMF-Relay, 2-DTMF, 3-Telephone-Event;-->
+	<setting name="dtmf.info_type"><type refid="InfoType_type"/><value>0</value></setting>
+	<!-- Configure the RFC2833 payload. It ranges from 96 to 225, the default value is 101.-->
+	<setting name="dtmf.dtmf_payload"><type><integer/></type><value>101</value></setting>
+
+	<!-- Enable or disable the 100 reliable retransmission; 0-Disabled (default), 1-Enabled;-->
+	<setting name="100rel_enable"><type><boolean/></type><value>0</value></setting>
+	<!-- Enable or disable the resource reservation; 0-Disabled (default), 1-Enabled;-->
+	<setting name="precondition"><type><boolean/></type><value>0</value></setting>
+	<!-- Enable or disable the phone to subscribe the register status; 0-Disabled (default), 1-Enabled;-->
+	<setting name="subscribe_register"><type><boolean/></type><value>0</value></setting>
+	<!-- Enable or disable the phone to subscribe the message waiting indicator; 0-Disabled (default), 1-Enabled;-->
+	<setting name="subscribe_mwi"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure MWI subscribe expiry time (in seconds). It ranges from 0 to 84600, the default value is 3600.-->
+	<setting name="subscribe_mwi_expires"><type><integer/></type><value>3600</value></setting>
+	<!-- Configure the type of SIP header(s) to carry the caller ID; 0-FROM (default), 1-PAI 2-PAI-FROM, 3-PRID-PAI-FROM, 4-PAI-RPID-FROM, 5-RPID-FROM;-->
+	<setting name="cid_source"><type refid="CIDSource_type"/><value>0</value></setting>
+	<!-- Enable or disable the session timer; 0-Disabled (default), 1-Enabled;  -->
+	<setting name="session_timer.enable"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the refresh session timer interval (in seconds). It ranges from 1 to 9999.-->
+	<setting name="session_timer.expires"><type><integer/></type><value>60</value></setting>
+	<!-- Configure the session timer refresher; 0-Uac (default), 1-Uas;-->
+	<setting name="session_timer.refresher"><type refid="SessionRefresher_type"/><value>0</value></setting>
+	<!-- Enable or disable the "user=phone"; 0-Disabled (default), 1-Enabled;-->
+	<setting name="enable_user_equal_phone"><type><boolean/></type><value>0</value></setting>
+	<!-- Specify whether to encrypt the SIP messages; 0-Disabled, 1-Forced, 2-Negotiated;-->
+	<setting name="srtp_encryption"><value>0</value></setting>
+	<!-- Configure the RTP packet time. The valid values are 0 (Disabled), 10, 20 (default), 30, 40, 50, 60.-->
+	<setting name="ptime"><type refid="ptime_type"/><value>20</value></setting>
+	<!-- Configure the BLF list URI (a SIP URI, or use part of the SIP URI). For example, "2300_blflist@domain.com" or "2300_blflist".-->
+	<setting name="blf.blf_list_uri"><type><string/></type><value></value></setting>
+	<!-- Configure the pickup code of BLF List.-->
+	<setting name="blf_list_code"><type><string/></type><value></value></setting>
+	<!-- Configure the bargein code.-->
+	<setting name="blf_list_barge_in_code" if="yealinkPhone(SIPT[24])|(W5)|(VP530).*"><type><string/></type><value></value></setting>
+	<!-- Assign account 1 as shared line; 0-Disabled (default), 1-BSFT shared line, 2-Draft bridge line appearance;-->
+	<setting name="shared_line"><type refid="SharedLine_type"/><value>0</value></setting>
+	<!-- Enable or disable call pickup using dialog-info SIP header; 0-Disabled (default), 1-Enabled;-->
+	<setting name="dialoginfo_callpickup"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure BLA number for account 1 and the subscribe period (in seconds). It ranges from 60 to 7200, the default value is 300.-->
+	<setting name="bla_number"><type><string/></type><value></value></setting>
+	<setting name="bla_subscribe_period"><type><integer/></type><value>300</value></setting>
+	<!-- Enable or disable the phone to send the MAC address and line number in the Register message; 0-Disabled (default), 1-Enabled;    -->
+	<setting name="register_mac"><type><boolean/></type><value>0</value></setting>
+	<setting name="register_line"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the interval (in seconds) the phone retries to register when account 1 fails to register. It ranges from 0 to 1800, the default value is 30.-->
+	<setting name="reg_fail_retry_interval"><type><integer/></type><value>30</value></setting>
+	<!-- Enable or disable the SIP signal encode; 0-Disabled (default), 1-Enabled (RC 4);-->
+	<setting name="enable_signal_encode"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the key for encoding.-->
+	<setting name="signal_encode_key"><type><string/></type><value></value></setting>
+	<!-- Configure the conference type; 0-Local (default), 2-Network Conference;-->
+	<setting name="conf_type"><type refid="Conference_type"/><value>0</value></setting>
+	<!-- Configure the conference URI (a SIP URI, or use part of the SIP URI). For example, "conference@domain.com" or "conference".-->
+	<setting name="conf_uri"><type><string/></type><value></value></setting>
+	<!-- Enable or disable the phone to subscribe to the voicemail through the message waiting indicator; 0-Disabled (default), 1-Enabled;-->
+	<setting name="subscribe_mwi_to_vm"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the SIP server type; 0-Default (default), 2-BroadSoft, 4-Cosmocom;-->
+	<setting name="sip_server_type"><type refid="SIPServer_type"/><value>0</value></setting>
+	<!-- Configure the music on hold server; -->
+	<setting name="music_server_uri"><type><string/></type></setting>
+
+	<!-- Enable or disable the phone to receive the messages from the server only; 0-Disabled (default), 1-Enabled;-->
+	<setting name="sip_trust_ctrl" advanced="yes"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the proxy server to account 1.-->
+	<setting name="proxy_require" advanced="yes"><type><string/></type><value></value></setting>
+	<!-- Enable or disable the use of the timer to periodically refresh the DNS-SRV query result; 0-Disabled (default), 1-Enabled;-->
+	<!-- Require reboot;-->
+	<setting name="srv_ttl_timer_enable" advanced="yes" if="yealinkPhone(SIPT[24])|(W5)|(VP530).*"><type><boolean/></type><value>0</value></setting>
+	<!-- Configure the type of DNS-SRV query; 0-UDP, TCP and TLS (default), 1-UDP, 2-TCP, 3-TLS;-->
+	<!-- Require reboot;-->
+	<setting name="dns_srv_type" advanced="yes" if="yealinkPhone(SIPT[24])|(W5)|(VP530).*"><type refid="SRV_type"/><value>0</value></setting>
+	<!-- Configure the presentation of the callee ID; 0-PAI-PRID, 1-DIALED DIGITS (default), 2-RFC4916; -->
+	<setting name="cp_source" advanced="yes"><type refid="cp-source_type"/><value>1</value></setting>
+	<!-- Configure the directed and group pickup codes for account 1, the settings on a per-account basis take precedence over the settings on the phone.-->
+	<setting name="group_pickup_code" advanced="yes" if="yealinkPhone(SIPT[2-4])|(W5).*"><value></value></setting>
+	<setting name="direct_pickup_code" advanced="yes" if="yealinkPhone(SIPT[2-4])|(W5).*"><value></value></setting>
+	<!-- Configure the BLF subscribe period (in seconds), the default value is 1800.-->
+	<setting name="blf.subscribe_period" advanced="yes"><type><integer/></type><value>1800</value></setting>
+	<!-- Configure the ACD subscribe period (in seconds). It ranges from 120 to 3600 (default).-->
+	<setting name="subscribe_acd_expires" advanced="yes"><type><integer/></type><value>3600</value></setting>
+	<!-- Enable or disable the phone to use the customized theme; 0-Disabled (default), 1-Enabled;-->
+	<setting name="idle_screen_enable" advanced="yes" if="yealinkPhoneSIPT38G"><type><boolean/></type><value>0</value></setting>
+	<!-- Define the access URL of the customized theme.-->
+	<setting name="idle_screen_url" advanced="yes" if="yealinkPhoneSIPT38G"><type><string/></type><value></value></setting>
+	<!-- Enable or disable the phone to support the simplified SIP header; 0-Disabled (default), 1-Enabled;-->
+	<setting name="compact_header_enable" advanced="yes" if="yealinkPhone(SIPT[24])|(W5)|(VP530).*"><type><boolean/></type><value>0</value></setting>
+	<!-- Enable or disable the phone to display the picture when receiving the specified SIP message; 0-Disabled, 1-Enabled (default);-->
+	<setting name="picture_info_enable" advanced="yes" if="yealinkPhoneSIPT38G"><type><boolean/></type><value>1</value></setting>
+    </group>
+    <group name="codecs">
+	<!-- Audio codecs for account 1 (Y ranges from 1 to 13).-->
+	<!-- account.1.codec.y.enable = -->
+	<!-- account.1.codec.y.payload_type = -->
+	<!-- account.1.codec.y.priority = -->
+	<!-- account.1.codec.y.rtpmap = -->
+	<setting name="codec"><type refid="codecs_type"/><value>9:G722|8:PCMA|0:PCMU|18:G729</value></setting>
+    </group>
+    <group name="video-codecs" if="yealinkPhoneVP530">
+	<!-- Video codecs for account 1 (X ranges from 1 to 3) -->
+	<setting name="video_codec.1.enable"><type><boolean/></type><value>1</value></setting>
+	<setting name="video_codec.1.priority"><type><integer/></type><value>1</value></setting>
+	<setting name="video_codec.1.payload_type"><type><string/></type><value>H264</value></setting>
+	<setting name="video_codec.1.rtpmap"><type><integer/></type><value>99</value></setting>
+	<setting name="video_codec.1.para"><type><string/></type><value>profile-level-id=42800D; packetization-mode=0; max-mbps=11880</value></setting>
+
+	<setting name="video_codec.2.enable"><type><boolean/></type><value>1</value></setting>
+	<setting name="video_codec.2.priority"><type><integer/></type><value>2</value></setting>
+	<setting name="video_codec.2.payload_type"><type><string/></type><value>H263</value></setting>
+	<setting name="video_codec.2.rtpmap"><type><integer/></type><value>34</value></setting>
+	<setting name="video_codec.2.para"><type><string/></type><value>CIF=1; QCIF=1</value></setting>
+
+	<setting name="video_codec.3.enable"><type><boolean/></type><value>1</value></setting>
+	<setting name="video_codec.3.priority"><type><integer/></type><value>3</value></setting>
+	<setting name="video_codec.3.payload_type"><type><string/></type><value>mp4v-es</value></setting>
+	<setting name="video_codec.3.rtpmap"><type><integer/></type><value>102</value></setting>
+	<setting name="video_codec.3.para"><type><string/></type><value>CIF=1; QCIF=1; MaxBR=38400</value></setting>
+    </group>
+</model>

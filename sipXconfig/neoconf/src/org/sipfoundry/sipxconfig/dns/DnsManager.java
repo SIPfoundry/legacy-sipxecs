@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.region.Region;
 public interface DnsManager {
     public static final LocationFeature FEATURE = new LocationFeature("sipxdns");
     public static final AddressType DNS_ADDRESS = new AddressType("dnsAddress", 53, AddressType.Protocol.udp);
+    public static final String DEFAULT_VIEW_NAME = "default";
 
     public DnsSettings getSettings();
 
@@ -77,4 +78,6 @@ public interface DnsManager {
     public Collection<DnsCustomRecords> getCustomRecordsByIds(Collection<Integer> customIds);
 
     Collection<ResourceRecords> getResourceRecords();
+
+    DnsView getDefaultView();
 }

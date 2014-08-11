@@ -14,30 +14,14 @@
  */
 package org.sipfoundry.commons.hz;
 
-import java.io.Serializable;
-
-public class HzVmEvent implements Serializable {
+public class HzVmEvent extends HzMediaEvent {
     private static final long serialVersionUID = 1L;
 
-    private String m_userIdFrom;
-    private String m_userIdTo;
-    private String m_description;
-
-    public HzVmEvent(String userIdFrom, String userIdTo, String description) {
-        m_userIdFrom = userIdFrom;
-        m_userIdTo = userIdTo;
-        m_description = description;
+    public enum VmType implements HzMediaEvent.Type {
+        START_LEAVE_VM,
+        END_LEAVE_VM
     }
-
-    public String getUserIdFrom() {
-        return m_userIdFrom;
-    }
-
-    public String getUserIdTo() {
-        return m_userIdTo;
-    }
-
-    public String getDescription() {
-        return m_description;
+    public HzVmEvent(String userIdFrom, String userIdTo, String description, Type type) {
+        super(userIdFrom, userIdTo, description, type);
     }
 }

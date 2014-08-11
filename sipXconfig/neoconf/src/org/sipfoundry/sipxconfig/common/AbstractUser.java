@@ -919,7 +919,7 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.USER;
+    public String getConfigChangeType() {
+        return ConfigChangeType.USER.getName();
     }
 }

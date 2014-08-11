@@ -29,7 +29,7 @@ public class ConfigChange extends BeanWithId {
     private Date m_dateTime = new Date();
     private UserIpAddress m_userIpAddress;
     private ConfigChangeAction m_configChangeAction;
-    private ConfigChangeType m_configChangeType;
+    private String m_configChangeType;
     private String m_details;
     private List<ConfigChangeValue> m_values = new ArrayList<ConfigChangeValue>(0);
 
@@ -49,11 +49,11 @@ public class ConfigChange extends BeanWithId {
         m_values = values;
     }
 
-    public ConfigChangeType getConfigChangeType() {
+    public String getConfigChangeType() {
         return m_configChangeType;
     }
 
-    public void setConfigChangeType(ConfigChangeType configChangeType) {
+    public void setConfigChangeType(String configChangeType) {
         this.m_configChangeType = configChangeType;
     }
 

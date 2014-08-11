@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+<bean id="yealinkPhone" class="org.sipfoundry.sipxconfig.phone.yealink.YealinkPhone" scope="prototype" parent="abstractPhone">
+    <property name="registrarSettings" ref="registrarSettings"/>
+    <property name="uploadManager" ref="uploadManager"/>
+    <property name="ldapManager" ref="ldapManager"/>
+</bean>
+
+<bean id="org.sipfoundry.sipxconfig.phone.yealink.YealinkModel.VER_6X"
+      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+<bean id="org.sipfoundry.sipxconfig.phone.yealink.YealinkModel.VER_7X"
+      class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+
+<bean id="yealinkModel" class="org.sipfoundry.sipxconfig.phone.yealink.YealinkModel" parent="abstractPhoneModel" abstract="true">
+	<property name="beanId" value="yealinkPhone" />
+	<property name="vendor" value="Yealink"/>
+	<property name="restartSupported" value="true" />
+	<property name="versions">
+	    <list>
+		<ref local="org.sipfoundry.sipxconfig.phone.yealink.YealinkModel.VER_7X"/>
+	    </list>
+	</property>
+	<property name="defaultVersion">
+	    <ref local="org.sipfoundry.sipxconfig.phone.yealink.YealinkModel.VER_7X"/>
+	</property>
+	<property name="profileTemplate" value="yealinkPhone/config_v6x_titan.vm" />
+	<property name="directoryProfileTemplate" value="yealinkPhone/directory.xml.vm" />
+</bean>
+
+<bean id="yealinkPhoneSIPT12P" parent="yealinkModel">
+	<property name="beanId" value="yealinkPhone" />
+	<property name="label" value="Yealink SIP-T12(P)" />
+	<property name="name" value="T12" />
+	<property name="maxLineCount" value="2" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT18P" parent="yealinkModel">
+	<property name="beanId" value="yealinkPhone" />
+	<property name="label" value="Yealink SIP-T18(P)" />
+	<property name="name" value="T18" />
+	<property name="maxLineCount" value="2" />
+	<property name="supportedFeatures">
+	    <set>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT20P" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T20(P)" />
+	<property name="name" value="T20" />
+	<property name="maxLineCount" value="2" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT22P" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T22(P)" />
+	<property name="name" value="T22" />
+	<property name="maxLineCount" value="3" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT26P" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T26(P)" />
+	<property name="name" value="T26" />
+	<property name="maxLineCount" value="3" />
+	<property name="maxDSSKeyCount" value="10" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasExpansionPanels</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT28P" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T28(P)" />
+	<property name="name" value="T28" />
+	<property name="maxLineCount" value="6" />
+	<property name="maxDSSKeyCount" value="10" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasExpansionPanels</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT32G" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T32G" />
+	<property name="name" value="T32" />
+	<property name="maxLineCount" value="3" />
+	<property name="maxDSSKeyCount" value="10" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasWallPapers</value>
+		<value>hasScreenSavers</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT38G" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T38G" />
+	<property name="name" value="T38" />
+	<property name="maxLineCount" value="6" />
+	<property name="maxDSSKeyCount" value="10" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasWallPapers</value>
+		<value>hasScreenSavers</value>
+		<value>hasExpansionPanels</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneVP530" parent="yealinkModel">
+	<property name="label" value="Yealink VP530" />
+	<property name="name" value="VP530" />
+	<property name="maxLineCount" value="4" />
+	<property name="maxDSSKeyCount" value="10" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasWallPapers</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT41P" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T41P" />
+	<property name="name" value="T41" />
+	<property name="maxLineCount" value="3" />
+	<property name="maxDSSKeyCount" value="10" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT42G" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T42G" />
+	<property name="name" value="T42" />
+	<property name="maxLineCount" value="3" />
+	<property name="maxDSSKeyCount" value="12" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneSIPT46G" parent="yealinkModel">
+	<property name="label" value="Yealink SIP-T46G" />
+	<property name="name" value="T46" />
+	<property name="maxLineCount" value="6" />
+	<property name="maxDSSKeyCount" value="21" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+		<value>hasWallPapers</value>
+		<value>hasScreenSavers</value>
+		<value>hasExpansionPanels</value>
+		<value>hasLanguages</value>
+	    </set>
+	</property>
+</bean>
+
+<bean id="yealinkPhoneW52" parent="yealinkModel">
+	<property name="label" value="Yealink W52" />
+	<property name="name" value="W52" />
+	<property name="maxLineCount" value="5" />
+	<property name="supportedFeatures">
+	    <set>
+		<value>hasHDSound</value>
+		<value>hasPhoneBook</value>
+		<value>hasRingTones</value>
+	    </set>
+	</property>
+</bean>
+
+<!--// Files uploading specification //-->
+
+<bean id="yealinkUpload" class="org.sipfoundry.sipxconfig.upload.yealink.YealinkUpload" scope="prototype" parent="upload" />
+
+<bean id="yealinkFiles" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+	<property name="beanId" value="yealinkUpload"/>
+	<property name="modelFilePath" value="yealinkPhone/upload.xml" />
+	<property name="label" value="Yealink Phones" />
+</bean>
+
+</beans>

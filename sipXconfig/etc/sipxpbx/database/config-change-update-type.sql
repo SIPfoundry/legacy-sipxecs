@@ -1,0 +1,1 @@
+ALTER TABLE config_change ALTER COLUMN config_change_type type varchar(255);

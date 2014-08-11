@@ -28,6 +28,8 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.collections.iterators.ArrayIterator;
+import org.hibernate.collection.PersistentArrayHolder;
 import org.hibernate.collection.PersistentCollection;
 import org.hibernate.collection.PersistentList;
 import org.hibernate.collection.PersistentMap;
@@ -36,11 +38,12 @@ import org.sipfoundry.commons.userdb.profile.Address;
 import org.sipfoundry.commons.userdb.profile.UserProfile;
 import org.sipfoundry.commons.userdb.profile.UserProfileService;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
-import org.sipfoundry.sipxconfig.region.Region;
-import org.sipfoundry.sipxconfig.region.RegionManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
@@ -55,8 +58,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     private static final String PROPERTY_DELIMITATOR = " / ";
     private static final String VALUE_DELIMITATOR = "/";
     private UserProfileService m_userProfileService;
-    private RegionManager m_regionManager;
-    private PermissionManager m_permissionManager;
+    private ModelFilesContext m_modelFilesContext;
 
     /**
      * Handles ConfigChange actions coming from Hibernate: ADDED, MODIFIED,
@@ -80,33 +82,6 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     private void handleCustomScenarios(ConfigChange configChange, SystemAuditable auditedEntity,
             ConfigChangeAction configChangeAction) {
         handleAddingOfPersistableSettings(configChange, auditedEntity, configChangeAction);
-        handleServerRegion(configChange, auditedEntity);
-    }
-
-    private void handleServerRegion(ConfigChange configChange,
-            SystemAuditable auditedEntity) {
-        if (configChange.getConfigChangeType().equals(ConfigChangeType.SERVER)) {
-            for (ConfigChangeValue value : configChange.getValues()) {
-                if (value.getPropertyName().equals("regionId")) {
-                    String valueBefore = value.getValueBefore();
-                    if (valueBefore != null) {
-                        Region regionBefore = m_regionManager.getRegion(Integer
-                                .parseInt(valueBefore));
-                        if (regionBefore != null) {
-                            value.setValueBefore(regionBefore.getName());
-                        }
-                    }
-                    String valueAfter = value.getValueAfter();
-                    if (valueAfter != null) {
-                        Region regionAfter = m_regionManager.getRegion(Integer
-                                .parseInt(valueAfter));
-                        if (regionAfter != null) {
-                            value.setValueAfter(regionAfter.getName());
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -230,6 +205,8 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
                 newIterator = ((PersistentSet) collection).iterator();
             } else if (collection instanceof PersistentList) {
                 newIterator = ((PersistentList) collection).iterator();
+            } else if (collection instanceof PersistentArrayHolder) {
+                newIterator = ((PersistentArrayHolder) collection).elements();
             } else {
                 return;
             }
@@ -244,6 +221,9 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
             } else if (storedSnapshot instanceof Map) {
                 Map<Object, Object> oldMap = (Map<Object, Object>) storedSnapshot;
                 oldIterator = oldMap.values().iterator();
+            } else if (storedSnapshot instanceof WorkingTime.WorkingHours[]) {
+                WorkingTime.WorkingHours[] oldMap = (WorkingTime.WorkingHours[]) storedSnapshot;
+                oldIterator = new ArrayIterator(oldMap);
             } else {
                 return;
             }
@@ -369,8 +349,10 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
                 defaultValue = beanWithSettings.getSettingDefaultValue((String) valueKey);
             } else if (systemAuditable instanceof Group) {
                 User user = new User();
-                user.setPermissionManager(m_permissionManager);
-                user.getSettings();
+                PermissionManager permissionManager = new PermissionManagerImpl();
+                m_modelFilesContext.loadModelFile("commserver/user-settings.xml");
+                permissionManager.setModelFilesContext(m_modelFilesContext);
+                user.setPermissionManager(permissionManager);
                 Setting groupSettings = ((Group) systemAuditable).inherhitSettingsForEditing(user);
                 defaultValue = groupSettings.getSetting((String) valueKey).getDefaultValue();
             }
@@ -440,14 +422,15 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
 
     public void handleLicenseUpload(String licenseName) throws SystemAuditException {
         ConfigChange configChange = buildConfigChange(ConfigChangeAction.ADDED,
-                ConfigChangeType.LICENSE_UPLOAD);
+                ConfigChangeType.LICENSE_UPLOAD.getName());
+        configChange.setDetails(licenseName);
         getConfigChangeContext().storeConfigChange(configChange);
     }
 
     public void handleServiceRestart(String serverName,
             List<String> serviceNameList) throws SystemAuditException {
         ConfigChange configChange = buildConfigChange(
-                ConfigChangeAction.SERVICE_RESTART, ConfigChangeType.SERVER);
+                ConfigChangeAction.SERVICE_RESTART, ConfigChangeType.SERVER.getName());
         configChange.setDetails(serverName);
         for (String serviceName : serviceNameList) {
             ConfigChangeValue configChangeValue = new ConfigChangeValue(
@@ -464,13 +447,8 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     }
 
     @Required
-    public void setRegionManager(RegionManager regionManager) {
-        m_regionManager = regionManager;
-    }
-
-    @Required
-    public void setPermissionManager(PermissionManager permissionManager) {
-        m_permissionManager = permissionManager;
+    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
+        m_modelFilesContext = modelFilesContext;
     }
 
 }

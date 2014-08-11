@@ -11,8 +11,12 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -32,6 +36,10 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 @ComponentClass
 public abstract class MyAssistantComponent extends BaseComponent {
+    private static final Log LOG = LogFactory.getLog(MyAssistantComponent.class);
+
+    private static final String FAILURE_MSG = "message.label.requestFailure";
+
     @Parameter(required = true)
     public abstract User getUser();
 
@@ -48,8 +56,8 @@ public abstract class MyAssistantComponent extends BaseComponent {
     public abstract SipxValidationDelegate getValidator();
 
     public abstract Setting getImNotificationSettings();
-    public abstract void setImNotificationSettings(Setting paSetting);
 
+    public abstract void setImNotificationSettings(Setting paSetting);
 
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
@@ -59,10 +67,17 @@ public abstract class MyAssistantComponent extends BaseComponent {
     }
 
     public void onEnablePA() {
-        if (getImBotManager().requestToAddMyAssistantToRoster(getUser().getName())) {
-            recordSuccess("message.requestSuccess");
-        } else {
-            recordFailure("message.label.requestFailure");
+        Future<Object> future = getImBotManager().requestToAddMyAssistantToRoster(getUser().getName());
+        try {
+            if ((Boolean) future.get(30, TimeUnit.SECONDS)) {
+                recordSuccess("message.requestSuccess");
+                LOG.debug("Request to Add My Assistant To Roster successfuly published");
+            } else {
+                recordFailure(FAILURE_MSG);
+                LOG.debug("Request to Add My Assistant To Roster failed to get published");
+            }
+        } catch (Exception e) {
+            recordFailure(FAILURE_MSG);
         }
     }
 

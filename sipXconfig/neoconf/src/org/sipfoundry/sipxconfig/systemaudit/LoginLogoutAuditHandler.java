@@ -47,7 +47,8 @@ public class LoginLogoutAuditHandler extends AbstractSystemAuditHandler {
 
     private void loginSuccess(InteractiveAuthenticationSuccessEvent loginSuccessEvent)
         throws SystemAuditException {
-        ConfigChange configChange = buildConfigChange(ConfigChangeAction.LOGIN, ConfigChangeType.LOGIN_LOGOUT);
+        ConfigChange configChange = buildConfigChange(ConfigChangeAction.LOGIN,
+                ConfigChangeType.LOGIN_LOGOUT.getName());
         configChange.setDetails(SUCCESS);
         getConfigChangeContext().storeConfigChange(configChange);
     }
@@ -56,7 +57,7 @@ public class LoginLogoutAuditHandler extends AbstractSystemAuditHandler {
         Authentication authentication = loginFailedEvent.getAuthentication();
         String userName = (String) authentication.getPrincipal();
         ConfigChange configChange = buildConfigChange(ConfigChangeAction.LOGIN,
-                ConfigChangeType.LOGIN_LOGOUT, userName, AbstractSystemAuditHandler.LOCALHOST);
+                ConfigChangeType.LOGIN_LOGOUT.getName(), userName, AbstractSystemAuditHandler.LOCALHOST);
         configChange.setDetails(FAILED);
         getConfigChangeContext().storeConfigChange(configChange);
     }
@@ -72,7 +73,7 @@ public class LoginLogoutAuditHandler extends AbstractSystemAuditHandler {
             Integer userId = Integer.parseInt(userIdString);
             User user = getCoreContext().getUser(userId);
             ConfigChange configChange = buildConfigChange(ConfigChangeAction.LOGOUT,
-                    ConfigChangeType.LOGIN_LOGOUT, user.getName(), AbstractSystemAuditHandler.LOCALHOST);
+                    ConfigChangeType.LOGIN_LOGOUT.getName(), user.getName(), AbstractSystemAuditHandler.LOCALHOST);
             configChange.setDetails(SUCCESS);
             getConfigChangeContext().storeConfigChange(configChange);
         }

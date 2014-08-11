@@ -31,7 +31,6 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
-    private String m_sendImUrl;
     private String m_mongoConfigFile;
     private String[] m_ivrNodes;
     private int m_jettyPort;
@@ -121,7 +120,6 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
             m_sipxchangeDomainName = props.getProperty(prop = "recording.sipxchangeDomainName");
             m_realm = props.getProperty(prop ="recording.realm");
             m_jettyPort = Integer.parseInt(props.getProperty(prop = "jetty.port"));
-            m_sendImUrl = props.getProperty(prop = "config.sendIMUrl");
             m_ivrNodes = split(props.getProperty(prop = "config.ivrNodes"));
             m_audioFormat = props.getProperty(prop = "audio.format");
         } catch (Exception e) {
@@ -165,10 +163,6 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
 
     public void setJettyPort(int jettyPort) {
         m_jettyPort = jettyPort;
-    }
-
-    public String getSendImUrl() {
-        return m_sendImUrl;
     }
 
     public String getMongoConfigFile() {

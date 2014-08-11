@@ -17,14 +17,16 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
+
 /**
  * Any beans that implement this interface will audited by ConfigChange
  * auditing.
  */
+
 public interface SystemAuditable {
 
     public String getEntityIdentifier();
 
-    public ConfigChangeType getConfigChangeType();
+    public String getConfigChangeType();
 
 }

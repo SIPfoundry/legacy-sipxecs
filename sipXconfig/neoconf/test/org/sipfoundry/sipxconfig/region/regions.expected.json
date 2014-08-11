@@ -1,12 +1,12 @@
 [ {
   "addresses" : [ "1.1.1.1", "1.1.2.0/24" ],
-  "configChangeType" : null,
+  "configChangeType" : "Region",
   "entityIdentifier" : "r1",
   "id" : -1,
   "name" : "r1"
 }, {
   "addresses" : null,
-  "configChangeType" : null,
+  "configChangeType" : "Region",
   "entityIdentifier" : "r2",
   "id" : -1,
   "name" : "r2"

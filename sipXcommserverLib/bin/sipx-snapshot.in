@@ -1058,6 +1058,12 @@ EOF
 	       -e 's|<password>[^<]*</password>|<password>ELIDED</password>|' \
 	      ${file}
        done
+       for file in `find $Work -name sipX_profile.xml`
+       do
+	 perl -pi \
+	       -e 's|<param name="password" value="[^<]*"/>|<param name="password" value="ELIDED"/>|;' \
+	      ${file}
+       done
        perl -pi @SIPX_LIBEXECDIR@/sipx-strip-db-secrets.pl ${ConfigDb}
      fi
 

@@ -73,7 +73,8 @@ sipx_config = \
   sipXsnom \
   sipXunidata \
   sipXgrandstream \
-  sipXaastra
+  sipXaastra \
+  sipXyealink
 
 # Language packs not required for a function communications system
 sipx_lang = \

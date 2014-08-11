@@ -73,23 +73,40 @@ public interface GatewayApi {
             @Description("Gateway id") @PathParam("gatewayId") String gatewayId,
             @Description("Gateway bean to save") GatewayBean gatewayBean);
 
-    @Path("{gatewayId}/model/{modelName}/settings")
+    @Path("{gatewayId}/{ruleId}")
+    @PUT
+    @Consumes({
+        MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
+    })
+    public Response addGatewayToRule(
+            @Description("Gateway id") @PathParam("gatewayId") String gatewayId,
+            @Description("ruleId id") @PathParam("ruleId") Integer ruleId);
+
+    @Path("{gatewayId}/{ruleId}")
+    @DELETE
+    @Consumes({
+        MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
+    })
+    public Response removeGatewayFromRule(
+            @Description("Gateway id") @PathParam("gatewayId") String gatewayId,
+            @Description("Rule id") @PathParam("ruleId") Integer ruleId);
+
+    @Path("{gatewayId}/settings")
     @GET
-    public Response getGatewayModelSettings(
+    public Response getGatewaySettings(
             @Description("Gateway id/serial number")
-            @PathParam("gatewayId") String gatewayId, @PathParam("modelName") String modelName,
+            @PathParam("gatewayId") String gatewayId,
             @Context HttpServletRequest request);
 
-    @Path("{gatewayId}/model/{modelName}/settings/{path:.*}")
+    @Path("{gatewayId}/settings/{path:.*}")
     @GET
     public Response getGatewaySetting(
             @Description("Gateway id or serial")
             @PathParam("gatewayId") String gatewayId,
-            @PathParam("modelName") String modelName,
             @Description("Path to Gateway setting") @PathParam("path") String path,
             @Context HttpServletRequest request);
 
-    @Path("{gatewayId}/model/{modelName}/settings/{path:.*}")
+    @Path("{gatewayId}/settings/{path:.*}")
     @PUT
     @Consumes({
         MediaType.TEXT_PLAIN
@@ -97,21 +114,29 @@ public interface GatewayApi {
     public Response setGatewaySetting(
             @Description("Gateway internal id or name")
             @PathParam("gatewayId") String gatewayId,
-            @PathParam("modelName") String modelName,
             @Description("Path to Gateway setting") @PathParam("path") String path, String value);
 
-    @Path("{groupId}/model/{modelName}/settings/{path:.*}")
+    @Path("{gatewayId}/settings/{path:.*}")
     @DELETE
     public Response deleteGatewaySetting(
             @Description("Gateway internal id or name")
             @PathParam("gatewayId") String gatewayId,
-            @PathParam("modelName") String modelName,
-            @Description("Path to Phone Group setting") @PathParam("path") String path);
+            @Description("Path to Gateway setting") @PathParam("path") String path);
 
     @Path("{gatewayId}/ports")
     @GET
     public Response getPorts(@Description("Gateway id")
         @PathParam("gatewayId") String gatewayId);
+
+    @Path("{gatewayId}/ports")
+    @POST
+    public Response addPort(@Description("Gateway id")
+        @PathParam("gatewayId") String gatewayId);
+
+    @Path("{gatewayId}/ports/{portId}")
+    @DELETE
+    public Response removePort(@Description("Gateway id")
+        @PathParam("gatewayId") String gatewayId, @PathParam("portId") Integer portId);
 
     @Path("{gatewayId}/ports/{portId}/settings")
     @GET

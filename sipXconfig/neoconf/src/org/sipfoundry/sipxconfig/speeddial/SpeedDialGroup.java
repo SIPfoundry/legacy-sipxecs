@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
@@ -53,7 +52,7 @@ public class SpeedDialGroup  extends SpeedDialButtons implements DeployConfigOnE
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.SPEED_DIAL_GROUP;
+    public String getConfigChangeType() {
+        return SpeedDialGroup.class.getSimpleName();
     }
 }

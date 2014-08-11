@@ -104,7 +104,9 @@ sipxconfig_neoconf_PKGS = \
 	jcl-over-slf4j \
 	spring-messaging \
     spring-websocket \
-    hazelcast-all
+    hazelcast-all \
+    reflections \
+    guava
 
 sipxconfig_web_PKGS = \
 	$(sipxconfig_neoconf_PKGS) \

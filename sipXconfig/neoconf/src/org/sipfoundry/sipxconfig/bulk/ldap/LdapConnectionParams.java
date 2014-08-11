@@ -27,12 +27,13 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CronSchedule;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 import org.springframework.ldap.core.support.LdapContextSource;
 
 /**
  * Used to store LDAP connections in the DB LdapConnectionParams
  */
-public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEdit {
+public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEdit, SystemAuditable {
     public static final String LDAP_TIMEOUT = "com.sun.jndi.ldap.connect.timeout";
     private static final int DEFAULT_PORT = 389;
     private static final int DEFAULT_SSL_PORT = 636;
@@ -176,5 +177,15 @@ public class LdapConnectionParams extends BeanWithId implements DeployConfigOnEd
         } else {
             m_host = fullHost;
         }
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return m_host;
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return LdapConnectionParams.class.getSimpleName();
     }
 }

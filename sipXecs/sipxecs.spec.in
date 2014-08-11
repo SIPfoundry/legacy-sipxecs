@@ -121,6 +121,7 @@ Requires: sipxnortel >= %version
 Requires: sipxopenfire >= %version
 Requires: sipxpage >= %version
 Requires: sipxpolycom >= %version
+Requires: sipxyealink >= %version
 Requires: sipxprovision >= %version
 Requires: sipxproxy >= %version
 Requires: sipxpublisher >= %version

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<YealinkIPPhoneDirectory>
+#foreach($row in $cfg.Rows)
+    <DirectoryEntry>
+	<Name>$!{row.LastName} $!{row.FirstName}</Name>
+	<Telephone>${row.Contact}</Telephone>
+</DirectoryEntry>
+#end
+</YealinkIPPhoneDirectory>

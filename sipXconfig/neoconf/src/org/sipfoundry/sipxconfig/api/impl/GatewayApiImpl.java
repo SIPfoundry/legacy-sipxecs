@@ -15,6 +15,7 @@
 package org.sipfoundry.sipxconfig.api.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -117,48 +118,47 @@ public class GatewayApiImpl implements GatewayApi {
     }
 
     @Override
-    public Response getGatewayModelSettings(String gatewayId, String modelName, HttpServletRequest request) {
-
-        GatewayModel gatewayModel = m_modelSource.getModel(modelName);
-
-        if (gatewayModel != null) {
-            Setting settings = m_gatewayContext.newGateway(gatewayModel).getSettings();
-            return Response.ok().entity(SettingsList.convertSettingsList(settings, request.getLocale())).build();
+    public Response getGatewaySettings(String gatewayId, HttpServletRequest request) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            Setting settings = gateway.getSettings();
+            if (settings != null) {
+                return Response.ok().entity(SettingsList.convertSettingsList(settings, request.getLocale())).build();
+            }
         }
         return Response.status(Status.NOT_FOUND).build();
     }
 
     @Override
-    public Response getGatewaySetting(String gatewayId, String modelName, String path, HttpServletRequest request) {
+    public Response getGatewaySetting(String gatewayId, String path, HttpServletRequest request) {
+        return ResponseUtils.buildSettingResponse(getGatewayByIdOrSerial(gatewayId), path, request.getLocale());
+    }
+
+    @Override
+    public Response setGatewaySetting(String gatewayId, String path, String value) {
         Gateway gateway = getGatewayByIdOrSerial(gatewayId);
         if (gateway != null) {
-            GatewayModel gatewayModel = m_modelSource.getModel(modelName);
-            Gateway phone = m_gatewayContext.newGateway(gatewayModel);
-            phone.setSettingValue(path, gateway.getSettingValue(path));
-            return ResponseUtils.buildSettingResponse(phone, path, request.getLocale());
+            Setting settings = gateway.getSettings();
+            if (settings != null) {
+                gateway.setSettingValue(path, value);
+                m_gatewayContext.saveGateway(gateway);
+                return Response.ok().build();
+            }
         }
         return Response.status(Status.NOT_FOUND).build();
     }
 
     @Override
-    public Response setGatewaySetting(String gatewayId, String modelName, String path, String value) {
+    public Response deleteGatewaySetting(String gatewayId, String path) {
         Gateway gateway = getGatewayByIdOrSerial(gatewayId);
         if (gateway != null) {
-            gateway.setSettingValue(path, value);
-            m_gatewayContext.saveGateway(gateway);
-            return Response.ok().build();
-        }
-        return Response.status(Status.NOT_FOUND).build();
-    }
-
-    @Override
-    public Response deleteGatewaySetting(String gatewayId, String modelName, String path) {
-        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
-        if (gateway != null) {
-            Setting setting = gateway.getSettings().getSetting(path);
-            setting.setValue(setting.getDefaultValue());
-            m_gatewayContext.saveGateway(gateway);
-            return Response.ok().build();
+            Setting settings = gateway.getSettings();
+            if (settings != null) {
+                Setting setting = settings.getSetting(path);
+                setting.setValue(setting.getDefaultValue());
+                m_gatewayContext.saveGateway(gateway);
+                return Response.ok().build();
+            }
         }
         return Response.status(Status.NOT_FOUND).build();
     }
@@ -171,6 +171,28 @@ public class GatewayApiImpl implements GatewayApi {
             return Response.ok().entity(FxoPortList.convertPortsList(ports)).build();
         }
         return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response addPort(String gatewayId) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            gateway.addPort(new FxoPort());
+            m_gatewayContext.saveGateway(gateway);
+            return Response.ok().build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response removePort(String gatewayId, Integer portId) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            m_gatewayContext.removePortsFromGateway(gateway.getId(), Collections.singleton(portId));
+            return Response.ok().build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+
     }
 
     @Override
@@ -239,6 +261,26 @@ public class GatewayApiImpl implements GatewayApi {
         return Response.status(Status.NOT_FOUND).build();
     }
 
+    @Override
+    public Response addGatewayToRule(String gatewayId, Integer ruleId) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            m_gatewayContext.addGatewaysToRule(ruleId, Collections.singleton(gateway.getId()));
+            return Response.ok().build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
+    @Override
+    public Response removeGatewayFromRule(String gatewayId, Integer ruleId) {
+        Gateway gateway = getGatewayByIdOrSerial(gatewayId);
+        if (gateway != null) {
+            m_gatewayContext.removeGatewaysFromRule(ruleId, Collections.singleton(gateway.getId()));
+            return Response.ok().build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
+    }
+
     private Gateway getGatewayByIdOrSerial(String id) {
         Gateway gateway = null;
         try {
@@ -265,9 +307,9 @@ public class GatewayApiImpl implements GatewayApi {
 
     private Branch getBranch(GatewayBean gatewayBean) {
         BranchBean branchBean = gatewayBean.getBranch();
-        String name = branchBean.getName();
         Branch branch = null;
         if (branchBean != null) {
+            String name = branchBean.getName();
             try {
                 branch =  m_branchManager.getBranch(name);
                 BranchBean.convertToBranch(gatewayBean.getBranch(), branch);

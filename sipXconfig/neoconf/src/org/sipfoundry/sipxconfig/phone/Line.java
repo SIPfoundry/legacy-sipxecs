@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class Line extends BeanWithGroups implements NamedObject, SystemAuditable {
@@ -199,8 +198,8 @@ public class Line extends BeanWithGroups implements NamedObject, SystemAuditable
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.LINE;
+    public String getConfigChangeType() {
+        return Line.class.getSimpleName();
     }
 
     public boolean isNotSpecialPhoneProvisionUserLine() {

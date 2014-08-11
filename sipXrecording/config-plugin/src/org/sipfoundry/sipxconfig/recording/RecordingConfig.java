@@ -31,7 +31,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -49,7 +48,6 @@ public class RecordingConfig implements ConfigProvider {
         if (locations.isEmpty()) {
             return;
         }
-        Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.REST_API);
         List<Address> ivrAddresses = manager.getAddressManager().getAddresses(Ivr.REST_API);
         for (Location location : locations) {
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE, location);
@@ -61,19 +59,16 @@ public class RecordingConfig implements ConfigProvider {
             File f = new File(dir, "sipxrecording.properties.part");
             Writer wtr = new FileWriter(f);
             try {
-                write(wtr, m_recording.getSettings(), imbotApi, ivrAddresses, m_ivr.getAudioFormat());
+                write(wtr, m_recording.getSettings(), ivrAddresses, m_ivr.getAudioFormat());
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
         }
     }
 
-    void write(Writer wtr, RecordingSettings settings, Address imbotApi, List<Address> ivrAddresses, String audioFormat) throws IOException {
+    void write(Writer wtr, RecordingSettings settings, List<Address> ivrAddresses, String audioFormat) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
-        if (imbotApi != null) {
-            config.write("config.sendIMUrl", imbotApi.toString());
-        }
         StringBuilder ivrAddressesStr = new StringBuilder();
         for (Address address : ivrAddresses) {
             ivrAddressesStr.

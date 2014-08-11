@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.dialplan.attendant.AutoAttendantSettings;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.im.ImManager;
-import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.restserver.RestServer;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -55,7 +54,6 @@ public class IvrConfigTest {
         m_adminApi = new Address(AdminContext.HTTP_ADDRESS, "admin.example.org", 102);
         m_apacheApi = new Address(ApacheManager.HTTPS_ADDRESS, "admin.example.org");
         m_imApi = new Address(ImManager.XMLRPC_ADDRESS, "im.example.org", 103);
-        m_imbotApi = new Address(ImBot.REST_API, "imbot.example.org", 104);
         m_fsEvent = new Address(FreeswitchFeature.EVENT_ADDRESS, "fsevent.example.org", 105);
         m_aaSettings = new AutoAttendantSettings();
         m_aaSettings.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -66,7 +64,7 @@ public class IvrConfigTest {
     public void testWriteWithOpenfireService() throws Exception {
         StringWriter actual = new StringWriter();
         m_config.write(actual, m_settings, m_domain, m_location, "192.168.0.1,192.168.0.2", 8100, m_restApi,
-                m_adminApi, m_apacheApi, m_imApi, m_imbotApi, m_fsEvent, m_aaSettings);
+                m_adminApi, m_apacheApi, m_imApi, m_fsEvent, m_aaSettings);
         String expected = IOUtils.toString(getClass().getResourceAsStream(
                 "expected-sipxivr-with-openfire.properties"));
         assertEquals(expected, actual.toString());
@@ -76,7 +74,7 @@ public class IvrConfigTest {
     public void testWriteWithoutOpenfireService() throws Exception {
         StringWriter actual = new StringWriter();
         m_config.write(actual, m_settings, m_domain, m_location, "192.168.0.1,192.168.0.2", 8100, m_restApi,
-                m_adminApi, m_apacheApi, null, null, m_fsEvent, m_aaSettings);
+                m_adminApi, m_apacheApi, null, m_fsEvent, m_aaSettings);
         String expected = IOUtils.toString(getClass().getResourceAsStream(
                 "expected-sipxivr-without-openfire.properties"));
         assertEquals(expected, actual.toString());

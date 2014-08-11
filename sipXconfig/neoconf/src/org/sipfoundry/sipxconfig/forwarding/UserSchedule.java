@@ -9,6 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.forwarding;
 
+
 public class UserSchedule extends Schedule {
+
+    @Override
+    public String getEntityIdentifier() {
+        return getUser().getEntityIdentifier();
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return getClass().getSimpleName();
+    }
 
 }

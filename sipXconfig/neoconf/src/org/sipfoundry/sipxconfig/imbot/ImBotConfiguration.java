@@ -92,7 +92,6 @@ public class ImBotConfiguration implements ConfigProvider {
         Address rest,
             Address imApi) throws IOException {
         LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
-        config.write("imbot.httpport", settings.getHttpPort());
         config.write("imbot.locale", settings.getLocale());
         config.write("imbot.paUserName", settings.getPersonalAssistantImId() + '@' + domain.getName());
         config.write("imbot.paPassword", settings.getPersonalAssistantImPassword());

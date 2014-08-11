@@ -1,0 +1,11 @@
+yealink_PKGS = \
+	log4j \
+	dom4j \
+	commons-lang \
+	commons-io \
+	commons-collections \
+	commons-logging \
+	spring-beans \
+	sipxcommons \
+	sipxconfig-neoconf \
+	velocity

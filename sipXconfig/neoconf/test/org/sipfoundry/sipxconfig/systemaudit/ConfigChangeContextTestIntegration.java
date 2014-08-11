@@ -35,7 +35,7 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
     public void testStoreConfigChange() throws SystemAuditException {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeAction(ConfigChangeAction.ADDED);
-        configChange.setConfigChangeType(ConfigChangeType.PHONE);
+        configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
 
         UserIpAddress userIpAddress = new UserIpAddress();
         userIpAddress.setIpAddress("localhost");
@@ -59,7 +59,7 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
     public void testUserIpAddressMissingUserName() {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeAction(ConfigChangeAction.ADDED);
-        configChange.setConfigChangeType(ConfigChangeType.PHONE);
+        configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
         UserIpAddress userIpAddress = new UserIpAddress();
         userIpAddress.setUserName("superadmin");
         configChange.setUserIpAddress(userIpAddress);
@@ -73,7 +73,7 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
 
     public void testUserIpAddressMissingIpAddress() {
         ConfigChange configChange = new ConfigChange();
-        configChange.setConfigChangeType(ConfigChangeType.PHONE);
+        configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
         UserIpAddress userIpAddress = new UserIpAddress();
         userIpAddress = new UserIpAddress();
         userIpAddress.setUserName("superadmin");
@@ -97,7 +97,7 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
         assertEquals("0004f2842306", configChange.getDetails());
         assertEquals(ConfigChangeAction.MODIFIED,
                 configChange.getConfigChangeAction());
-        assertEquals(ConfigChangeType.PHONE, configChange.getConfigChangeType());
+        assertEquals(ConfigChangeType.PHONE.getName(), configChange.getConfigChangeType());
         List<ConfigChangeValue> configChangeValues = configChange.getValues();
         assertEquals(1, configChangeValues.size());
         ConfigChangeValue configChangeValue = configChangeValues.get(0);

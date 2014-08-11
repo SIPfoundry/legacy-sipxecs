@@ -122,7 +122,7 @@ public class FeatureAuditHandler extends AbstractSystemAuditHandler {
                 boolean actualCondition = m_featureManager.isFeatureEnabled(locationFeature, location);
                 if (actualCondition == isFeatureEnabled) {
                     ConfigChange configChange = buildConfigChange(configChangeAction,
-                            ConfigChangeType.FEATURE);
+                            ConfigChangeType.FEATURE.getName());
                     configChange.setDetails(locationFeature.getId());
                     getConfigChangeContext().storeConfigChange(configChange);
                 }
@@ -142,7 +142,8 @@ public class FeatureAuditHandler extends AbstractSystemAuditHandler {
         for (GlobalFeature globalFeature : featureSet) {
             boolean actualCondition = m_featureManager.isFeatureEnabled(globalFeature);
             if (actualCondition == isFeatureEnabled) {
-                ConfigChange configChange = buildConfigChange(configChangeAction, ConfigChangeType.FEATURE);
+                ConfigChange configChange = buildConfigChange(configChangeAction,
+                       ConfigChangeType.FEATURE.getName());
                 if (configChange != null) {
                     configChange.setDetails(globalFeature.getId());
                     getConfigChangeContext().storeConfigChange(configChange);

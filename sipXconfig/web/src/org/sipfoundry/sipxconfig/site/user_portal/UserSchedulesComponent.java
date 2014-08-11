@@ -56,7 +56,7 @@ public abstract class UserSchedulesComponent extends BaseComponent implements Pa
     public IPage addSchedule(IRequestCycle cycle) {
         EditSchedule page = (EditSchedule) cycle.getPage(EditSchedule.PAGE);
         page.setUserId(getUser().getId());
-        page.newSchedule(USER_SCH_RESOURCE_ID, getPage().getPageName());
+        page.newSchedule(USER_SCH_RESOURCE_ID, null, getPage().getPageName());
         return page;
     }
 

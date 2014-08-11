@@ -1,0 +1,274 @@
+#set($serial = "$phone.SerialNumber")
+;; Erasing Line config
+#foreach($L in [1..$phone.MaxLineCount])
+#set ($i = $velocityCount - 1)
+[ cfg:/phone/config/voip/sipAccount${i}.cfg,account=${i};reboot=0 ]
+account.Enable = 0
+account.UserName =
+account.AuthName =
+account.DisplayName =
+account.Label =
+account.SIPServerHost =
+account.SIPServerPort = 5060
+account.SubsribeMWI = 0
+
+#end
+;; Erasing Remote Phonebooks
+[ cfg:/phone/config/user.ini,reboot=0 ]
+#foreach($RPB in [0..4])
+RemotePhoneBook${RPB}.Name =
+RemotePhoneBook${RPB}.URL =
+#end
+
+;; Erasing Built-in memory keys
+[ cfg:/phone/config/vpPhone/vpPhone.ini,reboot=0 ]
+#foreach($MK in [1..10])
+memory${MK}.DKtype = 0
+memory${MK}.Line =
+memory${MK}.Type =
+memory${MK}.Value =
+memory${MK}.Label =
+memory${MK}.PickupValue =
+
+#end
+;; Erasing Expansion panel keys
+#foreach($E in [1..6])
+[ cfg:/phone/config/vpPhone/Ext38_0000000000000${E}.cfg ]
+#foreach($EK in [0..3])
+#foreach($MK in [1..40])
+#set ($i = $EK*10 + $velocityCount - 1)
+Key${i}.DKtype = 0
+Key${i}.Line =
+Key${i}.Type =
+Key${i}.Value =
+Key${i}.Label =
+Key${i}.PickupValue =
+
+#end
+#end
+
+#end
+#foreach ($line in $phone.lines)
+#set ($i = $velocityCount - 1)
+[ cfg:/phone/config/voip/sipAccount${i}.cfg,account=${i};reboot=0 ]
+#foreach ($group in $line.Settings.Values)
+#if (${group.Name}=="account")
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="Label")
+#elseif (${setting.ProfileName}=="UserName")
+${group.Name}.Label = $!{setting.Value}
+#end
+${group.Name}.${setting.ProfileName} = $!{setting.Value}
+#end
+
+#end
+#if (${group.Name}=="audio")
+#foreach ($setting in $group.Values)
+#set ($a = $velocityCount - 1)
+#if (${setting.Value}==-1)
+${group.Name}${a}.enable = 0
+${group.Name}${a}.priority = $velocityCount
+#else
+${group.Name}${a}.enable = 1
+${group.Name}${a}.priority = $velocityCount
+${group.Name}${a}.rtpmap = ${setting.Value}
+#if(${setting.Value}==0)
+${group.Name}${a}.PayloadType = PCMU
+#elseif(${setting.Value}==2)
+${group.Name}${a}.PayloadType = G726-32
+#elseif(${setting.Value}==4)
+${group.Name}${a}.PayloadType = G723_63
+#elseif(${setting.Value}==8)
+${group.Name}${a}.PayloadType = PCMA
+#elseif(${setting.Value}==9)
+${group.Name}${a}.PayloadType = G722
+#elseif(${setting.Value}==18)
+${group.Name}${a}.PayloadType = G729
+#elseif(${setting.Value}==102)
+${group.Name}${a}.PayloadType = G726-24
+#elseif(${setting.Value}==112)
+${group.Name}${a}.PayloadType = G726-16
+#elseif(${setting.Value}==104)
+${group.Name}${a}.PayloadType = G726-40
+#end
+#end
+
+#end
+#end
+#if (${group.Name}=="Message")
+[ cfg:/phone/config/user.ini,reboot=1 ]
+#foreach ($setting in $group.Values)
+#set ($a = $velocityCount - 1)
+${group.Name}.${setting.ProfileName}${a} = $!{setting.Value}
+#end
+
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+#if (${group.Name}=="expansion-panels")
+#elseif(${group.name}=="AlertInfo")
+#foreach ($setting in $group.Values)
+#set ($parameter = ${setting.ProfileName.substring(0,1)})
+#if (${parameter}=="T")
+#set ($index = ${setting.ProfileName.substring(3)})
+[ cfg:/phone/config/user.ini,reboot=1 ]
+AlertInfo${index}.Text = $!{setting.Value}
+#elseif (${parameter}=="R")
+AlertInfo${index}.Ringer = $!{setting.Value}
+
+#end
+#end
+#elseif (${group.Name}=="firmware")
+[ rom:${group.Name} ]
+#foreach ($setting in $group.Values)
+${setting.ProfileName} = $!{setting.Value}
+#end
+
+#elseif (${group.Name}=="LangFile")
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="server_address")
+[ bin:/phone/config/UserLang/lang+English.txt,reboot=0 ]
+url = $!{setting.Value}
+#end
+#end
+#elseif (${group.Name}=="UserName")
+[ cfg:/phone/config/user.ini,reboot=0 ]
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="admin")
+${group.Name}.${setting.ProfileName} = Admin
+#end
+#if (${setting.ProfileName}=="user")
+${group.Name}.${setting.ProfileName} = User
+#end
+#if (${setting.ProfileName}=="var")
+${group.Name}.${setting.ProfileName} = Var
+#end
+#end
+
+[ psw:/phone/config/.htpasswd,reboot=0 ]
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="admin")
+Admin = $!{setting.Value}
+#end
+#if (${setting.ProfileName}=="user")
+User = $!{setting.Value}
+#end
+#if (${setting.ProfileName}=="var")
+Var = $!{setting.Value}
+#end
+#end
+#foreach ($setting in $group.Values)
+-${setting.ProfileName} =
+#end
+
+#elseif ((${group.Name} == "RemotePhoneBook"))
+#foreach ($subgroup in $group.Values)
+#foreach ($setting in $subgroup.Values)
+#if (${setting.ProfileName}=="path_")
+[ cfg:${setting.Value},reboot=0 ]
+#else
+${group.Name}${subgroup.Name}.${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif (
+ (${group.Name} == "network-wan")||
+ (${group.Name} == "network-lan")||
+ (${group.Name} == "network-advanced")||
+ (${group.Name} == "upgrade")||
+ (${group.Name} == "preference")||
+ (${group.Name} == "features")||
+ (${group.Name} == "FWD")||
+ (${group.Name} == "calling")||
+ (${group.Name} == "voice")||
+ (${group.Name} == "tones")||
+ (${group.Name} == "dialplan")||
+ (${group.Name} == "security")||
+ (${group.Name} == "programablekey")||
+ (${group.Name} == "memory")||
+ (${group.Name} == "broadsoft")
+ )
+#foreach ($subgroup in $group.Values)
+#if (${subgroup.Name}=="Time")
+#foreach ($setting in $subgroup.Values)
+#if (${setting.ProfileName}=="path_")
+[ cfg:${setting.Value},reboot=1 ]
+#else
+Local${subgroup.Name}.${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#elseif (${subgroup.Name} == "DialNow")
+[ bin:/phone/config/DialNow.xml,reboot=0]
+#foreach ($setting in $subgroup.Values)
+#if (${setting.ProfileName} == "URL")
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#else
+#foreach ($setting in $subgroup.Values)
+#if (${setting.ProfileName}=="path_")
+[ cfg:${setting.Value},reboot=1 ]
+#else
+${subgroup.Name}.${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+
+#end
+#elseif (${group.Name}=="LDAP")
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="path_")
+[ cfg:${setting.Value} ]
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#else
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="path_")
+[ cfg:${setting.Value},reboot=1 ]
+#else
+#if(${group.name}=="Webserver_Type")
+#set ($GroupName = "Webserver Type")
+#elseif(${group.name}=="Tone_Param")
+#set ($GroupName = "Tone Param")
+#elseif(${group.name}=="Forward_International")
+#set ($GroupName = "Forward International")
+#else
+#set ($GroupName = ${group.Name})
+#end
+${GroupName}.${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#end
+#end
+
+#foreach ($button in $cfg.SpeedDial)
+#set ($i = $velocityCount - 0)
+#if (${i}<11)
+[ cfg:/phone/config/vpPhone/vpPhone.ini,reboot=1 ]
+memory${i}.DKtype = 16
+memory${i}.Line = 0
+memory${i}.Type = blf
+memory${i}.Value = $button.Number
+memory${i}.Label = $button.Label
+memory${i}.PickupValue = $phone.DirectedCallPickupString$button.Number
+#else
+#set ($e = $i / 10)
+#set ($k = $i - $e * 10 - 1)
+[ cfg:/phone/config/vpPhone/Ext38_0000000000000${e}.cfg ]
+Key${k}.DKtype = 16
+Key${k}.Line = 0
+Key${k}.Type = blf
+Key${k}.Value = $button.Number
+Key${k}.Label = $button.Label
+Key${k}.PickupValue = $phone.DirectedCallPickupString$button.Number
+#end
+
+#end

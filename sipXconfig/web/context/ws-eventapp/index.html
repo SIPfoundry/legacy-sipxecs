@@ -5,7 +5,8 @@
     <script src="resources/sockjs-0.3.4.js"></script>
     <script src="resources/stomp.js"></script>
     <script type="text/javascript">
-        var stompClient = null;
+        var stompClientAdmin = null;
+        var stompClientUser = null;
 
         function setConnected(connected) {
             document.getElementById('connect').disabled = connected;
@@ -15,22 +16,34 @@
         }
 
         function connect() {
-            var socket = new SockJS('/sipxconfig/api/ws/event');
-            stompClient = Stomp.over(socket);
-            stompClient.connect({}, function(frame) {
+            var socketAdmin = new SockJS('/sipxconfig/api/ws/event');
+            stompClientAdmin = Stomp.over(socketAdmin);
+            stompClientAdmin.connect({}, function(frame) {
                 setConnected(true);
                 console.log('Connected: ' + frame);
-                stompClient.subscribe('/topic/store-phone', function(phone){
+                stompClientAdmin.subscribe('/topic/store-phone', function(phone){
                     showEvent('PHONE ** Serial: ' + JSON.parse(phone.body).serialNo + ' Model: ' + JSON.parse(phone.body).model.label);
                 });
-                stompClient.subscribe('/user/topic/receive-vm', function(voicemail){
-                    showEvent('VOICEMAIL ** Message: ' + JSON.parse(voicemail.body).description);
-                });                
             });
+
+            var socketUser = new SockJS('/sipxconfig/api/my/ws/event');
+            stompClientUser = Stomp.over(socketUser);
+            stompClientUser.connect({}, function(frame) {
+                setConnected(true);
+                console.log('Connected: ' + frame);
+                stompClientUser.subscribe('/user/topic/receive-vm', function(voicemail){
+                    showEvent('VOICEMAIL ** Message: ' + JSON.parse(voicemail.body).description);
+                });
+                stompClientUser.subscribe('/user/topic/conference', function(voicemail){
+                    showEvent('CONFERENCE ** Message: ' + JSON.parse(voicemail.body).description);
+                });
+            });
+            
         }
 
         function disconnect() {
-            stompClient.disconnect();
+            stompClientAdmin.disconnect();
+            stompClientUser.disconnect();
             setConnected(false);
             console.log("Disconnected");
         }        

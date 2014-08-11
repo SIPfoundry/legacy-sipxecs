@@ -11,6 +11,8 @@ package org.sipfoundry.conference;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.confdb.Conference;
@@ -18,9 +20,10 @@ import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.freeswitch.ConferenceMember;
 import org.sipfoundry.commons.freeswitch.ConferenceTask;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
+import org.sipfoundry.commons.hz.HzConfEvent;
+import org.sipfoundry.commons.hz.HzConstants;
+import org.sipfoundry.commons.hz.HzPublisherTask;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.util.IMSender;
-import org.sipfoundry.commons.util.IMSender.HttpResult;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.sipxrecording.RecordCommand;
 import org.sipfoundry.sipxrecording.RecordingConfiguration;
@@ -37,6 +40,8 @@ public class ConfRecordThread extends ConfBasicThread {
     private static final String PARTICIPANT_LEFT = "left your conference at";
 
     private ConferenceContextImpl m_conferenceContext;
+
+    private ExecutorService m_executorService = Executors.newSingleThreadExecutor();
 
     public ConfRecordThread(RecordingConfiguration recordingConfig) {
         // Check that the freeswitch initial recording directory exists
@@ -103,19 +108,15 @@ public class ConfRecordThread extends ConfBasicThread {
     @Override
     public void ProcessConfUserAdd(ConferenceTask conf, ConferenceMember member) {
         User owner = conf.getOwner();
-        String sendIMUrl = m_conferenceContext.getSendIMUrl();
-
         if(owner != null && owner.getConfEntryIM()) {
             Date date = new Date();
             String instantMsg = member.memberName() + " (" + member.memberNumber() + ") " +
                 PARTICIPANT_ENTERED + " [" + member.memberIndex() + "] at " + date.toString();
             try {
                 if (owner.getConfEntryIM()) {
-                    HttpResult result = IMSender.sendConfEntryIM(owner, instantMsg, sendIMUrl);
-                    if (!result.isSuccess()) {
-                        LOG.error("User conference enter::sendIM Trouble with RemoteRequest: "
-                            + result.getResponse(), result.getException());
-                    }
+                    m_executorService.submit(new HzPublisherTask(
+                        new HzConfEvent(member.memberNumber(), owner.getUserName(), instantMsg, HzConfEvent.ConfType.ENTER_CONFERENCE),
+                        HzConstants.CONF_TOPIC));
                 }
             } catch (Exception ex) {
                 LOG.error("User conference enter::sendIM failed", ex);
@@ -126,7 +127,6 @@ public class ConfRecordThread extends ConfBasicThread {
     public void ProcessConfUserDel(ConferenceTask conf, ConferenceMember member) {
 
         User owner = conf.getOwner();
-        String sendIMUrl = m_conferenceContext.getSendIMUrl();
 
         if(owner != null && owner.getConfExitIM()) {
             Date date = new Date();
@@ -134,10 +134,10 @@ public class ConfRecordThread extends ConfBasicThread {
                 PARTICIPANT_LEFT + " " + date.toString();
             try {
                 if (owner.getConfExitIM()) {
-                    HttpResult result = IMSender.sendConfExitIM(owner, instantMsg, sendIMUrl);
-                    if (!result.isSuccess()) {
-                        LOG.error("User conference exit::sendIM Trouble with RemoteRequest: "
-                            + result.getResponse(), result.getException());
+                    if (owner.getConfEntryIM()) {
+                        m_executorService.submit(new HzPublisherTask(
+                            new HzConfEvent(member.memberNumber(), owner.getUserName(), instantMsg, HzConfEvent.ConfType.EXIT_CONFERENCE),
+                            HzConstants.CONF_TOPIC));
                     }
                 }
             } catch (Exception ex) {

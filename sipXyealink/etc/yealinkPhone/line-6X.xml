@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd"
+    [<!ENTITY types SYSTEM "types.xml">]>
+<model>
+&types;
+    <group name="account">
+	<setting name="Enable" hidden="yes"><type><boolean /></type><value>1</value></setting>
+	<setting name="Label" if="yealinkPhoneSIPT2[20268].*|yealinkPhoneSIPT3.*"/>
+	<setting name="DisplayName"/>
+	<setting name="AuthName"/>
+	<setting name="UserName"/>
+	<setting name="password"/>
+	<setting name="SIPServerHost"><type><hostname /></type></setting>
+	<setting name="SIPServerPort"><type><integer /></type></setting>
+	<setting name="UseOutboundProxy" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="OutboundHost" advanced="yes"><type><ipaddr/></type></setting>
+	<setting name="OutboundPort" advanced="yes"><type><integer /></type></setting>
+	<setting name="Transport" advanced="yes"><type refid="SIPTransport_type"/><value>3</value></setting>
+	<setting name="BackOutboundHost" advanced="yes"><type><ipaddr/></type></setting>
+	<setting name="BackOutboundPort" advanced="yes"><type><integer /></type></setting>
+	<setting name="proxy-require" advanced="yes"/>
+	<setting name="AnonymousCall" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="RejectAnonymousCall" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="Expire" advanced="yes"><type><integer /></type><value>3600</value></setting>
+	<setting name="SIPListenPort" advanced="yes"><type><integer /></type></setting>
+	<setting name="Enable 100Rel" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="precondition" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="SubscribeRegister" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="SubsribeMWI" advanced="yes"><type><boolean /></type><value>1</value></setting>
+	<setting name="CIDSource" advanced="yes"><type refid="CIDSource_type"/><value>0</value></setting>
+	<setting name="EnableSessionTimer" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="SessionExpires" advanced="yes"/>
+	<setting name="SessionRefresher" advanced="yes"><type refid="SessionRefresher_type"/><value>0</value></setting>
+	<setting name="EnableUserEqualPhone" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="srtp_encryption" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="ptime" advanced="yes"><type refid="ptime_type"/><value>20</value></setting>
+	<setting name="ShareLine" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="dialoginfo_callpickup" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="AutoAnswer" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="MissedCallLog" advanced="yes"><type><boolean /></type><value>1</value></setting>
+	<setting name="AnonymousCall_OnCode" advanced="yes" />
+	<setting name="AnonymousCall_OffCode" advanced="yes" />
+	<setting name="AnonymousReject_OnCode" advanced="yes" />
+	<setting name="AnonymousReject_OffCode" advanced="yes" />
+	<setting name="BLANumber" advanced="yes" />
+	<setting name="BLASubscribePeriod" advanced="yes"><type><integer /></type><value>300</value></setting>
+	<setting name="SubscribeMWIExpire" advanced="yes"><type><integer /></type><value>3600</value></setting>
+	<setting name="RegisterMAC" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="RegisterLine" advanced="yes"><type><boolean /></type><value>0</value></setting>
+	<setting name="RegFailRetryInterval" advanced="yes"><type><integer /></type><value>30</value></setting>
+	<setting name="conf-type" advanced="yes"><type refid="Conference_type"/><value>0</value></setting>
+	<setting name="conf-uri" advanced="yes" />
+	<setting name="BlfListCode" advanced="yes" hidden="yes"/>
+	<!-- Used only with BroadSoft -->
+	<setting name="SubscribeACDExpire" advanced="yes"><type><integer /></type><value>3600</value></setting>
+	<!-- Should not be set to 1 since not supported in sipXecs 4.4.x -->
+	<setting name="SubscribeMWIToVM" advanced="yes" hidden="yes"><type><boolean /></type><value>0</value></setting>
+
+	<setting name="IdleScreenEnable" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>0</value></setting>
+	<setting name="IdleScreenURL" if="yealinkPhoneSIPT3.*"></setting>
+	<setting name="SIPServerType" advanced="yes"><type refid="SIPServer_type"/></setting>
+	<!-- Used only with BroadSoft -->
+	<setting name="BlfListBargeInCode" advanced="yes" hidden="yes"/>
+	<setting name="MusicServerUri" advanced="yes"/>
+    </group>
+    <group name="DTMF">
+	<setting name="DTMFInbandTransfer"><type refid="DTMFInbandTransfer_type"/><value>1</value></setting>
+	<setting name="InfoType"><type refid="InfoType_type"/><value>0</value></setting>
+	<setting name="DTMFPayload"><type><interger /></type><value>101</value></setting>
+    </group>
+    <group name="NAT">
+	<setting name="NATTraversal"><type><boolean /></type><value>0</value></setting>
+	<setting name="STUNServer" />
+	<setting name="STUNPort"><type><interger /></type><value>3478</value></setting>
+	<setting name="EnableUDPUpdate"><type><boolean /></type><value>1</value></setting>
+	<setting name="UDPUpdateTime"><type><interger /></type><value>30</value></setting>
+	<setting name="rport"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="ADVANCED">
+	<setting name="default_t1"><value>0.5</value></setting>
+	<setting name="default_t2"><value>4</value></setting>
+	<setting name="default_t3"><value>5</value></setting>
+    </group>
+    <group name="RingTone">
+	<setting name="RingType"><type refid="yealink_ring_type"/><value>Ring1.wav</value></setting>
+    </group>
+    <!-- Used only with BroadSoft -->
+    <group name="blf" hidden="yes">
+	<settings name="SubscribePeriod"><type><interger /></type><value>1800</value></settings>
+	<setting name="BLFList_URI" />
+    </group>
+    <group name="audio">
+	<setting name="0"><type refid="yealink-codec_type"/><value>9</value></setting>
+	<setting name="1"><type refid="yealink-codec_type"/><value>8</value></setting>
+	<setting name="2"><type refid="yealink-codec_type"/><value>18</value></setting>
+	<setting name="3"><type refid="yealink-codec_type"/><value>0</value></setting>
+	<setting name="4"><type refid="yealink-codec_type"/><value>4</value></setting>
+	<setting name="5"><type refid="yealink-codec_type"/><value>112</value></setting>
+	<setting name="6"><type refid="yealink-codec_type"/><value>102</value></setting>
+	<setting name="7"><type refid="yealink-codec_type"/><value>2</value></setting>
+	<setting name="8"><type refid="yealink-codec_type"/><value>104</value></setting>
+    </group>
+    <group name="Message">
+	<setting name="VoiceNumber"/>
+    </group>
+</model>

@@ -9,8 +9,11 @@ imbot_PKGS = \
 	commons-httpclient \
 	commons-lang \
 	commons-logging \
-	jetty \
 	javax.servlet \
 	mongo \
 	xmlrpc-client \
-	ws-commons-util
+	ws-commons-util \
+	jcl-over-slf4j \
+	slf4j-api \
+	slf4j-log4j12 \
+	hazelcast-all

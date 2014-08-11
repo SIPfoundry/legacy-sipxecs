@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.vm.attendant;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class PersonalAttendant extends BeanWithId implements SystemAuditable {
@@ -70,7 +69,7 @@ public class PersonalAttendant extends BeanWithId implements SystemAuditable {
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.PERSONAL_ATTENDANT;
+    public String getConfigChangeType() {
+        return PersonalAttendant.class.getSimpleName();
     }
 }

@@ -1,0 +1,750 @@
+<type id="yealink_multi_line_type"><multi-enum/></type>
+<type id="yealink_line_type"><enum/></type>
+<type id="syslog-mode_type">
+    <enum>
+        <option><value>1</value></option>
+        <option><value>2</value></option>
+    </enum>
+</type>
+<type id="cp-source_type">
+    <enum>
+        <option><value>0</value></option>
+        <option><value>1</value></option>
+        <option><value>2</value></option>
+    </enum>
+</type>
+<!-- empty enum for SettingsVisitor -->
+<type id="phonebook_type"><enum/></type>
+<type id="XMLPB_type">
+    <enum>
+	<option>0</option>
+	<option>1</option>
+	<option>2</option>
+	<option>3</option>
+	<option>4</option>
+    </enum>
+</type>
+<type id="ringer_type">
+    <enum>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+	<option><value>5</value></option>
+	<option><value>6</value></option>
+	<option><value>7</value></option>
+	<option><value>8</value></option>
+    </enum>
+</type>
+<type id="pc_port_mode_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="ToneCountry_type">
+    <enum>
+	<option><value>Custom</value></option>
+	<option><value>Australia</value></option>
+	<option><value>Austria</value></option>
+	<option><value>Brazil</value></option>
+	<option><value>Belgium</value></option>
+	<option><value>China</value></option>
+	<option><value>Czech</value></option>
+	<option><value>Denmark</value></option>
+	<option><value>Finland</value></option>
+	<option><value>France</value></option>
+	<option><value>Germany</value></option>
+	<option><value>Great Britain</value></option>
+	<option><value>Greece</value></option>
+	<option><value>Hungary</value></option>
+	<option><value>Lithuania</value></option>
+	<option><value>India</value></option>
+	<option><value>Italy</value></option>
+	<option><value>Japan</value></option>
+	<option><value>Mexico</value></option>
+	<option><value>New Zealand</value></option>
+	<option><value>Netherlands</value></option>
+	<option><value>Norway</value></option>
+	<option><value>Portugal</value></option>
+	<option><value>Spain</value></option>
+	<option><value>Switzerland</value></option>
+	<option><value>Sweden</value></option>
+	<option><value>Russia</value></option>
+	<option><value>United States</value></option>
+	<option><value>Chile</value></option>
+	<option><value>Czech ETSI</value></option>
+    </enum>
+</type>
+<type id="SIPCodes_type">
+    <enum>
+	<option><value>404</value></option>
+	<option><value>480</value></option>
+	<option><value>486</value></option>
+    </enum>
+</type>
+<type id="RingerDevice_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+    </enum>
+</type>
+<type id="yealink_busy_tone_delay_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>3</value></option>
+	<option><value>5</value></option>
+    </enum>
+</type>
+<type id="yealink_dtmf_repetition_type">
+    <enum>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+    </enum>
+</type>
+<type id="yealink_ldap_version_type">
+    <enum>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+    </enum>
+</type>
+<type id="DSSKeyType_6X_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>2</value></option>
+	<option><value>5</value></option>
+	<option><value>6</value></option>
+	<option><value>7</value></option>
+	<option><value>8</value></option>
+	<option><value>9</value></option>
+	<option><value>13</value></option>
+	<option><value>22</value></option>
+	<option><value>28</value></option>
+	<option><value>29</value></option>
+	<option><value>30</value></option>
+	<option><value>31</value></option>
+	<option><value>32</value></option>
+	<option><value>33</value></option>
+	<option><value>39</value></option>
+	<option><value>43</value></option>
+	<option><value>44</value></option>
+	<option><value>45</value></option>
+	<option><value>46</value></option>
+	<option><value>47</value></option>
+    </enum>
+</type>
+<type id="jb_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="DSSKeyDealType_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+    </enum>
+</type>
+<type id="syslog_level_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+	<option><value>5</value></option>
+	<option><value>6</value></option>
+    </enum>
+</type>
+<type id="Mode802_1x_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+    </enum>
+</type>
+<type id="Mode802_1x-W52_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="SharedLine_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+    </enum>
+</type>
+<type id="CertOption_type">
+    <enum>
+	<option><label>Delete</label><value>delete</value></option>
+	<option><label>Delete All</label><value>delete_all</value></option>
+    </enum>
+</type>
+<type id="yealink_ring_type">
+    <enum>
+	<option><label>Ring1.wav</label><value>Ring1.wav</value></option>
+	<option><label>Ring2.wav</label><value>Ring2.wav</value></option>
+	<option><label>Ring3.wav</label><value>Ring3.wav</value></option>
+	<option><label>Ring4.wav</label><value>Ring4.wav</value></option>
+	<option><label>Ring5.wav</label><value>Ring5.wav</value></option>
+	<option><label>Ring6.wav</label><value>Ring6.wav</value></option>
+	<option><label>Ring7.wav</label><value>Ring7.wav</value></option>
+	<option><label>Ring8.wav</label><value>Ring8.wav</value></option>
+    </enum>
+</type>
+<type id="InfoType_type">
+    <enum>
+	<option><label>Disabled</label><value>0</value></option>
+	<option><label>DTMF-Relay</label><value>1</value></option>
+	<option><label>DTMF</label><value>2</value></option>
+	<option><label>Telephone-Event</label><value>3</value></option>
+    </enum>
+</type>
+<type id="DTMFInbandTransfer_type">
+    <enum>
+	<option><label>INBAND</label><value>0</value></option>
+	<option><label>RFC2833</label><value>1</value></option>
+	<option><label>SIP INFO</label><value>2</value></option>
+    </enum>
+</type>
+<type id="Conference_type">
+    <enum>
+	<option><label>Local</label><value>0</value></option>
+	<option><label>Network</label><value>2</value></option>
+    </enum>
+</type>
+<type id="ptime_type">
+    <enum>
+	<option><label>Disabled</label><value>0</value></option>
+	<option><label>10 ms</label><value>10</value></option>
+	<option><label>20 ms</label><value>20</value></option>
+	<option><label>30 ms</label><value>30</value></option>
+	<option><label>40 ms</label><value>40</value></option>
+	<option><label>50 ms</label><value>50</value></option>
+	<option><label>60 ms</label><value>60</value></option>
+    </enum>
+</type>
+<type id="SessionRefresher_type">
+    <enum>
+	<option><label>UAC</label><value>0</value></option>
+	<option><label>UAS</label><value>1</value></option>
+    </enum>
+</type>
+<type id="CIDSource_type">
+    <enum>
+	<option><label>FROM</label><value>0</value></option>
+	<option><label>PAI</label><value>1</value></option>
+	<option><label>PAI-FROM</label><value>2</value></option>
+	<option><label>RPID-PAI-FROM</label><value>3</value></option>
+	<option><label>PAI-RPID-FROM</label><value>4</value></option>
+	<option><label>RPID-FROM</label><value>5</value></option>
+    </enum>
+</type>
+<type id="firmware_server_type">
+    <enum>
+	<option><label>TFTP</label><value>tftp</value></option>
+	<option><label>HTTP</label><value>http</value></option>
+	<option><label>HTTPS</label><value>https</value></option>
+    </enum>
+</type>
+<type id="http_version_type">
+    <enum>
+	<option><label>1.0</label><value>1.0</value></option>
+	<option><label>1.1</label><value>1.1</value></option>
+    </enum>
+</type>
+<type id="web_server_type">
+    <enum>
+	<option><label>Disabled</label><value>0</value></option>
+	<option><label>HTTP &amp; HTTPS</label><value>1</value></option>
+	<option><label>HTTP</label><value>2</value></option>
+	<option><label>HTTPS</label><value>3</value></option>
+    </enum>
+</type>
+<type id="LCDLogo_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+    </enum>
+</type>
+<type id="custom_option_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="autop_mode_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>4</value></option>
+	<option><value>5</value></option>
+	<option><value>6</value></option>
+	<option><value>7</value></option>
+    </enum>
+</type>
+<type id="WANAddress_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+    </enum>
+</type>
+<type id="LANMode_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="PortLink_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+    </enum>
+</type>
+<type id="SIPTransport_type">
+    <enum>
+	<option><label>UDP</label><value>0</value></option>
+	<option><label>TCP</label><value>1</value></option>
+	<option><label>TLS</label><value>2</value></option>
+	<option><label>DNS SRV</label><value>3</value></option>
+    </enum>
+</type>
+<type id="SRV_type">
+    <enum>
+	<option><label>UDP,TCP,TLS</label><value>0</value></option>
+	<option><label>UDP</label><value>1</value></option>
+	<option><label>TCP</label><value>2</value></option>
+	<option><label>TLS</label><value>3</value></option>
+    </enum>
+</type>
+<type id="SIPServer_type">
+     <enum>
+	<option><value>0</value></option>
+	<option><value>2</value></option>
+	<option><value>4</value></option>
+    </enum>
+</type>
+<type id="DTMF-types">
+    <enum>
+	<option><value>0</value></option>
+	<option><label>DTMF-Relay</label><value>1</value></option>
+	<option><label>DTMF</label><value>2</value></option>
+	<option><label>Telephone-Event</label><value>3</value></option>
+    </enum>
+</type>
+<type id="DTMF-modes">
+    <enum>
+	<option><value>0</value></option>
+	<option><label>RFC2833</label><value>1</value></option>
+	<option><label>SIP INFO</label><value>2</value></option>
+    </enum>
+</type>
+<type id="yealink-languages_type">
+    <enum>
+	<option><value>English</value></option>
+	<option><value>Russian</value></option>
+	<option><value>Deutsch</value></option>
+	<option><value>French</value></option>
+	<option><value>Italian</value></option>
+	<option><value>Portuguese</value></option>
+	<option><value>Spanish</value></option>
+	<option><value>Turkish</value></option>
+	<option><value>Chinese_S</value></option>
+    </enum>
+</type>
+<type id="yealink-month">
+    <enum>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+	<option><value>5</value></option>
+	<option><value>6</value></option>
+	<option><value>7</value></option>
+	<option><value>8</value></option>
+	<option><value>9</value></option>
+	<option><value>10</value></option>
+	<option><value>11</value></option>
+	<option><value>12</value></option>
+    </enum>
+</type>
+<type id="yealink-hour">
+    <enum>
+	<option><label>0</label><value>0</value></option>
+	<option><label>1</label><value>1</value></option>
+	<option><label>2</label><value>2</value></option>
+	<option><label>3</label><value>3</value></option>
+	<option><label>4</label><value>4</value></option>
+	<option><label>5</label><value>5</value></option>
+	<option><label>6</label><value>6</value></option>
+	<option><label>7</label><value>7</value></option>
+	<option><label>8</label><value>8</value></option>
+	<option><label>9</label><value>9</value></option>
+	<option><label>10</label><value>10</value></option>
+	<option><label>11</label><value>11</value></option>
+	<option><label>12</label><value>12</value></option>
+	<option><label>13</label><value>13</value></option>
+	<option><label>14</label><value>14</value></option>
+	<option><label>15</label><value>15</value></option>
+	<option><label>16</label><value>16</value></option>
+	<option><label>17</label><value>17</value></option>
+	<option><label>18</label><value>18</value></option>
+	<option><label>19</label><value>19</value></option>
+	<option><label>20</label><value>20</value></option>
+	<option><label>21</label><value>21</value></option>
+	<option><label>22</label><value>22</value></option>
+	<option><label>23</label><value>23</value></option>
+	<option><label>24</label><value>24</value></option>
+    </enum>
+</type>
+<type id="yealink-minute">
+    <enum>
+	<option><label>0</label><value>0</value></option>
+	<option><label>1</label><value>1</value></option>
+	<option><label>2</label><value>2</value></option>
+	<option><label>3</label><value>3</value></option>
+	<option><label>4</label><value>4</value></option>
+	<option><label>5</label><value>5</value></option>
+	<option><label>6</label><value>6</value></option>
+	<option><label>7</label><value>7</value></option>
+	<option><label>8</label><value>8</value></option>
+	<option><label>9</label><value>9</value></option>
+	<option><label>10</label><value>10</value></option>
+	<option><label>11</label><value>11</value></option>
+	<option><label>12</label><value>12</value></option>
+	<option><label>13</label><value>13</value></option>
+	<option><label>14</label><value>14</value></option>
+	<option><label>15</label><value>15</value></option>
+	<option><label>16</label><value>16</value></option>
+	<option><label>17</label><value>17</value></option>
+	<option><label>18</label><value>18</value></option>
+	<option><label>19</label><value>19</value></option>
+	<option><label>20</label><value>20</value></option>
+	<option><label>21</label><value>21</value></option>
+	<option><label>22</label><value>22</value></option>
+	<option><label>23</label><value>23</value></option>
+	<option><label>24</label><value>24</value></option>
+	<option><label>25</label><value>25</value></option>
+	<option><label>26</label><value>26</value></option>
+	<option><label>27</label><value>27</value></option>
+	<option><label>28</label><value>28</value></option>
+	<option><label>29</label><value>29</value></option>
+	<option><label>30</label><value>30</value></option>
+	<option><label>31</label><value>31</value></option>
+	<option><label>32</label><value>32</value></option>
+	<option><label>33</label><value>33</value></option>
+	<option><label>34</label><value>34</value></option>
+	<option><label>35</label><value>35</value></option>
+	<option><label>36</label><value>36</value></option>
+	<option><label>37</label><value>37</value></option>
+	<option><label>38</label><value>38</value></option>
+	<option><label>39</label><value>39</value></option>
+	<option><label>40</label><value>40</value></option>
+	<option><label>41</label><value>41</value></option>
+	<option><label>42</label><value>42</value></option>
+	<option><label>43</label><value>43</value></option>
+	<option><label>44</label><value>44</value></option>
+	<option><label>45</label><value>45</value></option>
+	<option><label>46</label><value>46</value></option>
+	<option><label>47</label><value>47</value></option>
+	<option><label>48</label><value>48</value></option>
+	<option><label>49</label><value>49</value></option>
+	<option><label>50</label><value>50</value></option>
+	<option><label>51</label><value>51</value></option>
+	<option><label>52</label><value>52</value></option>
+	<option><label>53</label><value>53</value></option>
+	<option><label>54</label><value>54</value></option>
+	<option><label>55</label><value>55</value></option>
+	<option><label>56</label><value>56</value></option>
+	<option><label>57</label><value>57</value></option>
+	<option><label>58</label><value>58</value></option>
+	<option><label>59</label><value>59</value></option>
+    </enum>
+</type>
+<type id="yealink-second">
+    <enum>
+	<option><label>0</label><value>0</value></option>
+	<option><label>1</label><value>1</value></option>
+	<option><label>2</label><value>2</value></option>
+	<option><label>3</label><value>3</value></option>
+	<option><label>4</label><value>4</value></option>
+	<option><label>5</label><value>5</value></option>
+	<option><label>6</label><value>6</value></option>
+	<option><label>7</label><value>7</value></option>
+	<option><label>8</label><value>8</value></option>
+	<option><label>9</label><value>9</value></option>
+	<option><label>10</label><value>10</value></option>
+	<option><label>11</label><value>11</value></option>
+	<option><label>12</label><value>12</value></option>
+	<option><label>13</label><value>13</value></option>
+	<option><label>14</label><value>14</value></option>
+	<option><label>15</label><value>15</value></option>
+	<option><label>16</label><value>16</value></option>
+	<option><label>17</label><value>17</value></option>
+	<option><label>18</label><value>18</value></option>
+	<option><label>19</label><value>19</value></option>
+	<option><label>20</label><value>20</value></option>
+	<option><label>21</label><value>21</value></option>
+	<option><label>22</label><value>22</value></option>
+	<option><label>23</label><value>23</value></option>
+	<option><label>24</label><value>24</value></option>
+	<option><label>25</label><value>25</value></option>
+	<option><label>26</label><value>26</value></option>
+	<option><label>27</label><value>27</value></option>
+	<option><label>28</label><value>28</value></option>
+	<option><label>29</label><value>29</value></option>
+	<option><label>30</label><value>30</value></option>
+	<option><label>31</label><value>31</value></option>
+	<option><label>32</label><value>32</value></option>
+	<option><label>33</label><value>33</value></option>
+	<option><label>34</label><value>34</value></option>
+	<option><label>35</label><value>35</value></option>
+	<option><label>36</label><value>36</value></option>
+	<option><label>37</label><value>37</value></option>
+	<option><label>38</label><value>38</value></option>
+	<option><label>39</label><value>39</value></option>
+	<option><label>40</label><value>40</value></option>
+	<option><label>41</label><value>41</value></option>
+	<option><label>42</label><value>42</value></option>
+	<option><label>43</label><value>43</value></option>
+	<option><label>44</label><value>44</value></option>
+	<option><label>45</label><value>45</value></option>
+	<option><label>46</label><value>46</value></option>
+	<option><label>47</label><value>47</value></option>
+	<option><label>48</label><value>48</value></option>
+	<option><label>49</label><value>49</value></option>
+	<option><label>50</label><value>50</value></option>
+	<option><label>51</label><value>51</value></option>
+	<option><label>52</label><value>52</value></option>
+	<option><label>53</label><value>53</value></option>
+	<option><label>54</label><value>54</value></option>
+	<option><label>55</label><value>55</value></option>
+	<option><label>56</label><value>56</value></option>
+	<option><label>57</label><value>57</value></option>
+	<option><label>58</label><value>58</value></option>
+	<option><label>59</label><value>59</value></option>
+    </enum>
+</type>
+<type id="yealink-timezones_type">
+    <enum>
+	<option><label>GMT-11:00</label><value>-11</value></option>
+	<option><label>GMT-10:00</label><value>-10</value></option>
+	<option><label>GMT-09:00</label><value>-9</value></option>
+	<option><label>GMT-08:00</label><value>-8</value></option>
+	<option><label>GMT-07:00</label><value>-7</value></option>
+	<option><label>GMT-06:00</label><value>-6</value></option>
+	<option><label>GMT-05:00</label><value>-5</value></option>
+	<option><label>GMT-04:00</label><value>-4</value></option>
+	<option><label>GMT-03:00</label><value>-3</value></option>
+	<option><label>GMT-02:00</label><value>-2</value></option>
+	<option><label>GMT-01:00</label><value>-1</value></option>
+	<option><label>GMT</label><value>0</value></option>
+	<option><label>GMT+01:00</label><value>+1</value></option>
+	<option><label>GMT+02:00</label><value>+2</value></option>
+	<option><label>GMT+03:00</label><value>+3</value></option>
+	<option><label>GMT+04:00</label><value>+4</value></option>
+	<option><label>GMT+05:00</label><value>+5</value></option>
+	<option><label>GMT+06:00</label><value>+6</value></option>
+	<option><label>GMT+07:00</label><value>+7</value></option>
+	<option><label>GMT+08:00</label><value>+8</value></option>
+	<option><label>GMT+09:00</label><value>+9</value></option>
+	<option><label>GMT+10:00</label><value>+10</value></option>
+	<option><label>GMT+11:00</label><value>+11</value></option>
+	<option><label>GMT+12:00</label><value>+12</value></option>
+    </enum>
+</type>
+<type id="time-format_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="date-format_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+	<option><value>5</value></option>
+    </enum>
+</type>
+<type id="yealink-codec_type">
+    <enum>
+        <option><label>Disabled</label><value>-1</value></option>
+        <option><label>G.722</label><value>9</value></option>
+        <option><label>PCMA</label><value>8</value></option>
+        <option><label>G.729</label><value>18</value></option>
+        <option><label>PCMU</label><value>0</value></option>
+        <option><label>G.723 6.3Kbit</label><value>4</value></option>
+        <option><label>G.726 16Kbit</label><value>112</value></option>
+        <option><label>G.726 24Kbit</label><value>102</value></option>
+        <option><label>G.726 32Kbit</label><value>2</value></option>
+        <option><label>G.726 40Kbit</label><value>104</value></option>
+    </enum>
+</type>
+<type id="codecs_type">
+    <multi-enum>
+        <option><value>9:G722</value></option>
+        <option><value>8:PCMA</value></option>
+        <option><value>18:G729</value></option>
+        <option><value>0:PCMU</value></option>
+        <option><value>4:G723_53</value></option>
+        <option><value>4:G723_63</value></option>
+        <option><value>112:G726-16</value></option>
+        <option><value>102:G726-24</value></option>
+        <option><value>102:G726-32</value></option>
+        <option><value>104:G726-40</value></option>
+        <option><value>122:iLBC</value></option>
+        <option><value>97:iLBC_13_3</value></option>
+        <option><value>97:iLBC_15_2</value></option>
+    </multi-enum>
+</type>
+<type id="DST_mode_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+    </enum>
+</type>
+<type id="DST_time_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="yealink_time_format_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="yealink_date_format_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+	<option><value>5</value></option>
+	<option><value>6</value></option>
+    </enum>
+</type>
+<type id="yealink_time_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+    </enum>
+</type>
+<type id="yealink_key_lock_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+    </enum>
+</type>
+<type id="SideTone_type">
+    <enum>
+	<option><label>Enable</label><value>-3</value></option>
+	<option><label>Disable</label><value>-32768</value></option>
+    </enum>
+</type>
+<type id="yealink_backlight_time_type">
+    <enum>
+	<option><value>1</value></option>
+	<option><value>60</value></option>
+	<option><value>120</value></option>
+	<option><value>300</value></option>
+	<option><value>600</value></option>
+	<option><value>1800</value></option>
+    </enum>
+</type>
+<type id="ScreenSaverTime_type">
+    <enum>
+	<option><label>1 second</label><value>1</value></option>
+	<option><label>1 minute</label><value>60</value></option>
+	<option><label>2 minutes</label><value>120</value></option>
+	<option><label>5 minutes</label><value>300</value></option>
+	<option><label>10 minutes</label><value>600</value></option>
+	<option><label>30 minutes</label><value>1800</value></option>
+    </enum>
+</type>
+<type id="yealink_theme_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+    </enum>
+</type>
+<type id="SIPCode_type">
+    <enum>
+	<option><label>404 (Not Found)</label><value>404</value></option>
+	<option><label>480 (Temporarily not available)</label><value>480</value></option>
+	<option><label>486 (Busy here)</label><value>486</value></option>
+    </enum>
+</type>
+<type id="yealink_poud_key_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+    </enum>
+</type>
+<type id="expansion-panels">
+    <enum>
+        <option><label>None</label><value></value></option>
+        <option><label>EXP 38</label><value>Exp38</value></option>
+        <option><label>EXP 39</label><value>Exp39</value></option>
+    </enum>
+</type>
+<type id="KBDLock_type">
+    <enum>
+	<option><value>0</value></option>
+	<option><value>1</value></option>
+	<option><value>2</value></option>
+	<option><value>3</value></option>
+	<option><value>4</value></option>
+    </enum>
+</type>
+<type id="BackLightTime_type">
+    <enum>
+        <option><label>Always Off</label><value>0</value></option>
+        <option><label>Always On</label><value>1</value></option>
+        <option><label>15 seconds</label><value>15</value></option>
+        <option><label>30 seconds</label><value>30</value></option>
+        <option><label>60 seconds</label><value>60</value></option>
+        <option><label>120 seconds</label><value>120</value></option>
+    </enum>
+</type>
+<type id="ScreenSaverTime_type">
+    <enum>
+        <option><label>1 second</label><value>1</value></option>
+        <option><label>1 minute</label><value>60</value></option>
+        <option><label>2 minutes</label><value>120</value></option>
+        <option><label>5 minutes</label><value>300</value></option>
+        <option><label>10 minutes</label><value>600</value></option>
+        <option><label>30 minutes</label><value>1800</value></option>
+    </enum>
+</type>
+<type id="Theme_type">
+    <enum>
+        <option><label>Default</label><value>0</value></option>
+        <option><label>Theme 2</label><value>1</value></option>
+        <option><label>Theme 3</label><value>2</value></option>
+        <option><label>Theme 4</label><value>3</value></option>
+    </enum>
+</type>

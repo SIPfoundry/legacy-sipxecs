@@ -16,13 +16,11 @@
  */
 package org.sipfoundry.sipxconfig.imbot;
 
-import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface ImBot extends ReplicableProvider {
     public static final LocationFeature FEATURE = new LocationFeature("imbot");
-    public static final AddressType REST_API = new AddressType("imbotRestApi", "http://%s:%d/IM");
 
     public ImBotSettings getSettings();
 

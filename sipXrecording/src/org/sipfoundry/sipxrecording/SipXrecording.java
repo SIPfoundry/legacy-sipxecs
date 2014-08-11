@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 
+import com.hazelcast.core.Hazelcast;
 import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
@@ -86,6 +87,9 @@ public class SipXrecording implements Runnable {
         confThread.start();
         // Start the Jetty Server
         WebServer.getInstance().startServer();
+
+        // Create & configure hazelcast instance
+        Hazelcast.newHazelcastInstance();
     }
 
     private static void initConferenceService() throws Exception {

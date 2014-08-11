@@ -9,6 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.forwarding;
 
+
 public class GeneralSchedule extends Schedule {
+
+    @Override
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return getClass().getSimpleName();
+    }
 
 }

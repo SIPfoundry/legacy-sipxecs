@@ -147,7 +147,7 @@ public class IMBot {
                     // wrong
                     // only thing do it is periodically retry just like any other IM client would
 
-                    LOG.error("Could not login to XMPP server " + e.getMessage());
+                    LOG.error("Could not login to XMPP server ", e);
                 }
                 try {
                     LOG.info(String.format(

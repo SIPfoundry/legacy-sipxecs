@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
@@ -43,6 +45,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChange> implements
         ConfigChangeContext {
 
+    private static final Log LOG = LogFactory.getLog(ConfigChangeContextImpl.class);
     private static final String COMMA_SEPARATOR = ",";
     private static final String DATE_TIME = "dateTime";
     private static final String DETAILS = "details";
@@ -81,8 +84,8 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
      */
     private void addFilterCriteria(DetachedCriteria crit, SystemAuditFilter filter) {
         crit.add(Restrictions.between(DATE_TIME, filter.getStartDate(), filter.getEndDate()));
-        ConfigChangeType type = filter.getType();
-        if (type != null && type != ConfigChangeType.ALL) {
+        String type = filter.getType();
+        if (type != null && !type.equals(ConfigChangeType.ALL.getName())) {
             crit.add(Restrictions.eq("configChangeType", type));
         }
         ConfigChangeAction action = filter.getAction();

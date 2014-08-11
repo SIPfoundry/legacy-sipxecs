@@ -143,10 +143,6 @@ public class ConferenceContextImpl {
         m_recordingConfig = recordingConfig;
     }
 
-    public String getSendIMUrl() {
-        return m_recordingConfig.getSendImUrl();
-    }
-
     public String[] getIvrUris() {
         return m_recordingConfig.getIvrNodes();
     }

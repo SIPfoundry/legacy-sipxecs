@@ -71,7 +71,6 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         Address apacheApi = manager.getAddressManager().getSingleAddress(ApacheManager.HTTPS_ADDRESS);
         Address restApi = manager.getAddressManager().getSingleAddress(RestServer.HTTP_API);
         Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
-        Address imbotApi = manager.getAddressManager().getSingleAddress(ImBot.REST_API);
         Address fsEvent = manager.getAddressManager().getSingleAddress(FreeswitchFeature.EVENT_ADDRESS);
         IvrSettings settings = m_ivr.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
@@ -101,7 +100,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             Writer wtr = new FileWriter(f);
             try {
                 write(wtr, settings, domain, location, getMwiLocations(mwiLocations, location), mwiPort, restApi,
-                        adminApi, apacheApi, imApi, imbotApi, fsEvent, aaSettings);
+                        adminApi, apacheApi, imApi, fsEvent, aaSettings);
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
@@ -133,7 +132,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     }
 
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, String mwiAddresses, int mwiPort,
-            Address restApi, Address adminApi, Address apacheApi, Address imApi, Address imbotApi, Address fsEvent,
+            Address restApi, Address adminApi, Address apacheApi, Address imApi, Address fsEvent,
             AutoAttendantSettings aaSettings)
         throws IOException {
         LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
@@ -166,9 +165,6 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         if (imApi != null) {
             config.write("ivr.openfireHost", imApi.getAddress());
             config.write("ivr.openfireXmlRpcPort", imApi.getPort());
-        }
-        if (imbotApi != null) {
-            config.write("ivr.sendIMUrl", imbotApi.toString());
         }
         config.write("aa.liveAaEnablePrefix", aaSettings.getEnablePrefix());
         config.write("aa.liveAaDisablePrefix", aaSettings.getDisablePrefix());

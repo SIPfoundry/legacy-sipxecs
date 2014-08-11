@@ -1,0 +1,616 @@
+#set($serial = "$phone.SerialNumber")
+; Erasing Remote Phone Books
+#foreach($RPB in [0..4])
+[ RemotePhoneBook${RPB} ]
+path = /config/Setting/Setting.cfg
+Name= %NULL%
+URL= %NULL%
+
+#end
+; Erasing Built-in Memory Keys
+#foreach($MK in [0..10])
+[ memory${MK} ]
+path = /config/vpPhone/vpPhone.ini
+Line = %NULL%
+Value = %NULL%
+PickupValue = %NULL%
+Label = %NULL%
+DKtype = %NULL%
+
+#end
+
+; Configured accounts
+
+#set ($LastLine = 0)
+#foreach ($line in $phone.lines)
+#set ($LastLine = $velocityCount)
+#set ($i = $velocityCount - 1)
+#foreach ($group in $line.Settings.Values)
+#if (${group.Name}=="Message")
+[ Message ]
+path = /config/Features/Message.cfg
+#foreach ($setting in $group.Values)
+VoiceNumber${i} = ${setting.Value}
+#end
+
+#elseif (${group.Name}=="audio")
+#foreach ($setting in $group.Values)
+#if (${setting.Value} == -1 )
+#set ($p = $velocityCount - 1)
+[ ${group.Name}${p} ]
+path = /config/voip/sipAccount${i}.cfg
+enable = 0
+priority = ${p}
+
+#elseif (${setting.Value} != 9 )
+#set ($p = $velocityCount - 1)
+[ ${group.Name}${p} ]
+path = /config/voip/sipAccount${i}.cfg
+enable = 1
+rtpmap = ${setting.Value}
+priority = ${p}
+#if(${setting.Value}==0)
+PayloadType = PCMU
+#elseif(${setting.Value}==2)
+PayloadType = G726-32
+#elseif(${setting.Value}==4)
+PayloadType = G723_63
+#elseif(${setting.Value}==8)
+PayloadType = PCMA
+#elseif(${setting.Value}==18)
+PayloadType = G729
+#elseif(${setting.Value}==102)
+PayloadType = G726-24
+#elseif(${setting.Value}==112)
+PayloadType = G726-16
+#elseif(${setting.Value}==104)
+PayloadType = G726-40
+#end
+
+#elseif (${setting.Value} == 9 )
+#if ($phone.HasHD)
+#set ($p = $velocityCount - 1)
+[ ${group.Name}${p} ]
+path = /config/voip/sipAccount${i}.cfg
+enable = 1
+priority = ${p}
+rtpmap = ${setting.Value}
+PayloadType = G722
+
+#end
+#end
+#end
+#else
+[ ${group.name} ]
+path = /config/voip/sipAccount${i}.cfg
+#if(${group.name}=="account")
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="Label")
+#elseif (${setting.ProfileName}=="UserName")
+Label = $!{setting.Value}
+UserName = $!{setting.Value}
+#elseif (${setting.ProfileName}=="SIPListenPort")
+#if ("$!{setting.Value}"=="")
+#set($SIPListenPort = 5062 + ${i})
+${setting.ProfileName} = ${SIPListenPort}
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#else
+#foreach ($setting in $group.Values)
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#end
+#end
+; Unconfigured accounts, starting from: $LastLine of $phone.MaxLineCount
+
+#foreach($L in [$LastLine..$phone.MaxLineCount])
+#set ($lid = $L)
+#set($SIPListenPort = 5062 + ${lid})
+[ account ]
+path = /config/voip/sipAccount${lid}.cfg
+Enable = 0
+Label = %NULL%
+UserName = %NULL%
+AuthName = %NULL%
+DisplayName = %NULL%
+password = %NULL%
+SIPServerHost = %NULL%
+SIPServerPort = 5060
+SubscribeMWIToVM = 0
+SIPListenPort = ${SIPListenPort}
+
+[ audio0 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = PCMU
+priority = 1
+rtpmap = 0
+
+[ audio1 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = PCMA
+priority = 2
+rtpmap = 8
+
+[ audio2 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G723_53
+priority = 3
+rtpmap = 4
+
+[ audio3 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G723_63
+priority = 4
+rtpmap = 4
+
+[ audio4 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G729
+priority = 5
+rtpmap = 18
+
+[ audio5 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G722
+priority = 6
+rtpmap = 9
+
+[ audio6 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = iLBC
+priority = 0
+rtpmap = 102
+
+[ audio7 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G726-16
+priority = 0
+rtpmap = 112
+
+[ audio8 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G726-24
+priority = 0
+rtpmap = 102
+
+[ audio9 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G726-32
+priority = 0
+rtpmap = 2
+
+[ audio10 ]
+path = /config/voip/sipAccount${lid}.cfg
+enable = 0
+PayloadType = G726-40
+priority = 0
+rtpmap = 104
+
+#end
+
+#foreach ($group in $phone.Settings.Values)
+#if(${group.name}=="LangFile")
+[ Lang ]
+#foreach ($setting in $group.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#elseif(${group.name}=="network-wan")
+#foreach ($subgroup in $group.Values)
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="network-lan")
+#foreach ($subgroup in $group.Values)
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="network-advanced")
+#foreach ($subgroup in $group.Values)
+#if(${subgroup.name}=="Webserver_Type")
+#set ($GroupName = "Webserver Type")
+#else
+#set ($GroupName = ${subgroup.Name})
+#end
+
+[ ${GroupName} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="upgrade")
+#foreach ($subgroup in $group.Values)
+
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="autoprovision")
+#foreach ($subgroup in $group.Values)
+
+[ ${group.name}${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="preference")
+#foreach ($subgroup in $group.Values)
+
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="HotDesking")
+#foreach ($subgroup in $group.Values)
+[ ${group.name}_${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="FWD")
+#foreach ($subgroup in $group.Values)
+#if(${subgroup.name}=="Forward_International")
+
+[ Forward International ]
+#else
+
+[ ${subgroup.name}${group.name} ]
+#end
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="features")
+#foreach ($subgroup in $group.Values)
+
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="voice")
+#foreach ($subgroup in $group.Values)
+
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="calling")
+#foreach ($subgroup in $group.Values)
+
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="tones")
+#foreach ($subgroup in $group.Values)
+#if(${subgroup.name}=="Tone_Param")
+#set ($GroupName = "Tone Param")
+#else
+#set ($GroupName = ${subgroup.Name})
+#end
+[ ${GroupName} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="broadsoft")
+#foreach ($subgroup in $group.Values)
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="dialplan")
+#foreach ($subgroup in $group.Values)
+#if(${subgroup.name}=="DialNow")
+
+[${subgroup.name}]
+path = /tmp/dialnow.xml
+#foreach ($setting in $subgroup.Values)
+#if (${setting.ProfileName} == "server_address")
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#else
+
+[${subgroup.name}]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#end
+#elseif(${group.name}=="certificates")
+#foreach ($subgroup in $group.Values)
+
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="security")
+#foreach ($subgroup in $group.Values)
+#if(${subgroup.name}=="UserName")
+#foreach ($setting in $subgroup.Values)
+#if (${setting.ProfileName}=="admin")
+
+[ AdminPassword ]
+path = /config/Setting/autop.cfg
+password = $!{setting.Value}
+#end
+#if (${setting.ProfileName}=="user")
+
+[ UserPassword ]
+path = /config/Setting/autop.cfg
+password = $!{setting.Value}
+#end
+#end
+#else
+
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#end
+#elseif(${group.name}=="mcast-paging")
+#foreach ($subgroup in $group.Values)
+#if (${subgroup.name}=="ListenAddress")
+#foreach ($subsubgroup in $subgroup.Values)
+[ ${subgroup.name}${subsubgroup.name} ]
+#foreach ($setting in $subsubgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#else
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+
+#end
+#elseif(${group.name}=="RemotePhoneBook")
+#foreach ($subgroup in $group.Values)
+#if ($subgroup.name=="SRemoteName")
+[ ${subgroup.name} ]
+path = /yealink/config/Features/Phone.cfg
+#else
+[ ${group.name}${subgroup.name} ]
+path = /config/Setting/Setting.cfg
+#end
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+
+#end
+#elseif(${group.name}=="programablekey")
+#foreach ($subgroup in $group.Values)
+#foreach ($setting in $subgroup.Values)
+#set ($parameter = ${setting.name.substring(0,1)})
+#if (${parameter}=="L")
+#set ($index = ${setting.name.substring(4)})
+
+[ ${group.name}${index} ]
+path = /config/vpPhone/vpPhone.ini
+#end
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="memory")
+#foreach ($subgroup in $group.Values)
+#foreach ($setting in $subgroup.Values)
+#set ($parameter = ${setting.name.substring(0,1)})
+#if (${parameter}=="L")
+#set ($index = ${setting.name.substring(4)})
+
+[ ${group.name}${index} ]
+path = /config/vpPhone/vpPhone.ini
+#end
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#elseif(${group.name}=="xml-browser")
+#foreach ($subgroup in $group.Values)
+#if(${subgroup.name}=="CustomSoftKey")
+#foreach ($setting in $subgroup.Values)
+[ ${subgroup.name}_${setting.ProfileName} ]
+path = /tmp/${setting.ProfileName}.xml
+server_address = $!{setting.Value}
+#end
+#else
+[ ${subgroup.name} ]
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+
+#end
+#end
+#elseif(${group.name}=="expansion-panels")
+#elseif(${group.name}=="AlertInfo")
+#foreach ($subgroup in $group.Values)
+
+[ AlertInfo${subgroup.name} ]
+path = /config/Setting/Setting.cfg
+#foreach ($setting in $subgroup.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+#else
+[ ${group.name} ]
+#foreach ($setting in $group.Values)
+#if ("$!{setting.Value}" == "")
+${setting.ProfileName} = %NULL%
+#else
+${setting.ProfileName} = $!{setting.Value}
+#end
+#end
+#end
+
+#end
+
+#if ($phone.MemoryKeyCount > 0)
+#foreach ($button in $cfg.SpeedDial)
+#set ($i = $velocityCount - 0)
+#if (${i}<11)
+[ memory${i} ]
+path = /config/vpPhone/vpPhone.ini
+Line = 0
+type = blf
+Value = $button.Number
+Label = $button.label
+PickupValue = $phone.DirectedCallPickupString$button.Number
+DKtype = 16
+#else
+#set ($e = $i / 10)
+#set ($k = $i - $e * 10 - 1)
+[key${k}]
+Path=/config/vpPhone/Ext38_0000000000000${e}.cfg
+Line = 0
+type = blf
+Value = $button.Number
+Label = $button.label
+PickupValue = $phone.DirectedCallPickupString$button.Number
+DKtype = 16
+#end
+
+#end
+#end

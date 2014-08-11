@@ -22,6 +22,7 @@ import java.util.TimeZone;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.ScheduledDay;
 import org.sipfoundry.sipxconfig.common.TimeOfDay;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -134,7 +135,7 @@ public class WorkingTime extends ScheduledAttendant {
         }
     }
 
-    public static class WorkingHours implements Serializable {
+    public static class WorkingHours implements Serializable, NamedObject {
         public static final int MINUTES_PER_HOUR = 60;
         public static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * 24;
         public static final int MINUTES_PER_WEEK = MINUTES_PER_DAY * 7;
@@ -330,6 +331,16 @@ public class WorkingTime extends ScheduledAttendant {
                 intervals.add(new Interval(0, stop));
             }
             return intervals;
+        }
+
+        @Override
+        public String getName() {
+            return getStartTime() + " to " + getStopTime();
+        }
+
+        @Override
+        public void setName(String name) {
+            //Do Nothing
         }
     }
 

@@ -18,6 +18,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.dialplan.attendant.WorkingTime.WorkingHours;
+import org.sipfoundry.sipxconfig.forwarding.FeatureSchedule;
 import org.sipfoundry.sipxconfig.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.forwarding.Schedule;
@@ -39,6 +40,11 @@ public abstract class EditSchedule extends UserBasePage {
     public abstract String getResource();
 
     public abstract void setResource(String resourceId);
+
+    @Persist(value = "session")
+    public abstract String getFeatureId();
+
+    public abstract void setFeatureId(String featureId);
 
     @Persist
     public abstract Schedule getSchedule();
@@ -89,6 +95,9 @@ public abstract class EditSchedule extends UserBasePage {
                 schedule.setUserGroup(getUserGroup());
             } else if (getResource().equals("general_sch")) {
                 schedule = new GeneralSchedule();
+            } else if (getResource().equals("feature_sch")) {
+                schedule = new FeatureSchedule();
+                ((FeatureSchedule) schedule).setFeatureId(getFeatureId());
             }
             WorkingTime workingTime = new WorkingTime();
             workingHoursList = new WorkingHours[0];
@@ -99,14 +108,16 @@ public abstract class EditSchedule extends UserBasePage {
         setWorkingHours(workingHoursList);
     }
 
-    public void newSchedule(String resourceId, String returnPage) {
+    public void newSchedule(String resourceId, String featureId, String returnPage) {
         setResource(resourceId);
+        setFeatureId(featureId);
         setScheduleId(null);
         setReturnPage(returnPage);
     }
 
     public void editSchedule(Integer scheduleId, String returnPage) {
         setResource(null);
+        setFeatureId(null);
         setScheduleId(scheduleId);
         setReturnPage(returnPage);
     }

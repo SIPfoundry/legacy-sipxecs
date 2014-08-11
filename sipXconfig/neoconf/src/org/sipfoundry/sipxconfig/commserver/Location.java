@@ -463,7 +463,7 @@ public class Location extends BeanWithId implements KeepsOriginalCopy<Location>,
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.SERVER;
+    public String getConfigChangeType() {
+        return ConfigChangeType.SERVER.getName();
     }
 }

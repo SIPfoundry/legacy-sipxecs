@@ -1,0 +1,93 @@
+RPM V4.6.0 build -1730.50f4b
+    Date:   Fri Sep 27 13:32:21 2013 +0700
+	FIX: linekeys/memorykey BLF in SIP-T[23]X
+    Date:   Thu Sep 26 11:21:15 2013 +0700
+	FIX: BLF keys for SIP-T[1-3]X phones were not assigned and not visible in sipXconfig WEB UI
+    Date:   Thu Sep 26 00:53:39 2013 +0700
+	ADD: Directed Pickup Code to phone defaults
+    Date:   Thu Sep 26 00:17:09 2013 +0700
+	Refactoring: audio codecs choosing via multi-enum setting
+
+RPM V4.6.0 build 1724.b0d0d
+    Date:   Tue Sep 24 11:53:51 2013 +0700
+	FIX: BLF present in sipXecs WEB UI, but was not present in MAC.cfg file
+    Date:   Tue Sep 24 02:14:03 2013 +0700
+	FIX: linekey,programableley defaults
+    Date:   Mon Sep 23 16:43:01 2013 +0700
+	Add: tablevoew support for linekey.
+	Add: dynamic defaults for linekey and programablekey collections.
+	Fix: programable type for programable keys.
+    Date:   Thu Sep 19 15:34:59 2013 +0700
+	Added: table-view support for programblekey, alert-info and autop sources
+    Date:   Tue Sep 17 13:05:07 2013 +0700
+	Refactoring: Remote Phonebooks order and set selection with multi-enum
+
+RPM V4.6.0 build 1685.74e33
+    Date:   Thu Sep 12 12:15:56 2013 +0700
+	FIX: Line index for V71 and V70 FW.
+    Date:   Wed Sep 11 16:45:46 2013 +0700
+	Add: local contacts uploading support via sipXecs device files management UI.
+    Date:   Tue Sep 10 15:39:22 2013 +0700
+	Update README
+    Date:   Tue Sep 10 14:24:20 2013 +0700
+	FIX: LDAP password is visible in WEB UI.
+	ADD: LDAP "Enable" default value dependent of LDAP configured in UC system.
+    Date:   Tue Sep 10 13:21:12 2013 +0700
+	Added: DirectCallPickup code as a default value for DSS 'extension' and 'pickup_value' values
+    Date:   Tue Sep 10 11:50:01 2013 +0700
+	Add: LDAP connection default settings from first system LDAP connection
+    Date:   Mon Sep 9 11:01:01 2013 +0700
+	FIX: label for linekey.X.extension
+    Date:   Mon Sep 9 10:56:14 2013 +0700
+	Added: BLF or SpeedDial type of button set from speeddial.Button object.
+	FIX: default values for lines of left-sided button for SIP-T4X phones.
+	FIX: xml_phonebook parameter is unused on SIP-T4X
+	FIX: lines are 1-based sequences - not 0-based
+    Date:   Fri Sep 6 16:14:40 2013 +0700
+	FIXED: FW file name for SIp-T46 was incorrect.
+	Added: DSS keys 4-6 for SIp-T41,SIP-T42G and DSS keys 6-9 for SIP-T46G assigned as "Line" keys. Other keys are assigned to N/A by default and values for other keys are assigned as speeddial buttons values.
+    Date:   Fri Sep 6 12:36:49 2013 +0700
+	Added: JAVA DSS keys generation from bean propertie maxDSSKeyCount and maxLineCount(for SIP-T[1-3]X models only)
+    Date:   Wed Sep 4 14:49:19 2013 +0700
+	Refactoring: Added YealinkEnumSetter abstract class, which implement most common functionality for enumerators filling from diffrent sources.
+	Refactoring: Moved from type.xml DKType labels to *.properties.
+	Add: maxDSSKeyCount propertie for all models, deprecated memoryKeyCount propertie.
+    Date:   Tue Sep 3 14:10:02 2013 +0700
+	Add: DSS key types for V71 FW and SIP-T4X phones
+    Date:   Thu Aug 22 12:40:37 2013 +0700
+	Add: multiple lang(+/-)Language.txt files uploading.
+    Date:   Mon Aug 19 20:18:02 2013 +0700
+	FIX: SoftKeys configuration was filtered out by model filter
+	FIX: SoftKeys default values
+	FIX: Default version now set to V7X
+	FIX: Bug if phone was not created, phone group edition causes an exception - unable to open model file 'phone.xml'
+
+RPM V4.6.0 build 1622.e2f62
+    Date:   Thu Aug 15 20:17:10 2013 +0700
+	ADD: MAC address prefix on phone creation
+	ADD: WallPapers and ScreenSavers uploading for color LCD phones
+	ADD: features support for phone beans
+	ADD: filters for settings difference between different models
+
+RPM v.4.6.0 build 1621.a4224
+    Date:   Wed Aug 14 07:03:08 2013 +0700
+	ADD: RingTones uploading and selection.
+	ADD: PhoneBook selection (only renames phonebook)
+    Date:   Tue Aug 13 13:20:04 2013 +0700
+	FIXED: LCD logo
+	ADED: multiple phonebook support
+
+RPM 4.6.0 build 1580.e4c62
+    Date:   Tue Aug 6 15:45:45 2013 +0700
+	FIX: properties for lang file url
+    Date:   Tue Aug 6 15:18:59 2013 +0700
+	Common settings are ready.
+    Date:   Fri Aug 2 17:43:35 2013 +0700
+	Added SIP-T46G, SIP-T42G, SIP-T41, W52, VP530 models, finished page Action URL
+    Date:   Thu Aug 1 17:09:31 2013 +0700
+	Wiped out all unsupported settings. Compleated Upgrade section.
+    Date:   Wed Jul 31 16:05:29 2013 +0700
+	Refactor: universal support for 2 level groups
+    Date:   Fri Jul 12 13:15:10 2013 +0700
+	Compleated section Preference, FIXED: DNS defaults
+    Date:   Tue Jul 9 11:30:18 2013 +0700

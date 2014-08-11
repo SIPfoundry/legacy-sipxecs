@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class Phonebook extends BeanWithId implements NamedObject, SystemAuditable {
@@ -121,7 +120,7 @@ public class Phonebook extends BeanWithId implements NamedObject, SystemAuditabl
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.PHONE_BOOK;
+    public String getConfigChangeType() {
+        return Phonebook.class.getSimpleName();
     }
 }

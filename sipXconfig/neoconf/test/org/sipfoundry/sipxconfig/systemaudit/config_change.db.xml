@@ -3,9 +3,9 @@
 <dataset>
 	<user_ip_address user_ip_address_id="1" user_name="superadmin" ip_address="localhost"/>
 
-	<config_change config_change_id="32" date_time="2014-06-02 14:18:40.908" user_ip_address_id="1" config_change_type="1" config_change_action="1" details="Success"/>
-	<config_change config_change_id="39" date_time="2014-06-03 14:01:43.97" user_ip_address_id="1" config_change_type="6" config_change_action="3" details="0004f2842306"/>
-	<config_change config_change_id="40" date_time="2014-06-03 14:01:54.304" user_ip_address_id="1" config_change_type="6" config_change_action="4" details="0004f2842306"/>
+	<config_change config_change_id="32" date_time="2014-06-02 14:18:40.908" user_ip_address_id="1" config_change_type="LoginLogout" config_change_action="1" details="Success"/>
+	<config_change config_change_id="39" date_time="2014-06-03 14:01:43.97" user_ip_address_id="1" config_change_type="Phone" config_change_action="3" details="0004f2842306"/>
+	<config_change config_change_id="40" date_time="2014-06-03 14:01:54.304" user_ip_address_id="1" config_change_type="Phone" config_change_action="4" details="0004f2842306"/>
 
 	<config_change_value config_change_value_id="3" config_change_id="40" property_name="description" value_before="description1" value_after="description2"/>
 

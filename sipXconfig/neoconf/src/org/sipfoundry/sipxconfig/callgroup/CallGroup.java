@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.dialplan.MappingRule;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class CallGroup extends AbstractCallSequence implements Replicable, SystemAuditable {
@@ -299,7 +298,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable, Syste
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.HUNT_GROUP;
+    public String getConfigChangeType() {
+        return CallGroup.class.getSimpleName();
     }
 }

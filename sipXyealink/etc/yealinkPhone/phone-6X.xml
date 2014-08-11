@@ -1,0 +1,1092 @@
+<?xml version="1.0" ?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd"
+    [<!ENTITY types SYSTEM "types.xml">]>
+<model>
+&types;
+<group name="sip" if="yealinkPhoneSIPT[12].*">
+    <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Setting/AdvSetting.cfg</value></setting>
+    <setting name="RFC2543Hold"><type><boolean /></type><value>0</value></setting>
+    <setting name="ReservePound"><type><boolean /></type><value>1</value></setting>
+    <setting name="UseOutBoundInDialog"><type><boolean /></type><value>1</value></setting>
+</group>
+<group name="network-wan">
+    <group name="Network" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="eWANType"><type refid="WANAddress_type"/><value>0</value></setting>
+        <setting name="strWANIP"><type><ipaddr/></type></setting>
+        <setting name="strWANMask"><type><ipaddr/></type></setting>
+        <setting name="strWanGateway"><type><ipaddr/></type></setting>
+        <setting name="strWanPrimaryDNS"><type><ipaddr/></type></setting>
+        <setting name="strWanSecondaryDNS"><type><ipaddr/></type></setting>
+        <setting name="strPPPoEUser"></setting>
+        <setting name="strPPPoEPin"><type><string password="yes" /></type></setting>
+    </group>
+    <group name="WAN" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="WANType"><type refid="WANAddress_type"/><value>0</value></setting>
+        <setting name="WANStaticIP"><type><ipaddr/></type></setting>
+        <setting name="WANSubnetMask"><type><ipaddr/></type></setting>
+        <setting name="WANDefaultGateway"><type><ipaddr/></type></setting>
+    </group>
+    <group name="DNS" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="PrimaryDNS"><type><ipaddr/></type></setting>
+        <setting name="SecondaryDNS"><type><ipaddr/></type></setting>
+    </group>
+    <group name="PPPoE" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="PPPoEUser"></setting>
+        <setting name="PPPoEPWD"><type><string password="yes" /></type></setting>
+    </group>
+    <group name="Ethernet" if="yealinkPhoneSIPT[12].*" advanced="yes">
+        <setting name="path" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="WANPortLink"><type refid="PortLink_type" /><value>0</value></setting>
+    </group>
+    <group name="LLDP" advanced="yes">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/system.ini</value></setting>
+        <setting name="EnableLLDP"><type><boolean /></type><value>0</value></setting>
+        <setting name="PacketInterval"><type><integer /></type><value>120</value></setting>
+    </group>
+</group>
+<group name="network-lan">
+    <group name="Network" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="bBridgeMode"><type refid="LANMode_type"/><value>1</value></setting>
+        <setting name="bLanDHCPServer"><type><boolean /></type><value>0</value></setting>
+        <setting name="strLanIP"><type><ipaddr/></type><value>10.0.0.1</value></setting>
+        <setting name="strLanMask"><type><ipaddr/></type><value>255.255.255.0</value></setting>
+        <setting name="strDHCPClientBegin"><type><ipaddr/></type><value>10.0.0.10</value></setting>
+        <setting name="strDHCPClientEnd"><type><ipaddr/></type><value>10.0.0.100</value></setting>
+        <setting name="strDHCPLease"><type><integer /></type><value>3600</value></setting>
+    </group>
+    <group name="LAN" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="LANTYPE"><type refid="LANMode_type"/><value>1</value></setting>
+        <setting name="RouterIP"><type><ipaddr/></type><value>10.0.0.1</value></setting>
+        <setting name="LANSubnetMask"><type><ipaddr/></type><value>255.255.255.0</value></setting>
+        <setting name="EnableDHCP"><type><boolean /></type><value>0</value></setting>
+        <setting name="DHCPStartIP"><type><ipaddr/></type><value>10.0.0.10</value></setting>
+        <setting name="DHCPEndIP"><type><ipaddr/></type><value>10.0.0.100</value></setting>
+        <setting name="SpanToPCPort" advanced="yes"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="Ethernet" if="yealinkPhoneSIPT[12].*" advanced="yes">
+        <setting name="path" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="PCPortLink"><type refid="PortLink_type" /> <value>0</value></setting>
+    </group>
+</group>
+<group name="network-advanced">
+    <group name="VLAN">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="ISVLAN"><type><boolean /></type><value>0</value></setting>
+        <setting name="VID"><type><integer /></type></setting>
+        <setting name="USRPRIORITY"><type><integer /></type></setting>
+
+        <setting name="PC_PORT_VLAN_ENABLE"><type><boolean /></type><value>0</value></setting>
+        <setting name="PC_PORT_VID"><type><integer /></type></setting>
+        <setting name="PC_PORT_PRIORITY"><type><integer /></type></setting>
+        <setting name="ADD_DEFAULT_VLAN"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="VPN" if="yealinkPhoneSIPT2[68].*|yealinkPhoneSIPT38.*">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="EnableVPN"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="QOS">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="RTPTOS"><value>40</value></setting>
+        <setting name="SIGNALTOS"><value>40</value></setting>
+    </group>
+    <group name="RTP">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="MinRTPPort"><type><integer /></type><value>11780</value></setting>
+        <setting name="MaxRTPPort"><type><integer /></type><value>11800</value></setting>
+    </group>
+    <group name="snmp" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Network/Network.cfg</value></setting>
+        <setting name="snmp_enable"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="Webserver_Type">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Advanced/Advanced.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="WebType"><type refid="web_server_type" /><value>1</value></setting>
+    </group>
+    <group name="port">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Advanced/Advanced.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="http_port"><type><integer /></type><value>80</value></setting>
+        <setting name="https_port"><type><integer /></type><value>4431</value></setting>
+    </group>
+    <group name="http" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/yealink/config/Setting/Setting.cfg</value></setting>
+        <setting name="http_version"><type refid="http_version_type"/><value>1.1</value></setting>
+    </group>
+    <group name="telnet">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="telnet_enable"><type><boolean /></type><value>0</value>
+        </setting>
+    </group>
+    <group name="802.1X">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="Mode"><type><boolean /></type><value>0</value></setting>
+        <setting name="Identity"/>
+        <setting name="MD5Passwd"/>
+    </group>
+</group>
+<group name="upgrade">
+    <group name="custom_option" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Setting/autop.cfg</value></setting>
+        <setting name="custom_option_code0"><type><integer min="128" max="254" /></type></setting>
+        <setting name="custom_option_type0"><type refid="custom_option_type"/></setting>
+    </group>
+    <group name="dhcp_option_value" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop.cfg</value></setting>
+        <setting name="option60_value"/>
+    </group>
+    <group name="autoprovision">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Setting/autop.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/system.ini</value></setting>
+        <setting name="server_address" if="yealinkPhoneSIPT[12].*"/>
+        <setting name="user" if="yealinkPhoneSIPT[12].*"/>
+        <setting name="password" if="yealinkPhoneSIPT[12].*"/>
+
+        <setting name="bEnablePowerOn" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>0</value></setting>
+        <setting name="bEnableWeekly" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>0</value></setting>
+        <setting name="strWeeklyMask" if="yealinkPhoneSIPT3.*" />
+        <setting name="strWeeklyBeginTime" if="yealinkPhoneSIPT3.*" />
+        <setting name="strWeeklyEndTime" if="yealinkPhoneSIPT3.*" />
+        <setting name="bEnableRepeat" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>0</value></setting>
+        <setting name="nRepeatMinutes" if="yealinkPhoneSIPT3.*"><type><integer /></type></setting>
+        <setting name="bEnablePNP" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>0</value></setting>
+        <setting name="bEnableDHCPOption" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>0</value></setting>
+        <setting name="listUserOption" if="yealinkPhoneSIPT3.*"><type><integer /></type></setting>
+        <setting name="strServerURL" if="yealinkPhoneSIPT3.*" />
+        <setting name="strKeyAES16" if="yealinkPhoneSIPT3.*" />
+        <setting name="strKeyAES16MAC" if="yealinkPhoneSIPT3.*" />
+    </group>
+    <group name="AES_KEY" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Setting/autop.cfg</value></setting>
+        <setting name="aes_key_16"/>
+        <setting name="aes_key_16_mac"/>
+    </group>
+    <group name="UpdateVersion" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop.cfg</value></setting>
+        <setting name="ComConfigVersion"/>
+        <setting name="MacConfigVersion"/>
+    </group>
+    <group name="Zero">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Advanced/Advanced.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="ForbidZero"><type><boolean /></type><value>1</value></setting>
+        <setting name="WaitTime"><type><integer /></type><value>5</value></setting>
+    </group>
+    <group name="PNP" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Setting/autop.cfg</value></setting>
+        <setting name="Pnp"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="autop_mode" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Setting/autop.cfg</value></setting>
+        <setting name="mode"><type refid="autop_mode_type" /><value>1</value></setting>
+        <setting name="schedule_min"><type><integer /></type><value>60</value></setting>
+        <setting name="schedule_dayofweek"/>
+        <setting name="schedule_time"/>
+        <setting name="schedule_time_end"/>
+    </group>
+    <group name="firmware">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/tmp/download.cfg</value></setting>
+        <setting name="server_type" if="yealinkPhoneSIPT[12].*"><type refid="firmware_server_type" /><value>tftp</value></setting>
+        <setting name="server_ip" if="yealinkPhoneSIPT[12].*"><type><ipaddr/></type></setting>
+        <setting name="server_port" if="yealinkPhoneSIPT[12].*"><type><integer /></type><value>69</value></setting>
+        <setting name="login_name" if="yealinkPhoneSIPT[12].*"></setting>
+        <setting name="login_pswd" if="yealinkPhoneSIPT[12].*"></setting>
+        <setting name="http_url" if="yealinkPhoneSIPT[12].*"></setting>
+        <setting name="firmware_name" if="yealinkPhoneSIPT[12].*"></setting>
+        <setting name="url" if="yealinkPhoneSIPT3.*"></setting>
+    </group>
+    <group name="SYSLOG">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Network/Network.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="SyslogdIP"><type><ipaddr/></type></setting>
+    </group>
+    <group name="Lang">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/tmp/download.cfg</value></setting>
+        <setting name="server_address"></setting>
+    </group>
+    <group name="Logo" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/tmp/download.cfg</value></setting>
+        <setting name="server_address"/>
+    </group>
+</group>
+<group name="autoprovision" if="yealinkPhoneSIPT[12].*">
+    <group name="1"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="2" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="3" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="4" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="5" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="6" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="7" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="8" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="9" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="10" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="11" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="12" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="13" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="14" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="15" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="16" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="17" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="18" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="19" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="20" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="30" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="31" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="32" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="33" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="34" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="35" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="36" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="37" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="38" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="39" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="30" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="41" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="42" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="43" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="44" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="45" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="46" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="47" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="48" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="49" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+    <group name="50" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/Setting/autop_code.cfg</value></setting><setting name="Name"/><setting name="Code"/><setting name="Server_address"/><setting name="User"/><setting name="Password"/><setting name="AES"/><setting name="MAC_AES"/></group>
+</group>
+<group name="preference">
+    <group name="Lang">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Setting/Setting.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/user.ini</value></setting>
+        <setting name="WebLanguage"><type refid="yealink-languages_type"/><value>English</value></setting>
+        <setting name="ActiveWebLanguage"><type refid="yealink-languages_type"/><value>English</value></setting>
+    </group>
+    <group name="Time">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Setting/Setting.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="TimeZone"><type refid="yealink-timezones_type"/><value>0</value></setting>
+        <setting name="TimeServer1"><type><hostname /></type></setting>
+        <setting name="TimeServer2"><type><hostname /></type></setting>
+        <setting name="Interval"><type><integer /></type><value>1000</value></setting>
+        <setting name="SummerTime"><type refid="DST_mode_type"/><value>2</value></setting>
+        <setting name="DSTTimeType" if="yealinkPhoneSIPT[12].*"><type refid="DST_time_type"/><value>0</value></setting>
+        <setting name="StartTime"/>
+        <setting name="EndTime"/>
+        <setting name="OffSetTime"/>
+        <setting name="TimeFormat"><type refid="time-format_type"/><value>1</value></setting>
+        <setting name="DateFormat"><type refid="date-format_type"/><value>3</value></setting>
+        <setting name="DHCPTime" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>1</value></setting>
+        <setting name="bNTPEnable" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>1</value></setting>
+        <setting name="iDSTType" if="yealinkPhoneSIPT3.*"><type refid="DST_mode_type"/><value>2</value></setting>
+        <setting name="iDSTTimeType" if="yealinkPhoneSIPT3.*"><type refid="DST_time_type"/><value>0</value></setting>
+    </group>
+    <group name="Manual" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes"><value>/phone/config/system.ini</value></setting>
+        <setting name="Year"><type><integer /></type></setting>
+        <setting name="Month"><type refid="yealink-month"/></setting>
+        <setting name="Day"><type><integer /></type></setting>
+        <setting name="Hour"><type refid="yealink-hour"/></setting>
+        <setting name="Minute"><type refid="yealink-minute"/></setting>
+        <setting name="Second"><type refid="yealink-second"/></setting>
+    </group>
+    <group name="PhoneSetting">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Setting/Setting.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/user.ini</value></setting>
+        <setting name="InterDigitTime"><type><integer /></type><value>4</value></setting>
+        <setting name="FlashHookTimer"><type><integer /></type><value>1</value></setting>
+        <setting name="Lock"><type refid="KBDLock_type"/><value>0</value></setting>
+        <setting name="Ringtype"><value>Ring1.wav</value></setting>
+        <setting name="Contrast" if="yealinkPhoneSIPT3.*|yealinkPhoneSIPT12.*|yealinkPhoneSIPT2[268].*"><type><integer /></type><value>6</value></setting>
+        <setting name="BackLight" if="yealinkPhoneSIPT3.*|yealinkPhoneSIPT12.*|yealinkPhoneSIPT2[268].*"><type><integer /></type><value>2</value></setting>
+        <setting name="BacklightTime" if="yealinkPhoneSIPT3.*|yealinkPhoneSIPT12.*|yealinkPhoneSIPT2[268].*"><type refid="BackLightTime_type" /><value>30</value></setting>
+        <setting name="UnusedBackLight" if="yealinkPhoneSIPT3.*"><type><integer /></type><value>1</value></setting>
+        <setting name="ScreensaverTime" if="yealinkPhoneSIPT3.*"><type refid="ScreenSaverTime_type" /><value>60</value></setting>
+        <setting name="BackGrounds" if="yealinkPhoneSIPT3.*"/>
+        <setting name="Theme" if="yealinkPhoneSIPT3.*"><type refid="Theme_type"/></setting>
+        <setting name="SBarHandleRGB" if="yealinkPhoneSIPT3.*"><value>120,120,120</value></setting>
+        <setting name="ProductName" if="yealinkPhoneSIPT3.*"><value>Yealink</value></setting>
+        <setting name="RingForTranFailed"/>
+        <setting name="LogonWizard"><type><boolean /></type><value>0</value></setting>
+        <setting name="PreDialAutoDial"><type><boolean /></type><value>0</value></setting>
+        <setting name="IsDeal180"><type><boolean /></type><value>0</value></setting>
+        <setting name="DialNowDelay"><type><integer /></type><value>1</value></setting>
+        <setting name="IsDefineKey"><type><boolean /></type><value>0</value></setting>
+        <setting name="LogLevel"><type><integer /></type><value>3</value></setting>
+        <setting name="EmergencyRing"><value>Emergency.wav</value></setting>
+        <setting name="AllowMute"><type><boolean /></type><value>1</value></setting>
+        <setting name="SendPoundKey"><type><boolean /></type><value>0</value></setting>
+        <setting name="AASecIntercom"><type><boolean /></type><value>1</value></setting>
+        <setting name="PartitionTone"><type><boolean /></type><value>0</value></setting>
+        <setting name="EnLock"><type><boolean /></type><value>1</value></setting>
+        <setting name="HeadSetTraining"><type><boolean /></type><value>0</value></setting>
+    </group>
+</group>
+<group name="features">
+    <group name="Features">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="LCD_Logo" if="yealinkPhoneSIPT12.*|yealinkPhoneSIPT2[0268].*"><type refid="LCDLogo_type"/><value>0</value></setting>
+        <setting name="BroadsoftFeatureKeySync" hidden="yes"><type><boolean /></type><value>0</value></setting>
+        <setting name="Call_Waiting"><type><boolean /></type><value>0</value></setting>
+        <setting name="Call_WaitingTone"><type><boolean /></type><value>0</value></setting>
+        <setting name="CallCompletion" if="yealinkPhoneSIPT3.*"><type><boolean /></type><value>0</value></setting>
+        <setting name="Hotlinenumber" if="yealinkPhoneSIPT3.*"/>
+        <setting name="Hotlinedelay" if="yealinkPhoneSIPT3.*"><type><integer /></type><value>4</value></setting>
+        <setting name="BusyToneDelay" if="yealinkPhoneSIPT3.*"><type><integer /></type><value>0</value></setting>
+        <setting name="DND_Code"><type refid="SIPCode_type"/><value>480</value></setting>
+        <setting name="DND_On_Code" if="yealinkPhoneSIPT[12].*"/>
+        <setting name="DND_Off_Code" if="yealinkPhoneSIPT[12].*"/>
+        <setting name="Refuse_Code" if="yealinkPhoneSIPT[12].*"><type refid="SIPCode_type"/><value>486</value></setting>
+        <setting name="ButtonSoundOn" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="AllowIntercom" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="IntercomMute" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="IntercomTone" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="IntercomBarge" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="PswDialEnable" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>0</value></setting>
+        <setting name="SaveCallHistory" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>0</value></setting>
+        <setting name="SaveCallHistoryDisplay" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="AutoAnswerDelay" if="yealinkPhoneSIPT[12].*"><type><integer /></type></setting>
+        <setting name="HeadsetPrior" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>0</value></setting>
+        <setting name="DTMF_Replace_Tran" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>0</value></setting>
+        <setting name="TransferDTMF" if="yealinkPhoneSIPT[12].*"/>
+        <setting name="DsskeyBlindTran" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="PlayHoldTone" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="PlayHoldToneDelay" if="yealinkPhoneSIPT[12].*"/>
+        <setting name="CorrectAccount" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="AutoSetAccount" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>0</value></setting>
+        <setting name="AccountPrefix" if="yealinkPhoneSIPT[12].*"><value>z9hG4bK</value></setting>
+        <setting name="AlwaysSetFWD" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+        <setting name="ResumeAfterTran" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+    </group>
+    <group name="RingerDevice" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="IsUseHeadset"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="Profile">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/vpm.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/system.ini</value></setting>
+        <setting name="SIDE_TONE"><type refif="SideTone_type" /><value>-3</value></setting>
+        <setting name="headset_send" if="yealinkPhoneSIPT[12].*"><type><integer min="1" max="53"/></type><value>29</value></setting>
+        <setting name="handset_send" if="yealinkPhoneSIPT[12].*"><type><integer min="1" max="53"/></type><value>29</value></setting>
+        <setting name="handfree_send" if="yealinkPhoneSIPT[12].*"><type><integer min="1" max="53"/></type><value>29</value></setting>
+    </group>
+    <group name="SignalToneVol">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Setting/Setting.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/user.ini</value></setting>
+        <setting name="Handset"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="Headset"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="Handfree"><type><integer min="0" max="15"/></type><value>8</value></setting>
+    </group>
+    <group name="PhoneSetting">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/config/Setting/Setting.cfg</value></setting>
+        <setting name="path_" if="yealinkPhoneSIPT3.*" hidden="yes"><value>/phone/config/user.ini</value></setting>
+        <setting name="RingVol"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="HandFreeSpkVol"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="HandFreeMicVol"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="HandSetSpkVol"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="HandSetMicVol"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="HeadSetSpkVol"><type><integer min="0" max="15"/></type><value>8</value></setting>
+        <setting name="HeadSetMicVol"><type><integer min="0" max="15"/></type><value>8</value></setting>
+    </group>
+</group>
+<group name="FWD">
+    <group name="Always">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Forward.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="Enable"><type><boolean /></type><value>0</value></setting>
+        <setting name="Target"/>
+        <setting name="On_Code"/>
+        <setting name="Off_Code"/>
+    </group>
+    <group name="Busy">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Forward.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="Enable"><type><boolean /></type><value>0</value></setting>
+        <setting name="Target"/>
+        <setting name="On_Code"/>
+        <setting name="Off_Code"/>
+    </group>
+    <group name="Timeout">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Forward.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="Enable"><type><boolean /></type><value>0</value></setting>
+        <setting name="Target"/>
+        <setting name="On_Code"/>
+        <setting name="Off_Code"/>
+        <setting name="Timeout"><value>10</value></setting>
+    </group>
+    <group name="Forward_International" advanced="yes" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/Features/Forward.cfg</value></setting>
+        <setting name="Enable"><type><boolen /></type><value>0</value></setting>
+        <setting name="Number"><value>00</value></setting>
+    </group>
+</group>
+<group name="calling">
+    <group name="Trans" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="IsOnHookTrans"><type><boolean /></type><value>1</value></setting>
+    </group>
+    <group name="Transfer" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Setting/AdvSetting.cfg</value></setting>
+        <setting name="EnableSemiAttendTran"><type><boolean /></type><value>1</value></setting>
+        <setting name="BlindTranOnHook"><type><boolean /></type><value>1</value></setting>
+        <setting name="TranOthersAfterConf"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="AutoRedial">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="EnableRedial"><type><boolean /></type><value>0</value></setting>
+        <setting name="RedialInterval"><type><integer /></type><value>10</value></setting>
+        <setting name="RedialTimes"><type><integer /></type><value>10</value></setting>
+    </group>
+    <group name="PoundSend">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="Enable"><type refid="yealink_poud_key_type"/><value>1</value></setting>
+    </group>
+    <group name="Emergency">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="Num"/>
+    </group>
+</group>
+<group name="AlertInfo">
+    <group name="0">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="1">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="2" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="3" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="4" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="5" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="6" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="7" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="8" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+    <group name="9" advanced="yes">
+        <setting name="Text"/>
+        <setting name="Ringer"><type><integer /></type><value>1</value></setting>
+    </group>
+</group>
+<group name="voice">
+    <group name="Profile">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/vpm.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/system.ini</value></setting>
+        <setting name="ECHO"><type><boolean /></type><value>1</value></setting>
+        <setting name="VAD"><type><boolean /></type><value>0</value></setting>
+        <setting name="CNG"><type><boolean /></type><value>1</value></setting>
+    </group>
+    <group name="Jitter">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/vpm.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/system.ini</value></setting>
+        <setting name="Adaptive"><type><boolean /></type><value>1</value></setting>
+        <setting name="Min"><type><integer /></type><value>0</value></setting>
+        <setting name="Max"><type><integer /></type><value>300</value></setting>
+        <setting name="Nominal"><type><integer /></type><value>120</value></setting>
+    </group>
+</group>
+<group name="tones">
+    <group name="vpm_tone_Country" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="Country"><value></value></setting>
+    </group>
+    <group name="Country" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/voip/tone.ini</value></setting>
+        <setting name="Country"><value></value></setting>
+    </group>
+    <group name="Tone_Param" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes"><value>/config/voip/tone.ini</value></setting>
+        <setting name="dial"/>
+        <setting name="ring"/>
+        <setting name="busy"/>
+        <setting name="congestion"/>
+        <setting name="callwaiting"/>
+        <setting name="dialrecall"/>
+        <setting name="record"/>
+        <setting name="info"/>
+        <setting name="stutter"/>
+        <setting name="message"/>
+        <setting name="autoanswer"/>
+    </group>
+    <group name="vpm_default" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="dial"><type><boolean /></type><value>1</value></setting>
+        <setting name="ring"><type><boolean /></type><value>1</value></setting>
+        <setting name="busy"><type><boolean /></type><value>1</value></setting>
+        <setting name="congestion"><type><boolean /></type><value>1</value></setting>
+        <setting name="callwaiting"><type><boolean /></type><value>1</value></setting>
+        <setting name="dialrecal"><type><boolean /></type><value>1</value></setting>
+        <setting name="record"><type><boolean /></type><value>1</value></setting>
+        <setting name="info"><type><boolean /></type><value>1</value></setting>
+        <setting name="stutter"><type><boolean /></type><value>1</value></setting>
+        <setting name="message"><type><boolean /></type><value>1</value></setting>
+        <setting name="autoanswer"><type><boolean /></type><value>1</value></setting>
+    </group>
+</group>
+<group name="dialplan">
+    <group name="DialNow">
+        <setting name="server_address" hidden="yes" if="yealinkPhoneSIPT[12].*"/>
+        <setting name="URL" hidden="yes" if="yealinkPhoneSIPT3.*"/>
+        <setting name="1"/>
+        <setting name="2"/>
+        <setting name="3"/>
+        <setting name="4"/>
+        <setting name="5"/>
+        <setting name="6"/>
+        <setting name="7"/>
+        <setting name="8"/>
+        <setting name="9"/>
+        <setting name="10"/>
+        <setting name="11"/>
+        <setting name="12"/>
+        <setting name="13"/>
+        <setting name="14"/>
+        <setting name="15"/>
+        <setting name="16"/>
+        <setting name="17"/>
+        <setting name="18"/>
+        <setting name="19"/>
+        <setting name="20"/>
+    </group>
+    <group name="ReplaceRule" if="yealinkPhoneSIPT[12].*" hidden="yes">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/tmp/dialplan.xml</value></setting>
+        <setting name="1"/>
+        <setting name="2"/>
+        <setting name="3"/>
+        <setting name="4"/>
+        <setting name="5"/>
+        <setting name="6"/>
+        <setting name="7"/>
+        <setting name="8"/>
+        <setting name="9"/>
+        <setting name="10"/>
+    </group>
+    <group name="AreaCode">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/DialRule/areacode.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="Code"><type><integer /></type></setting>
+        <setting name="Minlen"><type><integer /></type></setting>
+        <setting name="Maxlen"><type><integer /></type></setting>
+        <setting name="LineID" if="yealinkPhoneSIPT[12].*"><type><integer /></type></setting>
+    </group>
+    <group name="BlockOut">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/DialRule/BlockOut.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="1"/>
+        <setting name="2"/>
+        <setting name="3"/>
+        <setting name="4"/>
+        <setting name="5"/>
+        <setting name="6"/>
+        <setting name="7"/>
+        <setting name="8"/>
+        <setting name="9"/>
+        <setting name="10"/>
+    </group>
+    <group name="BlockOutLineID" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/DialRule/BlockOut.cfg</value></setting>
+        <setting name="1"/>
+        <setting name="2"/>
+        <setting name="3"/>
+        <setting name="4"/>
+        <setting name="5"/>
+        <setting name="6"/>
+        <setting name="7"/>
+        <setting name="8"/>
+        <setting name="9"/>
+        <setting name="10"/>
+    </group>
+</group>
+<group name="HotDesking">
+    <group name="StartUp" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/yealink/config/Setting/Setting.cfg</value></setting>
+        <setting name="RegisterName"><type><boolean /></type><value>0</value></setting>
+        <setting name="UserName"><type><boolean /></type><value>0</value></setting>
+        <setting name="Password"><type><boolean /></type><value>0</value></setting>
+        <setting name="SipServer"><type><boolean /></type><value>0</value></setting>
+        <setting name="Outbound"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="Dsskey" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" if="yealinkPhoneSIPT[12].*" hidden="yes"><value>/yealink/config/Setting/Setting.cfg</value></setting>
+        <setting name="RegisterName"><type><boolean /></type><value>0</value></setting>
+        <setting name="UserName"><type><boolean /></type><value>0</value></setting>
+        <setting name="Password"><type><boolean /></type><value>0</value></setting>
+        <setting name="SipServer"><type><boolean /></type><value>0</value></setting>
+        <setting name="Outbound"><type><boolean /></type><value>0</value></setting>
+    </group>
+</group>
+<group name="security">
+    <group name="UserName">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Advanced/Advanced.cfg</value></setting>
+        <setting name="admin"><value>admin</value></setting>
+        <setting name="user"><value>user</value></setting>
+        <setting name="var" if="yealinkPhoneSIPT3.*"><value>var</value></setting>
+    </group>
+    <group name="Advanced" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="var_enabled"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="Forbidden">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Setting/AdvSetting.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="DND"><type><boolean /></type><value>0</value></setting>
+        <setting name="FWD"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="FactoryConfig">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Setting/AdvSetting.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="CustomEnabled"><type><boolean /></type><value>0</value></setting>
+    </group>
+</group>
+<group name="programablekey">
+    <!-- setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/vpPhone/vpPhone.ini</value></setting -->
+
+<!-- Screen keys -->
+    <group name="screen">
+        <setting name="Line1"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value1"><profileName>Value</profileName></setting>
+        <setting name="DKtype1"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>28</value></setting>
+        <setting name="XMLPhoneBook1"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line2"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value2"><profileName>Value</profileName></setting>
+        <setting name="DKtype2"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>22</value></setting>
+        <setting name="XMLPhoneBook2"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line3"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value3"><profileName>Value</profileName></setting>
+        <setting name="DKtype3"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>5</value></setting>
+        <setting name="XMLPhoneBook3"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line4"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value4"><profileName>Value</profileName></setting>
+        <setting name="DKtype4"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>30</value></setting>
+        <setting name="XMLPhoneBook4"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+    </group>
+<!-- Cursor keys -->
+    <group name="cursor">
+        <setting name="Line5"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value5"><profileName>Value</profileName></setting>
+        <setting name="DKtype5"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>28</value></setting>
+        <setting name="XMLPhoneBook5"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line6"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value6"><profileName>Value</profileName></setting>
+        <setting name="DKtype6"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>29</value></setting>
+        <setting name="XMLPhoneBook6"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line7"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value7"><profileName>Value</profileName></setting>
+        <setting name="DKtype7"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>31</value></setting>
+        <setting name="XMLPhoneBook7"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line8"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value8"><profileName>Value</profileName></setting>
+        <setting name="DKtype8"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>31</value></setting>
+        <setting name="XMLPhoneBook8"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line9"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value9"><profileName>Value</profileName></setting>
+        <setting name="DKtype9"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>33</value></setting>
+        <setting name="XMLPhoneBook9"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line10"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value10"><profileName>Value</profileName></setting>
+        <setting name="DKtype10"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+        <setting name="XMLPhoneBook10"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+    </group>
+<!-- Functional keys -->
+    <group name="functional">
+        <setting name="Line11"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value11"><profileName>Value</profileName></setting>
+        <setting name="DKtype11"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+        <setting name="XMLPhoneBook1"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line12"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value12"><profileName>Value</profileName></setting>
+        <setting name="DKtype12"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+        <setting name="XMLPhoneBook2"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line13"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value13"><profileName>Value</profileName></setting>
+        <setting name="DKtype13"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+        <setting name="XMLPhoneBook13"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+
+        <setting name="Line14"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value14"><profileName>Value</profileName></setting>
+        <setting name="DKtype14"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>2</value></setting>
+        <setting name="XMLPhoneBook14"><profileName>XMLPhoneBook</profileName><type><integer /></type><value>0</value></setting>
+    </group>
+</group>
+<group name="memory">
+    <group name="line">
+    <!-- setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/vpPhone/vpPhone.ini</value></setting -->
+        <setting name="Line11"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value11"><profileName>Value</profileName></setting>
+        <setting name="PickupValue11"><profileName>PickupValue</profileName></setting>
+        <setting name="DKtype11"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+
+        <setting name="Line12"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value12"><profileName>Value</profileName></setting>
+        <setting name="PickupValue12"><profileName>PickupValue</profileName></setting>
+        <setting name="DKtype12"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+
+        <setting name="Line13"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value13"><profileName>Value</profileName></setting>
+        <setting name="PickupValue13"><profileName>PickupValue</profileName></setting>
+        <setting name="DKtype13"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+
+        <setting name="Line14" if="yealinkPhoneSIPT2[68].*"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value14" if="yealinkPhoneSIPT2[68].*"><profileName>Value</profileName></setting>
+        <setting name="PickupValue14" if="yealinkPhoneSIPT2[68].*"><profileName>PickupValue</profileName></setting>
+        <setting name="DKtype14" if="yealinkPhoneSIPT2[68].*"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+
+        <setting name="Line15" if="yealinkPhoneSIPT2[68].*"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value15" if="yealinkPhoneSIPT2[68].*"><profileName>Value</profileName></setting>
+        <setting name="PickupValue15" if="yealinkPhoneSIPT2[68].*"><profileName>PickupValue</profileName></setting>
+        <setting name="DKtype15" if="yealinkPhoneSIPT2[68].*"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+
+        <setting name="Line16" if="yealinkPhoneSIPT2[68].*"><profileName>Line</profileName><type><integer /></type><value>0</value></setting>
+        <setting name="Value16" if="yealinkPhoneSIPT2[68].*"><profileName>Value</profileName></setting>
+        <setting name="PickupValue16" if="yealinkPhoneSIPT2[68].*"><profileName>PickupValue</profileName></setting>
+        <setting name="DKtype16" if="yealinkPhoneSIPT2[68].*"><profileName>DKtype</profileName><type refid="DSSKeyType_6x_type" /><value>0</value></setting>
+    </group>
+</group>
+<group name="ManagementServer" hidden="yes" if="yealinkPhoneSIPT[12].*">
+    <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/TR069/tr069.ini</value></setting>
+    <setting name="EnableTR069"><type><boolean /></type><value>0</value></setting>
+    <setting name="ConnectionRequestUsername"></setting>
+    <setting name="ConnectionRequestPassword"></setting>
+    <setting name="url"></setting>
+    <setting name="PeriodicInformEnable"><type><boolean /></type><value>0</value></setting>
+    <setting name="PeriodicInformInterval"><type><integer /></type></setting>
+    <setting name="Username"></setting>
+    <setting name="Password"></setting>
+</group>
+<group name="broadsoft" hidden="yes">
+    <group name="BroadSoft" if="yealinkPhoneSIPT3.*">
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="BWCallLogandDir"><type><boolean /></type><value>0</value></setting>
+        <setting name="BeHaveCallLog"><type><boolean /></type><value>0</value></setting>
+        <setting name="BeHaveBWDir"><type><boolean /></type><value>0</value></setting>
+        <setting name="DisplayName"/>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="port"><type><integer /></type></setting>
+        <setting name="UserName"/>
+        <setting name="PassWord"/>
+    </group>
+    <!-- AccountX and CallLogX for SIP-T3X phones not need path_ setting -->
+    <group name="Account0">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="Account1">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="Account2">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="Account3">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="Account4" if="yealinkPhoneSIPT3.*">
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="Account5" if="yealinkPhoneSIPT3.*">
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="CallLog0">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="CallLog1">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="CallLog2">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/BroadSoft.cfg</value></setting>
+        <setting name="DisplayName"></setting>
+        <setting name="Server"><type><hostname /></type></setting>
+        <setting name="Port"><type><integer /></type></setting>
+        <setting name="UserName"></setting>
+        <setting name="PassWord"></setting>
+    </group>
+    <group name="ACD">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+        <setting name="AutoAvailable"><type><boolean /></type><value>0</value></setting>
+        <setting name="AutoAvailableTimer"><type><integer /></type></setting>
+        <setting name="Broadsoft" hidden="yes"><type><boolean /></type><value>0</value></setting>
+    </group>
+</group>
+<group name="WatchDog">
+    <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+    <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+    <setting name="IsUse" if="yealinkPhoneSIPT[12].*"><type><boolean /></type><value>1</value></setting>
+    <setting name="Time"><type><integer /></type><value>10</value></setting>
+</group>
+<group name="REGSURGE" if="yealinkPhoneSIPT[12].*">
+    <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Network/Network.cfg</value></setting>
+    <setting name="RegSurgePrevention"><type><integer min="0" max="60"/></type><value>0</value></setting>
+</group>
+<group name="certificates">
+    <group name="https" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Setting/Setting.cfg</value></setting>
+        <setting name="TrustCertificates"><type><boolean /></type><value>0</value></setting>
+    </group>
+    <group name="TrustedCertificates" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/tmp/download.cfg</value></setting>
+        <setting name="server_address"><value>localhost/server.pem</value></setting>
+        <setting name="option"><type refid="CertOption_type" /></setting>
+        <setting name="server_address"><value>localhost/certificate0.crt</value></setting>
+    </group>
+    <group name="ServerCertificates" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/tmp/server.pem</value></setting>
+        <setting name="server_address"><value>localhost/server.pem</value></setting>
+        <setting name="option"><type refid="CertOption_type" /></setting>
+    </group>
+</group>
+<group name="xml-browser">
+    <group name="PushXML" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Setting/AdvSetting.cfg</value></setting>
+        <setting name="ServerIP"><type><ipaddr /></type></setting>
+    </group>
+    <group name="Features" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="ActionURILimitIP"><type><ipaddr /></type></setting>
+    </group>
+    <group name="CustomSoftKey" if="yealinkPhoneSIPT[12].*">
+        <setting name="Dialing"/>
+        <setting name="Connecting"/>
+        <setting name="RingBack"/>
+        <setting name="CallIn"/>
+        <setting name="Talking"/>
+        <setting name="CallFailed"/>
+    </group>
+    <group name="ActionURL" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Features/Phone.cfg</value></setting>
+        <setting name="SetupCompleted" />
+        <setting name="LogOn" />
+        <setting name="LogOff" />
+        <setting name="RegisterFailed" />
+        <setting name="Offhook" />
+        <setting name="Onhook" />
+        <setting name="IncomingCall" />
+        <setting name="OutgoingCall" />
+        <setting name="CallEstablished" />
+        <setting name="DNDOn" />
+        <setting name="DNDOff" />
+        <setting name="AwaysFWDOn" />
+        <setting name="AwaysFWDOff" />
+        <setting name="BusyFWDOn" />
+        <setting name="BusyFWDOff" />
+        <setting name="NoAnswerFWDOn" />
+        <setting name="NoAnswerFWDOff" />
+        <setting name="TransferCall" />
+        <setting name="BlindTransferCall" />
+        <setting name="AttendedTransferCall" />
+        <setting name="Hold" />
+        <setting name="Unhold" />
+        <setting name="Mute" />
+        <setting name="Unmute" />
+        <setting name="MissedCall" />
+        <setting name="CallTerminated" />
+        <setting name="BusytoIdle" />
+        <setting name="IdletoBusy" />
+        <setting name="IPChange" />
+    </group>
+</group>
+<group name="mcast-paging">
+    <group name="audio" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting>
+        <setting name="PayloadType"><type refid="yealink-codec_type"/></setting>
+    </group>
+    <group name="ReveivePriority" if="yealinkPhoneSIPT[12].*">
+        <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting>
+        <setting name="Active"><type><boolean /></type><value>0</value></setting>
+        <setting name="Priority"><type><integer min="0" max="10" /></type></setting>
+    </group>
+    <group name="ListenAddress" if="yealinkPhoneSIPT[12].*">
+        <group name="1"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="2"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="3" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="4" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="5" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="6" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="7" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="8" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="9" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="10" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="11" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="12" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="13" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="14" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="15" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="16" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="17" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="18" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="19" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="20" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="21" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="22" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="23" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="24" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="25" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="26" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="27" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="28" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="29" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="30" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="41" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="42" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="43" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="44" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="45" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="46" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="47" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="48" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="49" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+        <group name="50" advanced="yes"><setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/yealink/config/vpPhone/MulticastPage.cfg</value></setting><setting name="Label"/><setting name="IPAddress"/></group>
+    </group>
+</group>
+<group name="contacts">
+	<group name="RemotePhoneBook">
+	    <group name="SRemoteName" if="yealinkPhoneSIPT[12].*">
+	        <setting name="Enable"><type><boolean /></type><value>0</value></setting>
+	        <setting name="FlashTime"><type><integer /></type><value>3600</value></setting>
+	    </group>
+	    <group name="0">
+	        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+	        <setting name="Name"><value></value></setting>
+	        <setting name="URL" />
+	    </group>
+	    <group name="1" advanced="yes">
+	        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+	        <setting name="Name"><value></value></setting>
+	        <setting name="URL" />
+	    </group>
+	    <group name="2" advanced="yes">
+	        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+	        <setting name="Name"><value></value></setting>
+	        <setting name="URL" />
+	    </group>
+	    <group name="3" advanced="yes">
+	        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+	        <setting name="Name"><value></value></setting>
+	        <setting name="URL" />
+	    </group>
+	    <group name="4" advanced="yes">
+	        <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/user.ini</value></setting>
+	        <setting name="Name"><value></value></setting>
+	        <setting name="URL" />
+	    </group>
+	</group>
+	<group name="LDAP">
+	    <setting name="path" hidden="yes" if="yealinkPhoneSIPT[12].*"><value>/config/Contacts/LDAP.cfg</value></setting>
+	    <setting name="path_" hidden="yes" if="yealinkPhoneSIPT3.*"><value>/phone/config/Contacts/LDAP.cfg</value></setting>
+	    <setting name="NameFilter"><value>(&amp;(ipPhone=*)(sn=%))</value></setting>
+	    <setting name="NumberFilter"><value>(|(telephoneNumber=%)(mobile=%)(ipPhone=%))</value></setting>
+	    <setting name="host"><type><hostname /></type></setting>
+	    <setting name="port"><type><integer /></type><value>389</value></setting>
+	    <setting name="base"/>
+	    <setting name="user"/>
+	    <setting name="pswd"><type><password/></type></setting>
+	    <setting name="MaxHits"><type><integer /></type></setting>
+	    <setting name="NameAttr"><value>sn givenName</value></setting>
+	    <setting name="NumbAttr"><value>ipPhone telephoneNumber mobile</value></setting>
+	    <setting name="DisplayName"><value>%sn %givenName</value></setting>
+	    <setting name="version"><type refid="yealink_ldap_version_type"/><value>3</value></setting>
+	    <setting name="SearchDelay"><type><integer /></type><value>0</value></setting>
+	    <setting name="CallInLookup"><type><boolean /></type><value>0</value></setting>
+	    <setting name="LDAPSort"><type><boolean /></type><value>1</value></setting>
+	    <setting name="DialLookup"><type><boolean /></type><value>0</value></setting>
+	</group>
+</group>
+<group name="expansion-panels" if="ExpansionPanels" hidden="yes">
+    <setting name="exp1"><type refid="expansion-panels"/></setting>
+    <setting name="exp2"><type refid="expansion-panels"/></setting>
+    <setting name="exp3"><type refid="expansion-panels"/></setting>
+    <setting name="exp4"><type refid="expansion-panels"/></setting>
+    <setting name="exp5"><type refid="expansion-panels"/></setting>
+    <setting name="exp6"><type refid="expansion-panels"/></setting>
+</group>
+<group name="e911" hidden="yes"> 
+  <setting name="location"> 
+    <type> 
+      <integer/> 
+    </type> 
+  </setting> 
+</group>
+</model>

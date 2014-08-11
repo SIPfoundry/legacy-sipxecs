@@ -20,18 +20,13 @@ import org.sipfoundry.commons.hz.HzPublisherTask;
 import org.sipfoundry.commons.hz.HzVmEvent;
 import org.sipfoundry.commons.userdb.PersonalAttendant;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.util.IMSender;
-import org.sipfoundry.commons.util.IMSender.HttpResult;
 import org.sipfoundry.sipxivr.common.DialByNameChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice;
 import org.sipfoundry.sipxivr.common.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.voicemail.mailbox.MailboxManager;
 import org.sipfoundry.voicemail.mailbox.TempMessage;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-
-import com.hazelcast.core.HazelcastInstance;
 
 public class Deposit extends AbstractVmAction implements ApplicationContextAware {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -39,7 +34,6 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
     private Map<String, String> m_depositMap;
     private ApplicationContext m_appContext;
     private String m_operatorAddr;
-    private HazelcastInstance m_hzInstance;
     private ExecutorService m_executorService = Executors.newSingleThreadExecutor();
     /**
      * The depositVoicemail dialog
@@ -249,15 +243,9 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                 + m_appContext.getMessage("leaving_msg", null, "is leaving a voice message.", user.getLocale());
         try {
             if (user.getVMEntryIM()) {
-                HttpResult result = IMSender.sendVmEntryIM(user, instantMsg, m_sendIMUrl);
                 m_executorService.submit(new HzPublisherTask(
-                    m_hzInstance,
-                    new HzVmEvent(getChannelCallerIdName(), user.getUserName(), instantMsg),
+                    new HzVmEvent(getChannelCallerIdName(), user.getUserName(), instantMsg, HzVmEvent.VmType.START_LEAVE_VM),
                     HzConstants.VM_TOPIC));
-                if (!result.isSuccess()) {
-                    LOG.error("Deposit::sendIM Trouble with RemoteRequest: " + result.getResponse(),
-                            result.getException());
-                }
             }
         } catch (Exception ex) {
             LOG.error("Deposit::sendIM failed", ex);
@@ -280,17 +268,9 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
             String instantMsg = getChannelCallerIdName() + " (" + getChannelCallerIdNumber() + ") " + description;
             try {
                 if (user.getVMExitIM()) {
-                    HttpResult result = IMSender.sendVmExitIM(user, instantMsg, m_sendIMUrl);
-
                     m_executorService.submit(new HzPublisherTask(
-                        m_hzInstance,
-                        new HzVmEvent(getChannelCallerIdName(), user.getUserName(), instantMsg),
+                        new HzVmEvent(getChannelCallerIdName(), user.getUserName(), instantMsg, HzVmEvent.VmType.END_LEAVE_VM),
                         HzConstants.VM_TOPIC));
-
-                    if (!result.isSuccess()) {
-                        LOG.error("Deposit::sendIM Trouble with RemoteRequest: " + result.getResponse(),
-                                result.getException());
-                    }
                 }
             } catch (Exception ex) {
                 LOG.error("Deposit::sendIM failed", ex);
@@ -360,10 +340,5 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
     public void setOperatorAddr(String operatorAddr) {
         m_operatorAddr = operatorAddr;
-    }
-
-    @Required
-    public void setHzInstance(HazelcastInstance hzInstance) {
-        m_hzInstance = hzInstance;
     }
 }

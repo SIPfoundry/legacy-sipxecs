@@ -31,7 +31,6 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
@@ -394,7 +393,7 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit, S
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.GATEWAY;
+    public String getConfigChangeType() {
+        return Gateway.class.getSimpleName();
     }
 }

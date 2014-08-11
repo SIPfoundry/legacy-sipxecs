@@ -17,6 +17,8 @@
 package org.sipfoundry.voicemail.mailbox;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.SequenceInputStream;
 
@@ -328,6 +330,14 @@ public abstract class AbstractMailboxManager implements MailboxManager {
     }
 
     protected void concatAudio(File newFile, File orig1, File orig2) throws Exception {
+        if (getAudioFormat().equals("wav")) {
+            concatWavAudio(newFile, orig1, orig2);
+        } if (getAudioFormat().equals("mp3")) {
+            concatMP3Audio(newFile, orig1, orig2);
+        }
+    }
+
+    private void concatWavAudio(File newFile, File orig1, File orig2) throws Exception {
         String operation = "dunno";
         AudioInputStream clip1 = null;
         AudioInputStream clip2 = null;
@@ -352,6 +362,29 @@ public abstract class AbstractMailboxManager implements MailboxManager {
             IOUtils.closeQuietly(clip1);
             IOUtils.closeQuietly(clip2);
             IOUtils.closeQuietly(concatStream);
+        }
+    }
+
+    private void concatMP3Audio(File newFile, File orig1, File orig2) throws Exception {
+        FileInputStream comment = new FileInputStream(orig1);
+        FileInputStream original = new FileInputStream(orig2);
+        SequenceInputStream concatStream = new SequenceInputStream(comment, original);
+        FileOutputStream concat = new FileOutputStream(newFile);
+        try {
+
+            int temp;
+
+            while( ( temp = concatStream.read() ) != -1)
+            {
+                concat.write(temp);
+            }
+        } catch (Exception ex) {
+            throw new Exception("VmMessage::concatAudio Problem while writting MP3 file", ex);
+        } finally {
+            IOUtils.closeQuietly(concat);
+            IOUtils.closeQuietly(concatStream);
+            IOUtils.closeQuietly(comment);
+            IOUtils.closeQuietly(original);
         }
     }
 

@@ -16,6 +16,7 @@ package org.sipfoundry.sipxconfig.test;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -79,9 +80,10 @@ public abstract class RestApiIntegrationTestCase extends IntegrationTestCase {
     @Override
     protected String[] getConfigLocations() {
         // load jaxrs test server
-        return new String[] {
-            "classpath*:**/*.beans.xml", "classpath:/org/sipfoundry/sipxconfig/api/jaxrs-server-test.xml"
-        };
+        String[] configLocations = super.getConfigLocations();
+        return (String[]) ArrayUtils
+                .add(configLocations,
+                        "classpath:/org/sipfoundry/sipxconfig/api/jaxrs-server-test.xml");
     }
 
     private HttpEntity<String> createEntity(MediaType mediaType) {

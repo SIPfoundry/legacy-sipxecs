@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
@@ -150,7 +149,7 @@ public class Domain extends BeanWithId implements DeployConfigOnEdit, Cloneable,
     }
 
     @Override
-    public ConfigChangeType getConfigChangeType() {
-        return ConfigChangeType.DOMAIN;
+    public String getConfigChangeType() {
+        return Domain.class.getSimpleName();
     }
 }
