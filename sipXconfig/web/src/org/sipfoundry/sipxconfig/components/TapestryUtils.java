@@ -42,6 +42,7 @@ import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.valid.ValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.apache.tapestry.web.WebResponse;
+import org.sipfoundry.sipxconfig.admin.AbstractResLimitsConfig;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
@@ -359,16 +360,13 @@ public final class TapestryUtils {
      * @param settingType (example: "configserver-config" or "resource-limits")
      * @return true if validation was OK, false if it failed
      */
-    public static boolean validateFDSoftAndHardLimits(IComponent page, PersistableSettings settings, String settingType)
-    {
+    public static boolean validateFDSoftAndHardLimits(IComponent page, PersistableSettings settings,
+        String settingType) {
         SipxValidationDelegate validator = (SipxValidationDelegate) getValidator(page);
-
-        String fdSoft = settings.getSettingValue(settingType + "/fd-soft");
-        String fdHard = settings.getSettingValue(settingType + "/fd-hard");
-
-        if (Integer.parseInt(fdSoft) > Integer.parseInt(fdHard)) {
+        boolean validLimit = AbstractResLimitsConfig.validateFDSoftAndHardLimits(settings, settingType);
+        if (!validLimit) {
             validator.record(page.getMessages().getMessage("error.soft-higher-than-hard-limit"),
-                    ValidationConstraint.CONSISTENCY);
+                ValidationConstraint.CONSISTENCY);
             return false;
         }
         return true;
