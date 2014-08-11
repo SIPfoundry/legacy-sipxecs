@@ -132,7 +132,8 @@ public:
                               // message is modified.)
                               SipUserAgent& userAgent,
                               SipTransactionList& transactionList,
-                              enum messageRelationship relationship);
+                              enum messageRelationship relationship,
+                              bool* reevaluateDestination = NULL);
 
     void handleResendEvent(const SipMessage& outgoingMessage,
                            SipUserAgent& userAgent,
@@ -365,6 +366,7 @@ protected:
 
     UtlBoolean recurseDnsSrvChildren(SipUserAgent& userAgent,
                               SipTransactionList& transactionList,
+                              bool* reevaluateDestination = NULL,
                               SipMessage* pRequest = 0);
     //: Starts search on any immediate DNS SRV children of the highest unpursued Q value
 
@@ -417,7 +419,8 @@ private:
                           SipUserAgent& userAgent,
                           UtlString& toAddress,
                           int& port,
-                          OsSocket::IpProtocolSocketType& toProtocol);
+                          OsSocket::IpProtocolSocketType& toProtocol,
+                          bool* reevaluateDestination);
 
     void prepareRequestForSend(SipMessage& request,
                                SipUserAgent& userAgent,

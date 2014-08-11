@@ -72,7 +72,8 @@ public:
 
    UtlBoolean send(SipMessage* message,
                    const char* hostAddress,
-                   int hostPort = SIP_PORT);
+                   int hostPort, // = SIP_PORT,
+                   bool* reevaluateDestination);
 
    virtual int run(void* pArg) = 0;
 

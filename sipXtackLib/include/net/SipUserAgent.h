@@ -399,7 +399,8 @@ public:
     // See comments in SipUserAgentBase.h
     virtual void executeAllSipOutputProcessors( SipMessage& message,
                                                 const char* address,
-                                                int port );
+                                                int port,
+                                                bool* reevaluateDestination );
 
     virtual void executeAllBufferedSipOutputProcessors( SipMessage& message,
                                                 const char* address,
@@ -729,15 +730,18 @@ protected:
      */
     UtlBoolean sendTls(SipMessage* message,
                        const char* serverAddress,
-                       int port);
+                       int port,
+                       bool* reevaluateDestination = NULL);
 
     UtlBoolean sendTcp(SipMessage* message,
                        const char* serverAddress,
-                       int port);
+                       int port,
+                       bool* reevaluateDestination = NULL);
 
     UtlBoolean sendUdp(SipMessage* message,
                        const char* serverAddress,
-                       int port);
+                       int port,
+                       bool* reevaluateDestination = NULL);
 
     // Get mReliableTransportTimeoutMs, the time from first send via TCP to first resend (msec).
     int getReliableTransportTimeout();

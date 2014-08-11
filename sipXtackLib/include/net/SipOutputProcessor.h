@@ -105,7 +105,8 @@ public:
      */  
    virtual void handleOutputMessage( SipMessage& message,
                                      const char* address,
-                                     int port ) = 0;
+                                     int port,
+                                     bool* reevaluateDestination) = 0;
 
    virtual void handleBufferedOutputMessage( SipMessage& message,
                                      const char* address,

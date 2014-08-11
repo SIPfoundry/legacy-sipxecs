@@ -25,7 +25,6 @@
 
 // CONSTANTS
 // TYPEDEFS
-typedef UtlInt tMediaRelayHandle;
 
 // FORWARD DECLARATIONS
 class MediaBridgePair;
@@ -236,15 +235,6 @@ public:
    const MediaEndpoint& getEndpoint( EndpointRole endpointRole ) const;
    /// Returns true if 'set' operation resulted in a change in the saved data. Returns false if saved already matched new values
    bool                 setEndpointData( const SdpBody& sdpBody, size_t index, EndpointRole endpointRole );
-   void                 setCurrentMediaRelayHandle( const tMediaRelayHandle handle );
-   tMediaRelayHandle    getCurrentMediaRelayHandle( void ) const;
-   void                 clearCurrentMediaRelayHandle( void );
-   void                 setTentativeInitialMediaRelayHandle( const tMediaRelayHandle handle );
-   tMediaRelayHandle    getTentativeInitialMediaRelayHandle( void ) const;
-   void                 clearTentativeInitialMediaRelayHandle( void );
-   void                 setTentativeNonInitialMediaRelayHandle( const tMediaRelayHandle handle );
-   tMediaRelayHandle    getTentativeNonInitialMediaRelayHandle( void )  const;
-   void                 clearTentativeNonInitialMediaRelayHandle( void );
    static MediaDirectionality sdpDirectionalityAttributeToMediaDirectionalityValue( const SdpBody& sdpBody, size_t index );
    static void                mediaDirectionalityValueToSdpDirectionalityAttribute( const MediaDirectionality valueToConvert, UtlString& conversion );
    MediaDescriptor&     operator=( const MediaDescriptor& rhs );
@@ -257,11 +247,6 @@ private:
    MediaDirectionality mDirectionalityOverride; // directionality override as imposed by the NAT traversal logic
    MediaEndpoint       mCaller;
    MediaEndpoint       mCallee;
-
-   // Media Relay handle variables
-   tMediaRelayHandle mCurrentMediaRelayHandle;
-   tMediaRelayHandle mTentativeInitialMediaRelayHandle;
-   tMediaRelayHandle mTentativeNonInitialMediaRelayHandle;
 
    const MediaEndpoint& getCallerEndpoint( void ) const;
    bool                 setCallerEndpointData( const SdpBody& sdpBody, size_t index );
@@ -277,53 +262,5 @@ struct PacketProcessingStatistics
    unsigned long mEpochTimeOfLastPacketsProcessed;
 };
 
-/// This class is an abstration of a single session capable of relaying one RTP + one RTCP
-/// streams between two endpoints.
-class MediaRelaySession : public UtlContainable
-{
-public:
-   MediaRelaySession( const tMediaRelayHandle& uniqueHandle,
-                      int callerPort,
-                      int calleePort,
-                      MediaBridgePair *pAssociatedMediaBridgePair,
-                      bool isaCloneOfAnotherMediaRelaySession = false );
-   ///< c'tor used when creating a media relay session that is a clone of an existing one.
-
-   //UtlContainable methods
-   virtual UtlContainableType getContainableType() const;
-   virtual unsigned hash() const;
-   virtual int compareTo(UtlContainable const *) const;
-
-   // GETTERS
-   const tMediaRelayHandle& getUniqueHandle( void ) const { return mUniqueHandle; }
-   bool areCallerAndCalleeRtpPortsSwapped( void ) const { return mbCallerAndCalleeRtpPortsSwapped; }
-   int getRtpRelayPort( EndpointRole endpointRole ) const;
-   bool isaCloneOfAnotherMediaRelaySession( void ) const;
-   MediaBridgePair* getAssociatedMediaBridgePair( void ) const { return mpAssociatedMediaBridgePair; }
-   const PacketProcessingStatistics& getPacketProcessingStats( void ){ return mPacketProcessingStats; }
-
-   // SETTERS
-   void setPacketProcessingStats( const PacketProcessingStatistics& newStats );
-
-   // LINK COUNT MANIPULATIONS
-   ssize_t getLinkCount( void ) const;
-   ssize_t incrementLinkCount( void );
-   ssize_t decrementLinkCount( void );
-
-   // Misc
-   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-
-private:
-   tMediaRelayHandle mUniqueHandle;    // Handle that uniquely identifies this instance of the class
-   int               mCallerRtpPort;
-   int               mCalleeRtpPort;
-   bool              mbIsaCloneOfAnotherMediaRelaySession;
-   bool              mbCallerAndCalleeRtpPortsSwapped;  // When session is cloned from another, it indicates
-                                                        // whether this session has its caller and caller RTP
-                                                        // ports reversed compared to the original
-   MediaBridgePair*  mpAssociatedMediaBridgePair;
-   ssize_t           mLinkCount;
-   PacketProcessingStatistics mPacketProcessingStats;
-};
 
 #endif // _NATTRAVERSALAGENTDATATYPES_H_

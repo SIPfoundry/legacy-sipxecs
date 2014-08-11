@@ -255,7 +255,8 @@ SipXProxyCseObserver::~SipXProxyCseObserver()
 
 void SipXProxyCseObserver::handleOutputMessage( SipMessage& message,
                                                 const char* address,
-                                                int port )
+                                                int port,
+                                                bool* reevaluateDestination)
 {
    UtlString method;
    UtlString viaValue;

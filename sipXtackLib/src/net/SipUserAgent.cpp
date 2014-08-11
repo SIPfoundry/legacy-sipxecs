@@ -686,7 +686,8 @@ UtlBoolean SipUserAgent::removeSipOutputProcessor( SipOutputProcessor *pProcesso
 
 void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
                                                   const char* address,
-                                                  int port )
+                                                  int port,
+                                                  bool* reevaluateDestination)
 {
    OsWriteLock lock(mOutputProcessorMutex);
    SipOutputProcessor* pProcessor = NULL ;
@@ -695,7 +696,7 @@ void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
    UtlSortedListIterator iterator(mOutputProcessors);
    while ((pProcessor = (SipOutputProcessor*) iterator()))
    {
-      pProcessor->handleOutputMessage( message, address, port );
+      pProcessor->handleOutputMessage( message, address, port, reevaluateDestination );
    }
 }
 
@@ -1139,10 +1140,13 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent::send "
                         "outgoing call 1");
+
+         bool reevaluateDestination = false;
          sendSucceeded = transaction->handleOutgoing(message,
                                                      *this,
                                                      mSipTransactions,
-                                                     relationship);
+                                                     relationship,
+                                                     &reevaluateDestination);
       }
 
       mSipTransactions.markAvailable(*transaction);
@@ -1163,7 +1167,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
 UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
                                  const char* serverAddress,
-                                 int port)
+                                 int port,
+                                 bool* reevaluateDestination)
 {
   if (mbShuttingDown || mbShutdownDone)
   {
@@ -1209,7 +1214,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   // Disallow an address begining with * as it gets broadcasted on NT
   if(! strchr(serverAddress, '*') && *serverAddress)
     {
-      sentOk = mSipUdpServer->send(message, serverAddress, port);
+      sentOk = mSipUdpServer->send(message, serverAddress, port, reevaluateDestination);
     }
   else if(*serverAddress == '\0')
     {
@@ -1296,6 +1301,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
        return FALSE;
     }
 
+    // don't need to reevaluate destination as is used only in NTAP
     assert(mSipUdpServer);
     UtlBoolean sentOk = mSipUdpServer->sendTo(message,
                                              serverAddress,
@@ -1561,7 +1567,8 @@ UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
 
 UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
                                  const char* serverAddress,
-                                 int port)
+                                 int port,
+                                 bool* reevaluateDestination)
 {
     if (mbShuttingDown || mbShutdownDone)
     {
@@ -1579,7 +1586,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     {
        if (mSipTcpServer)
        {
-          sendSucceeded = mSipTcpServer->send(message, serverAddress, port);
+          sendSucceeded = mSipTcpServer->send(message, serverAddress, port, reevaluateDestination);
        }
     }
     else if (*serverAddress == '\0')
@@ -1641,7 +1648,8 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
 
 UtlBoolean SipUserAgent::sendTls(SipMessage* message,
                                  const char* serverAddress,
-                                 int port)
+                                 int port,
+                                 bool* reevaluateDestination)
 {
    if (mbShuttingDown || mbShutdownDone)
    {
@@ -1657,7 +1665,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    // Disallow an address begining with * as it gets broadcasted on NT
    if(!strchr(serverAddress,'*') && *serverAddress)
    {
-      sendSucceeded = mSipTlsServer->send(message, serverAddress, port);
+      sendSucceeded = mSipTlsServer->send(message, serverAddress, port, reevaluateDestination);
    }
    else if(*serverAddress == '\0')
    {

@@ -55,7 +55,7 @@ public:
   public:
     OutputProcessor(int priority);
     virtual  ~OutputProcessor();
-    void handleOutputMessage(SipMessage& message, const char* address, int port);
+    void handleOutputMessage(SipMessage& message, const char* address, int port, bool* reevaluateDestination);
     void handleBufferedOutputMessage(SipMessage& message, const char* address, int port);
     void setEnabled(bool enabled);
     void setBuffered(bool buffered);
@@ -224,14 +224,14 @@ inline void SipBidirectionalProcessorPlugin::OutputProcessor::setBuffered(bool b
   _buffered = buffered;
 }
 
-inline void SipBidirectionalProcessorPlugin::OutputProcessor::handleOutputMessage(SipMessage& message, const char* address, int port)
+inline void SipBidirectionalProcessorPlugin::OutputProcessor::handleOutputMessage(SipMessage& message, const char* address, int port, bool* reevaluateDestination)
 {
   if (_enabled && _handler)_handler(message, address, port);
 }
 
 inline void SipBidirectionalProcessorPlugin::OutputProcessor::handleBufferedOutputMessage(SipMessage& message, const char* address, int port)
 {
-  if (_buffered) handleOutputMessage(message, address, port);
+  if (_buffered) handleOutputMessage(message, address, port, NULL);
 }
 
 

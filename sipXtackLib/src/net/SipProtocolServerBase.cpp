@@ -93,7 +93,8 @@ UtlBoolean SipProtocolServerBase::handleMessage(OsMsg& eventMessage)
 
 UtlBoolean SipProtocolServerBase::send(SipMessage* message,
                                        const char* hostAddress,
-                                       int hostPort)
+                                       int hostPort,
+                                       bool* reevaluateDestination)
 {
     UtlBoolean sendOk = FALSE;
 
@@ -119,7 +120,7 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
                         "SipProtocolServerBase[%s]::send %s (%p), %s",
                         getName().data(), client->getName().data(), client, clientNames.data());
        }
-       sendOk = client->sendTo(*message, hostAddress, hostPort);
+       sendOk = client->sendTo(*message, hostAddress, hostPort, reevaluateDestination);
     }
 
     return (sendOk);

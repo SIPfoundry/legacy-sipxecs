@@ -35,12 +35,11 @@ NatTraversalRules::NatTraversalRules()
      mbSystemBehindNat     ( false ),
      mbAggressiveModeSet   ( true ),
      mbMediaRelayPublicAddressProvidedInConfig( false ),
-     mMediaRelayXmlRpcPort(0),
+     mMediaRelayPort(0),
      mMaxMediaRelaySessions( DEFAULT_MAX_MEDIA_RELAY_SESSIONS ),
      mbDiscoverPublicIpAddressViaStun( false ),
      mStunRefreshIntervalInSecs( 300 ),
-     mpStunClient( 0 ),
-     mbXmlRpcOverSecureTransport( true )
+     mpStunClient( 0 )
 {
    UtlString hostIpAddress;
    OsSocket::getHostIp( &hostIpAddress );
@@ -277,16 +276,16 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
 
          // get the 'mediarelayxml-rpc-port' node
-         if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_XMLRPC_PORT ) ) && pChildNode->FirstChild() )
+         if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_PORT ) ) && pChildNode->FirstChild() )
          {
-            UtlString tempMediaRelayXmlRpcPortString;
-            tempMediaRelayXmlRpcPortString = pChildNode->FirstChild()->Value();
-            mMediaRelayXmlRpcPort = atoi( tempMediaRelayXmlRpcPortString.data() );
+            UtlString tempMediaRelayPortString;
+            tempMediaRelayPortString = pChildNode->FirstChild()->Value();
+            mMediaRelayPort = atoi( tempMediaRelayPortString.data() );
          }
          else
          {
-            mMediaRelayXmlRpcPort = DEFAULT_MR_XMLRPC_PORT;
-            Os::Logger::instance().log(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_XMLRPC_PORT );
+            mMediaRelayPort = DEFAULT_MR_PORT;
+            Os::Logger::instance().log(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", DEFAULT_MR_PORT );
          }
 
          // Derive the max media relay sessions from the media relay port range.
@@ -358,24 +357,6 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          else
          {
             Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STUN_SERVER );
-         }
-
-         // get the 'secureXMLRPC' node
-         if( ( pChildNode = pNode->FirstChild( XML_TAG_SECURE_XMLRPC ) ) && pChildNode->FirstChild() )
-         {
-            UtlString status = pChildNode->FirstChild()->Value();
-            if( status.compareTo(XML_VALUE_TRUE, UtlString::ignoreCase) == 0 || status.compareTo(XML_VALUE_YES, UtlString::ignoreCase) == 0  )
-            {
-               mbXmlRpcOverSecureTransport = true;
-            }
-            else
-            {
-               mbXmlRpcOverSecureTransport = false;
-            }
-         }
-         else
-         {
-            Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_SECURE_XMLRPC );
          }
       }
       else
@@ -524,9 +505,9 @@ UtlString NatTraversalRules::getMediaRelayNativeAddress( void ) const
    return mMediaRelayNativeAddress;
 }
 
-int NatTraversalRules::getMediaRelayXmlRpcPort( void ) const
+int NatTraversalRules::getMediaRelayPort( void ) const
 {
-   return mMediaRelayXmlRpcPort;
+   return mMediaRelayPort;
 }
 
 int NatTraversalRules::getMaxMediaRelaySessions( void ) const
@@ -542,11 +523,6 @@ bool NatTraversalRules::isAggressiveModeSet( void ) const
 bool NatTraversalRules::isConservativeModeSet( void ) const
 {
    return !mbAggressiveModeSet;
-}
-
-bool NatTraversalRules::isXmlRpcSecured( void ) const
-{
-   return mbXmlRpcOverSecureTransport;
 }
 
 bool NatTraversalRules::isPartOfLocalTopology( const UtlString& host, bool bCheckIpSubnets, bool bCheckDnsWidlcards ) const

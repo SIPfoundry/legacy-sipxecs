@@ -90,7 +90,8 @@ public:
     //! SIP message is about to be sent.
     virtual void executeAllSipOutputProcessors( SipMessage& message,
                                                 const char* address,
-                                                int port ) = 0;
+                                                int port,
+                                                bool* reevaluateDestination ) = 0;
 
     virtual void executeAllBufferedSipOutputProcessors( SipMessage& message,
                                                 const char* address,

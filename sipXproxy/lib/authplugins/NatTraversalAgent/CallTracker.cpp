@@ -234,7 +234,7 @@ bool CallTracker::notifyIncomingDialogFormingInvite( SipMessage& request, RouteS
 }
 
 
-bool CallTracker::handleRequest( SipMessage& message, const char* address, int port )
+bool CallTracker::handleRequest( SipMessage& message, const char* address, int port, bool* reevaluateDestination )
 {
    // message is a request.  If this is a request we care about, it will contain
    // a SIP_SIPX_SESSION_CONTEXT_ID_HEADER header containing the value of the session context
@@ -267,7 +267,7 @@ bool CallTracker::handleRequest( SipMessage& message, const char* address, int p
          // Via header to allow SessionContext retrieval for
          // RouteState-less responses.
          result = true;
-         if( pSessionContext->handleRequest( message, address, port, bFromCallerToCallee ) )
+         if( pSessionContext->handleRequest( message, address, port, bFromCallerToCallee, reevaluateDestination ) )
          {
             setSessionHandleInVia( message, 1, sessionHandle );
          }

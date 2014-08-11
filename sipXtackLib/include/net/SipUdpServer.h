@@ -62,6 +62,7 @@ public:
     UtlBoolean sendTo(SipMessage& message,
                      const char* address,
                      int port,
+                     bool* reevaluateDestination = NULL,
                      const char* szLocalSipIp = NULL);
 
     void enableStun(const char* szStunServer,

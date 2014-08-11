@@ -80,7 +80,8 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    /// Called when SIP messages are about to be sent by proxy
    virtual void handleOutputMessage( SipMessage& message,
                                      const char* address,
-                                     int port );
+                                     int port,
+                                     bool* reevaluateDestination);
 
    virtual void handleBufferedOutputMessage( SipMessage& message,
                                      const char* address,

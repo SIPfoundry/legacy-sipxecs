@@ -292,7 +292,8 @@ UtlBoolean SipClient::handleMessage(OsMsg& eventMessage)
 // Queue a message to be sent to the specified address and port.
 UtlBoolean SipClient::sendTo(SipMessage& message,
                              const char* address,
-                             int port)
+                             int port,
+                             bool* reevaluateDestination)
 {
    UtlBoolean sendOk;
 
@@ -317,7 +318,12 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
              address, portToSendTo,
              msgText.data(), msgLength);
 
-        mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo );
+        mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo, reevaluateDestination );
+      }
+
+      if (reevaluateDestination && true == *reevaluateDestination)
+      {
+        return FALSE;
       }
 
       // Create message to queue.

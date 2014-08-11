@@ -121,6 +121,8 @@ class SipUserAgent;
 #define SIP_SIPX_NAT_HANDLED "X-sipX-handled"
 #define SIP_SIPX_SESSION_CONTEXT_ID_HEADER "X-sipX-Id"
 #define SIP_SIPX_NAT_ROUTE_FIELD "X-sipX-Nat-Route"
+#define SIP_SIPX_NTAP_ADDRESS "X-sipX-NTAP-Address"
+#define SIP_SIPX_NTAP_CONTACT "X-sipX-NTAP-Contact"
 #define SIP_SIPX_SPIRAL_HEADER "X-sipX-Spiral"
 #define SIP_SIPX_CALL_DEST_FIELD "sipXecs-CallDest"
 #define SIP_SIPX_USER "sipXecs-User"

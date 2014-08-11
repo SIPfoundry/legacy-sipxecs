@@ -77,7 +77,6 @@ bool DialogTrackerState::AckRequest( DialogTracker& impl, SipMessage& request, T
 
 bool DialogTrackerState::ByeRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality direction, const char* address, int port ) const
 {
-   impl.deallocateAndClearAllMediaRelaySessions();
    ChangeState( impl, impl.pMoribund );
    return false;
 }
@@ -273,10 +272,7 @@ void Negotiating::FailureResponse( DialogTracker& impl, SipMessage& response, co
    {
       if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
       {
-         // session negotiation failed.  Deallocate all the tentative
-         // media relays tentatively allocated to handle the media
-         // sessions that just failed.
-         impl.deallocateAndClearAllMediaRelaySessions( true, true, false );
+         // session negotiation failed.
 
          if( !impl.getDialogEstablishedFlag() )
          {
@@ -390,7 +386,6 @@ const DialogTrackerState* WaitingForAckForInvite::GetParent( DialogTracker& impl
 bool WaitingForAckForInvite::AckRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality direction, const char* address, int port ) const
 {
    impl.setDialogEstablishedFlag();
-   impl.promoteTentativeMediaRelaySessionsToCurrent();
    ChangeState( impl, impl.pWaitingForInvite );
    return false;
 }
@@ -594,7 +589,6 @@ bool WaitingForAckWithAnswerForInvite::AckRequest( DialogTracker& impl, SipMessa
 {
    impl.ProcessMediaAnswer( request, INITIAL_OFFER_ANSWER );
    impl.setDialogEstablishedFlag();
-   impl.promoteTentativeMediaRelaySessionsToCurrent();
    ChangeState( impl, impl.pWaitingForInvite );
    return false;
 }
@@ -756,9 +750,7 @@ void WaitingFor200OkWithAnswerForPrack::FailureResponse( DialogTracker& impl, Si
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
       {
-         // PRACK offer/answer failed.  Deallocate any tentative media relays allocation
-         // in preparation for that failed PRACK offer/answer negotiation.
-         impl.deallocateAndClearAllMediaRelaySessions( false, true, false );
+         // PRACK offer/answer failed.
          ChangeState( impl, impl.pWaitingForPrack );
       }
       else
@@ -782,7 +774,6 @@ const char* ProcessingPrackWaitingForAckforInvite::name( void ) const
 bool ProcessingPrackWaitingForAckforInvite::AckRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality direction, const char* address, int port ) const
 {
       impl.setDialogEstablishedFlag();
-      impl.promoteTentativeMediaRelaySessionsToCurrent();
       ChangeState( impl, impl.pWaitingForInvite );
       return false;
 }

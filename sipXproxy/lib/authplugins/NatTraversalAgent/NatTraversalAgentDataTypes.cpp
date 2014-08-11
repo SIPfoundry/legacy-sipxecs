@@ -519,10 +519,7 @@ MediaDescriptor::MediaDescriptor( const MediaDescriptor& referenceMediaDescripto
 }
 
 MediaDescriptor::MediaDescriptor( const SdpBody& sdpBody, size_t index, EndpointRole endpointRole )  :
-   mMediaDescriptionIndex               ( index ),
-   mCurrentMediaRelayHandle             ( INVALID_MEDIA_RELAY_HANDLE ),
-   mTentativeInitialMediaRelayHandle    ( INVALID_MEDIA_RELAY_HANDLE ),
-   mTentativeNonInitialMediaRelayHandle ( INVALID_MEDIA_RELAY_HANDLE )
+   mMediaDescriptionIndex               ( index )
 {
    setMediaTypeAndDirectionalityData( sdpBody, index );
    setEndpointData( sdpBody, index, endpointRole );
@@ -649,52 +646,6 @@ bool MediaDescriptor::setCalleeEndpointData( const SdpBody& sdpBody, size_t inde
    return mCallee.setData( sdpBody, index );
 }
 
-void MediaDescriptor::setCurrentMediaRelayHandle( const tMediaRelayHandle handle )
-{
-   mCurrentMediaRelayHandle = handle;
-}
-
-tMediaRelayHandle MediaDescriptor::getCurrentMediaRelayHandle( void ) const
-{
-   return mCurrentMediaRelayHandle;
-}
-
-void MediaDescriptor::clearCurrentMediaRelayHandle( void )
-{
-   mCurrentMediaRelayHandle = INVALID_MEDIA_RELAY_HANDLE;
-}
-
-
-void MediaDescriptor::setTentativeInitialMediaRelayHandle( const tMediaRelayHandle handle )
-{
-   mTentativeInitialMediaRelayHandle = handle;
-}
-
-tMediaRelayHandle MediaDescriptor::getTentativeInitialMediaRelayHandle( void ) const
-{
-   return mTentativeInitialMediaRelayHandle;
-}
-
-void MediaDescriptor::clearTentativeInitialMediaRelayHandle( void )
-{
-   mTentativeInitialMediaRelayHandle = INVALID_MEDIA_RELAY_HANDLE;
-}
-
-void MediaDescriptor::setTentativeNonInitialMediaRelayHandle( const tMediaRelayHandle handle )
-{
-   mTentativeNonInitialMediaRelayHandle = handle;
-}
-
-tMediaRelayHandle MediaDescriptor::getTentativeNonInitialMediaRelayHandle( void ) const
-{
-   return mTentativeNonInitialMediaRelayHandle;
-}
-
-void MediaDescriptor::clearTentativeNonInitialMediaRelayHandle( void )
-{
-   mTentativeNonInitialMediaRelayHandle = INVALID_MEDIA_RELAY_HANDLE;
-}
-
 MediaDescriptor& MediaDescriptor::operator=( const MediaDescriptor& rhs )
 {
    if( this != &rhs )
@@ -705,107 +656,8 @@ MediaDescriptor& MediaDescriptor::operator=( const MediaDescriptor& rhs )
       mDirectionalityOverride              = rhs.mDirectionalityOverride;
       mCaller                              = rhs.mCaller;
       mCallee                              = rhs.mCallee;
-      mCurrentMediaRelayHandle             = rhs.mCurrentMediaRelayHandle;
-      mTentativeInitialMediaRelayHandle    = rhs.mTentativeInitialMediaRelayHandle;
-      mTentativeNonInitialMediaRelayHandle = rhs.mTentativeNonInitialMediaRelayHandle;
    }
    return *this;
-}
-
-MediaRelaySession::MediaRelaySession( const tMediaRelayHandle& uniqueHandle,
-                                      int callerPort,
-                                      int calleePort,
-                                      MediaBridgePair *pAssociatedMediaBridgePair,
-                                      bool isaCloneOfAnotherMediaRelaySession ) :
-   mUniqueHandle( uniqueHandle ),
-   mCallerRtpPort( callerPort ),
-   mCalleeRtpPort( calleePort ),
-   mbIsaCloneOfAnotherMediaRelaySession( isaCloneOfAnotherMediaRelaySession ),
-   mbCallerAndCalleeRtpPortsSwapped(false),
-   mpAssociatedMediaBridgePair( pAssociatedMediaBridgePair ),
-   mLinkCount( 1 )
-{
-   // Figure out if the RTP ports have been swapped between the caller and the callee.
-   // This can only happen when a MediaRelaySession gets cloned.
-   if( mbIsaCloneOfAnotherMediaRelaySession )
-   {
-      // By convention Sym1 is used to track the caller's information.  Check to see
-      // if the port of Sym1 of the RTP bridge matches the caller port passed as a
-      // parameter.  If so, no swapped has happened.
-      mbCallerAndCalleeRtpPortsSwapped =
-         ( callerPort == pAssociatedMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort() ) ? false : true;
-   }
-}
-
-int MediaRelaySession::getRtpRelayPort( EndpointRole endpointRole ) const
-{
-   if( endpointRole == CALLER )
-   {
-      return mCallerRtpPort;
-   }
-   else
-   {
-      return mCalleeRtpPort;
-   }
-}
-
-bool MediaRelaySession::isaCloneOfAnotherMediaRelaySession( void ) const
-{
-   return mbIsaCloneOfAnotherMediaRelaySession;
-}
-
-ssize_t MediaRelaySession::getLinkCount( void ) const
-{
-   return mLinkCount;
-}
-
-ssize_t MediaRelaySession::incrementLinkCount( void )
-{
-   return ++mLinkCount;
-}
-
-ssize_t MediaRelaySession::decrementLinkCount( void )
-{
-   if( mLinkCount )
-   {
-      mLinkCount--;
-   }
-   return mLinkCount;
-}
-
-void MediaRelaySession::setPacketProcessingStats( const PacketProcessingStatistics& newStats )
-{
-   mPacketProcessingStats = newStats;
-}
-
-const UtlContainableType MediaRelaySession::TYPE = "MediaRelaySession";
-
-UtlContainableType MediaRelaySession::getContainableType() const
-{
-   return MediaRelaySession::TYPE;
-}
-
-unsigned MediaRelaySession::hash() const
-{
-   const intptr_t handle = mUniqueHandle;
-   return handle;
-}
-
-int MediaRelaySession::compareTo(UtlContainable const *rhs ) const
-{
-   int result = -1;
-   if ( rhs->isInstanceOf( MediaRelaySession::TYPE ) )
-   {
-      if( (intptr_t)mUniqueHandle == (intptr_t)(((MediaRelaySession*)rhs)->mUniqueHandle ) )
-      {
-         result = 0;
-      }
-      else
-      {
-         result = ( (intptr_t)mUniqueHandle > (intptr_t)(((MediaRelaySession*)rhs)->mUniqueHandle ) );
-      }
-   }
-   return result;
 }
 
 PacketProcessingStatistics::PacketProcessingStatistics( void ) :

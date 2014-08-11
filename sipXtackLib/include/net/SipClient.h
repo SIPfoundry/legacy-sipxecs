@@ -64,7 +64,8 @@ public:
    // Returns true if message was successfully queued.
    UtlBoolean sendTo(SipMessage& message,
                      const char* address,
-                     int port);
+                     int port,
+                     bool* reevaluateDestination = NULL);
 
    /// Send a message.  Executed by the thread.
    // Will only be called when mWriteQueued is false.

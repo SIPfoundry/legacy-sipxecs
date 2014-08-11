@@ -118,28 +118,12 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          mpMediaRelay = new MediaRelay();
       }
 
-      size_t attemptCounter;
-      for( attemptCounter = 0; attemptCounter < MAX_MEDIA_RELAY_INIT_ATTEMPTS; attemptCounter++ )
+      Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() );
+      if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
+                                    mNatTraversalRules.getMediaRelayNativeAddress(),
+                                    mNatTraversalRules.isPartOfLocalTopology( mNatTraversalRules.getMediaRelayNativeAddress()),
+                                    mNatTraversalRules.getMediaRelayPort()) == false )
       {
-         Os::Logger::instance().log(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() );
-         if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
-                                       mNatTraversalRules.getMediaRelayNativeAddress(),
-                                       mNatTraversalRules.isXmlRpcSecured(),
-                                       mNatTraversalRules.isPartOfLocalTopology( mNatTraversalRules.getMediaRelayNativeAddress() ),
-                                       mNatTraversalRules.getMediaRelayXmlRpcPort(),
-                                       mNatTraversalRules.getMaxMediaRelaySessions() ) == true )
-         {
-            break;
-         }
-         else
-         {
-            sleep( 5 );
-         }
-      }
-
-      if( attemptCounter >= MAX_MEDIA_RELAY_INIT_ATTEMPTS )
-      {
-         mbNatTraversalFeatureEnabled = false;
          Os::Logger::instance().log(FAC_NAT, PRI_CRIT, "ALARM_PROXY_FAILED_TO_INITIALIZE_MEDIA_RELAY %s failed, NAT traversal feature will be disabled",
                        mInstanceName.data() );
       }
@@ -445,12 +429,13 @@ void NatTraversalAgent::handleBufferedOutputMessage( SipMessage& message,
                                      int port )
 {
   Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "handleBufferedOutputMessage >>> handleOutputMessage from %s:%u", address, port );
-  NatTraversalAgent::handleOutputMessage(message, address, port);
+  NatTraversalAgent::handleOutputMessage(message, address, port, NULL);
 }
 
 void NatTraversalAgent::handleOutputMessage( SipMessage& message,
                                              const char* address,
-                                             int port )
+                                             int port,
+                                             bool* reevaluateDestination)
 {
    OsWriteLock lock( mMessageProcessingMutex );
    CallTracker* pCallTracker = 0;
@@ -466,12 +451,17 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
       adjustViaForNatTraversal( message, address, port );
       adjustRecordRouteForNatTraversal( message, address, port );
 
+      UtlString msgBytes;
+      ssize_t msgLen;
+      message.getBytes(&msgBytes, &msgLen);
+      Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "NatTraversalAgent::handleOutputMessage \n%s", msgBytes.data() );
+
       pCallTracker = getCallTrackerForMessage( message );
       if( pCallTracker )
       {
          if( !message.isResponse() ) // handling a request
          {
-            pCallTracker->handleRequest ( message, address, port );
+            pCallTracker->handleRequest ( message, address, port, reevaluateDestination );
          }
          else // handling a response
          {
@@ -1010,11 +1000,5 @@ NatTraversalAgent::~NatTraversalAgent()
    if (mpSubscribeDb != NULL) {
        delete mpSubscribeDb;
        mpSubscribeDb = NULL;
-   }
-
-   if (mpMediaRelay != NULL)
-   {
-       delete mpMediaRelay;
-       mpMediaRelay = NULL;
    }
 }

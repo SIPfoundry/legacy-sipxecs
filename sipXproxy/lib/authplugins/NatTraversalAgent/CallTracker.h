@@ -116,7 +116,7 @@ public:
     *
     * \return - true if request was processed properly.
     */
-   bool handleRequest( SipMessage& message, const char* address, int port );
+   bool handleRequest( SipMessage& message, const char* address, int port, bool* reevaluateDestination );
 
    /*! Method to be called to notify the CallTracker that a response
     *  belonging to the call being tracked by the CallTracker has

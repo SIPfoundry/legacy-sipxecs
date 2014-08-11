@@ -19,6 +19,7 @@
 
 // DEFINES
 #define MAX_TIMER_TICK_COUNTS_BEFORE_DIALOG_TRACKER_CLEAN_UP (6)
+#define NTAP_SDP_ATTRIB_MAGIC_NUMBER (4213)
 
 // NAMESPACES
 using namespace std;
@@ -59,8 +60,9 @@ public:
    // constructor
    DialogTracker( const UtlString& handle,
                   const UtlString& systemIdentificationString,
-                  SessionContextInterfaceForDialogTracker* pOwningSessionContext );
-   DialogTracker( const DialogTracker& referenceDialogTracker, const UtlString& newHandle );
+                  SessionContextInterfaceForDialogTracker* pOwningSessionContext,
+                  const NatTraversalRules* pNatTraversalRules );
+   DialogTracker( const DialogTracker& referenceDialogTracker, const UtlString& newHandle, const NatTraversalRules* pNatTraversalRules );
 
    // destructor
    virtual ~DialogTracker();
@@ -75,7 +77,11 @@ public:
    // ////////////////////////////////////////////// //
    // Incoming events relevant to this DialogTracker //
    // ////////////////////////////////////////////// //
-   bool handleRequest ( SipMessage& message, const char* address, int port, bool bFromCallerToCallee );
+   bool handleRequest ( SipMessage& message,
+                        const char* address,
+                        int port,
+                        bool bFromCallerToCallee,
+                        bool* reevaluateDestination );
    void handleResponse( SipMessage& message, const char* address, int port );
    void handleCleanUpTimerTick( void );
 
@@ -122,16 +128,10 @@ public:
    void appendMediaDescriptor( MediaDescriptor* pMediaDescriptor );
 
    // Media Relay Session-related methods
-   bool allocateMediaRelaySession( tMediaRelayHandle& relayHandle, int& callerRelayRtpPort, int& calleeRelayRtpPort );
-   tMediaRelayHandle cloneMediaRelaySession( tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee );
-   bool deallocateMediaRelaySession( const tMediaRelayHandle& relayHandle );
-   void deallocateAndClearAllMediaRelaySessions( bool bDeallocateTentativeInitialRelays = true,
-                                                 bool bDeallocateTentativeNonInitialRelays = true,
-                                                 bool bDeallocateCurrentRelays = true );
    bool wasMediaTrafficSeenInLastNSeconds( unsigned long numberOfSeconds );
 
    // Methods for Media Relay handle encoding/decoding in SDP
-   tMediaRelayHandle getOurMediaRelayHandleEncodedInSdp( const SdpBody* pSdpBody, int mediaIndex ) const;
+   int getOurSdpAttribMagicNumberEncodedInSdp( const SdpBody* pSdpBody, int mediaIndex ) const;
    bool hasSdpAlreadyBeenPatchedByUs( SipMessage& message, int mediaIndex ) const;
    bool hasSdpAlreadyBeenPatchedByUs( const SdpBody* pSdpBody, int mediaIndex ) const;
 
@@ -167,14 +167,6 @@ public:
    void ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern offerAnswerPattern );
 
    /**
-    * The processing of Offers and Answers haas caused the allocation of tentative MediaRelaySessions
-    * to be used if the INVITE proves to be successful (accepted with 200 OK).  This method is called
-    * after an INVITE succeeds to promote the tentatively allcoated MediaRelaySessions into the obes
-    * that actually get used to relay the newly negotiated media session.
-    */
-   void promoteTentativeMediaRelaySessionsToCurrent( void );
-
-   /**
     * Returns the role (CALLER or CALLEE of the originator the message currently being processed.
     */
    EndpointRole EstablishEndpointRole( TransactionDirectionality directionality, bool bMessageIsResponse ) const;
@@ -187,17 +179,6 @@ public:
    void reportDialogCompleted( void );
 
    /**
-    *   Configures the directionality of the media relay.  Note that the directionality
-    *   specified in the 'mediaRelayDirectionMode' parameter is referenced from the caller.
-    */
-   bool setMediaRelayDirectionMode( const tMediaRelayHandle& relayHandle, MediaDirectionality mediaRelayDirectionMode, EndpointRole endpointRole );
-
-   /**
-    *   Establishes the requester as the media destination for the far-end's media relay port
-    */
-   bool linkFarEndMediaRelayPortToRequester( const tMediaRelayHandle& relayHandle, const MediaDescriptor* pMediaDescriptor, EndpointRole endpointRoleOfRequester );
-
-   /**
     *   Computes the media relay IP address to use when patching SDP originating from endpoint designated by endpointRole param
     *   @returns true if media relay's native IP address is to be used. false if media relay's public IP address is to be used
     */
@@ -207,7 +188,7 @@ public:
     *   Modifies the supplied SDP body's media description section as specified by the 'mediaIndex'
     *   parameter with the media connection information provided.
     */
-   bool patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tMediaRelayHandle relayHandle, const UtlString& mediaRelayAddressToUse );
+   bool patchSdp( SdpBody* pSdpBody, int mediaIndex, const UtlString& mediaRelayAddressToUse );
 
    /**
     *   Saves a copy of the SDP body contained in the supplied message.  This method
@@ -313,6 +294,7 @@ private:
    ResponseRetransmissionDescriptor mResponseRetransmissionDescriptor;
    bool mbNonIntialOfferAnswerExchangeDoneFlag;
    SdpBody* mpCopyOfPatchedSdpBody;
+   const NatTraversalRules* mpNatTraversalRules;
 
    friend class DialogTrackerTest;
 };

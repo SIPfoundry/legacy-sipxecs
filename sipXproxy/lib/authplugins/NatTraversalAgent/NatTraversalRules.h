@@ -41,13 +41,13 @@
 #define XML_TAG_BEHIND_NAT            "behindnat"
 #define XML_TAG_MR_PUBLIC_ADDRESS     "mediarelayexternaladdress"
 #define XML_TAG_MR_NATIVE_ADDRESS     "mediarelaynativeaddress"
-#define XML_TAG_MR_XMLRPC_PORT        "mediarelayxml-rpc-port"
+#define XML_TAG_MR_PORT               "mediarelayxml-rpc-port"
 #define XML_TAG_MR_PORT_RANGE         "port-range"
 #define XML_TAG_USE_STUN              "useSTUN"
 #define XML_TAG_STUN_SERVER           "stun-server-address"
 #define XML_TAG_STUN_REFRESH_INTERVAL "rediscovery-time"
 #define XML_TAG_AGGRESSIVENESS        "relayaggressiveness"
-#define XML_TAG_SECURE_XMLRPC         "secureXMLRPC"
+//#define XML_TAG_SECURE_XMLRPC         "secureXMLRPC"
 
 //XML values
 #define XML_VALUE_ENABLED           "enabled"
@@ -60,7 +60,7 @@
 #define DEFAULT_MAX_MEDIA_RELAY_SESSIONS (50)
 #define DEFAULT_PUBLIC_PORT              (5060)
 #define DEFAULT_SECURE_PUBLIC_PORT       (5061)
-#define DEFAULT_MR_XMLRPC_PORT           (9090)
+#define DEFAULT_MR_PORT                  (5085)
 
 // OTHER
 #define PORTS_PER_MEDIA_RELAY_SESSIONS   (4)   // RHS RTP & RTCP + LHS RTP & RTCP
@@ -118,15 +118,13 @@ public:
 
    UtlString     getMediaRelayNativeAddress( void ) const;
 
-   int           getMediaRelayXmlRpcPort( void ) const;
+   int           getMediaRelayPort( void ) const;
 
    int           getMaxMediaRelaySessions( void ) const;
 
    bool          isAggressiveModeSet( void ) const;
 
    bool          isConservativeModeSet( void ) const;
-
-   bool          isXmlRpcSecured( void ) const;
 
    bool isPartOfLocalTopology(const UtlString& host,
                               bool checkIpSubnets = true,
@@ -188,13 +186,12 @@ private:
    UtlString      mMediaRelayPublicAddress;
    bool           mbMediaRelayPublicAddressProvidedInConfig;
    UtlString      mMediaRelayNativeAddress;
-   int            mMediaRelayXmlRpcPort;
+   int            mMediaRelayPort;
    int            mMaxMediaRelaySessions;
    bool           mbDiscoverPublicIpAddressViaStun;
    UtlString      mStunServer;
    int            mStunRefreshIntervalInSecs;
    StunClient*    mpStunClient;
-   bool           mbXmlRpcOverSecureTransport;
    std::string _bridgeAddress;
 
    void initializeNatTraversalInfo( void );

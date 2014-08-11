@@ -308,6 +308,7 @@ void SipUdpServer::shutdownListener()
 UtlBoolean SipUdpServer::sendTo(SipMessage& message,
                                const char* address,
                                int port,
+                               bool* reevaluateDestination,
                                const char* szLocalSipIp)
 {
     UtlBoolean sendOk;
@@ -326,7 +327,7 @@ UtlBoolean SipUdpServer::sendTo(SipMessage& message,
 
     if (pServer)
     {
-        sendOk = pServer->sendTo(message, address, port);
+        sendOk = pServer->sendTo(message, address, port, reevaluateDestination);
     }
     else
     {
