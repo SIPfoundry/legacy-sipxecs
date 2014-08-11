@@ -146,14 +146,6 @@ public class PresenceUnifier implements PresenceEventListener {
         // add the SIP State information if we are on a call.
         unifiedPresence.setXmppPresence(presence);
         unifiedPresence.setXmppStatusMessage(newXmppStatusMessage);
-        try {
-            sipXopenfirePlugin.setPresenceStatus(unifiedPresence.getJidAsString(),
-                    unifiedPresence.getXmppStatusMessageWithSipState());
-        } catch (Exception e) {
-            log.error(
-                    "PresenceUnifier::xmppStatusMessageChanged() - caught exception for user "
-                            + unifiedPresence.getJidAsString() + ":", e);
-        }
         notifyListenersOfChange(unifiedPresence);
         return unifiedPresence;
     }
