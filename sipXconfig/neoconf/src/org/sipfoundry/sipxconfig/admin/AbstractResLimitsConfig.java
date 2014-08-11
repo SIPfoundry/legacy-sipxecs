@@ -48,4 +48,18 @@ public abstract class AbstractResLimitsConfig {
         resLimits.write(getPrefix(), fdHard.getName(), fdHard.getValue());
         resLimits.write(getPrefix(), coreEnabled.getName(), coreEnabled.getValue());
     }
+
+    /**
+     * Validation: FD Soft limit must not be higher that FD Hard limit
+     *
+     * @param settings
+     * @param settingType (example: "configserver-config" or "resource-limits")
+     * @return true if validation was OK, false if it failed
+     */
+    public static boolean validateFDSoftAndHardLimits(PersistableSettings settings, String settingType) {
+        String fdSoft = settings.getSettingValue(settingType + "/fd-soft");
+        String fdHard = settings.getSettingValue(settingType + "/fd-hard");
+
+        return (Integer.parseInt(fdSoft) <= Integer.parseInt(fdHard));
+    }
 }
