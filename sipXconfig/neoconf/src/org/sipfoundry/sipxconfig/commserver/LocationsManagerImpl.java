@@ -65,6 +65,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return locationArray;
     }
 
+    @Override
     public List<Location> getLocationsList() {
         List<Location> locations = getHibernateTemplate().loadAll(Location.class);
         Collections.sort(locations);
@@ -141,6 +142,12 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         if (location.isPrimary()) {
             throw new UserException("&error.delete.primary", location.getFqdn());
         }
+        Integer id = location.getId();
+        String removeConferenceSql = "delete from meetme_conference where meetme_bridge_id in "
+                + "(select meetme_bridge_id from meetme_bridge where location_id=%d);"
+                + "delete from meetme_bridge  where location_id=%d;";
+        LOG.debug("Removing conferences and bridge: " + removeConferenceSql);
+        m_jdbc.execute(String.format(removeConferenceSql, id, id));
         Location merge = getHibernateTemplate().merge(location);
         getHibernateTemplate().delete(merge);
     }
@@ -222,7 +229,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private void changePrimaryIp(String ip) {
         // Ran into problems exec-ing a stored proc, this gave error about
         // response when none was expected
-        //    m_jdbc.update(...
+        // m_jdbc.update(...
         //
         m_jdbc.execute(format("select change_primary_ip_on_restore('%s')", ip));
     }
