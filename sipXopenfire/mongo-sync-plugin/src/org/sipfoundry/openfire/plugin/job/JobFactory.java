@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.sipfoundry.commons.mongo.MongoFactory;
+import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.plugin.job.group.GroupDeleteJob;
 import org.sipfoundry.openfire.plugin.job.group.GroupUpdateJob;
 import org.sipfoundry.openfire.plugin.job.user.UserDeleteJob;
@@ -36,6 +37,7 @@ import com.mongodb.Mongo;
 
 public class JobFactory extends AbstractJobFactory {
     private static Logger logger = Logger.getLogger(JobFactory.class);
+    private static final String COLLECTION_NAME = "entity";
 
     public Job createJob(MongoOperation op, DBObject dbObj, Object id) {
         Job job = null;
@@ -152,6 +154,7 @@ public class JobFactory extends AbstractJobFactory {
 
     private static Job buildGroupJob(MongoOperation op, DBObject dbObj, String id) {
         logger.debug("Group job obj: " + dbObj);
+        logger.debug("Group job id: " + id);
 
         Job groupJob = null;
         String groupName = (String) dbObj.get(UID);
@@ -185,7 +188,20 @@ public class JobFactory extends AbstractJobFactory {
                 break;
             }
         } else {
-            logger.warn("Missing group name for update/delete operation");
+            String imGroupStr = (String) dbObj.get(IM_GROUP);
+            boolean imGroup = false;
+            if (imGroupStr != null) {
+                imGroup = "1".equals(imGroupStr);
+            }
+            if (imGroup) {
+                groupName = lookupGroupName(id);
+                logger.debug("New group with im enabled, loading name " + groupName + " using id " + id);
+                if (!StringUtils.isBlank(groupName)) {
+                    groupJob = new GroupUpdateJob(groupName, groupName, imGroup, "");
+                }
+            } else {
+                logger.warn("Missing group name for update/delete operation");
+            }
         }
 
         return groupJob;
@@ -207,20 +223,22 @@ public class JobFactory extends AbstractJobFactory {
     }
 
     private static String lookupImId(String uid) {
-        String imId = null;
-        Mongo m;
-        try {
-            m = MongoFactory.fromConnectionFile();
-            DB db = m.getDB("imdb");
-            DBCollection col = db.getCollection("entity");
-            DBObject query = new BasicDBObject("_id", uid);
-            DBObject fields = new BasicDBObject("imid", 1);
-            DBObject user = col.findOne(query, fields);
-            imId = (String) user.get("imid");
-        } catch (UnknownHostException e) {
-            logger.error("Could not get a mongodb connection: " + e.getMessage());
-        }
+        DBObject query = new BasicDBObject("_id", uid);
+        DBObject fields = new BasicDBObject("imid", 1);
+        DBObject user = getCollection().findOne(query, fields);
+        return (String) user.get("imid");
+    }
 
-        return imId;
+    private static String lookupGroupName(String groupId) {
+        DBObject query = new BasicDBObject("_id", groupId);
+        DBObject fields = new BasicDBObject("uid", 1);
+        DBObject user = getCollection().findOne(query, fields);
+        return (String) user.get("uid");
+    }
+
+    private static DBCollection getCollection() {
+        DB db = UnfortunateLackOfSpringSupportFactory.getImdb();
+
+        return db.getCollection(COLLECTION_NAME);
     }
 }
