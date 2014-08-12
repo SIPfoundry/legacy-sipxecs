@@ -14,6 +14,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -37,6 +38,7 @@ public class MongoOfflineMessageProvider extends BaseMongoProvider implements Of
             XMPPDateTimeFormat.XMPP_DATETIME_FORMAT, TimeZone.getTimeZone("UTC"));
     private static final FastDateFormat OLD_DATE_FORMAT = FastDateFormat.getInstance(
             XMPPDateTimeFormat.XMPP_DELAY_DATETIME_FORMAT, TimeZone.getTimeZone("UTC"));
+    private static Logger log = Logger.getLogger(MongoOfflineMessageProvider.class);
 
     /**
      * Pattern to use for detecting invalid XML characters. Invalid XML characters will be removed
@@ -141,6 +143,11 @@ public class MongoOfflineMessageProvider extends BaseMongoProvider implements Of
             String msgXml = (String) dbObj.get("stanza");
             Date creationDate = new Date(Long.parseLong((String) dbObj.get("creationDate")));
             messages.add(fromString(msgXml, creationDate, xmlReader));
+        }
+
+        if (delete) {
+            log.debug("deleting offline messages for user " + username);
+            offlineCollection.remove(query);
         }
 
         return messages;
