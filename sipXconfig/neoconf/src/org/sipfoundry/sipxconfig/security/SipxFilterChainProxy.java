@@ -53,12 +53,14 @@ public class SipxFilterChainProxy extends FilterChainProxy {
         ServletRequest requestToFilter = request;
         int port = AdminContext.HTTP_ADDRESS.getCanonicalPort();
         int authPort = AdminContext.HTTP_ADDRESS_AUTH.getCanonicalPort();
-        if (request.getLocalPort() == port && request instanceof HttpServletRequest) {
+        int sslAuthPort = AdminContext.HTTPS_ADDRESS_AUTH.getCanonicalPort();
+        int localPort = request.getLocalPort();
+        if (localPort == port && request instanceof HttpServletRequest) {
             HttpServletRequest httpRequest = (HttpServletRequest) request;
             requestToFilter = new AuthorizedServletRequest(httpRequest);
             LOG.trace("Internal request port: " + port);
         }
-        if (request.getLocalPort() == authPort && request instanceof HttpServletRequest
+        if ((localPort == authPort || localPort == sslAuthPort) && request instanceof HttpServletRequest
             && response instanceof HttpServletResponse) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             String originUrl = ((HttpServletRequest) request).getHeader("Origin");
