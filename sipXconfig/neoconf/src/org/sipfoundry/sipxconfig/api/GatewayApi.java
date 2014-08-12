@@ -73,7 +73,7 @@ public interface GatewayApi {
             @Description("Gateway id") @PathParam("gatewayId") String gatewayId,
             @Description("Gateway bean to save") GatewayBean gatewayBean);
 
-    @Path("{gatewayId}/{ruleId}")
+    @Path("{gatewayId}/rules/{ruleId}")
     @PUT
     @Consumes({
         MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
@@ -82,7 +82,7 @@ public interface GatewayApi {
             @Description("Gateway id") @PathParam("gatewayId") String gatewayId,
             @Description("ruleId id") @PathParam("ruleId") Integer ruleId);
 
-    @Path("{gatewayId}/{ruleId}")
+    @Path("{gatewayId}/rules/{ruleId}")
     @DELETE
     @Consumes({
         MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML

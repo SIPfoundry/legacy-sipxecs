@@ -159,11 +159,11 @@ public class GatewayApiTestIntegration extends RestApiIntegrationTestCase {
             rulesJson);
 
         // add gateway to long distance rule
-        putCode = putJsonString(StringUtils.EMPTY, String.format("gateways/%s/%s", gateway.getId(), rules.get(3).getId()));
+        putCode = putJsonString(StringUtils.EMPTY, String.format("gateways/%s/rules/%s", gateway.getId(), rules.get(3).getId()));
         assertEquals(200, putCode);
 
         //remove gateway from rule
-        int deleteCode = delete(String.format("gateways/%s/%s", gateway.getId(), rules.get(3).getId()));
+        int deleteCode = delete(String.format("gateways/%s/rules/%s", gateway.getId(), rules.get(3).getId()));
         assertEquals(200, deleteCode);
 
         // delete gateway
