@@ -142,12 +142,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         if (location.isPrimary()) {
             throw new UserException("&error.delete.primary", location.getFqdn());
         }
-        Integer id = location.getId();
-        String removeConferenceSql = "delete from meetme_conference where meetme_bridge_id in "
-                + "(select meetme_bridge_id from meetme_bridge where location_id=%d);"
-                + "delete from meetme_bridge  where location_id=%d;";
-        LOG.debug("Removing conferences and bridge: " + removeConferenceSql);
-        m_jdbc.execute(String.format(removeConferenceSql, id, id));
         Location merge = getHibernateTemplate().merge(location);
         getHibernateTemplate().delete(merge);
     }

@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -95,8 +96,8 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
             throw new UserException("&error.non.qs.no.mod");
         }
 
-        if (!conference.isQuickstart() && StringUtils.equals(conference.getModeratorAccessCode(),
-                conference.getParticipantAccessCode())) {
+        if (!conference.isQuickstart()
+                && StringUtils.equals(conference.getModeratorAccessCode(), conference.getParticipantAccessCode())) {
             throw new UserException("&error.moderator.eq.participant");
         }
 
@@ -318,6 +319,11 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         if (entity instanceof User) {
             User u = (User) entity;
             removeConferences(findConferencesByOwner(u));
+        }
+        if (entity instanceof Location) {
+            Location l = (Location) entity;
+            Bridge b = getBridgeForLocationId(l.getId());
+            removeBridge(b);
         }
     }
 
