@@ -16,6 +16,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-web"/>
 	<classpathentry kind="var" path="SIPX_JAVADIR/sipXecs/sipXcommons/sipxsqaclient.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/openfire"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/openfire.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
