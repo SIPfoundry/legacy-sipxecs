@@ -145,7 +145,9 @@ public class MongoOfflineMessageProvider extends BaseMongoProvider implements Of
             messages.add(fromString(msgXml, creationDate, xmlReader));
         }
 
-        if (delete) {
+        // Check if the offline messages loaded should be deleted, and that there are
+        // messages to delete
+        if (delete && !messages.isEmpty()) {
             log.debug("deleting offline messages for user " + username);
             offlineCollection.remove(query);
         }
