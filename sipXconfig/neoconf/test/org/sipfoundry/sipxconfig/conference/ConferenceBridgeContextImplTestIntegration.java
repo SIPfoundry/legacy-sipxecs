@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -30,7 +29,6 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
     private ConferenceBridgeContextImpl m_contextImpl;
     private CoreContext m_core;
     private LocationsManager m_locations;
-    private DomainManager m_domainManager;
 
     @Override
     protected void onSetUpBeforeTransaction() throws Exception {
@@ -49,7 +47,7 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
     public void setConferenceBridgeContext(ConferenceBridgeContext conference) {
         m_context = conference;
     }
-    
+
     public void setConferenceBridgeContextImpl(ConferenceBridgeContextImpl impl) {
         m_contextImpl = impl;
     }
@@ -265,7 +263,7 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         assertEquals(m_message, 1, getConferencesCount("conference_no_owner"));
     }
 
-    //remove conf when owner is deleted
+    // remove conf when owner is deleted
     public void testRemoveConferencesByOwner() {
         assertEquals(m_message, 1, getConferencesCount("conf_name_3001"));
         getDaoEventPublisher().resetListeners();
@@ -276,9 +274,31 @@ public class ConferenceBridgeContextImplTestIntegration extends IntegrationTestC
         assertEquals(m_message, 0, getConferencesCount("conf_name_3003"));
         assertEquals(m_message, 0, getConferencesCount("conf_name_3004"));
     }
-    
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
+
+    // remove conferences when bridge is deleted
+    public void testRemoveBridge() throws Exception {
+        assertEquals(2, m_context.getBridges().size());
+        assertEquals(5, m_context.getAllConferences().size());
+        Bridge bridge = m_context.getBridgeByServer("host.example.com");
+        m_context.removeBridge(bridge);
+        assertEquals(1, m_context.getBridges().size());
+        assertEquals(3, m_context.getAllConferences().size());
+        Set<String> names = new HashSet<String>();
+        for (Conference conference : m_context.getAllConferences()) {
+            names.add(conference.getName());
+        }
+        assertFalse(names.contains("conf_name_3001"));
+        assertFalse(names.contains("conf_name_3002"));
+    }
+
+    // remove bridge when location is deleted
+    public void testRemoveBridgeByLocation() {
+        assertEquals(2, m_context.getBridges().size());
+        assertEquals(5, m_context.getAllConferences().size());
+        Location location = m_locations.getLocation(1001);
+        m_locations.deleteLocation(location);
+        assertEquals(1, m_context.getBridges().size());
+        assertEquals(2, m_context.getAllConferences().size());
     }
 
     private String m_message;
