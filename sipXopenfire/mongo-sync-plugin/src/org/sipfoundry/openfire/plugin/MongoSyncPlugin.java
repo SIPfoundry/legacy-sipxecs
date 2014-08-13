@@ -12,7 +12,6 @@ import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.sipfoundry.openfire.plugin.job.JobFactory;
 import org.sipfoundry.openfire.plugin.listener.ImdbOplogListener;
-import org.sipfoundry.openfire.sync.job.QueueManager;
 
 public class MongoSyncPlugin implements Plugin {
     private static Logger logger = Logger.getLogger(MongoSyncPlugin.class);
@@ -32,6 +31,5 @@ public class MongoSyncPlugin implements Plugin {
     @Override
     public void destroyPlugin() {
         logger.info("Mongo sync plugin stopping");
-        QueueManager.shutdown();
     }
 }

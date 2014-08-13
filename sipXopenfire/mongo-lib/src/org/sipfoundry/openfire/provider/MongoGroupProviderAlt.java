@@ -41,6 +41,7 @@ public class MongoGroupProviderAlt extends AbstractGroupProvider {
 
     @Override
     public Group createGroup(String name) {
+        log.debug("Creating group: " + name);
         Group g = null;
 
         try {
@@ -164,7 +165,7 @@ public class MongoGroupProviderAlt extends AbstractGroupProvider {
             }
 
         }
-        log.debug("Returning: " + names);
+        log.debug("Returning group names: " + names + " for " + user.toBareJID());
 
         return names;
     }
@@ -261,6 +262,7 @@ public class MongoGroupProviderAlt extends AbstractGroupProvider {
                 }
             }
 
+            log.debug("fromDBObject: for group " + name + " with members " + members);
             g = new Group(name, description, members, administrators);
         }
 

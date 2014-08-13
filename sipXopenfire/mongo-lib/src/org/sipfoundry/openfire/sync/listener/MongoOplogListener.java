@@ -16,7 +16,6 @@ import org.sipfoundry.commons.mongo.MongoFactory;
 import org.sipfoundry.openfire.sync.MongoOperation;
 import org.sipfoundry.openfire.sync.job.AbstractJobFactory;
 import org.sipfoundry.openfire.sync.job.Job;
-import org.sipfoundry.openfire.sync.job.QueueManager;
 
 import com.mongodb.Bytes;
 import com.mongodb.DB;
@@ -87,7 +86,7 @@ public abstract class MongoOplogListener<T extends AbstractJobFactory> implement
                         // update for an offline user - updated data will be read when the
                         // user comes online)
                         if (j != null) {
-                            QueueManager.submitJob(j);
+                            j.process();
                         }
                     }
                 }

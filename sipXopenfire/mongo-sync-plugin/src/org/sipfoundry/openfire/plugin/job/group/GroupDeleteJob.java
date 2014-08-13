@@ -16,9 +16,10 @@ public class GroupDeleteJob implements Job {
 
     @Override
     public void process() {
-        logger.debug("processing " + toString());
+        logger.debug("start processing " + toString());
 
         GroupShared.removeGroup(groupName);
+        logger.debug("finished processing " + toString());
     }
 
     @Override

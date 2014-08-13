@@ -44,7 +44,7 @@ public class UserUpdateJob implements Job {
 
     @Override
     public void process() {
-        logger.debug("processing " + toString());
+        logger.debug("start processing " + toString());
 
         // check if still an IM User, if not delete it
         // not imuser and in cache: delete it
@@ -122,6 +122,7 @@ public class UserUpdateJob implements Job {
         } catch (UserNotFoundException e) {
             logger.error("User not found trying to update " + oldUserImName);
         }
+        logger.debug("end processing " + toString());
     }
 
     private static void updateGroups(List<String> actualGroups, String imName) {

@@ -17,9 +17,10 @@ public class UserDeleteJob implements Job {
 
     @Override
     public void process() {
-        logger.debug("processing " + toString());
+        logger.debug("start processing " + toString());
 
         UserShared.removeUser(userImName);
+        logger.debug("end processing " + toString());
     }
 
     @Override

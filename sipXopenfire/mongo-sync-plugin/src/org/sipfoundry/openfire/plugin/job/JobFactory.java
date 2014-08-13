@@ -9,14 +9,14 @@ import static org.sipfoundry.commons.mongo.MongoConstants.IM_GROUP;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
-import org.sipfoundry.commons.mongo.MongoFactory;
+import org.jivesoftware.openfire.XMPPServer;
+import org.sipfoundry.commons.userdb.UserGroup;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.plugin.job.group.GroupDeleteJob;
 import org.sipfoundry.openfire.plugin.job.group.GroupUpdateJob;
@@ -27,13 +27,13 @@ import org.sipfoundry.openfire.provider.CacheHolder;
 import org.sipfoundry.openfire.sync.MongoOperation;
 import org.sipfoundry.openfire.sync.job.AbstractJobFactory;
 import org.sipfoundry.openfire.sync.job.Job;
+import org.xmpp.packet.JID;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 public class JobFactory extends AbstractJobFactory {
     private static Logger logger = Logger.getLogger(JobFactory.class);
@@ -175,7 +175,15 @@ public class JobFactory extends AbstractJobFactory {
                         imGroup = true;
                     }
                     String description = (String) dbObj.get(DESCR);
-                    groupJob = new GroupUpdateJob(groupName, oldGroupName, imGroup, description);
+                    UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
+                    if (group.isImbotEnabled()) {
+                        String xmppDomain = XMPPServer.getInstance().getServerInfo().getXMPPDomain();
+                        String imBotName = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImBotName();
+                        JID imBotJid = new JID(imBotName, xmppDomain, null, false);
+                        groupJob = new GroupUpdateJob(groupName, oldGroupName, imGroup, description, imBotJid);
+                    } else {
+                        groupJob = new GroupUpdateJob(groupName, oldGroupName, imGroup, description, null);
+                    }
                 } else {
                     logger.debug(String.format("Skipping update of group %s. Not in cache.", groupName));
                 }
@@ -197,7 +205,7 @@ public class JobFactory extends AbstractJobFactory {
                 groupName = lookupGroupName(id);
                 logger.debug("New group with im enabled, loading name " + groupName + " using id " + id);
                 if (!StringUtils.isBlank(groupName)) {
-                    groupJob = new GroupUpdateJob(groupName, groupName, imGroup, "");
+                    groupJob = new GroupUpdateJob(groupName, groupName, imGroup, "", null);
                 }
             } else {
                 logger.warn("Missing group name for update/delete operation");

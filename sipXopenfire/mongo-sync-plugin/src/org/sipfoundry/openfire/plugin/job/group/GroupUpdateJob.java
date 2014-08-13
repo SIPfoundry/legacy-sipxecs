@@ -7,6 +7,7 @@ import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.sipfoundry.openfire.sync.job.Job;
+import org.xmpp.packet.JID;
 
 public class GroupUpdateJob implements Job {
     private static Logger logger = Logger.getLogger(GroupUpdateJob.class);
@@ -17,27 +18,31 @@ public class GroupUpdateJob implements Job {
     private final String oldGroupName;
     private final boolean isImGroup;
     private final String description;
+    private final JID imbot;
 
-    public GroupUpdateJob(String groupName, String oldGroupName, boolean imGroup, String description) {
+    public GroupUpdateJob(String groupName, String oldGroupName, boolean imGroup, String description, JID imbot) {
         this.groupName = groupName;
         this.oldGroupName = oldGroupName;
         this.isImGroup = imGroup;
         this.description = description;
+        this.imbot = imbot;
     }
 
     @Override
     public void process() {
-        logger.debug("processing " + toString());
+        logger.debug("start processing " + toString());
 
         // not an imgroup but in cache: delete it
         if (!isImGroup) {
             GroupShared.removeGroup(oldGroupName);
+            logger.debug("end processing " + toString());
             return;
         }
 
         // imgroup and not in cache: create it
         if (isImGroup && StringUtils.isBlank(groupName)) {
             createGroup(groupName);
+            logger.debug("end processing " + toString());
             return;
         }
 
@@ -48,8 +53,27 @@ public class GroupUpdateJob implements Job {
             // one
             if (!StringUtils.equalsIgnoreCase(oldGroupName, groupName)) {
                 // group name changed: delete old one, create new with new name
+                if (imbot != null) {
+                    try {
+                        logger.debug("delete mybuddy from group " + oldGroupName);
+                        Group group = GroupManager.getInstance().getGroup(oldGroupName);
+                        group.getMembers().remove(imbot);
+                    } catch (GroupNotFoundException e) {
+                        logger.error("Group not found trying to remove mybuddy from " + groupName);
+                    }
+                }
                 GroupShared.removeGroup(oldGroupName);
                 createGroup(groupName);
+                if (imbot != null) {
+                    try {
+                        logger.debug("add mybuddy in new group " + groupName);
+                        Group group = GroupManager.getInstance().getGroup(groupName);
+                        group.getMembers().add(imbot);
+                    } catch (GroupNotFoundException e) {
+                        logger.error("Group not found trying to add mybuddy in " + groupName);
+                    }
+                }
+                logger.debug("end processing " + toString());
                 return;
             }
 
@@ -61,6 +85,8 @@ public class GroupUpdateJob implements Job {
                 logger.error("Group not found trying to set new description " + groupName);
             }
         }
+
+        logger.debug("end processing " + toString());
     }
 
     private static void createGroup(String groupName) {
