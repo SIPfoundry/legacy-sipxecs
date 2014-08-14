@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.jivesoftware.openfire.XMPPServer;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.UserGroup;
 import org.sipfoundry.commons.util.UnfortunateLackOfSpringSupportFactory;
 import org.sipfoundry.openfire.plugin.job.group.GroupDeleteJob;
@@ -47,13 +48,10 @@ public class JobFactory extends AbstractJobFactory {
                 job = createJob(op, dbObj, (String) id);
             } else if (id instanceof Long) {
                 job = createJob(op, dbObj, (Long) id);
-            /*Disable avatar operations due to problems
-            see UC-2765
             } else if (id instanceof ObjectId) {
                 // we assume all id's that are Mongo ObjectId
                 // are avatar operations
                 job = createJob(op, dbObj, (ObjectId) id);
-            */
             } else {
                 logger.warn(String.format("Unknown id type: %s", id.getClass().getName()));
             }
@@ -86,18 +84,16 @@ public class JobFactory extends AbstractJobFactory {
             if (dbObj.containsField("filename")) {
                 String filename = dbObj.get("filename").toString();
                 if (filename.startsWith("avatar_")) {
-                    String uid = StringUtils.removeEnd(StringUtils.removeStart(filename, "avatar_"), ".png");
-                    logger.debug("uid: " + uid);
-                    String imid = CacheHolder.getImId(uid);
-                    CacheHolder.putAvatar(id.toString().toString(), uid);
+                    String userName = StringUtils.substringBetween(filename, "avatar_", ".");
+                    logger.debug("avatar insert for user: " + userName);
+                    String imid = null;
+                    User user = UnfortunateLackOfSpringSupportFactory.getValidUsers().getUser(userName);
+                    if (user != null) {
+                        imid = user.getJid();
+                    }
                     vcardUpdateJob = imid != null ? new VcardUpdateJob(imid, dbObj) : null;
                 }
             }
-            break;
-        case DELETE:
-            String imid = CacheHolder.getImIdByAvatar(id.toString());
-            CacheHolder.removeAvatar(id.toString());
-            vcardUpdateJob = imid != null ? new VcardUpdateJob(imid, dbObj) : null;
             break;
         }
         return vcardUpdateJob;

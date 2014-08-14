@@ -12,6 +12,7 @@ import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.sipfoundry.openfire.plugin.job.JobFactory;
 import org.sipfoundry.openfire.plugin.listener.ImdbOplogListener;
+import org.sipfoundry.openfire.plugin.listener.ProfilesOplogListener;
 
 public class MongoSyncPlugin implements Plugin {
     private static Logger logger = Logger.getLogger(MongoSyncPlugin.class);
@@ -22,10 +23,9 @@ public class MongoSyncPlugin implements Plugin {
         ThreadGroup group = new ThreadGroup("mongoSync");
         Thread imdbOpLogThread = new Thread(group, new ImdbOplogListener(new JobFactory()), "imdbOpLogListener");
         // Disable avatar operations due to problems, see UC-2765
-        // Thread profilesdbOpLogThread = new Thread(group, new ProfilesOplogListener(),
-        // "profilesOpLogListener");
+        Thread profilesdbOpLogThread = new Thread(group, new ProfilesOplogListener(new JobFactory()), "profilesOpLogListener");
         imdbOpLogThread.start();
-        // profilesdbOpLogThread.start();
+        profilesdbOpLogThread.start();
     }
 
     @Override

@@ -73,7 +73,6 @@ public class MongoVCardProvider implements VCardProvider {
 
     @Override
     public void deleteVCard(String userName) {
-        CacheHolder.removeAvatarByImId(userName);
     }
 
     @Override

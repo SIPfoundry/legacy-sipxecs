@@ -22,8 +22,6 @@ public class CacheHolder {
     private static final Cache<String, String> USER_CACHE = CacheFactory.createCache("mongoUser");
     private static final Cache<String, String> GROUP_CACHE = CacheFactory.createCache("mongoGroup");
     private static final Cache<Long, String> MUC_ROOM_CACHE = CacheFactory.createCache("mongoMucRoom");
-    private static final Cache<String, String> AVATAR_CACHE = CacheFactory.createCache("mongoAvatar");
-    private static final Cache<String, String> UID_CACHE = CacheFactory.createCache("uidToImId");
 
     public static void putUser(String id, String name) {
         USER_CACHE.put(id, name);
@@ -86,46 +84,5 @@ public class CacheHolder {
 
     public static void removeRoom(Long id) {
         MUC_ROOM_CACHE.remove(id);
-    }
-
-    public static void putAvatar(String id, String userName) {
-        logger.debug(String.format("Updating cache for %s: get: %s, put %s", id, AVATAR_CACHE.get(id), getImId(userName)));
-        AVATAR_CACHE.put(id, getImId(userName));
-    }
-
-    public static String getImIdByAvatar(String id) {
-        return AVATAR_CACHE.get(id);
-    }
-
-    private static String getAvatarByImId(String imId) {
-        String avatar = null;
-        for (Entry<String, String> entry : AVATAR_CACHE.entrySet()) {
-            if (entry.getValue().equals(imId)) {
-                avatar = entry.getKey();
-                break;
-            }
-        }
-        return avatar;
-    }
-
-    public static void removeAvatarByImId(String imId) {
-        String avatar = getAvatarByImId(imId);
-        logger.debug(String.format("Removing cache for %s: get: %s, put %s", imId, avatar, AVATAR_CACHE.get(avatar)));
-        if ( avatar != null) {
-            AVATAR_CACHE.remove(avatar);
-        }
-     }
-
-    public static void removeAvatar(String id) {
-        logger.debug(String.format("Removing cache for %s", id));
-        AVATAR_CACHE.remove(id);
-    }
-
-    public static void putImId(String uid, String imId) {
-        UID_CACHE.put(uid, imId);
-    }
-
-    public static String getImId(String uid) {
-        return UID_CACHE.get(uid);
     }
 }

@@ -74,9 +74,7 @@ public class MongoUserProviderAlt implements UserProvider {
         }
 
         String id = (String) userObj.get("_id");
-        String uid = (String) userObj.get("uid");
         CacheHolder.putUser(id, actualUsername);
-        CacheHolder.putImId(uid, actualUsername);
 
         return fromDBObject(userObj);
     }

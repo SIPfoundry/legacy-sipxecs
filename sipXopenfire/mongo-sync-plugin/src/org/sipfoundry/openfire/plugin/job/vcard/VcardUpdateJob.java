@@ -1,7 +1,6 @@
 package org.sipfoundry.openfire.plugin.job.vcard;
 
 import java.io.StringReader;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 
 import org.apache.log4j.Logger;
@@ -15,15 +14,12 @@ import org.jivesoftware.openfire.handler.PresenceUpdateHandler;
 import org.jivesoftware.openfire.provider.VCardProvider;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserManager;
+import org.jivesoftware.openfire.vcard.VCardEventDispatcher;
 import org.jivesoftware.openfire.vcard.VCardManager;
-import org.sipfoundry.commons.mongo.MongoFactory;
-import org.sipfoundry.commons.userdb.profile.UserProfileServiceImpl;
 import org.sipfoundry.openfire.sync.job.Job;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.xmpp.packet.Presence;
 
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 public class VcardUpdateJob implements Job {
     private static Logger logger = Logger.getLogger(VcardUpdateJob.class);
@@ -32,48 +28,28 @@ public class VcardUpdateJob implements Job {
      */
     private static final long serialVersionUID = 1L;
     protected final String userImName;
-    protected final String oldMd5;
-    protected final String newMd5;
-    protected static UserProfileServiceImpl userProfileService;
-
-    static {
-        Mongo mongo;
-        userProfileService = new UserProfileServiceImpl();
-        try {
-            mongo = MongoFactory.fromConnectionFile();
-            MongoTemplate profilesDb = new MongoTemplate(mongo, "profiles");
-            userProfileService.setProfilesDb(profilesDb);
-        } catch (UnknownHostException e) {
-            logger.error("Error instantiating mongo");
-        }
-    }
 
     public VcardUpdateJob(String userImName, DBObject dbObj) {
         this.userImName = userImName;
-        this.oldMd5 = userProfileService.getAvatarDBFileMD5(userImName);
-        this.newMd5 = dbObj == null ? null : (dbObj.get("md5") != null ? dbObj.get("md5").toString() : null);
     }
 
     @Override
     public void process() {
+        logger.debug("start processing " + toString());
+        VCardProvider provider = VCardManager.getProvider();
+        Element userVCard = provider.loadVCard(userImName);
         try {
-            if (newMd5 != null && newMd5.equals(oldMd5)) {
-                logger.debug("Nothing changed!");
-                return;
-            }
-            VCardProvider provider = VCardManager.getProvider();
-            Element vcard = provider.loadVCard(userImName);
+            logger.debug("dispatch user update vcard");
+            VCardEventDispatcher.dispatchVCardUpdated(userImName, userVCard);
 
-            logger.debug("update vcard!");
-            VCardManager.getInstance().setVCard(userImName, vcard);
-
-            updateAvatar(userImName, vcard);
+            updateAvatar(userImName, userVCard);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             for (StackTraceElement el : e.getStackTrace()) {
                 logger.error(el.toString());
             }
         }
+        logger.debug("end processing " + toString());
     }
 
     protected static void updateAvatar(String username, Element vCard) throws Exception {
@@ -145,44 +121,7 @@ public class VcardUpdateJob implements Job {
 
     @Override
     public String toString() {
-        return "VcardUpdateJob [userImName=" + userImName + ", oldMd5=" + oldMd5 + ", newMd5=" + newMd5 + "]";
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((newMd5 == null) ? 0 : newMd5.hashCode());
-        result = prime * result + ((oldMd5 == null) ? 0 : oldMd5.hashCode());
-        result = prime * result + ((userImName == null) ? 0 : userImName.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        VcardUpdateJob other = (VcardUpdateJob) obj;
-        if (newMd5 == null) {
-            if (other.newMd5 != null)
-                return false;
-        } else if (!newMd5.equals(other.newMd5))
-            return false;
-        if (oldMd5 == null) {
-            if (other.oldMd5 != null)
-                return false;
-        } else if (!oldMd5.equals(other.oldMd5))
-            return false;
-        if (userImName == null) {
-            if (other.userImName != null)
-                return false;
-        } else if (!userImName.equals(other.userImName))
-            return false;
-        return true;
+        return "VcardUpdateJob [userImName=" + userImName + "]";
     }
 
 }
