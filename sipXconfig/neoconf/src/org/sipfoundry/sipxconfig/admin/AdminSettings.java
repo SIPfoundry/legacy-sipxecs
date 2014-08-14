@@ -41,6 +41,7 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String AUTHENTICATION_AUTH_ACC_NAME = "configserver-config/account-name";
     private static final String AUTHENTICATION_EMAIL_ADDRESS = "configserver-config/email-address";
     private static final String CORS_DOMAIN_SETTING = "configserver-config/corsDomains";
+    private static final String SYSTEM_AUDIT = "configserver-config/systemAudit";
 
     private PasswordPolicy m_passwordPolicy;
     private String[] m_logLevelKeys;
@@ -116,6 +117,10 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
 
     public String getCorsDomains() {
         return getSettingValue(CORS_DOMAIN_SETTING);
+    }
+
+    public boolean isSystemAuditEnabled() {
+        return (Boolean) getSettingTypedValue(SYSTEM_AUDIT);
     }
 
     public void setCorsDomains(String corsDomains) {

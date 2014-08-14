@@ -27,11 +27,14 @@
   <bean id="abstractSystemAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.AbstractSystemAuditHandler" abstract="true">
     <property name="configChangeContext" ref="configChangeContext" />
     <property name="coreContext" ref="coreContext" />
+    <property name="adminContext" ref="adminContext" />
   </bean>
+
   <bean id="generalAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.GeneralAuditHandler" parent="abstractSystemAuditHandler">
     <property name="userProfileService" ref="userProfileService" />
     <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
+
   <bean id="featureAuditHandler" class="org.sipfoundry.sipxconfig.systemaudit.FeatureAuditHandler" parent="abstractSystemAuditHandler">
     <property name="featureManager" ref="featureManager" />
   </bean>

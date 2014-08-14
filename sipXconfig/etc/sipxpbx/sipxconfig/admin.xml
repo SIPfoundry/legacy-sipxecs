@@ -58,6 +58,10 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="systemAudit">
+      <type refid="true-false"/>
+      <value>true</value>
+    </setting>
     <setting name="password-policy">
       <type refid="policy-type" />
     </setting>

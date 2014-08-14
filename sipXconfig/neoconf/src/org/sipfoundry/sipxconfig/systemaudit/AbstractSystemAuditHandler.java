@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.User;
@@ -41,6 +42,7 @@ public abstract class AbstractSystemAuditHandler {
 
     private ConfigChangeContext m_configChangeContext;
     private CoreContext m_coreContext;
+    private AdminContext m_adminContext;
 
     @Required
     public void setConfigChangeContext(ConfigChangeContext configChangeContext) {
@@ -131,6 +133,15 @@ public abstract class AbstractSystemAuditHandler {
 
     public CoreContext getCoreContext() {
         return m_coreContext;
+    }
+
+    public boolean isSystemAuditEnabled() {
+        return m_adminContext.isSystemAuditEnabled();
+    }
+
+    @Required
+    public void setAdminContext(AdminContext adminContext) {
+        m_adminContext = adminContext;
     }
 
 }

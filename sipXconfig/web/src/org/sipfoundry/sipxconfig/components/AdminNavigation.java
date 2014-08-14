@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
@@ -36,6 +37,9 @@ public abstract class AdminNavigation extends BaseComponent {
 
     @InjectObject("spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
+
+    @InjectObject("spring:adminContext")
+    public abstract AdminContext getAdminContext();
 
     public abstract Set<String> getEnabled();
 
@@ -66,5 +70,9 @@ public abstract class AdminNavigation extends BaseComponent {
             enabled.add(f.getId());
         }
         return enabled;
+    }
+
+    public boolean isSystemAuditEnabled() {
+        return getAdminContext().isSystemAuditEnabled();
     }
 }

@@ -41,9 +41,6 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     private FeatureAuditHandler m_featureAuditHandler;
     private LoginLogoutAuditHandler m_loginLogoutAuditHandler;
 
-    /**
-     * This method will execute in a different thread not to interfere with the normal persistence logic
-     */
     @Override
     public void onConfigChangeAction(final Object entity,
             final ConfigChangeAction configChangeAction,
@@ -99,9 +96,6 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
         }
     }
 
-    /**
-     * This method will execute in a different thread not to interfere with the normal persistence logic
-     */
     @Override
     public void onConfigChangeCollectionUpdate(final Object collection,
             final Serializable key) {
@@ -117,8 +111,6 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
      * hibernate but are persisted in mongo db
      */
     public void auditUserProfile(User user) {
-        // This is a workaround for handling UserProfile which don't go through
-        // hibernate
         if (!user.isNew()) {
             try {
                 m_generalAuditHandler.handleUserProfileConfigChange(user);
@@ -160,4 +152,5 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
             LOG.error(LOG_ERROR_MESSAGE, e);
         }
     }
+
 }

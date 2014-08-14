@@ -221,4 +221,9 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
+
+    @Override
+    public boolean isSystemAuditEnabled() {
+        return getSettings().isSystemAuditEnabled();
+    }
 }

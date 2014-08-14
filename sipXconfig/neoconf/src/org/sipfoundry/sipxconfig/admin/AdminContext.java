@@ -53,4 +53,6 @@ public interface AdminContext {
     boolean isAuthAccName();
 
     boolean isAuthEmailAddress();
+
+    boolean isSystemAuditEnabled();
 }

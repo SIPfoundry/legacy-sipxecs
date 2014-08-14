@@ -64,9 +64,11 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
      * Handles ConfigChange actions coming from Hibernate: ADDED, MODIFIED,
      * DELETED.
      */
-    protected void handleConfigChange(SystemAuditable auditedEntity, ConfigChangeAction configChangeAction,
+    public void handleConfigChange(SystemAuditable auditedEntity, ConfigChangeAction configChangeAction,
             String[] properties, Object[] oldValues, Object[] newValues) throws Exception {
-
+        if (!isSystemAuditEnabled()) {
+            return;
+        }
         ConfigChange configChange = buildConfigChange(configChangeAction, auditedEntity.getConfigChangeType());
         configChange.setDetails(auditedEntity.getEntityIdentifier());
 
@@ -183,6 +185,9 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
      * Handles Hibernate collections update calls (both Set and Map versions)
      */
     public void handleCollectionUpdate(Object collection, Serializable key) throws Exception {
+        if (!isSystemAuditEnabled()) {
+            return;
+        }
         if (collection instanceof PersistentMap) {
             handlePersistentMap(((PersistentMap) collection));
         } else if (collection instanceof PersistentCollection) {
@@ -363,9 +368,11 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     /**
      * This method handle the UserProfile which is only saved in MongoDB
      */
-    protected void handleUserProfileConfigChange(User user) throws SystemAuditException,
+    public void handleUserProfileConfigChange(User user) throws SystemAuditException,
             IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-
+        if (!isSystemAuditEnabled()) {
+            return;
+        }
         UserProfile newUserProfile = user.getUserProfile();
         UserProfile oldUserProfile = m_userProfileService.getUserProfile(user.getId().toString());
         ConfigChange configChange = buildConfigChange(ConfigChangeAction.MODIFIED, user.getConfigChangeType());
@@ -421,6 +428,9 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     }
 
     public void handleLicenseUpload(String licenseName) throws SystemAuditException {
+        if (!isSystemAuditEnabled()) {
+            return;
+        }
         ConfigChange configChange = buildConfigChange(ConfigChangeAction.ADDED,
                 ConfigChangeType.LICENSE_UPLOAD.getName());
         configChange.setDetails(licenseName);
@@ -429,6 +439,9 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
 
     public void handleServiceRestart(String serverName,
             List<String> serviceNameList) throws SystemAuditException {
+        if (!isSystemAuditEnabled()) {
+            return;
+        }
         ConfigChange configChange = buildConfigChange(
                 ConfigChangeAction.SERVICE_RESTART, ConfigChangeType.SERVER.getName());
         configChange.setDetails(serverName);
