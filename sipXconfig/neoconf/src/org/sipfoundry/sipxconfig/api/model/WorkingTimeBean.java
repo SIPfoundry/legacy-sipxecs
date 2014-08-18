@@ -42,7 +42,7 @@ public class WorkingTimeBean {
         return workingTimeBean;
     }
 
-    public static WorkingTime convetToWorkingTime(WorkingTimeBean workingTimeBean) {
+    public static WorkingTime convertToWorkingTime(WorkingTimeBean workingTimeBean) {
         WorkingTime wTime = new WorkingTime();
         WorkingHours[] workingHoursArray = new WorkingHours[workingTimeBean.getWorkingTime().size()];
         int i = 0;

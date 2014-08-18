@@ -38,6 +38,13 @@ public class DialPatternBean {
         return dpBean;
     }
 
+    public static DialPattern convertToPattern(DialPatternBean patternBean) {
+        DialPattern pattern = new DialPattern();
+        pattern.setDigits(patternBean.getDigits());
+        pattern.setPrefix(patternBean.getPrefix());
+        return pattern;
+    }
+
     public String getPrefix() {
         return m_prefix;
     }

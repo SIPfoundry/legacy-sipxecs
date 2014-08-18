@@ -17,7 +17,7 @@ public class ScheduleApiTestIntegration extends RestApiIntegrationTestCase {
     }
 
     @Test
-    public void _testScheduleJsonApi() throws Exception {
+    public void testScheduleJsonApi() throws Exception {
         // query empty schedules
         String emptySchedules = getAsJson("schedules/general");
         assertEquals("{\"schedules\":[]}", emptySchedules);

@@ -40,6 +40,16 @@ public class DialPatternList {
         return list;
     }
 
+    public static List<DialPattern> convertToPatternList(DialPatternList list) {
+        DialPattern pattern = null;
+        List<DialPattern> patternList = new ArrayList<DialPattern>();
+        for (DialPatternBean bean : list.getPatterns()) {
+            pattern = DialPatternBean.convertToPattern(bean);
+            patternList.add(pattern);
+        }
+        return patternList;
+    }
+
     @XmlElement(name = "DialPatterns")
     public List<DialPatternBean> getPatterns() {
         if (m_patterns == null) {

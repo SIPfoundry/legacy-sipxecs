@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 import org.sipfoundry.commons.util.HolidayPeriod;
 
-@XmlRootElement(name = "holidayPeriod")
+@XmlRootElement(name = "holidayPeriods")
 @XmlType(propOrder = {
         "startDate", "endDate"
         })
@@ -39,6 +39,13 @@ public class HolidayPeriodBean {
         holidayPeriodBean.setStartDate(holidayPeriod.getStartDate());
         holidayPeriodBean.setEndDate(holidayPeriod.getEndDate());
         return holidayPeriodBean;
+    }
+
+    public static HolidayPeriod convertToHolidayPeriod(HolidayPeriodBean holidayPeriodBean) {
+        HolidayPeriod period = new HolidayPeriod();
+        period.setStartDate(holidayPeriodBean.getStartDate());
+        period.setEndDate(holidayPeriodBean.getEndDate());
+        return period;
     }
 
     public Date getStartDate() {

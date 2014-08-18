@@ -15,6 +15,8 @@
 package org.sipfoundry.sipxconfig.api.model;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -32,27 +34,29 @@ import org.sipfoundry.sipxconfig.dialplan.SiteToSiteDialingRule;
 
 @XmlRootElement(name = "Rule")
 @XmlType(propOrder = {
-        "id", "name", "enabled", "type", "description", "schedule", "permissionNames", "gatewayAware",
+        "id", "name", "enabled", "type", "description", "scheduleId", "permissionNames", "gatewayAware",
         "authorizationChecked", "internal", "mediaServerHostname", "mediaServerType", "dialPatterns",
         "callPattern", "pstnPrefix", "pstnPrefixOptional", "longDistancePrefix",
         "longDistancePrefixOptional", "areaCodes", "externalLen", "optionalPrefix", "emergencyNumber",
-        "afterHoursAttendant", "holidayAttendant", "workingTimeAttendant", "holidayAttendantPeriods",
+        "afterHoursAttendant", "afterHoursAttendantEnabled", "holidayAttendant", "workingTimeAttendant",
+        "holidayAttendantPeriods",
         "workingTimeAttendantPeriods", "extension", "attendantAliases", "did", "enableLiveAttendant"
         })
 @JsonPropertyOrder({
-    "id", "name", "enabled", "type", "description", "schedule", "permissionNames", "gatewayAware",
+    "id", "name", "enabled", "type", "description", "scheduleId", "permissionNames", "gatewayAware",
     "authorizationChecked", "internal", "mediaServerHostname", "mediaServerType", "dialPatterns",
     "callPattern", "pstnPrefix", "pstnPrefixOptional", "longDistancePrefix", "longDistancePrefixOptional",
-    "areaCodes", "externalLen", "optionalPrefix", "emergencyNumber", "afterHoursAttendant", "holidayAttendant",
+    "areaCodes", "externalLen", "optionalPrefix", "emergencyNumber", "afterHoursAttendant",
+    "afterHoursAttendantEnabled", "holidayAttendant",
     "workingTimeAttendant", "holidayAttendantPeriods", "workingTimeAttendantPeriods", "extension", "attendantAliases",
     "did", "enableLiveAttendant"
     })
 public class DialingRuleBean {
     private Integer m_id;
+    private RuleType m_type;
     private boolean m_enabled;
     private String m_name;
     private String m_description;
-    private String m_type;
     private String m_emergencyNumber;
     private String m_optionalPrefix;
     private boolean m_gatewayAware;
@@ -69,16 +73,50 @@ public class DialingRuleBean {
     private String m_extension;
     private boolean m_authorizationChecked;
     private boolean m_internal;
-    private ScheduleBean m_schedule;
+    private Integer m_scheduleId;
     private NameList m_permissionNames;
     private DialPatternList m_dialPatterns;
     private CallPatternBean m_callPattern;
     private String m_afterHoursAttendant;
-    private String m_holidayAttendant;
+    private boolean m_afterHoursAttendantEnabled;
     private String m_workingTimeAttendant;
+    private String m_holidayAttendant;
     private HolidayBean m_holidayAttendantPeriods;
     private WorkingTimeBean m_workingTimeAttendantPeriods;
     private boolean m_enableLiveAttendant;
+
+    @XmlType(name = "ruleType")
+    @XmlEnum
+    public enum RuleType {
+        @XmlEnumValue(value = "International")
+        International,
+        @XmlEnumValue(value = "Emergency")
+        Emergency,
+        @XmlEnumValue(value = "Mapping_Rule")
+        Mapping_Rule,
+        @XmlEnumValue(value = "Custom")
+        Custom,
+        @XmlEnumValue(value = "Local")
+        Local,
+        @XmlEnumValue(value = "Internal")
+        Internal,
+        @XmlEnumValue(value = "Long_Distance")
+        Long_Distance,
+        @XmlEnumValue(value = "Restricted")
+        Restricted,
+        @XmlEnumValue(value = "Toll_free")
+        Toll_free,
+        @XmlEnumValue(value = "Attendant")
+        Attendant,
+        @XmlEnumValue(value = "Intercom")
+        Intercom,
+        @XmlEnumValue(value = "Paging")
+        Paging,
+        @XmlEnumValue(value = "Site_To_Site")
+        Site_To_Site,
+        @XmlEnumValue(value = "Authorization_Code")
+        Authorization_Code
+    }
 
     public static DialingRuleBean convertDialingRule(DialingRule rule) {
         DialingRuleBean dialingRuleBean = new DialingRuleBean();
@@ -89,8 +127,8 @@ public class DialingRuleBean {
         dialingRuleBean.setGatewayAware(rule.isGatewayAware());
         dialingRuleBean.setAuthorizationChecked(rule.isAuthorizationChecked());
         dialingRuleBean.setInternal(rule.isInternal());
-        dialingRuleBean.setType(rule.getType().getName());
-        dialingRuleBean.setSchedule(ScheduleBean.convertSchedule(rule.getSchedule()));
+        dialingRuleBean.setType(Enum.valueOf(RuleType.class, rule.getType().getName().replace(" ", "_")));
+        dialingRuleBean.setScheduleId(rule.getSchedule() != null ? rule.getSchedule().getId() : null);
         dialingRuleBean.setPermissionNames(NameList.retrieveList(rule.getPermissionNames()));
         if (rule instanceof InternalRule) {
             dialingRuleBean.setMediaServerHostname(((InternalRule) rule).getMediaServerHostname());
@@ -113,10 +151,12 @@ public class DialingRuleBean {
         } else if (rule instanceof AttendantRule) {
             AutoAttendant attendant = ((AttendantRule) rule).getAfterHoursAttendant().getAttendant();
             dialingRuleBean.setAfterHoursAttendant(attendant != null ? attendant.getName() : null);
+            dialingRuleBean.setAfterHoursAttendantEnabled(((AttendantRule) rule).getAfterHoursAttendant().isEnabled());
             attendant = ((AttendantRule) rule).getHolidayAttendant().getAttendant();
             dialingRuleBean.setHolidayAttendant(attendant != null ? attendant.getName() : null);
             attendant = ((AttendantRule) rule).getWorkingTimeAttendant().getAttendant();
             dialingRuleBean.setWorkingTimeAttendant(attendant != null ? attendant.getName() : null);
+            attendant = ((AttendantRule) rule).getHolidayAttendant().getAttendant();
             dialingRuleBean.setHolidayAttendantPeriods(HolidayBean.convertHolidayBean(
                 ((AttendantRule) rule).getHolidayAttendant()));
             dialingRuleBean.setWorkingTimeAttendantPeriods(WorkingTimeBean.convertWorkingTimeBean(
@@ -127,9 +167,9 @@ public class DialingRuleBean {
             dialingRuleBean.setEnableLiveAttendant(((AttendantRule) rule).isLiveAttendantEnabled());
         } else if (rule instanceof SiteToSiteDialingRule) {
             dialingRuleBean.setDialPatterns(DialPatternList.convertPatternList(
-                ((CustomDialingRule) rule).getDialPatterns()));
+                ((SiteToSiteDialingRule) rule).getDialPatterns()));
             dialingRuleBean.setCallPattern(CallPatternBean.convertCallPattern(
-                ((CustomDialingRule) rule).getCallPattern()));
+                ((SiteToSiteDialingRule) rule).getCallPattern()));
         }
         return dialingRuleBean;
     }
@@ -160,12 +200,15 @@ public class DialingRuleBean {
     public void setDescription(String description) {
         m_description = description;
     }
-    public String getType() {
+
+    public RuleType getType() {
         return m_type;
     }
-    public void setType(String type) {
+
+    public void setType(RuleType type) {
         m_type = type;
     }
+
     public String getEmergencyNumber() {
         return m_emergencyNumber;
     }
@@ -244,12 +287,12 @@ public class DialingRuleBean {
         m_internal = internal;
     }
 
-    public ScheduleBean getSchedule() {
-        return m_schedule;
+    public Integer getScheduleId() {
+        return m_scheduleId;
     }
 
-    public void setSchedule(ScheduleBean schedule) {
-        m_schedule = schedule;
+    public void setScheduleId(Integer scheduleId) {
+        m_scheduleId = scheduleId;
     }
 
     @XmlElement(name = "permissions")
@@ -318,20 +361,12 @@ public class DialingRuleBean {
         m_afterHoursAttendant = afterHoursAttendant;
     }
 
-    public String getHolidayAttendant() {
-        return m_holidayAttendant;
+    public boolean isAfterHoursAttendantEnabled() {
+        return m_afterHoursAttendantEnabled;
     }
 
-    public void setHolidayAttendant(String holidayAttendant) {
-        m_holidayAttendant = holidayAttendant;
-    }
-
-    public String getWorkingTimeAttendant() {
-        return m_workingTimeAttendant;
-    }
-
-    public void setWorkingTimeAttendant(String workingTimeAttendant) {
-        m_workingTimeAttendant = workingTimeAttendant;
+    public void setAfterHoursAttendantEnabled(boolean afterHoursAttendantEnabled) {
+        m_afterHoursAttendantEnabled = afterHoursAttendantEnabled;
     }
 
     public HolidayBean getHolidayAttendantPeriods() {
@@ -356,5 +391,21 @@ public class DialingRuleBean {
 
     public void setEnableLiveAttendant(boolean enableLiveAttendant) {
         m_enableLiveAttendant = enableLiveAttendant;
+    }
+
+    public String getWorkingTimeAttendant() {
+        return m_workingTimeAttendant;
+    }
+
+    public void setWorkingTimeAttendant(String workingTimeAttendant) {
+        m_workingTimeAttendant = workingTimeAttendant;
+    }
+
+    public String getHolidayAttendant() {
+        return m_holidayAttendant;
+    }
+
+    public void setHolidayAttendant(String holidayAttendant) {
+        m_holidayAttendant = holidayAttendant;
     }
 }

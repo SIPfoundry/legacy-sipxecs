@@ -14,7 +14,11 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -22,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.model.wadl.Description;
+import org.sipfoundry.sipxconfig.api.model.DialingRuleBean;
 
 @Path("/rules/")
 @Produces({
@@ -40,4 +45,23 @@ public interface DialPlanApi {
     @Path("{ruleId}")
     @GET
     public Response getRule(@Description("Rule Id") @PathParam("ruleId") Integer ruleId);
+
+    @POST
+    @Consumes({
+        MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
+    })
+    public Response newRule(@Description("DialPlan bean to save") DialingRuleBean ruleBean);
+
+    @Path("{ruleId}")
+    @DELETE
+    public Response deleteRule(@Description("Rule Id") @PathParam("ruleId") Integer ruleId);
+
+    @Path("{ruleId}")
+    @PUT
+    @Consumes({
+        MediaType.APPLICATION_JSON, MediaType.TEXT_XML, MediaType.APPLICATION_XML
+    })
+    public Response updateRule(
+            @Description("Rule id") @PathParam("ruleId") Integer ruleId,
+            @Description("Schedule bean to save") DialingRuleBean ruleBean);
 }

@@ -180,7 +180,7 @@ public class ScheduleApiImpl implements ScheduleApi {
         } else if (schedule instanceof UserGroupSchedule) {
             schedule.setUserGroup(m_coreContext.getGroupById(scheduleBean.getGroupId()));
         }
-        schedule.setWorkingTime(WorkingTimeBean.convetToWorkingTime(scheduleBean.getWorkingTime()));
+        schedule.setWorkingTime(WorkingTimeBean.convertToWorkingTime(scheduleBean.getWorkingTime()));
     }
 
     @Required

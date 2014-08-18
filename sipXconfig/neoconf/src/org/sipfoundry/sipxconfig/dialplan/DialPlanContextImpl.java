@@ -208,7 +208,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public DialingRule getRule(Integer id) {
-        return (DialingRule) getHibernateTemplate().load(DialingRule.class, id);
+        return getHibernateTemplate().load(DialingRule.class, id);
     }
 
     public void deleteRules(Collection<Integer> selectedRows) {

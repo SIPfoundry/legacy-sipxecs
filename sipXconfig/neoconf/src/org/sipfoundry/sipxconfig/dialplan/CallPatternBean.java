@@ -50,6 +50,13 @@ public class CallPatternBean {
         return cpBean;
     }
 
+    public static CallPattern convertToCallPattern(CallPatternBean callPatternBean) {
+        CallPattern cp = new CallPattern();
+        cp.setPrefix(callPatternBean.getPrefix());
+        cp.setDigits(new CallDigits(callPatternBean.getCallDigits().name()));
+        return cp;
+    }
+
     public String getPrefix() {
         return m_prefix;
     }

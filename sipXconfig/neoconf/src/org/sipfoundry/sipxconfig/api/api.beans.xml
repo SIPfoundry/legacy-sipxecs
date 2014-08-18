@@ -141,7 +141,9 @@
         <property name="coreContext" ref="coreContext" />
     </bean>
     <bean class="org.sipfoundry.sipxconfig.api.impl.DialPlanApiImpl" id="dialPlanRestApi">
-         <property name="dialPlanContext" ref="dialPlanContext" />
-         <property name="dialingRuleFactory" ref="dialingRuleFactory" />
+        <property name="dialPlanContext" ref="dialPlanContext" />
+        <property name="dialingRuleFactory" ref="dialingRuleFactory" />
+        <property name="autoAttendantManager" ref="autoAttendantManager" />
+        <property name="forwardingContext" ref="forwardingContext" />
     </bean> 
 </beans>

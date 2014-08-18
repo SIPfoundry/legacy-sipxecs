@@ -17,8 +17,10 @@ package org.sipfoundry.sipxconfig.api.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.sipfoundry.commons.util.HolidayPeriod;
 import org.sipfoundry.sipxconfig.dialplan.attendant.Holiday;
 
@@ -36,15 +38,26 @@ public class HolidayBean {
         return holidayBean;
     }
 
+    public static void convertToHoliday(HolidayBean holidayBean, Holiday holiday) {
+        holiday.getPeriods().clear();
+        if (holidayBean == null) {
+            return;
+        }
+        for (HolidayPeriodBean bean : holidayBean.getHoliday()) {
+            holiday.addPeriod(HolidayPeriodBean.convertToHolidayPeriod(bean));
+        }
+    }
+
     public void setHolidayPeriods(List<HolidayPeriodBean> holidayPeriods) {
         m_holidayPeriods = holidayPeriods;
     }
 
-    public List<HolidayPeriodBean> getHolidayPeriods() {
+    @XmlElement(name = "holidayPeriods")
+    @JsonProperty(value = "holidayPeriods")
+    public List<HolidayPeriodBean> getHoliday() {
         if (m_holidayPeriods == null) {
             return new ArrayList<HolidayPeriodBean>();
         }
         return m_holidayPeriods;
     }
-
 }

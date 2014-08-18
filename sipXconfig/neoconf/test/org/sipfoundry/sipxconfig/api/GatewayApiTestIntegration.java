@@ -124,36 +124,36 @@ public class GatewayApiTestIntegration extends RestApiIntegrationTestCase {
         List<DialingRule> rules = m_dialPlanContext.getAvailableRules(gateway.getId());
         String rulesJson = getAsJson(String.format("gateways/%s/availablerules", gateway.getId()));
         assertEquals(String.format("{\"rules\":[{\"id\":%s,\"name\":\"Emergency\",\"enabled\":false,\"type\":"
-            + "\"Emergency\",\"description\":\"Emergency dialing plan\",\"schedule\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,"
+            + "\"Emergency\",\"description\":\"Emergency dialing plan\",\"scheduleId\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,"
             + "\"authorizationChecked\":true,\"internal\":false,\"mediaServerHostname\":null,\"mediaServerType\":null,\"dialPatterns\":null,"
             + "\"callPattern\":null,\"pstnPrefix\":null,\"pstnPrefixOptional\":false,\"longDistancePrefix\":null,\"longDistancePrefixOptional\":false,"
-            + "\"areaCodes\":null,\"externalLen\":0,\"optionalPrefix\":\"9\",\"emergencyNumber\":\"911\",\"afterHoursAttendant\":null,\"holidayAttendant\":null,"
+            + "\"areaCodes\":null,\"externalLen\":0,\"optionalPrefix\":\"9\",\"emergencyNumber\":\"911\",\"afterHoursAttendant\":null,\"afterHoursAttendantEnabled\":false,\"holidayAttendant\":null,"
             + "\"workingTimeAttendant\":null,\"holidayAttendantPeriods\":null,\"workingTimeAttendantPeriods\":null,\"extension\":null,\"attendantAliases\":null,"
-            + "\"did\":null,\"enableLiveAttendant\":false},{\"id\":%s,\"name\":\"International\",\"enabled\":false,\"type\":\"Long Distance\","
-            + "\"description\":\"International dialing\",\"schedule\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,"
+            + "\"did\":null,\"enableLiveAttendant\":false},{\"id\":%s,\"name\":\"International\",\"enabled\":false,\"type\":\"Long_Distance\","
+            + "\"description\":\"International dialing\",\"scheduleId\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,"
             + "\"authorizationChecked\":true,\"internal\":false,\"mediaServerHostname\":null,\"mediaServerType\":null,\"dialPatterns\":null,"
             + "\"callPattern\":null,\"pstnPrefix\":\"\",\"pstnPrefixOptional\":false,\"longDistancePrefix\":\"011\",\"longDistancePrefixOptional\":false,"
-            + "\"areaCodes\":\"\",\"externalLen\":-1,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"holidayAttendant\":null,"
+            + "\"areaCodes\":\"\",\"externalLen\":-1,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"afterHoursAttendantEnabled\":false,\"holidayAttendant\":null,"
             + "\"workingTimeAttendant\":null,\"holidayAttendantPeriods\":null,\"workingTimeAttendantPeriods\":null,\"extension\":null,\"attendantAliases\":null,"
-            + "\"did\":null,\"enableLiveAttendant\":false},{\"id\":%s,\"name\":\"Local\",\"enabled\":false,\"type\":\"Long Distance\",\"description\":\"Local dialing\","
-            + "\"schedule\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,\"authorizationChecked\":true,\"internal\":false,\"mediaServerHostname\":null,"
+            + "\"did\":null,\"enableLiveAttendant\":false},{\"id\":%s,\"name\":\"Local\",\"enabled\":false,\"type\":\"Long_Distance\",\"description\":\"Local dialing\","
+            + "\"scheduleId\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,\"authorizationChecked\":true,\"internal\":false,\"mediaServerHostname\":null,"
             + "\"mediaServerType\":null,\"dialPatterns\":null,\"callPattern\":null,\"pstnPrefix\":\"9\",\"pstnPrefixOptional\":false,\"longDistancePrefix\":\"\",\"longDistancePrefixOptional\":true,"
-            + "\"areaCodes\":\"\",\"externalLen\":7,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"holidayAttendant\":null,\"workingTimeAttendant\":null,"
+            + "\"areaCodes\":\"\",\"externalLen\":7,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"afterHoursAttendantEnabled\":false,\"holidayAttendant\":null,\"workingTimeAttendant\":null,"
             + "\"holidayAttendantPeriods\":null,\"workingTimeAttendantPeriods\":null,\"extension\":null,\"attendantAliases\":null,\"did\":null,\"enableLiveAttendant\":false},"
-            + "{\"id\":%s,\"name\":\"Long Distance\",\"enabled\":false,\"type\":\"Long Distance\",\"description\":\"Long distance dialing plan\",\"schedule\":null,"
+            + "{\"id\":%s,\"name\":\"Long Distance\",\"enabled\":false,\"type\":\"Long_Distance\",\"description\":\"Long distance dialing plan\",\"scheduleId\":null,"
             + "\"permissions\":{\"names\":[]},\"gatewayAware\":true,\"authorizationChecked\":true,\"internal\":false,\"mediaServerHostname\":null,\"mediaServerType\":null,"
             + "\"dialPatterns\":null,\"callPattern\":null,\"pstnPrefix\":\"9\",\"pstnPrefixOptional\":true,\"longDistancePrefix\":\"1\",\"longDistancePrefixOptional\":false,"
-            + "\"areaCodes\":\"\",\"externalLen\":10,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"holidayAttendant\":null,\"workingTimeAttendant\":null,"
+            + "\"areaCodes\":\"\",\"externalLen\":10,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"afterHoursAttendantEnabled\":false,\"holidayAttendant\":null,\"workingTimeAttendant\":null,"
             + "\"holidayAttendantPeriods\":null,\"workingTimeAttendantPeriods\":null,\"extension\":null,\"attendantAliases\":null,\"did\":null,\"enableLiveAttendant\":false},{\"id\":%s,"
-            + "\"name\":\"Restricted\",\"enabled\":false,\"type\":\"Long Distance\",\"description\":\"Restricted dialing\",\"schedule\":null,\"permissions\":{\"names\":[]},"
+            + "\"name\":\"Restricted\",\"enabled\":false,\"type\":\"Long_Distance\",\"description\":\"Restricted dialing\",\"scheduleId\":null,\"permissions\":{\"names\":[]},"
             + "\"gatewayAware\":true,\"authorizationChecked\":true,\"internal\":false,\"mediaServerHostname\":null,\"mediaServerType\":null,\"dialPatterns\":null,"
             + "\"callPattern\":null,\"pstnPrefix\":\"\",\"pstnPrefixOptional\":false,\"longDistancePrefix\":\"\",\"longDistancePrefixOptional\":false,\"areaCodes\":\"900\","
-            + "\"externalLen\":0,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"holidayAttendant\":null,\"workingTimeAttendant\":null,\"holidayAttendantPeriods\":null,"
+            + "\"externalLen\":0,\"optionalPrefix\":null,\"emergencyNumber\":null,\"afterHoursAttendant\":null,\"afterHoursAttendantEnabled\":false,\"holidayAttendant\":null,\"workingTimeAttendant\":null,\"holidayAttendantPeriods\":null,"
             + "\"workingTimeAttendantPeriods\":null,\"extension\":null,\"attendantAliases\":null,\"did\":null,\"enableLiveAttendant\":false},{\"id\":%s,\"name\":\"Toll free\",\"enabled\":false,"
-            + "\"type\":\"Long Distance\",\"description\":\"Toll free dialing\",\"schedule\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,\"authorizationChecked\":true,\"internal\":false,"
+            + "\"type\":\"Long_Distance\",\"description\":\"Toll free dialing\",\"scheduleId\":null,\"permissions\":{\"names\":[]},\"gatewayAware\":true,\"authorizationChecked\":true,\"internal\":false,"
             + "\"mediaServerHostname\":null,\"mediaServerType\":null,\"dialPatterns\":null,\"callPattern\":null,\"pstnPrefix\":\"\",\"pstnPrefixOptional\":false,\"longDistancePrefix\":\"\","
             + "\"longDistancePrefixOptional\":false,\"areaCodes\":\"800, 866, 877, 888\",\"externalLen\":0,\"optionalPrefix\":null,\"emergencyNumber\":null,"
-            + "\"afterHoursAttendant\":null,\"holidayAttendant\":null,\"workingTimeAttendant\":null,\"holidayAttendantPeriods\":null,\"workingTimeAttendantPeriods\":null,\"extension\":null,"
+            + "\"afterHoursAttendant\":null,\"afterHoursAttendantEnabled\":false,\"holidayAttendant\":null,\"workingTimeAttendant\":null,\"holidayAttendantPeriods\":null,\"workingTimeAttendantPeriods\":null,\"extension\":null,"
             + "\"attendantAliases\":null,\"did\":null,\"enableLiveAttendant\":false}]}",
             rules.get(0).getId(), rules.get(1).getId(), rules.get(2).getId(), rules.get(3).getId(), rules.get(4).getId(), rules.get(5).getId()),
             rulesJson);
@@ -271,35 +271,35 @@ public class GatewayApiTestIntegration extends RestApiIntegrationTestCase {
             + "<Rules><Rule><id>%s</id><name>Emergency</name><enabled>false</enabled><type>Emergency</type><description>Emergency dialing plan</description><permissions/>"
             + "<gatewayAware>true</gatewayAware><authorizationChecked>true</authorizationChecked><internal>false</internal><pstnPrefixOptional>false</pstnPrefixOptional>"
             + "<longDistancePrefixOptional>false</longDistancePrefixOptional><externalLen>0</externalLen><optionalPrefix>9</optionalPrefix><emergencyNumber>911</emergencyNumber>"
-            + "<enableLiveAttendant>false</enableLiveAttendant></Rule><Rule><id>%s</id><name>International</name><enabled>false</enabled><type>Long Distance</type>"
+            + "<afterHoursAttendantEnabled>false</afterHoursAttendantEnabled><enableLiveAttendant>false</enableLiveAttendant></Rule><Rule><id>%s</id><name>International</name><enabled>false</enabled><type>Long_Distance</type>"
             + "<description>International dialing</description><permissions/><gatewayAware>true</gatewayAware>"
             + "<authorizationChecked>true</authorizationChecked><internal>false</internal><pstnPrefix></pstnPrefix><pstnPrefixOptional>false</pstnPrefixOptional>"
             + "<longDistancePrefix>011</longDistancePrefix><longDistancePrefixOptional>false</longDistancePrefixOptional><areaCodes></areaCodes>"
-            + "<externalLen>-1</externalLen><enableLiveAttendant>false</enableLiveAttendant></Rule><Rule><id>%s</id><name>Local</name><enabled>false</enabled>"
-            + "<type>Long Distance</type><description>Local dialing</description><permissions/><gatewayAware>true</gatewayAware><authorizationChecked>true</authorizationChecked>"
+            + "<externalLen>-1</externalLen><afterHoursAttendantEnabled>false</afterHoursAttendantEnabled><enableLiveAttendant>false</enableLiveAttendant></Rule><Rule><id>%s</id><name>Local</name><enabled>false</enabled>"
+            + "<type>Long_Distance</type><description>Local dialing</description><permissions/><gatewayAware>true</gatewayAware><authorizationChecked>true</authorizationChecked>"
             + "<internal>false</internal><pstnPrefix>9</pstnPrefix><pstnPrefixOptional>false</pstnPrefixOptional><longDistancePrefix></longDistancePrefix>"
-            + "<longDistancePrefixOptional>true</longDistancePrefixOptional><areaCodes></areaCodes><externalLen>7</externalLen><enableLiveAttendant>false</enableLiveAttendant></Rule>"
-            + "<Rule><id>%s</id><name>Long Distance</name><enabled>false</enabled><type>Long Distance</type><description>Long distance dialing plan</description><permissions/>"
+            + "<longDistancePrefixOptional>true</longDistancePrefixOptional><areaCodes></areaCodes><externalLen>7</externalLen><afterHoursAttendantEnabled>false</afterHoursAttendantEnabled><enableLiveAttendant>false</enableLiveAttendant></Rule>"
+            + "<Rule><id>%s</id><name>Long Distance</name><enabled>false</enabled><type>Long_Distance</type><description>Long distance dialing plan</description><permissions/>"
             + "<gatewayAware>true</gatewayAware><authorizationChecked>true</authorizationChecked><internal>false</internal><pstnPrefix>9</pstnPrefix>"
             + "<pstnPrefixOptional>true</pstnPrefixOptional><longDistancePrefix>1</longDistancePrefix><longDistancePrefixOptional>false</longDistancePrefixOptional><areaCodes></areaCodes>"
-            + "<externalLen>10</externalLen><enableLiveAttendant>false</enableLiveAttendant></Rule>"
-            + "<Rule><id>%s</id><name>Restricted</name><enabled>false</enabled><type>Long Distance</type><description>Restricted dialing</description><permissions/>"
+            + "<externalLen>10</externalLen><afterHoursAttendantEnabled>false</afterHoursAttendantEnabled><enableLiveAttendant>false</enableLiveAttendant></Rule>"
+            + "<Rule><id>%s</id><name>Restricted</name><enabled>false</enabled><type>Long_Distance</type><description>Restricted dialing</description><permissions/>"
             + "<gatewayAware>true</gatewayAware><authorizationChecked>true</authorizationChecked><internal>false</internal><pstnPrefix></pstnPrefix>"
             + "<pstnPrefixOptional>false</pstnPrefixOptional><longDistancePrefix></longDistancePrefix><longDistancePrefixOptional>false</longDistancePrefixOptional>"
-            + "<areaCodes>900</areaCodes><externalLen>0</externalLen><enableLiveAttendant>false</enableLiveAttendant></Rule>"
-            + "<Rule><id>%s</id><name>Toll free</name><enabled>false</enabled><type>Long Distance</type><description>Toll free dialing</description><permissions/>"
+            + "<areaCodes>900</areaCodes><externalLen>0</externalLen><afterHoursAttendantEnabled>false</afterHoursAttendantEnabled><enableLiveAttendant>false</enableLiveAttendant></Rule>"
+            + "<Rule><id>%s</id><name>Toll free</name><enabled>false</enabled><type>Long_Distance</type><description>Toll free dialing</description><permissions/>"
             + "<gatewayAware>true</gatewayAware><authorizationChecked>true</authorizationChecked><internal>false</internal><pstnPrefix></pstnPrefix>"
             + "<pstnPrefixOptional>false</pstnPrefixOptional><longDistancePrefix></longDistancePrefix><longDistancePrefixOptional>false</longDistancePrefixOptional>"
-            + "<areaCodes>800, 866, 877, 888</areaCodes><externalLen>0</externalLen><enableLiveAttendant>false</enableLiveAttendant></Rule></Rules>",
+            + "<areaCodes>800, 866, 877, 888</areaCodes><externalLen>0</externalLen><afterHoursAttendantEnabled>false</afterHoursAttendantEnabled><enableLiveAttendant>false</enableLiveAttendant></Rule></Rules>",
             rules.get(0).getId(), rules.get(1).getId(), rules.get(2).getId(), rules.get(3).getId(), rules.get(4).getId(), rules.get(5).getId()),
             rulesXml);
 
         // add gateway to long distance rule
-        putCode = putXmlString(StringUtils.EMPTY, String.format("gateways/%s/%s", gateway.getId(), rules.get(3).getId()));
+        putCode = putXmlString(StringUtils.EMPTY, String.format("gateways/%s/rules/%s", gateway.getId(), rules.get(3).getId()));
         assertEquals(200, putCode);
 
         //remove gateway from rule
-        int deleteCode = delete(String.format("gateways/%s/%s", gateway.getId(), rules.get(3).getId()));
+        int deleteCode = delete(String.format("gateways/%s/rules/%s", gateway.getId(), rules.get(3).getId()));
         assertEquals(200, deleteCode);
 
         // delete gateway
