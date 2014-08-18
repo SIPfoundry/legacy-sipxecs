@@ -549,15 +549,6 @@ ReproGlue::RequestProcessor::ChainReaction WSRouter::onProcessRequest(ReproGlue:
       path.uri().param(resip::p_lr);
       msg.header(h_Paths).push_front(path);
       
-
-      //
-      // Does more harm than good.  Specifically GRUU
-      //
-      if (msg.exists(h_Supporteds))
-      {
-        msg.remove(h_Supporteds);
-      }
-      
     }
     else if (msg.method() == resip::INVITE)
     {
