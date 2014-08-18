@@ -991,6 +991,16 @@ void SipRegistrarServer::handleRegister(SipMessage* pMsg)
 
                          contactUri.setFieldParameter("+sip.instance", record.getInstanceId().c_str());
 
+                         UtlString tparam;
+                         contactUri.getUrlParameter("transport", tparam);
+                         if (!tparam.isNull())
+                         {
+                            if (tparam.compareTo("ws", UtlString::ignoreCase) == 0 || tparam.compareTo("wss", UtlString::ignoreCase) == 0)
+                            {
+                              OS_LOG_INFO(FAC_SIP, "SipRegistrarServer::handleMessage - Disabling GRUU for webrtc registration")
+                              requestSupportsGruu = false;
+                            }
+                         }
 
                          // Only add the "gruu" parameter if the GRUU is
                          // non-null and the request includes "Supported:
