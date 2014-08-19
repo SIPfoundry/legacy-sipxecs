@@ -85,12 +85,11 @@ public class MongoConfig implements ConfigProvider {
             // CLIENT
             File dir = manager.getLocationDataDirectory(location);
             FileWriter client = new FileWriter(new File(dir, "mongo-client.ini"));
-            Integer regionId = location.getRegionId();
-            int shardId = (regionId != null ? regionId : 0);
             String connStr = getConnectionString(dbs, GLOBAL_REPLSET, settings.getPort());
-            String connUrl = getConnectionUrl(dbs, shardId, useReadTags, settings.getPort());
+            //the global database has shard id 0 
+            String connUrl = getConnectionUrl(dbs, 0, useReadTags, settings.getPort());
             try {
-                writeClientConfig(client, connStr, connUrl, shardId, useReadTags);
+                writeClientConfig(client, connStr, connUrl, 0, useReadTags);
             } finally {
                 IOUtils.closeQuietly(client);
             }
