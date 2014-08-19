@@ -53,6 +53,9 @@ bundle agent mongodb {
 
     mongo_local::
       "any" usebundle => mongo_local_config;
+      
+    !mongo_local::
+      "any" usebundle => mongo_local_config;
 
     mongo_local_arbiter::
       "any" usebundle => mongo_local_arbiter_config;
@@ -161,7 +164,29 @@ bundle agent mongo_local_config {
         edit_defaults => empty,
         edit_line => mongo_local_config_contents,
         classes => if_repaired("restart_mongo_local");
+
+    !mongo_local::
+      "/var/lib/mongo-local"
+        comment => "Remove required mongo local dirs $(this.promiser)",
+        delete => tidyfiles,
+        file_select => all,
+        depth_search => recurse("inf");
+
+      "/var/lib/mongo-local"
+        comment => "Remove required mongo local dirs $(this.promiser)",
+        delete => tidyfiles;
 }
+
+body delete tidyfiles {
+     dirlinks => "delete";
+     rmdirs   => "true";
+ }
+
+body file_select all {
+  leaf_name => { ".*" };
+  file_result => "leaf_name";
+}
+
 
 bundle edit_line mongo_local_config_contents {
   # bind_ip=0.0.0.0 may not be nec, but if it's anything else
