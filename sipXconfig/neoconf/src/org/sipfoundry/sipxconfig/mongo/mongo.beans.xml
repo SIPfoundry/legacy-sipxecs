@@ -27,7 +27,6 @@
     <property name="globalManager" ref="mongoReplSetManager"/>        
     <property name="featureManager" ref="featureManager"/>
     <property name="configJdbcTemplate" ref="configJdbcTemplate"/>
-    <property name="nodeDb" ref="nodeDb"/>
   </bean>
     
   <bean id="mongoConfig" class="org.sipfoundry.sipxconfig.mongo.MongoConfig">
@@ -42,7 +41,8 @@
     <property name="mongoStatusScript" value="${sysdir.bin}/mongodb-status"/>        
     <property name="mongoAnalyzerScript" value="${sysdir.bin}/mongodb-analyzer"/>
     <!-- no path because this is a remote script -->        
-    <property name="mongoAdminScript" value="mongodb-admin"/>  
+    <property name="mongoAdminScript" value="mongodb-admin"/>
+    <property name="nodeDb" ref="nodeDb"/>
   </bean>
 
   <bean id="mongoSettings" class="org.sipfoundry.sipxconfig.mongo.MongoSettings" parent="settingsBean">

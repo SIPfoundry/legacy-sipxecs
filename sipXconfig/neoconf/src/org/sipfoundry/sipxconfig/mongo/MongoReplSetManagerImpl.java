@@ -29,8 +29,14 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.region.Region;
+import org.springframework.data.mongodb.core.MongoTemplate;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 
 public class MongoReplSetManagerImpl implements MongoReplSetManager {
+    private static final String SHARD_ID = "shardId";
     private static final Log LOG = LogFactory.getLog(MongoReplSetManagerImpl.class);
     private static final String BLANK_MODEL = "{ \"servers\" : [ ] , \"local\" : true , "
             + "\"arbiters\" : [ ] , \"replSet\" : \"sipxlocal\"}";
@@ -48,6 +54,7 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
     private LocationFeature m_arbFeature = MongoManager.ARBITER_FEATURE;
     private LocationFeature m_ldbFeature = MongoManager.LOCAL_FEATURE;
     private LocationFeature m_larbFeature = MongoManager.LOCAL_ARBITER_FEATURE;
+    private MongoTemplate m_nodeDb;
 
     @Override
     public MongoMeta getMeta() {
@@ -114,6 +121,11 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
         String fqdn = MongoNode.fqdn(hostPort);
         Location l = m_configManager.getLocationManager().getLocationByFqdn(fqdn);
         m_featureManager.enableLocationFeature(f, l, false);
+        // We might get registrations with the shard id that has just been deleted
+        // so we need to make sure they are not in the primary mongo registrar
+        DBCollection registrar = m_nodeDb.getCollection("registrar");
+        DBObject condition = new BasicDBObject(SHARD_ID, l.getRegionId());
+        registrar.update(condition, new BasicDBObject("$set", new BasicDBObject(SHARD_ID, 0)), false, true);
         return run("removing local db " + hostPort, new ConfigCommandRunner());
     }
 
@@ -358,4 +370,9 @@ public class MongoReplSetManagerImpl implements MongoReplSetManager {
     public void setMongoAdminScript(String mongoAdminScript) {
         m_mongoAdminScript = mongoAdminScript;
     }
+
+    public void setNodeDb(MongoTemplate nodeDb) {
+        m_nodeDb = nodeDb;
+    }
+
 }

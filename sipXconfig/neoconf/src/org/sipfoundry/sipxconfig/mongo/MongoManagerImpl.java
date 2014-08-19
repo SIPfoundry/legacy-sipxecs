@@ -60,12 +60,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
         SetupListener, FirewallProvider, AlarmProvider, BeanFactoryAware, FeatureListener, DaoEventListenerAdvanced {
@@ -77,7 +72,6 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
     private MongoReplSetManager m_globalManager;
     private ListableBeanFactory m_beans;
     private JdbcTemplate m_configJdbcTemplate;
-    private MongoTemplate m_nodeDb;
 
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
@@ -228,15 +222,6 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
-        if (request.getAllNewlyDisabledFeatures().contains(LOCAL_FEATURE)) {
-            // We might get registrations with the shard id that has just been deleted
-            // so we need to make sure they are not in the primary mongo registrar
-            for (Location l : request.getLocationsForDisabledFeature(LOCAL_FEATURE)) {
-                DBCollection registrar = m_nodeDb.getCollection("registrar");
-                DBObject condition = new BasicDBObject("shardId", l.getRegionId());
-                registrar.remove(condition);
-            }
-        }
     }
 
     @Override
@@ -441,7 +426,4 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         return m_globalManager;
     }
 
-    public void setNodeDb(MongoTemplate nodeDb) {
-        m_nodeDb = nodeDb;
-    }
 }
