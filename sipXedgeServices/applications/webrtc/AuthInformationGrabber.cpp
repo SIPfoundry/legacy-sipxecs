@@ -35,7 +35,8 @@ AuthInformationGrabber::AuthInformationGrabber(WSRouter* pRouter, UserInfoCache*
   _pUserInfoCache(pUserInfoCache),
   _canDeleteCache(false),
   _pRpc(pRpc),
-  _canDeleteRpc(false)
+  _canDeleteRpc(false),
+  _pEntityDb(0)
 {
   if (!_pUserInfoCache)
   {
@@ -56,6 +57,19 @@ AuthInformationGrabber::AuthInformationGrabber(WSRouter* pRouter, UserInfoCache*
 
   if (userCacheFile)
     loadCacheFromFile(userCacheFile);
+  
+  const char* mongo_ini = SIPX_CONFDIR "/mongo-client.ini";
+  if (boost::filesystem::exists(mongo_ini))
+  {
+    try
+    {
+      _pEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
+    }
+    catch(...)
+    {
+      _pEntityDb = 0;
+    }
+  }
 }
   
 AuthInformationGrabber::~AuthInformationGrabber()
@@ -65,6 +79,35 @@ AuthInformationGrabber::~AuthInformationGrabber()
   
   if (_canDeleteRpc)  
     delete _pRpc;
+  
+  if (_pEntityDb)
+    delete _pEntityDb;
+}
+
+bool AuthInformationGrabber::getSipPasswordFromDb(const resip::Data& user, const resip::Data& realm, resip::Data& password)
+{
+  if (!_pEntityDb)
+    return false;
+  
+  try
+  {
+    std::ostringstream identity;
+    identity << user.c_str() << "@" << realm.c_str();
+    EntityRecord entity;
+    if (_pEntityDb->findByIdentity(identity.str(), entity))
+    {
+      password = resip::Data(entity.password().c_str());
+    }
+    else
+    {
+      OS_LOG_ERROR(FAC_SIP, "AuthInformationGrabber::getSipPasswordFromDb User Not Found");
+    }
+  }
+  catch(std::exception& e)
+  {
+  }
+  
+  return !password.empty();
 }
 
 bool AuthInformationGrabber::getSipPassword(const resip::Data& user, const resip::Data& realm, resip::Data& password)
@@ -105,7 +148,8 @@ bool AuthInformationGrabber::getUserAuthInfo(const resip::Data& user, const resi
 {
   resip::Data password;
   if (!getSipPassword(user, realm, password))
-    return false;
+    if (!getSipPasswordFromDb(user, realm, password))
+      return false;
   
   MD5Stream a1;
   a1 << user

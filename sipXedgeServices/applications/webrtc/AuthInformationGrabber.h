@@ -26,6 +26,9 @@
 #include "repro/UserAuthGrabber.hxx"
 #include "resip/dum/UserAuthInfo.hxx"
 
+#include <sipdb/EntityDB.h>
+
+
 
 class WSRouter;
 
@@ -56,6 +59,8 @@ public:
   bool getUserAuthInfo(const resip::Data& user, const resip::Data& realm, resip::Data& a1Hash);
   
   bool getSipPassword(const resip::Data& user, const resip::Data& realm, resip::Data& password);
+  
+  bool getSipPasswordFromDb(const resip::Data& user, const resip::Data& realm, resip::Data& password);
 
   bool loadCacheFromFile(const std::string& cacheFile);
 private:
@@ -65,6 +70,7 @@ private:
   std::string _rpcUrl;
   jsonrpc::Client* _pRpc;
   bool _canDeleteRpc;
+  EntityDB* _pEntityDb;
 };
 
 
