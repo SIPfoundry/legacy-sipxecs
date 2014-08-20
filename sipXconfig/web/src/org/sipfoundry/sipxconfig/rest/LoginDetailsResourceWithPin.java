@@ -20,10 +20,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
+import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
@@ -31,16 +36,26 @@ import org.sipfoundry.sipxconfig.im.ImManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.noelios.restlet.http.HttpResponse;
+import com.noelios.restlet.http.HttpServerCall;
 import com.thoughtworks.xstream.XStream;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
 public class LoginDetailsResourceWithPin extends LoginDetailsResource {
+    private static final Log LOG = LogFactory.getLog(LoginDetailsResourceWithPin.class);
 
+    private static final String LOGOUT = "/logout";
     private ConfigManager m_configManager;
+    private AddressManager m_addressManager;
 
     @Override
     public Representation represent(Variant variant) throws ResourceException {
+        String url = getRequest().getResourceRef().getIdentifier();
+        if (url.endsWith(LOGOUT)) {
+            logout();
+            return null;
+        }
         //This is the password that user uses to authenticate to this REST service
         Object passwordObj = SecurityContextHolder.getContext().getAuthentication().getCredentials();
         String password = (passwordObj != null ? passwordObj.toString() : null);
@@ -59,6 +74,38 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
             password, imLocations);
 
         return new LoginDetailsWithPin(details.getMediaType(), representableWithPin);
+    }
+
+    private void logout() {
+        //logout the user
+        LOG.debug("Logging out... " + getUser().getUserName());
+        SecurityContextHolder.clearContext();
+
+        //ensure login page redirection
+        getResponse().setStatus(Status.REDIRECTION_PERMANENT);
+        HttpServerCall serverCall = ((HttpResponse)getResponse()).getHttpCall();
+        serverCall.getResponseHeaders().add("Connection", "close");
+        serverCall.getResponseHeaders().add("Location", m_addressManager.getSingleAddress(ApacheManager.HTTPS_ADDRESS).toString());
+    }
+
+    @Override
+    public boolean allowGet() {
+        return true;
+    }
+
+    @Override
+    public boolean allowPut() {
+        return false;
+    }
+
+    @Override
+    public boolean allowDelete() {
+        return false;
+    }
+
+    @Override
+    public boolean allowPost() {
+        return false;
     }
 
     private static class RepresentableWithPin extends Representable {
@@ -101,6 +148,11 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
     @Required
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
+    }
+
+    @Required
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 
     protected static class LoginDetailsWithPin extends LoginDetails {
