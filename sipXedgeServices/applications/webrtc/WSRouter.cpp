@@ -188,17 +188,32 @@ bool WSRouter::initialize()
   
   if (_domains.empty())
   {
-    std::vector<std::string> aliases = DomainConfig::instance()->getAliases();
     std::string domain = DomainConfig::instance()->getDomainName();
     
     if (!domain.empty())
-      _domains.push_back(domain);
-    
-    for (std::vector<std::string>::const_iterator iter = aliases.begin(); iter != aliases.end(); iter++)
-      _domains.push_back(*iter);
-    
+    {
+      OS_LOG_INFO(FAC_SIP, "WSRouter::initialize - Adding domain " << domain);
+      _domains.push_back(domain); 
+    }
   }
-
+  else
+  {
+    for (std::vector<std::string>::const_iterator iter = _domains.begin(); iter != _domains.end(); iter++)
+    {
+      OS_LOG_INFO(FAC_SIP, "WSRouter::initialize - Adding domain " << *iter);
+    }
+  }
+  
+  //
+  // Add aliases if they are available from domain-config
+  //
+  std::vector<std::string> aliases = DomainConfig::instance()->getAliases();
+  for (std::vector<std::string>::const_iterator iter = aliases.begin(); iter != aliases.end(); iter++)
+  {
+    OS_LOG_INFO(FAC_SIP, "WSRouter::initialize - Adding alias domain " << *iter);
+    _domains.push_back(*iter);
+  }
+  
   if (_realm.empty())
     _realm = DomainConfig::instance()->getRealm();
   
