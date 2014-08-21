@@ -279,6 +279,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxsaa/*
 %config(noreplace) %{sipxpbxconf}/sipxstatus/*
 %config(noreplace) %{sipxpbxconf}/sipxsqa/*
+%config(noreplace) %{sipxpbxconf}/sipxedgerpc/*
 %config(noreplace) %{sipxpbxconf}/sipxvxml/*
 %config(noreplace) %{sipxpbxconf}/sipxwebsocket/*
 %config(noreplace) %{sipxpbxconf}/snmp/*
