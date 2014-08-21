@@ -3,7 +3,9 @@ include config/project.am
 
 SUBDIRS = \
 	. \
-	applications
+	applications \
+	bin \
+	etc
 
 EXTRA_DIST += $(srcdir)/applications/sems/*
 

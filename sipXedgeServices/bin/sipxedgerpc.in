@@ -1,0 +1,118 @@
+#!@BASH@
+# sipxedgerpc - Startup script for sipxedgerpc
+
+# chkconfig: 35 96 15
+# description: sipxedgerpc is a JSON RPC server
+# processname: sipxedgerpc
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+. /etc/rc.d/init.d/functions || exit $ENOENT
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || { echo_failure; echo; exit $ENOENT; }
+
+prog=sipxedgerpc
+exec="@SIPX_BINDIR@/${prog}"
+pidfile="@SIPX_RUNDIR@/sipxedgerpc.pid"
+config="@SIPX_CONFDIR@/sipxedgerpc-config"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+start() {
+  [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
+  [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
+  if [ -n "${NoFork}" ] ; then
+    killAnyOrphans @SIPXPBXUSER@ $exec
+    runuser - @SIPXPBXUSER@ -c "$exec  \      
+      --pid-file $pidfile \
+      --config-file $config"
+  else
+    checkRunningInstance @SIPXPBXUSER@ $exec > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; }
+
+    echo -n $"Starting $prog: "
+    daemon --user @SIPXPBXUSER@ --pidfile $pidfile $exec \
+      --pid-file $pidfile \
+      --config-file $config
+    Status=$?
+
+    if [ $# -gt 0 ]; then
+      #check if process was spawned
+      checkRunningInstanceTimeout @SIPXPBXUSER@ $exec
+      Status=$?
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+      checkIfListening $prog
+      Status=$?
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+      [ $Status -eq 0 ] && { echo_success; echo; }
+    else
+      [ $Status -eq 0 ] && { echo_success; echo; }
+      [ $Status -eq 0 ] || { echo_success; failure; }
+    fi
+  fi
+}
+
+stop() {
+  echo -n $"Stopping $prog: "
+  killproc "${prog}"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+  killAnyOrphans @SIPXPBXUSER@ $exec
+}
+
+restart() {
+  stop
+  start $withCheck
+}
+
+asyncrestart() {
+  stop
+  start
+}
+
+configtest() {
+  if [ -e $logfile -a ! -w $logfile ]
+  then
+     echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+     Status=1
+  fi
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start $withCheck
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  asyncrestart)
+    asyncrestart
+    ;;
+  condrestart)
+    checkRunningInstance @SIPXPBXUSER@ $exec > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && restart || :
+    ;;
+  status)
+    checkRunningInstance @SIPXPBXUSER@ $exec $prog
+    Status=$?
+    ;;
+  configtest)
+    configtest
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|asyncrestart|reload|force-reload|condrestart|nofork}"
+    Status=$EINCORRECTUSAGE
+esac
+
+exit $Status

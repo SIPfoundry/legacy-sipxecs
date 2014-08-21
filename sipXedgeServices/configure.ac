@@ -51,6 +51,8 @@ SFAC_SEMS_CONFIGURE
 
 AC_CONFIG_FILES([
   applications/Makefile
+  bin/Makefile
+  etc/Makefile
   Makefile
 ])
 
