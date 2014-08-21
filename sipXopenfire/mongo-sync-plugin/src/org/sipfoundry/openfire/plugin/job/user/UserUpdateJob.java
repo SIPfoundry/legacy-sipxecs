@@ -152,7 +152,7 @@ public class UserUpdateJob implements Job {
         }
     }
 
-    private static void removeUserFromGroup(String groupName, JID jid) {
+    public static void removeUserFromGroup(String groupName, JID jid) {
         logger.debug(String.format("remove user %s from group %s", jid.toString(), groupName));
         try {
             if (StringUtils.isNotBlank(groupName)) {
@@ -166,7 +166,7 @@ public class UserUpdateJob implements Job {
         }
     }
 
-    private static void addUserToGroup(String groupName, JID jid) {
+    public static void addUserToGroup(String groupName, JID jid) {
         logger.debug(String.format("Add user %s to group %s", jid.toString(), groupName));
         try {
             if (StringUtils.isNotBlank(groupName)) {

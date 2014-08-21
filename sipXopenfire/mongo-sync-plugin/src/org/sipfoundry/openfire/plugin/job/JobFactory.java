@@ -10,6 +10,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -154,58 +155,53 @@ public class JobFactory extends AbstractJobFactory {
 
         Job groupJob = null;
         String groupName = (String) dbObj.get(UID);
+        String imGroupProperty = (String) dbObj.get(IM_GROUP);
+        String oldGroupName = CacheHolder.getGroupName(id);;
+        String description = (String) dbObj.get(DESCR);
 
-        if (!StringUtils.isBlank(groupName)) {
-            switch (op) {
-            case UPDATE:
-                String oldGroupName = CacheHolder.getGroupName(id);
-                // if it wasn't cached, it's not in use - no need to update
-                if (oldGroupName != null) {
-                    String imGroupStr = (String) dbObj.get(IM_GROUP);
-                    boolean imGroup;
-                    if (imGroupStr != null) {
-                        imGroup = "1".equals(imGroupStr);
-                    } else {
-                        // avoid querying the actual value; the value wasn't updated, but the
-                        // group is cached, therefore it must have IM enabled
-                        imGroup = true;
-                    }
-                    String description = (String) dbObj.get(DESCR);
-                    UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
-                    if (group.isImbotEnabled()) {
-                        String xmppDomain = XMPPServer.getInstance().getServerInfo().getXMPPDomain();
-                        String imBotName = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImBotName();
-                        JID imBotJid = new JID(imBotName, xmppDomain, null, false);
-                        groupJob = new GroupUpdateJob(groupName, oldGroupName, imGroup, description, imBotJid);
-                    } else {
-                        groupJob = new GroupUpdateJob(groupName, oldGroupName, imGroup, description, null);
-                    }
-                } else {
-                    logger.debug(String.format("Skipping update of group %s. Not in cache.", groupName));
+        String xmppDomain = XMPPServer.getInstance().getServerInfo().getXMPPDomain();
+        String imBotName = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImBotName();
+        JID imBotJid = new JID(imBotName, xmppDomain, null, false);
+
+        switch (op) {
+        case UPDATE:
+            // check if group already has im enabled
+            if (StringUtils.isNotBlank(oldGroupName)) {
+                if (groupName == null) {
+                    // group name has not been changed, use the old one
+                    groupName = oldGroupName;
                 }
-                break;
-            case DELETE:
+                UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
+                boolean isImGroup = false;
+                boolean isMyBuddyEnabled = false;
+                if (group != null) {
+                    isImGroup = true;
+                    isMyBuddyEnabled = group.isImbotEnabled();
+                }
+                groupJob = new GroupUpdateJob(groupName, oldGroupName, isImGroup, description, isMyBuddyEnabled, imBotJid, null);
+            } else {
+                // not a known group
+                if (imGroupProperty != null) {
+                    // im group was enabled
+                    groupName = lookupGroupName(id);
+                    UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
+                    if (group != null) {
+                        logger.debug("Add all users in group " + groupName);
+                        groupJob = new GroupUpdateJob(groupName, groupName, true, group.getDescription(), 
+                                group.isImbotEnabled(), imBotJid, getGroupMembers(groupName));
+                    }
+                }
+            }
+            break;
+        case DELETE:
+            if (StringUtils.isNotBlank(oldGroupName)) {
+                // an IM group was deleted
                 groupJob = new GroupDeleteJob(groupName);
                 break;
-            default:
-                logger.warn(String.format("Unsupported group operation %s. Ignoring.", op));
-                break;
             }
-        } else {
-            String imGroupStr = (String) dbObj.get(IM_GROUP);
-            boolean imGroup = false;
-            if (imGroupStr != null) {
-                imGroup = "1".equals(imGroupStr);
-            }
-            if (imGroup) {
-                groupName = lookupGroupName(id);
-                logger.debug("New group with im enabled, loading name " + groupName + " using id " + id);
-                if (!StringUtils.isBlank(groupName)) {
-                    groupJob = new GroupUpdateJob(groupName, groupName, imGroup, "", null);
-                }
-            } else {
-                logger.warn("Missing group name for update/delete operation");
-            }
+        default:
+            logger.warn(String.format("Unsupported group operation %s. Ignoring.", op));
+            break;
         }
 
         return groupJob;
@@ -238,6 +234,22 @@ public class JobFactory extends AbstractJobFactory {
         DBObject fields = new BasicDBObject("uid", 1);
         DBObject user = getCollection().findOne(query, fields);
         return (String) user.get("uid");
+    }
+
+    private static List<JID> getGroupMembers(String groupName) {
+        List<JID> members = new ArrayList<JID>();
+        DBCollection usersCollection = getCollection();
+
+        DBObject query = new BasicDBObject();
+        query.put("ent", "user");
+        query.put("gr", groupName);
+        String domain = XMPPServer.getInstance().getServerInfo().getXMPPDomain();
+
+        for (DBObject userObj : usersCollection.find(query)) {
+            members.add(new JID((String) userObj.get(IM_ID) + "@" + domain));
+        }
+
+        return members;
     }
 
     private static DBCollection getCollection() {
