@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
@@ -65,7 +66,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
 public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, PhoneContext,
-        ApplicationListener, AlarmProvider {
+        ApplicationListener, AlarmProvider, DaoEventListener {
     private static final Log LOG = LogFactory.getLog(PhoneContextImpl.class);
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
     private static final String QUERY_PHONE_BY_SERIAL_NUMBER = "phoneWithSerialNumber";

@@ -16,7 +16,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.intercom.Intercom;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
@@ -26,7 +25,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public interface PhoneContext extends DataObjectSource, DaoEventListener {
+public interface PhoneContext extends DataObjectSource {
     public static final AlarmDefinition ALARM_PHONE_ADDED = new AlarmDefinition("PHONE_ADDED");
     public static final AlarmDefinition ALARM_PHONE_CHANGED = new AlarmDefinition("PHONE_CHANGED");
     public static final AlarmDefinition ALARM_PHONE_DELETED = new AlarmDefinition("PHONE_DELETED");
