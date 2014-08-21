@@ -189,21 +189,32 @@ bool DialogTracker::handleRequest( SipMessage& message,
        method.compareTo(SIP_INVITE_METHOD) == 0 &&
        !message.getHeaderValue( 0, SIP_SIPX_NTAP_CONTACT))
    {
+     // if reevaluateDestination is set true sipXtackLib will not send this message to current destination
+     // but instead it will compute again the destination for this message
      *reevaluateDestination = true;
-     UtlString routeUri = "sip:" + mpNatTraversalRules->getMediaRelayPublicAddress() + ":";
+
+     // if media relay required route the message to media relay process
+     // adding route header; example: Route: <sip:172.16.40.50:5085;lr;transport=tcp>
+     UtlString routeUri = "sip:" + mpNatTraversalRules->getMediaRelayNativeAddress() + ":";
      routeUri.appendNumber(mpNatTraversalRules->getMediaRelayPort());
-     routeUri += ";lr";
+     routeUri += ";lr;transport=tcp";
 
      message.addRouteUri( routeUri.data() );
 
+     // add "X-sipX-NTAP-Contact" header in order to compute correctly the location of end point
+     // after the message is received from media relay (media relay put it's own contact)
      UtlString tmpString;
-     message.getContactEntry( 0, &tmpString );
-     message.setHeaderValue(SIP_SIPX_NTAP_CONTACT, tmpString );
+     if (message.getContactEntry( 0, &tmpString ))
+     {
+       message.setHeaderValue(SIP_SIPX_NTAP_CONTACT, tmpString );
+     }
 
      UtlString msgBytes;
      ssize_t msgLen;
      message.getBytes(&msgBytes, &msgLen);
-     Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "DialogTracker::handleRequest: NTAP route to sems \n%s", msgBytes.data() );
+     Os::Logger::instance().log(FAC_NAT, PRI_DEBUG,
+         "DialogTracker::handleRequest: Routing the following message to media relay process:\n%s",
+         msgBytes.data() );
    }
 
    return bTrackRequestResponse;

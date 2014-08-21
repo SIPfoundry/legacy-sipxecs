@@ -339,7 +339,18 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // If we managed to collect a sipXNatRoute value then set it in the message
             if( !sipxNatRouteString.isNull() )
             {
-               request.setSipXNatRoute( sipxNatRouteString );
+              int requestUriHostPort = 0;
+              UtlString requestUriHostAddress;
+
+              requestUriHostPort = requestUri.getHostPort();
+              requestUri.getHostAddress(requestUriHostAddress);
+
+              // if the request uri destination is not media relay process add "X-sipX-Nat-Route" header
+              if ( requestUriHostPort != mNatTraversalRules.getMediaRelayPort() &&
+                  requestUriHostAddress != mNatTraversalRules.getMediaRelayNativeAddress() )
+              {
+                request.setSipXNatRoute( sipxNatRouteString );
+              }
             }
          }
          else

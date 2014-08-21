@@ -735,36 +735,50 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 
         if (reevaluateDestination && true == *reevaluateDestination)
         {
-          UtlString msgBytes;
-          ssize_t msgLen;
-          message->getBytes(&msgBytes, &msgLen);
-
-          // Create a new transactions
-          // This should only be for requests
-          // so it should not be a server transaction
-          SipTransaction* transaction = new SipTransaction(message,
-          TRUE /* outgoing */, mIsUaTransaction);
-          transaction->markBusy();
-          transactionList.addTransaction(transaction);
-          linkChild(*transaction);
-
           message->removeTopVia(); // the fake via for identifying this TX
           message->resetTransport();
           message->clearDNSField();
 
+          // Create a new transaction
+          // We need this because the new route added by plugins may be an url and not an ip
+          // adress; so a new dns lookup should be made
+          // This should only be for requests
+          // so it should not be a server transaction
+          SipTransaction* transaction = new SipTransaction(message, TRUE /* outgoing */, mIsUaTransaction, mpBranchId);
+          transaction->markBusy();
+          transaction->mQvalue = mQvalue;
+          transaction->mExpires = mExpires;
+
+          transactionList.addTransaction(transaction);
+          if (mpParentTransaction)
+          {
+            // if current transaction is a child transaction, mark that and all other childs as complete
+            // and link the new created transaction to the parent of current transaction
+            UtlSListIterator iterator(mpParentTransaction->mChildTransactions);
+            SipTransaction* childTransaction = NULL;
+            while ((childTransaction = (SipTransaction*) iterator()))
+            {
+              childTransaction->mTransactionState = TRANSACTION_COMPLETE;
+            }
+
+            mpParentTransaction->linkChild(*transaction);
+          }
+          else
+          {
+            linkChild(*transaction);
+          }
+
+          UtlString msgBytes;
+          ssize_t msgLen;
+          message->getBytes(&msgBytes, &msgLen);
 
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-              "SipTransaction::handleOutgoing reevaluateDestination"
-                  "toAddress: %s "
-                  "port: %d "
-                  "message: \n%s", toAddress.data(), port,
+              "SipTransaction::handleOutgoing reevaluate destination for message: \n%s",
               msgBytes.data());
 
           sendSucceeded = transaction->handleOutgoing(*message, userAgent,
               transactionList, relationship,
               NULL);
-
-          transactionList.markAvailable(*transaction);
         }
     }
 #ifdef DUMP_TRANSACTIONS
@@ -3013,6 +3027,22 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                               childTransaction->mSendToPort,
                               childTransaction->mSendToProtocol);
 #               endif
+
+                // If there was a loose route pop it off
+                // The assumption is that this was previously routed
+                // to the redirect server.  Perhaps we can get the
+                // parent's parent's request to use here instead.  I just
+                // cannot work it out in my head right now
+                UtlString routeUri;
+                recursedRequest.getRouteUri(0, &routeUri);
+                Url routeUrlParser(routeUri);
+                UtlString dummyValue;
+                UtlBoolean nextHopLooseRoutes = routeUrlParser.getUrlParameter("lr", dummyValue, 0);
+                if(nextHopLooseRoutes)
+                {
+                    recursedRequest.removeRouteUri(0, &routeUri);
+                }
+
                 // Start the transaction by sending its request
                 if(childTransaction->handleOutgoing(recursedRequest,
                                                  userAgent,

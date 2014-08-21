@@ -1215,6 +1215,10 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   if(! strchr(serverAddress, '*') && *serverAddress)
     {
       sentOk = mSipUdpServer->send(message, serverAddress, port, reevaluateDestination);
+      if (reevaluateDestination && true == *reevaluateDestination)
+      {
+        return FALSE;
+      }
     }
   else if(*serverAddress == '\0')
     {
@@ -1587,6 +1591,10 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
        if (mSipTcpServer)
        {
           sendSucceeded = mSipTcpServer->send(message, serverAddress, port, reevaluateDestination);
+          if (reevaluateDestination && true == *reevaluateDestination)
+          {
+            return FALSE;
+          }
        }
     }
     else if (*serverAddress == '\0')
@@ -1666,6 +1674,10 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    if(!strchr(serverAddress,'*') && *serverAddress)
    {
       sendSucceeded = mSipTlsServer->send(message, serverAddress, port, reevaluateDestination);
+      if (reevaluateDestination && true == *reevaluateDestination)
+      {
+        return FALSE;
+      }
    }
    else if(*serverAddress == '\0')
    {
