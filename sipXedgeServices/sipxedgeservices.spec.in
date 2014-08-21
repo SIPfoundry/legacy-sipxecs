@@ -37,6 +37,9 @@ BuildRequires: libevent2-devel
 BuildRequires: python >= 2.3
 BuildRequires: python-devel >= 2.3
 BuildRequires: c-ares-devel
+BuildRequires: java-1.7.0-openjdk-devel
+BuildRequires: sipxcommons >= %version
+BuildRequires: sipxconfig >= %version
 
 Requires: sipxesllib
 Requires: sipxcommserverlib  >= %version
@@ -53,6 +56,8 @@ Requires: freeswitch-lang-en
 Requires: libevent2
 Requires: python >= 2.3
 Requires: c-ares
+Requires: chkconfig
+Requires: sipxcommons >= %version
 
 Source:   %name-%version.tar.gz
 
@@ -125,13 +130,11 @@ rm -rf $RPM_BUILD_ROOT
 %files rpc
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/sipxedgerpc
-
-%files config
-%dir %attr(0750,-,-) %{_sysconfdir}/sipxpbx/edge/.config
-%{_sysconfdir}/sipxpbx/edge/.config/*
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxedgerpc
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxedgerpc.cf
-
+%{_sysconfdir}/sipxpbx/sipxedgerpc/sipxedgerpc.properties
+%{_sysconfdir}/sipxpbx/sipxedgerpc/sipxedgerpc.xml
+%{_datadir}/java/sipXecs/sipXconfig/plugins/sipxedgerpc-config-plugin.jar
 
 %files sems
 %defattr(-,root,root)
@@ -146,6 +149,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/sbc.conf
 %{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/transparent.sbcprofile.conf
 %{_sysconfdir}/sipxpbx/edge/sems/etc/sems/etc/*.conf
+
+%files config
+%dir %attr(0750,-,-) %{_sysconfdir}/sipxpbx/edge/.config
+%{_sysconfdir}/sipxpbx/edge/.config/*
 
 #doc
 /share/sems/doc/sems-1.6.0/**

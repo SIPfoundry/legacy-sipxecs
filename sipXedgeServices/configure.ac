@@ -8,6 +8,7 @@ AC_PROG_CC
 
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
+m4_include([config/java2.m4])
 
 AM_INIT_AUTOMAKE(foreign tar-pax)
 AM_CONFIG_HEADER([config.h])
@@ -46,6 +47,10 @@ AC_SUBST(LIBVERSION_AGE)
 AC_SUBST(LIBVERSION_FULL)
 AC_SUBST(LIBVERSION_INFO)
 
+AC_PROG_JAVA_CC([javac])
+AC_PROG_JAVA([java])
+PROG_JAVA_DEP
+
 m4_include([config/sems.m4])
 SFAC_SEMS_CONFIGURE
 
@@ -53,6 +58,7 @@ AC_CONFIG_FILES([
   applications/Makefile
   bin/Makefile
   etc/Makefile
+  config-plugin/Makefile
   Makefile
 ])
 

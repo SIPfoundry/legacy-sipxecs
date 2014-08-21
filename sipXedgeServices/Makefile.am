@@ -5,7 +5,8 @@ SUBDIRS = \
 	. \
 	applications \
 	bin \
-	etc
+	etc \
+	config-plugin
 
 EXTRA_DIST += $(srcdir)/applications/sems/*
 

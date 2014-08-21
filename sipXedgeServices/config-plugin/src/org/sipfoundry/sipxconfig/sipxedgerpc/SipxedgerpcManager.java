@@ -17,11 +17,8 @@ package org.sipfoundry.sipxconfig.sipxedgerpc;
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-public interface SipxedgerpcManager {
-    public static final String SIPXEDGERPC_NAME = "sipxedgerpc";
-
-    public static final LocationFeature FEATURE = new LocationFeature(SIPXEDGERPC_NAME);
-    public static final AddressType HTTP_ADDRESS = new AddressType(SIPXEDGERPC_NAME, "http://%s:%d");
+public interface SipxedgerpcManager extends Sipxedgerpc {
+    public static final AddressType HTTP_ADDRESS = new AddressType(FEATURE_ID, "http://%s:%d");
 
     public SipxedgerpcManagerSettings getSettings();
 

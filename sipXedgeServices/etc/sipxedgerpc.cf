@@ -38,7 +38,7 @@ bundle edit_line sipxedgerpc_config_contents {
     any::
       "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxedgerpc-config.part"
         insert_type => "file";
-      "log-file = $(sipx.SIPX_LOGDIR)/sipxedgerpc.log";
+      "log-file=$(sipx.SIPX_LOGDIR)/sipxedgerpc.log";
       
   delete_lines:
     any::

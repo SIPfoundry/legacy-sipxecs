@@ -12,7 +12,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.site.sipxedgerpc;
+package org.sipfoundry.sipxconfig.web.plugin;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.sipxedgerpc.SipxedgerpcManager;
 import org.sipfoundry.sipxconfig.sipxedgerpc.SipxedgerpcManagerSettings;
 
-public abstract class EditSipxedgerpc extends PageWithCallback implements PageBeginRenderListener {
+public abstract class EditSipxedgerpcPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "proxy/EditSipxedgerpcPage";
 
     @Bean

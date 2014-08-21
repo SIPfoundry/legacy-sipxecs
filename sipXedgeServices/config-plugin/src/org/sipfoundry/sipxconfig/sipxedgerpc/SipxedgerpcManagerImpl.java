@@ -52,8 +52,9 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class SipxedgerpcManagerImpl extends SipxHibernateDaoSupport implements SipxedgerpcManager, ConfigProvider,
+public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvider,
     AddressProvider, FeatureProvider, FirewallProvider, ProcessProvider {
+    
     private BeanWithSettingsDao<SipxedgerpcManagerSettings> m_settingsDao;
 
     @Override

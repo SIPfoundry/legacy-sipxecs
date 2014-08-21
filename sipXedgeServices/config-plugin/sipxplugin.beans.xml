@@ -26,4 +26,6 @@
   
   <bean id="sipxedgerpcSettings" class="org.sipfoundry.sipxconfig.sipxedgerpc.SipxedgerpcManagerSettings" parent="settingsBean">
   </bean>
+  
+  <bean id="sipxedgerpcFeatureHook" class="org.sipfoundry.sipxconfig.web.plugin.SipxedgerpcFeatureHook" />  
 </beans>
