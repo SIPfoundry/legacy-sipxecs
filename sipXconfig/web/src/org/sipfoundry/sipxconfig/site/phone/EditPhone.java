@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 /**
  * Tapestry Page support for editing and creating new phones
@@ -34,8 +33,10 @@ public abstract class EditPhone extends PhoneBasePage implements PageBeginRender
 
     public static final String PAGE = "phone/EditPhone";
 
+    @Override
     public abstract Phone getPhone();
 
+    @Override
     public abstract void setPhone(Phone phone);
 
     @InjectObject(value = "spring:settingDao")
@@ -46,6 +47,7 @@ public abstract class EditPhone extends PhoneBasePage implements PageBeginRender
 
     public abstract String getActiveTab();
 
+    @Override
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -70,7 +72,6 @@ public abstract class EditPhone extends PhoneBasePage implements PageBeginRender
         if (valid) {
             PhoneContext dao = getPhoneContext();
             Phone phone = getPhone();
-            EditGroup.saveGroups(getSettingDao(), phone.getGroups());
             dao.storePhone(phone);
         }
 
@@ -82,6 +83,7 @@ public abstract class EditPhone extends PhoneBasePage implements PageBeginRender
         setGenerateProfileIds(phoneIds);
     }
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         if (getPhone() != null) {
             return;
