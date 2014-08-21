@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2014 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
  * This software is free software; you can redistribute it and/or modify it under
@@ -81,7 +81,7 @@ public class SipxedgerpcManagerImpl extends SipxHibernateDaoSupport implements S
         }
     }
 
-    void writeConfig(Writer w, SipxedgerpcManagerSettings settings) throws IOException {
+    protected static void writeConfig(Writer w, SipxedgerpcManagerSettings settings) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write("http-port", settings.getHttpPort());
         config.write("log-level", settings.getLogLevel());
