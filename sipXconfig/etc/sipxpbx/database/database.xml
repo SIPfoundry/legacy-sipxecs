@@ -471,6 +471,7 @@
     <antcall target="add-schedule-feature" />
     <antcall target="config-change-update-type" />
     <antcall target="insert_default_dns_view" />
+    <antcall target="remove-sbc-permissions" />
   </target>
 
   <target name="plugin-patches">
@@ -1430,6 +1431,9 @@
   </target>
   <target name="insert_default_dns_view" unless="insert_default_dns_view">
     <db-patch patch="insert_default_dns_view" />
+  </target>
+  <target name="remove-sbc-permissions" unless="remove-sbc-permissions">
+    <db-patch patch="remove-sbc-permissions" />
   </target>
   <!--
     - SUPPORT UTILITIES
