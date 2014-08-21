@@ -36,6 +36,7 @@ BuildRequires: cmake
 BuildRequires: libevent2-devel
 BuildRequires: python >= 2.3
 BuildRequires: python-devel >= 2.3
+BuildRequires: c-ares-devel
 
 Requires: sipxesllib
 Requires: sipxcommserverlib  >= %version
@@ -51,6 +52,7 @@ Requires: freeswitch
 Requires: freeswitch-lang-en
 Requires: libevent2
 Requires: python >= 2.3
+Requires: c-ares
 
 Source:   %name-%version.tar.gz
 
@@ -127,6 +129,8 @@ rm -rf $RPM_BUILD_ROOT
 %files config
 %dir %attr(0750,-,-) %{_sysconfdir}/sipxpbx/edge/.config
 %{_sysconfdir}/sipxpbx/edge/.config/*
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxedgerpc
+%{_datadir}/sipxecs/cfinputs/plugin.d/sipxedgerpc.cf
 
 
 %files sems
