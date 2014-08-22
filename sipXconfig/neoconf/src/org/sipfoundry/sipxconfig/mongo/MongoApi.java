@@ -96,6 +96,8 @@ class MongoApi extends Resource {
             takeAction(m_mongoManager, meta, action, hostPort);
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+        } catch (UserException ex) {
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
         }
     };
 

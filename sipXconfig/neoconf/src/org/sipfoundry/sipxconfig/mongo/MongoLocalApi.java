@@ -36,6 +36,7 @@ import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.region.Region;
@@ -106,6 +107,8 @@ public class MongoLocalApi extends Resource {
             }
         } catch (IOException e) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+        } catch (UserException ex) {
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
         }
     };
 
