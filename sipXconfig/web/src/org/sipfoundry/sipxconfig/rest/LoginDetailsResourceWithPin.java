@@ -56,7 +56,7 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
             logout();
             return null;
         }
-        //This is the password that user uses to authenticate to this REST service
+        // This is the password that user uses to authenticate to this REST service
         Object passwordObj = SecurityContextHolder.getContext().getAuthentication().getCredentials();
         String password = (passwordObj != null ? passwordObj.toString() : null);
 
@@ -70,22 +70,23 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         }
         Collections.shuffle(imLocations);
         RepresentableWithPin representableWithPin = new RepresentableWithPin(representable.getUserName(),
-            representable.getImId(), representable.isLdapImAuth(), representable.getSipPassword(),
-            password, imLocations);
+            representable.getImId(), representable.isLdapImAuth(), representable.getSipPassword(), password,
+            imLocations);
 
         return new LoginDetailsWithPin(details.getMediaType(), representableWithPin);
     }
 
     private void logout() {
-        //logout the user
+        // logout the user
         LOG.debug("Logging out... " + getUser().getUserName());
         SecurityContextHolder.clearContext();
 
-        //ensure login page redirection
+        // ensure login page redirection
         getResponse().setStatus(Status.REDIRECTION_PERMANENT);
-        HttpServerCall serverCall = ((HttpResponse)getResponse()).getHttpCall();
+        HttpServerCall serverCall = ((HttpResponse) getResponse()).getHttpCall();
         serverCall.getResponseHeaders().add("Connection", "close");
-        serverCall.getResponseHeaders().add("Location", m_addressManager.getSingleAddress(ApacheManager.HTTPS_ADDRESS).toString());
+        serverCall.getResponseHeaders().add("Location",
+            m_addressManager.getSingleAddress(ApacheManager.HTTPS_ADDRESS).toString());
     }
 
     @Override
@@ -113,8 +114,8 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         private final String m_pin;
         private final List<LocationRepresentable> m_imLocations = new ArrayList<LocationRepresentable>();
 
-        public RepresentableWithPin(String userName, String imId, boolean ldapAuth, String sipPassword,
-            String pin, List<LocationRepresentable> imLocations) {
+        public RepresentableWithPin(String userName, String imId, boolean ldapAuth, String sipPassword, String pin,
+            List<LocationRepresentable> imLocations) {
             super(userName, imId, ldapAuth, sipPassword);
             m_pin = pin;
             m_imLocations.addAll(imLocations);

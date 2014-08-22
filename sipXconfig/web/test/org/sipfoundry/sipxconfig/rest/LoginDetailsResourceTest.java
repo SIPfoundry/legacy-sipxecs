@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
@@ -130,8 +131,11 @@ public class LoginDetailsResourceTest extends TestCase {
 
     protected void assertEqualsXML(LoginDetailsResource resource, String fileName) throws Exception {
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
+        Reference resourceRef = new Reference();
+        resourceRef.setIdentifier("http://example.com/sipxconfig/rest/my/logindetails");
         Request request = new Request();
         request.setChallengeResponse(challengeResponse);
+        request.setResourceRef(resourceRef);
         resource.init(null, request, null);
 
         Representation representation = resource.represent(new Variant(MediaType.TEXT_XML));
@@ -144,8 +148,11 @@ public class LoginDetailsResourceTest extends TestCase {
 
     protected void assertEqualsJSON(LoginDetailsResource resource, String fileName) throws Exception {
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
+        Reference resourceRef = new Reference();
+        resourceRef.setIdentifier("http://example.com/sipxconfig/rest/my/logindetails");
         Request request = new Request();
         request.setChallengeResponse(challengeResponse);
+        request.setResourceRef(resourceRef);
         resource.init(null, request, null);
 
         Representation representation = resource.represent(new Variant(MediaType.APPLICATION_JSON));
