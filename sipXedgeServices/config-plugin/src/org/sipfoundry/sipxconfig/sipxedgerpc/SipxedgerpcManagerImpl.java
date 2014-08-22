@@ -155,4 +155,8 @@ public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvide
         ProcessDefinition def = ProcessDefinition.sipx(FEATURE.getId());
         return Collections.singleton(def);
     }
+    
+    public void method(){
+        
+    }
 }
