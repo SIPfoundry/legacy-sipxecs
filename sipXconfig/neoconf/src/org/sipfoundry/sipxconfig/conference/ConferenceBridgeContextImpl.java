@@ -323,7 +323,9 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
         if (entity instanceof Location) {
             Location l = (Location) entity;
             Bridge b = getBridgeForLocationId(l.getId());
-            removeBridge(b);
+            if (b != null) {
+                removeBridge(b);
+            }
         }
     }
 
