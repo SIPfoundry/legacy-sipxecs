@@ -1,3 +1,4 @@
+#if 0
 #include <assert.h>
 #include <limits.h>
 #include <stdio.h>
@@ -403,3 +404,4 @@ namespace mongoMod
   //    mongo::DBClientBase *conn = sc->get();
 
 } //namespace mongoMod
+#endif // if 0

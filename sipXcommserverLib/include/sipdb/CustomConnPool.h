@@ -1,6 +1,9 @@
 #ifndef _CUSTOM_CONN_POOL_MOD_H__
 #define _CUSTOM_CONN_POOL_MOD_H__
 
+//WARNING: temporary disabled fix for XX-10796 - Integrated custom mongo pool and scopped connection.
+namespace mongoMod = mongo;
+#if 0
 #include <os/OsLoggerHelper.h>
 #include <mongo/util/assert_util.h>
 #include "mongo/util/background.h"
@@ -13,7 +16,7 @@
 
 using namespace std;
 
-namespace mongoMod
+namespace mongoMod_Disabled
 {
 class DBConnectionPool;
 
@@ -267,4 +270,5 @@ private:
 };
 
 } // namespace mongoMod
+#endif //if 0
 #endif /* _CUSTOM_CONN_POOL_MOD_H__ */
