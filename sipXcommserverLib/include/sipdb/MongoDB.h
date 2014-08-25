@@ -61,8 +61,6 @@
 
 typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
-using namespace mongoMod;
-
 namespace MongoDB
 {
    //typedef boost::scoped_ptr<mongo::ScopedDbConnection> ScopedDbConnectionPtr;

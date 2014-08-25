@@ -23,10 +23,6 @@
 
 #define SIPXSQA_APP_NAME              "StateQueueAgent"
 
-#include "sipXecsService/SipXApplication.h"
-
-#define SIPXSQA_APP_NAME              "StateQueueAgent"
-
 int main(int argc, char** argv)
 {
   SipXApplicationData sqaData =

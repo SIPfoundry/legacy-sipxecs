@@ -30,7 +30,6 @@
 #include "StateQueueMessage.h"
 #include "StateQueueListener.h"
 #include "zmq.hpp"
-#include "sipdb/MongoOpLog.h"
 #include "RedisClientAsync.h"
 
 
