@@ -4,9 +4,7 @@
 
   <bean id="mongoDbFactory" class="org.sipfoundry.commons.mongo.MongoSpringFactory">
     <property name="configFile" value="${sysdir.etc}/mongo-client.ini" />
-  </bean>  
-
-  <bean id="mongoTunnnel" class="org.sipfoundry.sipxconfig.mongo.MongoTunnelProvider" />
+  </bean>
   
   <bean id="mongoManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="target" ref="mongoManagerImpl"/>

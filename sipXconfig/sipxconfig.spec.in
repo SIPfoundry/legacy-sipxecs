@@ -283,7 +283,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxwebsocket/*
 %config(noreplace) %{sipxpbxconf}/snmp/*
 %config(noreplace) %{sipxpbxconf}/test.d/*
-%config(noreplace) %{sipxpbxconf}/tunnel/*
 %config(noreplace) %{sipxpbxconf}/unmanaged/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/unite/unitelite.conf
