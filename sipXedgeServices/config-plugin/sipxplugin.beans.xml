@@ -12,7 +12,7 @@
     </property>
   </bean>
 
-  <bean id="sipxedgerpcManagerImpl" class="org.sipfoundry.sipxconfig.sipxedgerpc.SipxedgerpcManagerImpl" parent="abstractDaoImpl">
+  <bean id="sipxedgerpcManagerImpl" class="org.sipfoundry.sipxconfig.sipxedgerpc.SipxedgerpcManagerImpl">
     <property name="settingsDao">
       <bean parent="beanWithSettingsDao">
         <property name="target">

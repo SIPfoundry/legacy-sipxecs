@@ -91,7 +91,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return Arrays.asList(new DefaultFirewallRule(HTTP_ADDRESS), new DefaultFirewallRule(HTTP_ADDRESS_AUTH),
+        return Arrays.asList(new DefaultFirewallRule(HTTP_ADDRESS),
             new DefaultFirewallRule(HTTPS_ADDRESS_AUTH), new DefaultFirewallRule(SIPXCDR_DB_ADDRESS));
     }
 
