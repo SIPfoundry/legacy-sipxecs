@@ -43,6 +43,8 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String CORS_DOMAIN_SETTING = "configserver-config/corsDomains";
     private static final String SYSTEM_AUDIT = "configserver-config/systemAudit";
 
+    private static boolean s_systemAuditEnabled = true;
+
     private PasswordPolicy m_passwordPolicy;
     private String[] m_logLevelKeys;
 
@@ -119,14 +121,19 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
         return getSettingValue(CORS_DOMAIN_SETTING);
     }
 
-    public boolean isSystemAuditEnabled() {
-        return (Boolean) getSettingTypedValue(SYSTEM_AUDIT);
-    }
-
     public void setCorsDomains(String corsDomains) {
         String noSpaces = validateDomainList(corsDomains);
         LOG.warn("Setting CORS domains " + corsDomains + " " + noSpaces);
         setSettingValue(CORS_DOMAIN_SETTING, noSpaces);
+    }
+
+    public static boolean isSystemAuditEnabled() {
+        return s_systemAuditEnabled;
+    }
+
+    public void setSystemAuditEnabled(boolean systemAuditEnabled) {
+        s_systemAuditEnabled = systemAuditEnabled;
+        setSettingTypedValue(SYSTEM_AUDIT, systemAuditEnabled);
     }
 
     protected static String validateDomainList(String corsDomains) {

@@ -22,12 +22,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.UserIpAddress;
 
 public class ConfigChange extends BeanWithId {
 
     private Date m_dateTime = new Date();
-    private UserIpAddress m_userIpAddress;
+    private String m_userName;
+    private String m_ipAddress;
     private ConfigChangeAction m_configChangeAction;
     private String m_configChangeType;
     private String m_details;
@@ -65,12 +65,20 @@ public class ConfigChange extends BeanWithId {
         this.m_dateTime = dateTime;
     }
 
-    public UserIpAddress getUserIpAddress() {
-        return m_userIpAddress;
+    public String getUserName() {
+        return m_userName;
     }
 
-    public void setUserIpAddress(UserIpAddress userIpAddress) {
-        this.m_userIpAddress = userIpAddress;
+    public void setUserName(String userName) {
+        this.m_userName = userName;
+    }
+
+    public String getIpAddress() {
+        return m_ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.m_ipAddress = ipAddress;
     }
 
     public String getDetails() {

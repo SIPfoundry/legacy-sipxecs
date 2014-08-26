@@ -61,10 +61,12 @@ public class ConferenceBridgeContextImpl extends SipxHibernateDaoSupport impleme
     }
 
     public void saveBridge(Bridge bridge) {
-        getHibernateTemplate().saveOrUpdate(bridge);
         if (bridge.isNew()) {
+            getHibernateTemplate().save(bridge);
             // need to make sure that ID is set
             getHibernateTemplate().flush();
+        } else {
+            getHibernateTemplate().merge(bridge);
         }
     }
 

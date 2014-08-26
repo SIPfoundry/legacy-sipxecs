@@ -22,17 +22,20 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeValidator;
 import org.sipfoundry.sipxconfig.feature.FeatureListener;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListener,
-        ApplicationListener<ApplicationEvent> {
+        ApplicationListener<ApplicationEvent>, DaoEventListener {
 
     private static final Log LOG = LogFactory.getLog(SystemAuditManagerImpl.class);
     private static final String LOG_ERROR_MESSAGE = "Exception when processing entry for System Audit: ";
@@ -151,6 +154,24 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
         } catch (Exception e) {
             LOG.error(LOG_ERROR_MESSAGE, e);
         }
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        if (entity instanceof Group || entity instanceof Branch) {
+            try {
+                m_generalAuditHandler.handleConfigChange(
+                        (SystemAuditable) entity, ConfigChangeAction.DELETED,
+                        null, null, null);
+            } catch (Exception e) {
+                LOG.error(LOG_ERROR_MESSAGE, e);
+            }
+        }
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        // Do nothing
     }
 
 }

@@ -62,4 +62,5 @@ public class DnsCustomRecords extends BeanWithId implements NamedObject, DeployC
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singleton((Feature) DnsManager.FEATURE);
     }
+
 }

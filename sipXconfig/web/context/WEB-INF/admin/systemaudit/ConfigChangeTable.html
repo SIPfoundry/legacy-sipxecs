@@ -1,5 +1,5 @@
 <table jwcid="configChangeTable@common/Table" id="configChange:list"
-	columns="* dateTime,userIpAddress:userIpAddress.userName,configChangeType,configChangeAction,details"
+	columns="* dateTime,userIpAddress:userName,configChangeType,configChangeAction,details"
 	usePager="true"
 	source="ognl:source"
 	row="ognl:configChange"
@@ -16,12 +16,12 @@
 					href="#" jwcid="userNameLink@DirectLink" listener="ognl:userListener"
 					parameters="ognl:user.id"> <span
 						jwcid="@Insert"
-						value="ognl:configChange.userIpAddress.userName" />
+						value="ognl:configChange.userName" />
 				</a>
 			</span>
 		</span>
 		<span jwcid="@Else" renderTag="false">
-		  <span jwcid="@Insert" value="ognl:configChange.userIpAddress.userName" />
+		  <span jwcid="@Insert" value="ognl:configChange.userName" />
 		</span>
 	</span>
 	<span jwcid="configChangeTypeColumnValue@Block"> <span

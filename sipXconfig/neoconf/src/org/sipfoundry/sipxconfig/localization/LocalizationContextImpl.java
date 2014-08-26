@@ -96,7 +96,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport<Localizatio
             localization = new Localization();
             localization.setRegion(m_defaultRegion);
             localization.setLanguage(m_defaultLanguage);
-            getHibernateTemplate().saveOrUpdate(localization);
+            if (localization.isNew()) {
+                getHibernateTemplate().save(localization);
+            } else {
+                getHibernateTemplate().merge(localization);
+            }
         }
         return localization;
     }
@@ -116,7 +120,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport<Localizatio
 
         localization.setRegion(regionBeanId);
         m_applicationContext.publishEvent(new RegionUpdatedEvent(this, regionBeanId));
-        getHibernateTemplate().saveOrUpdate(localization);
+        if (localization.isNew()) {
+            getHibernateTemplate().save(localization);
+        } else {
+            getHibernateTemplate().merge(localization);
+        }
         getHibernateTemplate().flush();
         getDaoEventPublisher().publishSave(localization);
     }
@@ -138,7 +146,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport<Localizatio
         }
         // The language has been changed - handle the change
         localization.setLanguage(language);
-        getHibernateTemplate().saveOrUpdate(localization);
+        if (localization.isNew()) {
+            getHibernateTemplate().save(localization);
+        } else {
+            getHibernateTemplate().merge(localization);
+        }
         getHibernateTemplate().flush();
         // TODO: do we really need this? It does not seem to be caught anywhere!
         getDaoEventPublisher().publishSave(localization);

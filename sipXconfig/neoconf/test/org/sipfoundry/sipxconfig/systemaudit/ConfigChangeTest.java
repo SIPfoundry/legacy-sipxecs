@@ -16,8 +16,6 @@
  */
 package org.sipfoundry.sipxconfig.systemaudit;
 
-import org.sipfoundry.sipxconfig.common.UserIpAddress;
-
 import junit.framework.TestCase;
 
 public class ConfigChangeTest extends TestCase {
@@ -31,11 +29,8 @@ public class ConfigChangeTest extends TestCase {
         configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
         assertEquals(ConfigChangeType.PHONE.getName(), configChange.getConfigChangeType());
 
-        UserIpAddress userIpAddress = new UserIpAddress();
-        userIpAddress.setIpAddress("localhost");
-        userIpAddress.setUserName("superadmin");
-        configChange.setUserIpAddress(userIpAddress);
-        assertEquals(userIpAddress, configChange.getUserIpAddress());
+        configChange.setIpAddress("localhost");
+        configChange.setUserName("superadmin");
 
         ConfigChangeValue configChangeValue = new ConfigChangeValue(configChange);
         configChangeValue.setPropertyName("description");
@@ -44,14 +39,6 @@ public class ConfigChangeTest extends TestCase {
         configChange.addValue(configChangeValue);
         assertEquals(configChangeValue, configChange.getValues().get(0));
         assertEquals(1, configChange.getValues().size());
-    }
-
-    public void testUserIpAddressFields() {
-        UserIpAddress userIpAddress = new UserIpAddress();
-        userIpAddress.setIpAddress("localhost");
-        assertEquals("localhost", userIpAddress.getIpAddress());
-        userIpAddress.setUserName("superadmin");
-        assertEquals("superadmin", userIpAddress.getUserName());
     }
 
     public void testConfigChangeValueFields() {

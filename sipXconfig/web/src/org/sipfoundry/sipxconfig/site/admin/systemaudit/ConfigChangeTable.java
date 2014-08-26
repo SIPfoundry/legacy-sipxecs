@@ -33,7 +33,6 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChange;
 import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeContext;
@@ -124,11 +123,11 @@ public abstract class ConfigChangeTable extends BaseComponent implements PageBeg
     }
 
     public User getUser() {
-        UserIpAddress userIpAddress = getConfigChange().getUserIpAddress();
-        if (userIpAddress != null) {
+        String userName = getConfigChange().getUserName();
+        if (userName != null) {
             try {
                 UserDetailsImpl userDetails = (UserDetailsImpl) getUserDetailsService()
-                        .loadUserByUsername(userIpAddress.getUserName());
+                        .loadUserByUsername(userName);
                 User user = getCoreContext().loadUserByUserName(
                         userDetails.getCanonicalUserName());
                 return user;

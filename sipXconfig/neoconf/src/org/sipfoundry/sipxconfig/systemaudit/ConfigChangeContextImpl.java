@@ -36,7 +36,6 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InExpressionIgnoringCase;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.annotation.Required;
@@ -92,9 +91,7 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         if (action != null && action != ConfigChangeAction.ALL) {
             crit.add(Restrictions.eq("configChangeAction", action));
         }
-        String userNameKey = "userIpAddress.userName";
-        String userIpAddress = "userIpAddress";
-        crit.createAlias(userIpAddress, userIpAddress);
+        String userNameKey = "userName";
         String userName = filter.getUserName();
         if (userName != null) {
             crit.add(Restrictions.eq(userNameKey, userName));
@@ -141,19 +138,6 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
                     @Override
                     public ConfigChange doInHibernate(Session session)
                         throws HibernateException, SQLException {
-                        // handle UserIpAddress
-                        UserIpAddress userIpAddress = configChange.getUserIpAddress();
-                        UserIpAddress persistedUserIpAddress = m_coreContext
-                                .getUserIpAddress(userIpAddress.getUserName(),
-                                        userIpAddress.getIpAddress());
-                        if (persistedUserIpAddress != null) {
-                            configChange.setUserIpAddress(persistedUserIpAddress);
-                        } else {
-                            if (userIpAddress != null && userIpAddress.isNew()) {
-                                session.save(userIpAddress);
-                            }
-                        }
-                        //handle configChange
                         if (!configChange.isNew()) {
                             session.merge(configChange);
                         } else {
@@ -206,7 +190,7 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
         // create header
         writer.print("date_time" + COMMA_SEPARATOR);
         writer.print("user_name" + COMMA_SEPARATOR);
-        writer.print("user_ip_address" + COMMA_SEPARATOR);
+        writer.print("ip_address" + COMMA_SEPARATOR);
         writer.print("config_change_type" + COMMA_SEPARATOR);
         writer.print("config_change_action" + COMMA_SEPARATOR);
         writer.println(DETAILS + COMMA_SEPARATOR);
@@ -216,9 +200,8 @@ public class ConfigChangeContextImpl extends SipxHibernateDaoSupport<ConfigChang
                 new String[] {DATE_TIME}, false, filter);
         for (ConfigChange configChange : configChangesList) {
             writer.print(configChange.getDateTime() + COMMA_SEPARATOR);
-            UserIpAddress userIpAddress = configChange.getUserIpAddress();
-            writer.print(userIpAddress.getUserName() + COMMA_SEPARATOR);
-            writer.print(userIpAddress.getIpAddress() + COMMA_SEPARATOR);
+            writer.print(configChange.getUserName() + COMMA_SEPARATOR);
+            writer.print(configChange.getIpAddress() + COMMA_SEPARATOR);
             writer.print(configChange.getConfigChangeType() + COMMA_SEPARATOR);
             writer.print(configChange.getConfigChangeAction() + COMMA_SEPARATOR);
             writer.println(configChange.getDetails() + COMMA_SEPARATOR);

@@ -10,13 +10,14 @@ package org.sipfoundry.sipxconfig.gateway;
 
 import java.util.Iterator;
 
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Object representing FXO port or a digital trunk (T1/E1) in an FXO/PSTN gateway
  */
-public class FxoPort extends BeanWithSettings {
+public class FxoPort extends BeanWithSettings implements NamedObject {
     private Gateway m_gateway;
 
     private boolean m_initialized;
@@ -83,5 +84,15 @@ public class FxoPort extends BeanWithSettings {
             values[i] = setting.getType().getLabel(value);
         }
         return String.format(format, values);
+    }
+
+    @Override
+    public String getName() {
+        return getLabel();
+    }
+
+    @Override
+    public void setName(String name) {
+        //Do nothing
     }
 }

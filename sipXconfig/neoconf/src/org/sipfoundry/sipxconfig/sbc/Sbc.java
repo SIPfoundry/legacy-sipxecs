@@ -18,8 +18,9 @@ import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public abstract class Sbc extends BeanWithId implements DeployConfigOnEdit {
+public abstract class Sbc extends BeanWithId implements DeployConfigOnEdit, SystemAuditable {
 
     private boolean m_enabled;
 
@@ -92,5 +93,15 @@ public abstract class Sbc extends BeanWithId implements DeployConfigOnEdit {
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) NatTraversal.FEATURE);
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getAddress();
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return Sbc.class.getSimpleName();
     }
 }

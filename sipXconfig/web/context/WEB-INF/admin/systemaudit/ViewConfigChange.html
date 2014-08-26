@@ -8,13 +8,13 @@
 				<td jwcid="@TextField" value="ognl:configChange.dateTime"
 					readonly="readonly" disabled="true" />
 			</tr>
-			<span jwcid="@If" condition="ognl:configChange.userIpAddress != null" renderTag="false">
+			<span jwcid="@If" condition="ognl:configChange.userName != null" renderTag="false">
 				<tr jwcid="@common/FieldPanel" label="message:user">
-					<td jwcid="@TextField" value="ognl:configChange.userIpAddress.userName"
+					<td jwcid="@TextField" value="ognl:configChange.userName"
 						readonly="readonly" disabled="true" />
 				</tr>
 				<tr jwcid="@common/FieldPanel" label="message:ipAddress">
-					<td jwcid="@TextField" value="ognl:configChange.userIpAddress.ipAddress"
+					<td jwcid="@TextField" value="ognl:configChange.ipAddress"
 						readonly="readonly" disabled="true" />
 				</tr>
 			</span>

@@ -17,8 +17,10 @@
 package org.sipfoundry.sipxconfig.commserver;
 
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.systemaudit.ConfigChangeType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public abstract class SettingsWithLocation extends BeanWithGroups {
+public abstract class SettingsWithLocation extends BeanWithGroups implements SystemAuditable {
     private Location m_location;
 
     public abstract String getBeanId();
@@ -36,5 +38,14 @@ public abstract class SettingsWithLocation extends BeanWithGroups {
 
     public void setLocation(Location location) {
         m_location = location;
+    }
+
+    public String getEntityIdentifier() {
+        return getClass().getName();
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return ConfigChangeType.SETTINGS.getName();
     }
 }

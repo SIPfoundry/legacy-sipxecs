@@ -14,12 +14,13 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * Only supports relative days for now: you can specify which day of which month the DST is
  * changed, but you cannot specify which day of the month it's going to happen.
  */
-public class DeviceTimeZone extends BeanWithId {
+public class DeviceTimeZone extends BeanWithId implements SystemAuditable {
 
     public static final String DST_US = "US";
 
@@ -236,5 +237,15 @@ public class DeviceTimeZone extends BeanWithId {
 
     public int getStopWeek() {
         return m_stopWeek;
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return "";
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return DeviceTimeZone.class.getSimpleName();
     }
 }

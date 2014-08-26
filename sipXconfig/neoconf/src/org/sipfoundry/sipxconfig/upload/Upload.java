@@ -32,11 +32,12 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * Describing the files required to track and manage a vendor's firmware files
  */
-public class Upload extends BeanWithSettings {
+public class Upload extends BeanWithSettings implements SystemAuditable {
     private static final Log LOG = LogFactory.getLog(Upload.class);
     private static final String ZIP_TYPE = "application/zip";
     private static final String ERROR_WRONG_TYPE_FILE = "&error.wrongTypeFile";
@@ -370,5 +371,15 @@ public class Upload extends BeanWithSettings {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return Upload.class.getSimpleName();
     }
 }

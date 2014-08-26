@@ -20,7 +20,11 @@ public class TimeZoneManagerImpl extends SipxHibernateDaoSupport implements Time
 
     public void setDeviceTimeZone(DeviceTimeZone dtz) {
         HibernateTemplate hibernate = getHibernateTemplate();
-        hibernate.saveOrUpdate(dtz);
+        if (dtz.isNew()) {
+            hibernate.save(dtz);
+        } else {
+            hibernate.merge(dtz);
+        }
         getDaoEventPublisher().publishSave(dtz);
     }
 

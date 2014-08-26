@@ -10,8 +10,8 @@
       </generator>
     </id>
     <property name="dateTime" column="date_time" />
-    <many-to-one name="userIpAddress" column="user_ip_address_id" unique="true"
-			class="org.sipfoundry.sipxconfig.common.UserIpAddress" foreign-key="user_ip_address_id" lazy="proxy"/>
+    <property name="userName" column="user_name" />
+    <property name="ipAddress" column="ip_address" />
     <property name="configChangeType" column="config_change_type" />
     <property name="configChangeAction" column="config_change_action"
             type="org.sipfoundry.sipxconfig.systemaudit.ConfigChangeAction$UserType" />

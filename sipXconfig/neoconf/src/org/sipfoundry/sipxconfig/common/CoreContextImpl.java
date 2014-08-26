@@ -303,20 +303,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     @Override
-    public UserIpAddress getUserIpAddress(String userName, String ipAddress) {
-        String queryString = "userIpAddressByUserIdAndIpAddress";
-
-        List<UserIpAddress> userIpAddressList = getHibernateTemplate()
-                .findByNamedQueryAndNamedParam(queryString,
-                        new String[] {USERNAME_PROP_NAME, QUERY_IP_ADDRESS},
-                        new Object[] {userName, ipAddress});
-
-        UserIpAddress userIpAddress = DaoUtils.requireOneOrZero(
-                userIpAddressList, queryString);
-        return userIpAddress;
-    }
-
-    @Override
     public User getUser(Integer id) {
         return getHibernateTemplate().get(User.class, id);
     }

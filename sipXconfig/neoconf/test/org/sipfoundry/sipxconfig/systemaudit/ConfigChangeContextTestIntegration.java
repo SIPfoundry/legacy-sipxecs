@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.systemaudit;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.test.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
@@ -37,10 +36,8 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
         configChange.setConfigChangeAction(ConfigChangeAction.ADDED);
         configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
 
-        UserIpAddress userIpAddress = new UserIpAddress();
-        userIpAddress.setIpAddress("localhost");
-        userIpAddress.setUserName("superadmin");
-        configChange.setUserIpAddress(userIpAddress);
+        configChange.setUserName("superadmin");
+        configChange.setIpAddress("localhost");
 
         ConfigChangeValue configChangeValue = new ConfigChangeValue(configChange);
         configChangeValue.setPropertyName("description");
@@ -52,7 +49,6 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_configChangeContext.getConfigChanges().size());
         assertNotNull(configChange.getDateTime());
         assertNotSame(-1, configChange.getId());
-        assertNotSame(-1, userIpAddress.getId());
         assertNotSame(-1, configChangeValue.getId());
     }
 
@@ -60,9 +56,8 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeAction(ConfigChangeAction.ADDED);
         configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
-        UserIpAddress userIpAddress = new UserIpAddress();
-        userIpAddress.setUserName("superadmin");
-        configChange.setUserIpAddress(userIpAddress);
+        configChange.setUserName("superadmin");
+        configChange.setIpAddress("localhost");
         try {
             m_configChangeContext.storeConfigChange(configChange);
             assertEquals(1, m_configChangeContext.getConfigChanges().size());
@@ -74,10 +69,8 @@ public class ConfigChangeContextTestIntegration extends IntegrationTestCase {
     public void testUserIpAddressMissingIpAddress() {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeType(ConfigChangeType.PHONE.getName());
-        UserIpAddress userIpAddress = new UserIpAddress();
-        userIpAddress = new UserIpAddress();
-        userIpAddress.setUserName("superadmin");
-        configChange.setUserIpAddress(userIpAddress);
+        configChange.setUserName("superadmin");
+        configChange.setIpAddress("localhost");
         try {
             m_configChangeContext.storeConfigChange(configChange);
         } catch (Exception e) {

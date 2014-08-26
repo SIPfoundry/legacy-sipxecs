@@ -17,16 +17,15 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserIpAddress;
 import org.sipfoundry.sipxconfig.security.SipxAuthenticationDetails;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Required;
@@ -39,6 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public abstract class AbstractSystemAuditHandler {
 
     public static final String LOCALHOST = "localhost";
+    private static final Logger LOG = Logger.getLogger(AbstractSystemAuditHandler.class);
 
     private ConfigChangeContext m_configChangeContext;
     private CoreContext m_coreContext;
@@ -80,8 +80,8 @@ public abstract class AbstractSystemAuditHandler {
         ConfigChange configChange = new ConfigChange();
         configChange.setConfigChangeAction(configChangeAction);
         configChange.setConfigChangeType(configChangeType);
-        UserIpAddress userIpAddress = new UserIpAddress(userName, ipAddress);
-        configChange.setUserIpAddress(userIpAddress);
+        configChange.setUserName(userName);
+        configChange.setIpAddress(ipAddress);
 
         return configChange;
     }
@@ -114,15 +114,28 @@ public abstract class AbstractSystemAuditHandler {
      * Utility method, checks if the child object is contained in the parent
      * object
      */
-    protected boolean isChildContainedInParent(Object child, Object parent) throws IllegalAccessException,
-            InvocationTargetException, NoSuchMethodException, SystemAuditException {
-        Map map = BeanUtils.describe(parent);
-        PropertyUtilsBean propUtils = new PropertyUtilsBean();
-        for (Object propNameObject : map.keySet()) {
-            Object propValue = propUtils.getNestedProperty(parent, propNameObject.toString());
-            if (propValue != null && child.equals(propValue)) {
-                return true;
+    protected boolean isChildContainedInParent(Object child, Object parent) {
+        try {
+            PropertyUtilsBean propUtils = new PropertyUtilsBean();
+            Map map = null;
+            // because of the way User objects are handled,
+            // we need to manipulate it's copy not the actual object
+            if (parent instanceof AbstractUser) {
+                Object clonedObject = new Object();
+                propUtils.copyProperties(parent, clonedObject);
+                map = propUtils.describe(clonedObject);
+            } else {
+                map = propUtils.describe(parent);
             }
+            for (Object propNameObject : map.keySet()) {
+                Object propValue = propUtils.getNestedProperty(parent, propNameObject.toString());
+                if (propValue != null && child.equals(propValue)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return false;
         }
         return false;
     }

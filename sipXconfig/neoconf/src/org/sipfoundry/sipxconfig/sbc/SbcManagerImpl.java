@@ -55,7 +55,11 @@ public class SbcManagerImpl extends SipxHibernateDaoSupport implements SbcManage
     }
 
     public void saveSbc(Sbc sbc) {
-        getHibernateTemplate().saveOrUpdate(sbc);
+        if (sbc.isNew()) {
+            getHibernateTemplate().save(sbc);
+        } else {
+            getHibernateTemplate().merge(sbc);
+        }
     }
 
     public AuxSbc loadSbc(Integer sbcId) {

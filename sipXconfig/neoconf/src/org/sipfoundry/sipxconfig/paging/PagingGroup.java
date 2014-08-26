@@ -21,8 +21,9 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public class PagingGroup extends BeanWithId implements DeployConfigOnEdit {
+public class PagingGroup extends BeanWithId implements DeployConfigOnEdit, SystemAuditable {
 
     private int m_pageGroupNumber;
 
@@ -95,5 +96,15 @@ public class PagingGroup extends BeanWithId implements DeployConfigOnEdit {
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Collections.singletonList((Feature) PagingContext.FEATURE);
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return String.valueOf(getPageGroupNumber());
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return PagingGroup.class.getSimpleName();
     }
 }
