@@ -38,6 +38,48 @@ bundle agent sipxdns {
 
     !sipxdns_unmanaged.fedora16_or_greater::
       "any" usebundle => named_systemctl_running;
+    !sipxdns_unmanaged::
+      "any" usebundle => network_scripts;
+}
+
+bundle agent network_scripts {
+  vars:
+    any::
+      "entry" string => readfile("/etc/sipxecs.cfg", "400");
+      "default_entry" string => "/etc/sysconfig/network-scripts/ifcfg-eth0";
+
+  classes:
+    "config_network_interface_file_exists" expression => fileexists("/etc/sipxecs.cfg");
+    "network_interface_entry" and => {config_network_interface_file_exists, regcmp(".+","$(entry)")};    
+    "default_network_interface_file_exists" expression => fileexists("$(default_entry)");
+                                     
+  files:
+    network_interface_entry::
+      "$(entry)"
+        comment => "add peerdns and nmcontrolled network settings in custom: $(entry)",
+        create => "false",
+        edit_line => edit_network_scripts;
+      
+    !network_interface_entry.default_network_interface_file_exists::
+      "$(default_entry)"
+        comment => "add peerdns and nmcontrolled network settings in default: $(default_entry)",
+        create => "false",
+        edit_line => edit_network_scripts;  
+}
+
+bundle edit_line edit_network_scripts {                                  
+  insert_lines:
+    any::
+      "PEERDNS=NO";
+      "NM_CONTROLLED=NO";
+  delete_lines:
+    any::
+      "PEERDNS(.*)=(.*)";
+      "peerdns(.*)=(.*)";
+      "NM_CONTROLLED(.*)=(.*)";
+      "nm_controlled(.*)=(.*)";
+      
+      
 }
 
 bundle agent sipxdns_resolv {
