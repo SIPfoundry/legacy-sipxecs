@@ -36,7 +36,6 @@ dist_cfinputs_DATA = \
 	snmp.cf \
 	snmptrap.cf \
 	tftp.cf \
-	tunnel.cf \
 	zz_apache.cf
 
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
