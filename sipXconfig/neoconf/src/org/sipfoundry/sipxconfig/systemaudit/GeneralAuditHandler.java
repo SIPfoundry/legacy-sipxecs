@@ -255,8 +255,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
     /**
      * Handles Map updates
      */
-    private void handlePersistentMap(PersistentMap collection) throws SystemAuditException,
-            IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    private void handlePersistentMap(PersistentMap collection) throws Exception {
 
         SystemAuditable systemAuditable = null;
         Object owner = collection.getOwner();

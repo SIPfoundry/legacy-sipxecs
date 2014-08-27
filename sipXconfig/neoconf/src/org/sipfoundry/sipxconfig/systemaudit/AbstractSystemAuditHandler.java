@@ -17,12 +17,11 @@
 
 package org.sipfoundry.sipxconfig.systemaudit;
 
-import java.util.Map;
+import java.beans.PropertyDescriptor;
 
-import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
-import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.User;
@@ -114,28 +113,20 @@ public abstract class AbstractSystemAuditHandler {
      * Utility method, checks if the child object is contained in the parent
      * object
      */
-    protected boolean isChildContainedInParent(Object child, Object parent) {
-        try {
-            PropertyUtilsBean propUtils = new PropertyUtilsBean();
-            Map map = null;
-            // because of the way User objects are handled,
-            // we need to manipulate it's copy not the actual object
-            if (parent instanceof AbstractUser) {
-                Object clonedObject = new Object();
-                propUtils.copyProperties(parent, clonedObject);
-                map = propUtils.describe(clonedObject);
-            } else {
-                map = propUtils.describe(parent);
-            }
-            for (Object propNameObject : map.keySet()) {
-                Object propValue = propUtils.getNestedProperty(parent, propNameObject.toString());
+    protected boolean isChildContainedInParent(Object child, Object parent)
+        throws Exception {
+        PropertyDescriptor[] propertyDescriptors = PropertyUtils
+                .getPropertyDescriptors(parent);
+        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+            try {
+                Object propValue = propertyDescriptor.getReadMethod().invoke(
+                        parent);
                 if (propValue != null && child.equals(propValue)) {
                     return true;
                 }
+            } catch (Exception e) {
+                LOG.debug(e.getMessage());
             }
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            return false;
         }
         return false;
     }
