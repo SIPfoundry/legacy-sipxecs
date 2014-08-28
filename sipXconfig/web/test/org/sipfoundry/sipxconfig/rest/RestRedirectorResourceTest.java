@@ -162,7 +162,7 @@ public class RestRedirectorResourceTest extends TestCase {
     private void put(String address, String resIdentifier, String resourceType) throws Exception{
         HttpInvoker invoker = createMock(HttpInvoker.class);
         String uri = StringUtils.substringAfter(resIdentifier, resourceType);
-        invoker.invokePut(address + resourceType + uri);
+        invoker.invokePut(address + resourceType + uri, null);
         expectLastCall().once();
         replay(invoker);
 

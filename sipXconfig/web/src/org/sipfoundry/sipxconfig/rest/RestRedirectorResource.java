@@ -28,6 +28,7 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -108,7 +109,7 @@ public class RestRedirectorResource extends UserResource {
         String mailboxRelativeUrl = StringUtils.substringAfter(url, MAILBOX);
 
         if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
-            invokeIvrFallback(PUT, MAILBOX + mailboxRelativeUrl);
+            invokeIvrFallback(PUT, MAILBOX + mailboxRelativeUrl, entity);
         }
     }
 
@@ -121,13 +122,13 @@ public class RestRedirectorResource extends UserResource {
         String mediaRelativeUrl = StringUtils.substringAfter(url, MEDIA);
         byte[] result = null;
         if (!StringUtils.isEmpty(cdrRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
-                    + CDR + cdrRelativeUrl);
+            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API) + CDR
+                    + cdrRelativeUrl);
         } else if (!StringUtils.isEmpty(mailboxRelativeUrl)) {
             result = invokeIvrFallback(GET, MAILBOX + mailboxRelativeUrl);
         } else if (!StringUtils.isEmpty(callcontrollerRelativeUrl)) {
-            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API)
-                    + CALLCONTROLLER + callcontrollerRelativeUrl);
+            result = m_httpInvoker.invokeGet(m_addressManager.getSingleAddress(RestServer.HTTP_API) + CALLCONTROLLER
+                    + callcontrollerRelativeUrl);
         } else if (!StringUtils.isEmpty(mediaRelativeUrl)) {
             result = invokeIvrFallback(GET, MEDIA + mediaRelativeUrl);
         } else {
@@ -136,12 +137,17 @@ public class RestRedirectorResource extends UserResource {
         return new InputRepresentation(new ByteArrayInputStream(result), MediaType.ALL);
     }
 
-    private byte [] invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
+    private byte[] invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
+        return invokeIvrFallback(methodType, relativeUri, null);
+    }
+
+    private byte[] invokeIvrFallback(String methodType, String relativeUri, Representation entity)
+        throws ResourceException {
         byte[] result = null;
         Address ivrGoodAddress = m_mailboxManager.getLastGoodIvrNode();
         if (ivrGoodAddress != null) {
             try {
-                result = invokeMethod(ivrGoodAddress, methodType, relativeUri);
+                result = invokeMethod(ivrGoodAddress, methodType, relativeUri, entity);
                 return result;
             } catch (ResourceException ex) {
                 // do not throw exception as we want to iterate through all ivr nodes
@@ -154,7 +160,7 @@ public class RestRedirectorResource extends UserResource {
                 if (ivrGoodAddress != null && address.equals(ivrGoodAddress)) {
                     continue;
                 }
-                result = invokeMethod(address, methodType, relativeUri);
+                result = invokeMethod(address, methodType, relativeUri, entity);
                 m_mailboxManager.setLastGoodIvrNode(address);
                 return result;
             } catch (ResourceException ex) {
@@ -165,14 +171,23 @@ public class RestRedirectorResource extends UserResource {
         throw new ResourceException(Status.CONNECTOR_ERROR_COMMUNICATION, "No IVR node is running");
     }
 
-    private byte[] invokeMethod(Address address, String methodType, String relativeUri) throws ResourceException {
+    private byte[] invokeMethod(Address address, String methodType, String relativeUri, Representation entity)
+        throws ResourceException {
         if (StringUtils.equals(methodType, GET)) {
             return m_httpInvoker.invokeGet(address.toString() + relativeUri);
         } else if (StringUtils.equals(methodType, POST)) {
             m_httpInvoker.invokePost(address.toString() + relativeUri);
             return null;
         } else if (StringUtils.equals(methodType, PUT)) {
-            m_httpInvoker.invokePut(address.toString() + relativeUri);
+            String payload = null;
+            if (entity != null) {
+                try {
+                    payload = IOUtils.toString(entity.getReader());
+                } catch (Exception ex) {
+                    payload = null;
+                }
+            }
+            m_httpInvoker.invokePut(address.toString() + relativeUri, payload);
             return null;
         } else if (StringUtils.equals(methodType, DELETE)) {
             m_httpInvoker.invokeDelete(address.toString() + relativeUri);
@@ -193,8 +208,11 @@ public class RestRedirectorResource extends UserResource {
 
     public interface HttpInvoker {
         public byte[] invokeGet(String address) throws ResourceException;
-        public void invokePut(String address) throws ResourceException;
+
+        public void invokePut(String address, String payload) throws ResourceException;
+
         public void invokePost(String address) throws ResourceException;
+
         public void invokeDelete(String address) throws ResourceException;
     }
 
@@ -207,8 +225,11 @@ public class RestRedirectorResource extends UserResource {
         }
 
         @Override
-        public void invokePut(String address) throws ResourceException {
-            HttpMethodBase method = new PutMethod(address.toString());
+        public void invokePut(String address, String payload) throws ResourceException {
+            PutMethod method = new PutMethod(address.toString());
+            if (payload != null) {
+                method.setRequestEntity(new StringRequestEntity(payload));
+            }
             invokeRestService(method);
         }
 

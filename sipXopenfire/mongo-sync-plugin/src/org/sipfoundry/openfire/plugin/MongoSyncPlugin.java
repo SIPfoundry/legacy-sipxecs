@@ -22,7 +22,6 @@ public class MongoSyncPlugin implements Plugin {
         logger.info("Mongo sync plugin initializing");
         ThreadGroup group = new ThreadGroup("mongoSync");
         Thread imdbOpLogThread = new Thread(group, new ImdbOplogListener(new JobFactory()), "imdbOpLogListener");
-        // Disable avatar operations due to problems, see UC-2765
         Thread profilesdbOpLogThread = new Thread(group, new ProfilesOplogListener(new JobFactory()), "profilesOpLogListener");
         imdbOpLogThread.start();
         profilesdbOpLogThread.start();
