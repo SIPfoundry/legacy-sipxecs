@@ -157,6 +157,18 @@
   </bean>
   <alias name="personalAttendantResource" alias="/my/voicemail/attendant" />
 
+  <bean id="personalAttendantLangResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantLangResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="false" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+    <property name="localizationContext" ref="localizationContext"/>
+  </bean>
+  <alias name="personalAttendantLangResource" alias="/my/voicemail/attendant/lang" />
+
   <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="available" value="false" />
