@@ -16,6 +16,7 @@
 
 // APPLICATION INCLUDES
 #include <net/SipClient.h>
+#include <boost/thread.hpp>
 
 // DEFINES
 // MACROS
@@ -33,6 +34,9 @@ class SipClientWriteBuffer : public SipClient
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+  typedef boost::mutex mutex;
+  typedef boost::lock_guard<mutex> mutex_lock; 
+  
 /* ============================ CREATORS ================================== */
 
    SipClientWriteBuffer(OsSocket* socket,
@@ -105,6 +109,8 @@ private:
 
     SipClientWriteBuffer& operator=(const SipClientWriteBuffer& rhs);
      //:disable Assignment operator
+    
+    mutex _nonBuffredWriteMutex;
 };
 
 #endif  // _SipClientWriteBuffer_h_

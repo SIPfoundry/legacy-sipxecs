@@ -67,6 +67,8 @@ const UtlContainableType SipClient::TYPE = "SipClient";
 
 const UtlContainableType SipClientSendMsg::TYPE = "SipClientSendMsg";
 
+bool SipClient::_disableOutboundSendQueue = false;
+
 SipTransportRateLimitStrategy SipClient::_rateLimit;
 SipTransportRateLimitStrategy& SipClient::rateLimit()
 {
@@ -327,8 +329,16 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
                                portToSendTo );
 
       // Post the message to the task's queue.
-      OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
-      sendOk = status == OS_SUCCESS;
+      if (!SipClient::_disableOutboundSendQueue)
+      {
+        OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
+        sendOk = status == OS_SUCCESS;
+      }
+      else
+      {
+        sendOk = handleMessage(sendMsg);
+      }
+      
       if (!sendOk)
       {
          Os::Logger::instance().log(FAC_SIP, PRI_ERR,
