@@ -322,23 +322,21 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
         mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo );
       }
 
-     
+      // Create message to queue.
+      SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
+                               SipClientSendMsg::SIP_CLIENT_SEND,
+                               message, address,
+                               portToSendTo );
 
       // Post the message to the task's queue.
       if (!SipClient::_disableOutboundQueue)
       {
-        // Create message to queue.
-        SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
-                               SipClientSendMsg::SIP_CLIENT_SEND,
-                               message, address,
-                               portToSendTo );
         OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
         sendOk = status == OS_SUCCESS;
       }
       else
       {
-        sendMessage(message, address, portToSendTo);
-        sendOk = TRUE;
+        sendOk = handleMessage(sendMsg);
       }
       
       
