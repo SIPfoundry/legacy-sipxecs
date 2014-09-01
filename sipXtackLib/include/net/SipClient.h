@@ -210,6 +210,8 @@ private:
 
     static SipTransportRateLimitStrategy _rateLimit;
 
+public:
+  static bool _disableOutboundQueue;
 };
 
 // Special message type for use by SipClient.
