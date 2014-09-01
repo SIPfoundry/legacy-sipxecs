@@ -50,8 +50,6 @@ const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 #define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
 static const char* P_PID_HEADER = "P-Preferred-Identity";
 
-static const bool DISABLE_OUTBOUND_SEND_QUEUE = true;
-
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -183,8 +181,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
    mpRegDb = RegDB::CreateInstance();
 
-   SipClient::_disableOutboundQueue = DISABLE_OUTBOUND_SEND_QUEUE;
-   
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
 }
