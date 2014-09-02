@@ -78,7 +78,6 @@
 					<span jwcid="@common/Plugin" blockId="DiagnosticsTop"/>
 					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/JobStatusPage" label="ognl:messages.getMessage('menu.jobs')" />
 					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/SnapshotPage" label="ognl:messages.getMessage('menu.snapshot')" />
-					<span jwcid="@common/AdminNavigationMenu" pagePath="admin/LoginHistoryPage" label="ognl:messages.getMessage('menu.loginhistory')" />
 					<span jwcid="@If" condition="ognl:isSystemAuditEnabled()">
 						<span jwcid="@common/AdminNavigationMenu" pagePath="admin/systemaudit/ManageSystemAudit" label="ognl:messages.getMessage('menu.managesystemaudit')" />
 					</span>
