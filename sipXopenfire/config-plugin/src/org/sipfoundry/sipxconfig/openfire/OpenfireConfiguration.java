@@ -45,6 +45,8 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireConfiguration implements ConfigProvider {
     protected static final String DAT_FILE = "sipxopenfire.cfdat";
     protected static final String SIPXOPENFIRE_CLASS = "sipxopenfire";
+    protected static final String POSTGRES_CLASS = "postgres";
+    protected static final String SIPXOPENFIRE_CONFIG_CLASS = "sipxofconfig";
 
     private OpenfireConfigurationFile m_config;
     private SipxOpenfireConfiguration m_sipxConfig;
@@ -69,6 +71,7 @@ public class OpenfireConfiguration implements ConfigProvider {
 
     protected void writeConfigFiles(ConfigManager manager, ConfigRequest request) throws IOException {
         Set<Location> locations = request.locations(manager);
+        boolean configNode = true;
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE, location);
@@ -76,7 +79,8 @@ public class OpenfireConfiguration implements ConfigProvider {
                 disableIm(dir);
                 continue;
             }
-            enableIm(dir);
+            enableIm(dir, configNode);
+            configNode = false;
             OpenfireSettings settings = m_openfire.getSettings();
             boolean consoleEnabled = (Boolean) settings.getSettingTypedValue("settings/console");
             boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence");
@@ -124,13 +128,18 @@ public class OpenfireConfiguration implements ConfigProvider {
     }
 
     @SuppressWarnings("static-method")
-    protected void enableIm(File dir) throws IOException {
-        ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, "postgres");
+    protected void enableIm(File dir, boolean configNode) throws IOException {
+        if (configNode) {
+            ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, POSTGRES_CLASS, SIPXOPENFIRE_CONFIG_CLASS);
+        } else {
+            ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, POSTGRES_CLASS);
+        }
+
     }
 
     @SuppressWarnings("static-method")
     protected void disableIm(File dir) throws IOException {
-        ConfigUtils.enableCfengineClass(dir, DAT_FILE, false, SIPXOPENFIRE_CLASS);
+        ConfigUtils.enableCfengineClass(dir, DAT_FILE, false, SIPXOPENFIRE_CLASS, SIPXOPENFIRE_CONFIG_CLASS);
     }
 
     protected void touchImFile() {
