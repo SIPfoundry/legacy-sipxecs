@@ -106,13 +106,6 @@ bundle edit_line sipx_log4j_properties_contents {
 	  "log4j.additivity.org.apache.cxf.interceptor=true";
 	  "# legal values (highest to lowest): debug info warn error fatal";
 	  "log4j.rootLogger=warn, file";
-	  "# For logging login attempts...";
-	  "log4j.logger.login=info,userlogin";
-	  "log4j.additivity.login=false";
-	  "log4j.appender.userlogin=org.sipfoundry.commons.log4j.SipFoundryAppender";
-	  "log4j.appender.userlogin.File=${jetty.log.dir}/sipxconfig-logins.log";
-	  "log4j.appender.userlogin.layout=org.apache.log4j.PatternLayout";
-	  "log4j.appender.userlogin.layout.ConversionPattern=\"%d\":%5p:%c{1}:%L:%m%n";
 	  "# LDAP log";
 	  "log4j.logger.ldap_logger=debug,ldap";
 	  "log4j.additivity.ldap_logger=false";
