@@ -35,7 +35,7 @@
 	<!-- Specify the server port, the default value is 5060.-->
 	<setting name="outbound_port"><type><integer/></type><value>5060</value></setting>
 	<!-- Configure the transport type; 0-UDP (default), 1-TCP, 2-TLS, 3-DNS SRV;-->
-	<setting name="transport"><type refid="SIPTransport_type"/><value>3</value></setting>
+	<setting name="transport"><type refid="SIPTransport_type"/><value>1</value></setting>
 	<!-- Configure the address of the backup outbound proxy server.-->
 	<setting name="backup_outbound_host"><type><string/></type></setting>
 	<!-- Specify the port, the default value is 5060.-->
