@@ -9,36 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.login;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
-import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
-import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.security.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.security.SipxAuthenticationDetails;
-import org.springframework.context.ApplicationListener;
 
-public class LoginContextImpl implements LoginContext, ApplicationListener<AbstractAuthenticationEvent> {
-    private static final String USERLOGINS_LOG = "sipxconfig-logins.log";
-
-    private static final Log LOG = LogFactory.getLog("login");
+public class LoginContextImpl implements LoginContext {
 
     private CoreContext m_coreContext;
-
-    private String m_logDirectory;
 
     /**
      * Returns user if credentials check out. Return null if the user does not exist or the
@@ -69,17 +47,6 @@ public class LoginContextImpl implements LoginContext, ApplicationListener<Abstr
         return null;
     }
 
-    private void logLoginAttempt(String userNameOrAlias, boolean success, String remoteIp) {
-        if (remoteIp == null) {
-            return;
-        }
-        if (success) {
-            LOG.info(LoginEvent.formatLogToRecord(LoginEvent.SUCCESS, userNameOrAlias, remoteIp));
-        } else {
-            LOG.warn(LoginEvent.formatLogToRecord(LoginEvent.FAILURE, userNameOrAlias, remoteIp));
-        }
-    }
-
     public String getEncodedPassword(String userName, String password) {
         return Md5Encoder.getEncodedPassword(password);
     }
@@ -96,55 +63,8 @@ public class LoginContextImpl implements LoginContext, ApplicationListener<Abstr
         return user.isAdmin();
     }
 
-    public LoginEvent[] getUserLoginLog(LogFilter filter) {
-        File log = new File(m_logDirectory, USERLOGINS_LOG);
-        List<LoginEvent> contents = new ArrayList<LoginEvent>();
-        BufferedReader input = null;
-        try {
-            input = new BufferedReader(new FileReader(log));
-            String line = null;
-            while ((line = input.readLine()) != null) {
-                LoginEvent logEvent = new LoginEvent(line);
-                if (filter.isLogEntryInQuery(logEvent)) {
-                    contents.add(logEvent);
-                }
-            }
-        } catch (FileNotFoundException ex) {
-            throw new UserException("log.notFound");
-        } catch (IOException ex) {
-            throw new UserException("log.cannotRead");
-        } finally {
-            IOUtils.closeQuietly(input);
-        }
-        return contents.toArray(new LoginEvent[contents.size()]);
-    }
-
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
-    public void setLogDirectory(String logDirectory) {
-        m_logDirectory = logDirectory;
-    }
-
-    /**
-     * Log WEB authentication attempts
-     */
-    public void onApplicationEvent(AbstractAuthenticationEvent authEvent) {
-        if (!(authEvent instanceof InteractiveAuthenticationSuccessEvent)
-                && !(authEvent instanceof AbstractAuthenticationFailureEvent)) {
-            return;
-        }
-
-        final String username = authEvent.getAuthentication().getName();
-        final boolean success = authEvent instanceof InteractiveAuthenticationSuccessEvent;
-
-        Object details = authEvent.getAuthentication().getDetails();
-        if (details instanceof SipxAuthenticationDetails) {
-            String remoteIp = null;
-            SipxAuthenticationDetails webDetails = (SipxAuthenticationDetails) details;
-            remoteIp = webDetails.getRemoteAddress();
-            logLoginAttempt(username, success, remoteIp);
-        }
-    }
 }

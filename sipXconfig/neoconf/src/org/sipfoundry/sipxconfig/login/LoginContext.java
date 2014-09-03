@@ -19,5 +19,4 @@ public interface LoginContext {
 
     boolean isAdmin(Integer userId);
 
-    LoginEvent[] getUserLoginLog(LogFilter filter);
 }

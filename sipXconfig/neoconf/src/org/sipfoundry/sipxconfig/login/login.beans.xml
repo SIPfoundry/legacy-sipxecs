@@ -5,7 +5,6 @@
     <property name="coreContext">
       <ref bean="coreContext" />
     </property>
-    <property name="logDirectory" value="${sysdir.log}" />
   </bean>
 
   <bean id="privateUserKeyManagerImpl" class="org.sipfoundry.sipxconfig.login.PrivateUserKeyManagerImpl" parent="abstractDaoImpl">
