@@ -21,6 +21,9 @@
 #include <os/OsTimeLog.h>
 #include <os/OsMsgQ.h>
 #include <utl/UtlHashMap.h>
+#include <string>
+#include <map>
+#include <boost/thread.hpp>
 
 // DEFINES
 #define HTTP_NAME_VALUE_DELIMITER ':'
@@ -810,6 +813,14 @@ public:
                               int& contentLength);
 
     UtlBoolean isFirstSend() const;
+    
+    void setProperty(const std::string& key, const std::string& value);
+    
+    bool getProperty(const std::string& key, std::string& value);
+    
+    void removeProperty(const std::string& key);
+    
+    bool hasProperty(const std::string& key);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -853,6 +864,12 @@ private:
    NameValuePair* getHeaderField(int index, const char* name = NULL) const;
 
 
+   typedef boost::mutex mutex_critic_sec;
+   typedef boost::lock_guard<mutex_critic_sec> mutex_critic_sec_lock;
+
+   std::map<std::string, std::string> _properties;
+   mutable mutex_critic_sec _propertiesMutex;
+   
 };
 
 /* ============================ INLINE METHODS ============================ */

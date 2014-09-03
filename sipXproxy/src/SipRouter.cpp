@@ -50,6 +50,7 @@ const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 #define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
 static const char* P_PID_HEADER = "P-Preferred-Identity";
 static const bool DISABLE_OUTBOUND_SEND_QUEUE = true;
+static const int MAX_CONCURRENT_THREADS = 10;
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -73,6 +74,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mEnsureTcpLifetime(FALSE)
    ,mRelayAllowed(TRUE)
    ,mpEntityDb(0)
+   ,_threadPoolSem(MAX_CONCURRENT_THREADS)
 
 {
    // Get Via info to use as defaults for route & realm
@@ -180,8 +182,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
 
    mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
    mpRegDb = RegDB::CreateInstance();
-
-   SipClient::_disableOutboundSendQueue = DISABLE_OUTBOUND_SEND_QUEUE;
      
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
@@ -369,7 +369,12 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                   //
                   // Schedule the processing using the threadPool
                   //
+                 _threadPoolSem.wait();
                   SipMessage* pMsg = new SipMessage(*sipRequest);
+                  
+                  if (DISABLE_OUTBOUND_SEND_QUEUE)
+                    pMsg->setProperty("disable-outbound-queue", "true");
+                  
                   if (!_threadPool.schedule(boost::bind(&SipRouter::handleRequest, this, _1), pMsg))
                   {
                     SipMessage finalResponse;
@@ -470,6 +475,8 @@ void SipRouter::handleRequest(SipMessage* pSipRequest)
   }
   
   delete pSipRequest;
+  
+  _threadPoolSem.set();
 }
 
 void SipRouter::addRuriParams(SipMessage& sipRequest, const UtlString& ruriParams)

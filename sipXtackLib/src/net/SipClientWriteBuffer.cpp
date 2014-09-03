@@ -76,7 +76,18 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
            &&  (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND
              || msgSubType == SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE))
    {
-      if (!SipClient::_disableOutboundSendQueue)
+      
+      bool disableOutboundQueue = false;
+      if (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)
+      {
+        SipMessage* pMsg = 0;
+        SipClientSendMsg* sendMsg =
+             dynamic_cast <SipClientSendMsg*> (&eventMessage);
+        pMsg = const_cast<SipMessage*>(sendMsg->getMessage());
+        disableOutboundQueue = pMsg->hasProperty("disable-outbound-queue");
+      }
+     
+      if (!disableOutboundQueue)
       {
         // Queued SIP message to send - normal path.
         if (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)

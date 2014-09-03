@@ -21,6 +21,7 @@
 #include <sipxproxy/AuthPlugin.h>
 #include <net/SipBidirectionalProcessorPlugin.h>
 #include <sipdb/RegDB.h>
+#include <Poco/Semaphore.h>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -258,6 +259,7 @@ class SipRouter : public OsServerTask
    EntityDB* mpEntityDb;
    RegDB* mpRegDb;
    OsThreadPool<SipMessage*> _threadPool;
+   Poco::Semaphore _threadPoolSem;
 };
 
 /* ============================ INLINE METHODS ============================ */
