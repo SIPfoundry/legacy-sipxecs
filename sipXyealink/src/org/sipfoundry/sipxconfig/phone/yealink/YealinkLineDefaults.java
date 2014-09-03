@@ -26,16 +26,16 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class YealinkLineDefaults {
     private final DeviceDefaults m_defaults;
     private final Line m_line;
+    private final String m_mac;
 
-    YealinkLineDefaults(DeviceDefaults defaults, Line line) {
+    YealinkLineDefaults(DeviceDefaults defaults, Line line, String mac) {
         m_defaults = defaults;
         m_line = line;
+        m_mac = mac;
     }
 
     @SettingEntry(paths = {
-            YealinkConstants.AUTH_ID_V6X_SETTING,
             YealinkConstants.USER_ID_V6X_SETTING,
-            YealinkConstants.AUTH_ID_V7X_SETTING,
             YealinkConstants.USER_ID_V7X_SETTING
             })
     public String getUserName() {
@@ -45,6 +45,19 @@ public class YealinkLineDefaults {
             userName = user.getUserName();
         }
         return userName;
+    }
+
+    @SettingEntry(paths = {
+            YealinkConstants.AUTH_ID_V6X_SETTING,
+            YealinkConstants.AUTH_ID_V7X_SETTING,
+            })
+    public String getAuthId() {
+        String userName = null;
+        User user = m_line.getUser();
+        if (user != null) {
+            userName = user.getUserName();
+        }
+        return userName + "/" + m_mac;
     }
 
     @SettingEntry(paths = {
@@ -88,7 +101,6 @@ public class YealinkLineDefaults {
             YealinkConstants.REGISTRATION_SERVER_PORT_V6X_SETTING,
             YealinkConstants.OUTBOUND_PORT_V6X_SETTING,
             YealinkConstants.BACKUP_OUTBOUND_PORT_V6X_SETTING,
-            YealinkConstants.REGISTRATION_SERVER_PORT_V7X_SETTING,
             YealinkConstants.OUTBOUND_PORT_V7X_SETTING,
             YealinkConstants.BACKUP_OUTBOUND_PORT_V7X_SETTING
             })

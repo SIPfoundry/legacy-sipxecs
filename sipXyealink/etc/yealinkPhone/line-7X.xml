@@ -27,7 +27,7 @@
 	<!-- Configure the SIP server address.-->
 	<setting name="sip_server_host"><type><string/></type></setting>
 	<!-- Specify the port for the SIP server. The default value is 5060.-->
-	<setting name="sip_server_port"><type><integer/></type><value>5060</value></setting>
+	<setting name="sip_server_port"><type><integer/></type><value>0</value></setting>
 	<!-- Enable or disable the use of the outbound proxy server; 0-Disabled (default), 1-Enabled; -->
 	<setting name="outbound_proxy_enable"><type><boolean/></type><value>0</value></setting>
 	<!-- Specify the IP address or domain name of the outbound proxy server.-->

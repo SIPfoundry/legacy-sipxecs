@@ -121,7 +121,7 @@ ${setting.ProfileName}.${lastLineID} = $!{setting.Value}
 #elseif (${setting.ProfileName} == "label")
 #elseif (${setting.ProfileName} == "user_name")
 account.${lastLineID}.label = $!{setting.Value}
-account.${lastLineID}.user_name = $!{setting.Value}/$serial
+account.${lastLineID}.user_name = $!{setting.Value}
 #else
 #if (${setting.name} == "codec")
 #codecSetting($setting, $lastLineID)
