@@ -51,6 +51,7 @@ const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 static const char* P_PID_HEADER = "P-Preferred-Identity";
 static const bool DISABLE_OUTBOUND_SEND_QUEUE = true;
 static const int MAX_CONCURRENT_THREADS = 10;
+static const bool ENFORCE_MAX_CONCURRENT_THREADS = false;
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -369,7 +370,8 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                   //
                   // Schedule the processing using the threadPool
                   //
-                 _threadPoolSem.wait();
+                  if (ENFORCE_MAX_CONCURRENT_THREADS)
+                    _threadPoolSem.wait();
                   SipMessage* pMsg = new SipMessage(*sipRequest);
                   
                   if (DISABLE_OUTBOUND_SEND_QUEUE)
@@ -476,7 +478,8 @@ void SipRouter::handleRequest(SipMessage* pSipRequest)
   
   delete pSipRequest;
   
-  _threadPoolSem.set();
+  if (ENFORCE_MAX_CONCURRENT_THREADS)
+    _threadPoolSem.set();
 }
 
 void SipRouter::addRuriParams(SipMessage& sipRequest, const UtlString& ruriParams)
