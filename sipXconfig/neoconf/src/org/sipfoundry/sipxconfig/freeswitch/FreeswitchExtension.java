@@ -20,8 +20,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
-public abstract class FreeswitchExtension extends BeanWithSettings {
+public abstract class FreeswitchExtension extends BeanWithSettings implements SystemAuditable {
     private String m_name;
     private boolean m_enabled = true; // default enabled
     private String m_description;
@@ -84,6 +85,16 @@ public abstract class FreeswitchExtension extends BeanWithSettings {
 
     public void setDid(String did) {
         m_did = did;
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getName();
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return getClass().getSimpleName();
     }
 
 }

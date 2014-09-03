@@ -150,9 +150,14 @@ body select_region select_filter(name) {
 
 bundle edit_line openfire_config_contents {
   insert_lines:
-    "SIP_DOMAIN_NAME=$(sipx.domain)";
-    "FQDN=$(sipx.host).$(sipx.net_domain)";
-    "source $(sipx.SIPX_LIBEXECDIR)/openfire-config $1";
+    sipxofconfig::
+      "CONFIG_NODE=true";
+    !sipxofconfig::
+      "CONFIG_NODE=false";
+    any::
+      "SIP_DOMAIN_NAME=$(sipx.domain)";
+      "FQDN=$(sipx.host).$(sipx.net_domain)";
+      "source $(sipx.SIPX_LIBEXECDIR)/openfire-config $1";
 }
 
 bundle edit_line openfire_properties {

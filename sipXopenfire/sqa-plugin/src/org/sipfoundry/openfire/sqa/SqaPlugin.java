@@ -48,43 +48,50 @@ public class SqaPlugin implements Plugin {
     private static final Logger logger = LoggerFactory.getLogger(SqaPlugin.class);
     @Override
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
-        try {
-            String configurationPath = System.getProperty("conf.dir");
-            String libPath = System.getProperty("lib.dir");
-            String presence = JiveProperties.getInstance().getProperty("openfire.presence", "true");
-            if (isBlank(configurationPath) || isBlank(libPath) || isBlank(presence)) {
-                System.getProperties().load(new FileInputStream(new File("/tmp/sipx.properties")));
-                configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
-                libPath = System.getProperty("lib.dir", "/lib");
+        String configNode = System.getProperty("confignode", "true");
+        boolean isConfigNode = Boolean.parseBoolean(configNode);
+        if (!isConfigNode) {
+            logger.warn("SqaPlugin: not a config node, sqa thread won't be started");
+        } else {
+            logger.warn("SqaPlugin: config node, initialize sqa plugin");
+            try {
+                String configurationPath = System.getProperty("conf.dir");
+                String libPath = System.getProperty("lib.dir");
+                String presence = JiveProperties.getInstance().getProperty("openfire.presence", "true");
+                if (isBlank(configurationPath) || isBlank(libPath) || isBlank(presence)) {
+                    System.getProperties().load(new FileInputStream(new File("/tmp/sipx.properties")));
+                    configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
+                    libPath = System.getProperty("lib.dir", "/lib");
+                }
+
+                UnfortunateLackOfSpringSupportFactory.initialize();
+
+                if (Boolean.valueOf(presence)) {
+                    System.load(libPath + "/libsqaclient.so");
+                    SQAWatcher watcher = new SQAWatcher("openfire", "sswdata", 1, 100, 100);
+                    logger.info("Connected: " + watcher.isConnected());
+
+                    JAXBContext context = JAXBContext.newInstance(DialogInfo.class);
+
+                    new SqaSubscriberThread(watcher, context, m_presenceCache).start();
+
+                    PresenceEventDispatcher.addListener(new PresenceEventListenerImpl(m_presenceCache));
+
+                    logger.info("SQA subscriber started...");
+                } else {
+                    logger.info("XMPP presence not enabled");
+                }
+            } catch (SecurityException e) {
+                logger.error(INITALIZATION_EXCEPTION, e);
+            } catch (IllegalArgumentException e) {
+                logger.error(INITALIZATION_EXCEPTION, e);
+            } catch (FileNotFoundException e) {
+                logger.error(INITALIZATION_EXCEPTION, e);
+            } catch (IOException e) {
+                logger.error(INITALIZATION_EXCEPTION, e);
+            } catch (JAXBException e) {
+                logger.error(INITALIZATION_EXCEPTION, e);
             }
-
-            UnfortunateLackOfSpringSupportFactory.initialize();
-
-            if (Boolean.valueOf(presence)) {
-                System.load(libPath + "/libsqaclient.so");
-                SQAWatcher watcher = new SQAWatcher("openfire", "sswdata", 1, 100, 100);
-                logger.info("Connected: " + watcher.isConnected());
-
-                JAXBContext context = JAXBContext.newInstance(DialogInfo.class);
-
-                new SqaSubscriberThread(watcher, context, m_presenceCache).start();
-
-                PresenceEventDispatcher.addListener(new PresenceEventListenerImpl(m_presenceCache));
-
-                logger.info("SQA subscriber started...");
-            } else {
-                logger.info("XMPP presence not enabled");
-            }
-        } catch (SecurityException e) {
-            logger.error(INITALIZATION_EXCEPTION, e);
-        } catch (IllegalArgumentException e) {
-            logger.error(INITALIZATION_EXCEPTION, e);
-        } catch (FileNotFoundException e) {
-            logger.error(INITALIZATION_EXCEPTION, e);
-        } catch (IOException e) {
-            logger.error(INITALIZATION_EXCEPTION, e);
-        } catch (JAXBException e) {
-            logger.error(INITALIZATION_EXCEPTION, e);
         }
     }
 
