@@ -45,7 +45,6 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireConfiguration implements ConfigProvider {
     protected static final String DAT_FILE = "sipxopenfire.cfdat";
     protected static final String SIPXOPENFIRE_CLASS = "sipxopenfire";
-    protected static final String POSTGRES_CLASS = "postgres";
     protected static final String SIPXOPENFIRE_CONFIG_CLASS = "sipxofconfig";
 
     private OpenfireConfigurationFile m_config;
@@ -130,9 +129,9 @@ public class OpenfireConfiguration implements ConfigProvider {
     @SuppressWarnings("static-method")
     protected void enableIm(File dir, boolean configNode) throws IOException {
         if (configNode) {
-            ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, POSTGRES_CLASS, SIPXOPENFIRE_CONFIG_CLASS);
+            ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, SIPXOPENFIRE_CONFIG_CLASS);
         } else {
-            ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, POSTGRES_CLASS);
+            ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS);
         }
 
     }
