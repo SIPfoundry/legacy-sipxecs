@@ -220,8 +220,6 @@ void SipTcpServer::shutdownListener()
     requestShutdown();
 
     {
-       OsLock lock(mClientLock);
-
        shutdownClients();
     }
 }
@@ -298,12 +296,12 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
             OsConnectionSocket* clientSocket = reinterpret_cast<OsConnectionSocket*>(pPtrMsg->getPtr());
             assert(clientSocket);
 
-            SipClient* client = 0;
+            SipClient::Ptr client;
 
             if (!mpOwner->mIsSecureTransport)
-                client = new SipClientTcp(clientSocket, mpOwner, mpOwner->mSipUserAgent);
+                client = SipClient::Ptr(new SipClientTcp(clientSocket, mpOwner, mpOwner->mSipUserAgent));
             else
-                client = new SipClientTls(clientSocket, mpOwner, mpOwner->mSipUserAgent);
+                client = SipClient::Ptr(new SipClientTls(clientSocket, mpOwner, mpOwner->mSipUserAgent));
 
             UtlString hostAddress;
             int hostPort;
@@ -314,7 +312,7 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                              "SipTcpServer[%s]::run client created for incoming connection: %s (%p) %s:%d",
                              getName().data(),
-                             client->getName().data(), client,
+                             client->getName().data(), client.get(),
                              hostAddress.data(), hostPort);
 
                UtlBoolean clientStarted = client->start();
@@ -325,7 +323,6 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
                                 mpOwner->mProtocolString.data());
                }
                {
-                  OsLock lock(mpOwner->mClientLock);
                   mpOwner->addClient(client);
                }
             }
@@ -338,7 +335,6 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
                // Note that destroying 'client' also destroys 'clientSocket'
                // because clientSocket is unshared and so client owns
                // clientSocket.
-               delete client;
             }
 
             // Tell our caller that we have handled this message.

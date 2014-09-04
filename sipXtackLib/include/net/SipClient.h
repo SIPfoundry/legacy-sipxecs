@@ -23,6 +23,7 @@
 #include <net/SipMessage.h>
 #include <utl/UtlContainableAtomic.h>
 #include <net/SipTransportRateLimitStrategy.h>
+#include <boost/shared_ptr.hpp>
 
 // DEFINES
 // MACROS
@@ -43,6 +44,7 @@ class SipClient : public OsServerTaskWaitable, public UtlContainableAtomic
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+  typedef boost::shared_ptr<SipClient> Ptr;
 /* ============================ CREATORS ================================== */
 
    SipClient(OsSocket* socket,

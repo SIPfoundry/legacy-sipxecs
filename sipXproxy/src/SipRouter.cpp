@@ -49,9 +49,8 @@ const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 // The period of time in seconds that nonces are valid, in seconds.
 #define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
 static const char* P_PID_HEADER = "P-Preferred-Identity";
-static const bool DISABLE_OUTBOUND_SEND_QUEUE = true;
 static const int MAX_CONCURRENT_THREADS = 10;
-static const bool ENFORCE_MAX_CONCURRENT_THREADS = false;
+static const bool ENFORCE_MAX_CONCURRENT_THREADS = true;
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -373,10 +372,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                   if (ENFORCE_MAX_CONCURRENT_THREADS)
                     _threadPoolSem.wait();
                   SipMessage* pMsg = new SipMessage(*sipRequest);
-                  
-                  if (DISABLE_OUTBOUND_SEND_QUEUE)
-                    pMsg->setProperty("disable-outbound-queue", "true");
-                  
+                                   
                   if (!_threadPool.schedule(boost::bind(&SipRouter::handleRequest, this, _1), pMsg))
                   {
                     SipMessage finalResponse;
