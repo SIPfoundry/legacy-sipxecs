@@ -408,8 +408,14 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
             if (propertyName.equals("timestamp")) {
                 continue;
             }
-            Object valueBefore = propUtils.getProperty(oldObject, propertyName);
-            Object valueAfter = propUtils.getProperty(newObject, propertyName);
+            Object valueBefore = null;
+            if (oldObject != null) {
+                valueBefore = propUtils.getProperty(oldObject, propertyName);
+            }
+            Object valueAfter = null;
+            if (newObject != null) {
+                valueAfter = propUtils.getProperty(newObject, propertyName);
+            }
             if (valueBefore != null || valueAfter != null) {
                 if (!propertyPrefix.isEmpty()) {
                     propertyName = propertyPrefix + VALUE_DELIMITATOR + propertyName;

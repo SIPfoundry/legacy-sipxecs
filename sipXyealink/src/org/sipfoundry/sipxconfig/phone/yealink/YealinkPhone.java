@@ -32,6 +32,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.Device;
@@ -40,6 +42,7 @@ import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.ftp.FtpManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -103,6 +106,8 @@ public class YealinkPhone extends Phone {
 
     private UploadManager m_uploadManager;
 
+    private AddressManager m_addressManager;
+
     public YealinkPhone() {
         if (null == getSerialNumber()) {
             setSerialNumber(YealinkConstants.MAC_PREFIX);
@@ -157,6 +162,19 @@ public class YealinkPhone extends Phone {
 
     public UploadManager getUploadManager() {
         return m_uploadManager;
+    }
+
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
+    }
+
+    public String getTftpServer() {
+        Address serverAddress = m_addressManager.getSingleAddress(FtpManager.TFTP_ADDRESS);
+        if (null != serverAddress) {
+            return String.format("tftp://%s/", serverAddress.getAddress());
+        } else {
+            return "";
+        }
     }
 
     public int getMaxLineCount() {
@@ -344,7 +362,7 @@ public class YealinkPhone extends Phone {
     @Override
     public void initializeLine(Line line) {
         m_speedDial = getPhoneContext().getSpeedDial(this);
-        line.addDefaultBeanSettingHandler(new YealinkLineDefaults(getPhoneContext().getPhoneDefaults(), line));
+        line.addDefaultBeanSettingHandler(new YealinkLineDefaults(getPhoneContext().getPhoneDefaults(), line, getSerialNumber()));
     }
 
     /**

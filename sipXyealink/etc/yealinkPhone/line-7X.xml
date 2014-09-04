@@ -27,19 +27,19 @@
 	<!-- Configure the SIP server address.-->
 	<setting name="sip_server_host"><type><string/></type></setting>
 	<!-- Specify the port for the SIP server. The default value is 5060.-->
-	<setting name="sip_server_port"><type><integer/></type><value>5060</value></setting>
+	<setting name="sip_server_port"><type><integer/></type><value>0</value></setting>
 	<!-- Enable or disable the use of the outbound proxy server; 0-Disabled (default), 1-Enabled; -->
 	<setting name="outbound_proxy_enable"><type><boolean/></type><value>0</value></setting>
 	<!-- Specify the IP address or domain name of the outbound proxy server.-->
 	<setting name="outbound_host"><type><string/></type></setting>
 	<!-- Specify the server port, the default value is 5060.-->
-	<setting name="outbound_port"><type><integer/></type><value>5060</value></setting>
+	<setting name="outbound_port"><type><integer/></type><value>0</value></setting>
 	<!-- Configure the transport type; 0-UDP (default), 1-TCP, 2-TLS, 3-DNS SRV;-->
-	<setting name="transport"><type refid="SIPTransport_type"/><value>3</value></setting>
+	<setting name="transport"><type refid="SIPTransport_type"/><value>1</value></setting>
 	<!-- Configure the address of the backup outbound proxy server.-->
 	<setting name="backup_outbound_host"><type><string/></type></setting>
 	<!-- Specify the port, the default value is 5060.-->
-	<setting name="backup_outbound_port"><type><integer/></type><value>5060</value></setting>
+	<setting name="backup_outbound_port"><type><integer/></type><value>0</value></setting>
 	<!-- Enable or disable the NAT traversal; 0-Disabled (default), 1-STUN;-->
 	<setting name="nat.nat_traversal"><type><boolean/></type><value>0</value></setting>
 	<!-- Configure the STUN server address.-->
