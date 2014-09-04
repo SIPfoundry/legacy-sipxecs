@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
@@ -174,15 +175,16 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
                 checkForDuplicateNames(schedule);
             }
             getHibernateTemplate().merge(schedule);
-        }
-        List<Ring> rings = getRingsForScheduleId(schedule.getId());
-        Collection<CallSequence> css = new HashSet<CallSequence>();
-        if (rings != null) {
-            for (Ring ring : rings) {
-                css.add(ring.getCallSequence());
+            List<Ring> rings = getRingsForScheduleId(schedule.getId());
+            Collection<CallSequence> css = new HashSet<CallSequence>();
+            if (rings != null) {
+                for (Ring ring : rings) {
+                    css.add(ring.getCallSequence());
+                }
             }
+            notifyCommserver(css);
+            getDaoEventPublisher().publishSave(schedule);
         }
-        notifyCommserver(css);
     }
 
     private void checkForDuplicateNames(Schedule schedule) {
@@ -331,8 +333,16 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
                         rule.setSchedule(null);
                     }
                     getHibernateTemplate().saveOrUpdateAll(rules);
+                    for (DialingRule rule : rules) {
+                        if (rule instanceof AttendantRule) {
+                            AttendantRule aaRule = (AttendantRule) rule;
+                            m_sipxReplicationContext.generate(aaRule);
+                        } else {
+                            getDaoEventPublisher().publishSave(rule);
+                        }
+                    }
                 }
-            } else {
+            } else if (schedule instanceof UserSchedule || schedule instanceof UserGroupSchedule) {
                 Collection<CallSequence> css = new HashSet<CallSequence>();
                 // get all rings and set schedule to Always
                 List<Ring> rings = getRingsForScheduleId(schedule.getId());
@@ -354,5 +364,24 @@ public class ForwardingContextImpl extends SipxHibernateDaoSupport implements Fo
 
     @Override
     public void onSave(Object entity) {
+        if (entity instanceof CallSequence) {
+            CallSequence seq = (CallSequence) entity;
+            m_sipxReplicationContext.generate(seq.getUser());
+        } else if (entity instanceof Schedule) {
+            Schedule schedule = (Schedule) entity;
+            if (schedule instanceof GeneralSchedule) {
+                List<DialingRule> rules = getDialingRulesForScheduleId(schedule.getId());
+                if (rules != null) {
+                    for (DialingRule rule : rules) {
+                        if (rule instanceof AttendantRule) {
+                            AttendantRule aaRule = (AttendantRule) rule;
+                            m_sipxReplicationContext.generate(aaRule);
+                        } else {
+                            getDaoEventPublisher().publishSave(rule);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
