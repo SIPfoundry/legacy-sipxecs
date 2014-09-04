@@ -22,6 +22,7 @@
 #include <net/SipBidirectionalProcessorPlugin.h>
 #include <sipdb/RegDB.h>
 #include <Poco/Semaphore.h>
+#include <boost/thread.hpp>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -75,6 +76,9 @@ class SipRouter : public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
+    
+  typedef boost::mutex mutex_critic_sec;
+  typedef boost::lock_guard<mutex_critic_sec> mutex_critic_sec_lock;
 
    /// Default constructor
    SipRouter(SipUserAgent& sipUserAgent, 
@@ -260,6 +264,7 @@ class SipRouter : public OsServerTask
    RegDB* mpRegDb;
    OsThreadPool<SipMessage*> _threadPool;
    Poco::Semaphore _threadPoolSem;
+   mutex_critic_sec _outboundMutex;
 };
 
 /* ============================ INLINE METHODS ============================ */

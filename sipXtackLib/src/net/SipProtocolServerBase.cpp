@@ -36,7 +36,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 static const int MAX_CONCURRENT_THREADS = 10;
 static const bool ENFORCE_MAX_CONCURRENT_THREADS = true;
-static const bool ENABLE_THREAD_POOL = true;
+static const bool ENABLE_THREAD_POOL = false;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 

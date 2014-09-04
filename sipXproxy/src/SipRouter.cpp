@@ -453,13 +453,19 @@ void SipRouter::handleRequest(SipMessage* pSipRequest)
      // sipRequest may have been rewritten entirely by proxyMessage().
      // clear timestamps, protocol, and port information
      // so send will recalculate it
+  {
+     mutex_critic_sec_lock lock(_outboundMutex);
      pSipRequest->resetTransport();
      mpSipUserAgent->send(*pSipRequest);
+  }
      break;
 
   case SendResponse:
+  {
+     mutex_critic_sec_lock lock(_outboundMutex);
      sipResponse.resetTransport();
      mpSipUserAgent->send(sipResponse);
+  }
      break;
 
   case DoNothing:
