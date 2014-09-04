@@ -53,7 +53,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvider,
-    AddressProvider, FeatureProvider, FirewallProvider, ProcessProvider {
+    FeatureProvider, FirewallProvider, ProcessProvider, AddressProvider {
     
     private BeanWithSettingsDao<SipxedgerpcManagerSettings> m_settingsDao;
 

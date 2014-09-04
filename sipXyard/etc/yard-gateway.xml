@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>7</value>
+      </option>
+      <option>
+        <value>6</value>
+      </option>
+      <option>
+        <value>5</value>
+      </option>
+      <option>
+        <value>4</value>
+      </option>
+      <option>
+        <value>3</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>0</value>
+      </option>
+    </enum>
+  </type>
+  <type id="true-false">
+	<boolean>
+		<true>
+			<value>true</value>
+		</true>
+		<false>
+			<value>false</value>
+		</false>
+	</boolean>
+  </type>
+  <group name="auth">
+    <setting name="username"/>
+    <setting name="password">
+      <type>
+        <string password="yes" />
+      </type>      
+    </setting>
+  </group>
+  <group name="webrtc">
+    <setting name="log-level">
+      <type refid="loglevel"/>
+      <value>5</value>
+    </setting>    
+	<setting name="ws-port">
+	  <type>
+        <integer/>
+      </type>
+	</setting>
+	<setting name="tcp-udp-port">
+	  <type>
+        <integer/>
+      </type>
+	</setting>
+	<setting name="bridge-tcp-udp-port">
+	  <type>
+        <integer/>
+      </type>
+	</setting>
+	<setting name="enable-library-logging">
+	  <type refid="true-false"/>				  
+	</setting>
+	<setting name="user-cache"/>
+	<setting name="db-path"/>
+	<setting name="bridge-esl-port">	
+	  <type>
+        <integer/>
+      </type>
+	</setting>
+	<setting name="switch-esl-port">
+	  <type>
+        <integer/>
+      </type>
+	</setting>
+  </group>
+</model>

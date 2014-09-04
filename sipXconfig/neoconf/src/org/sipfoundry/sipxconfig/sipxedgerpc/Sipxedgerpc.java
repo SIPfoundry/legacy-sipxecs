@@ -16,11 +16,14 @@
  */
 package org.sipfoundry.sipxconfig.sipxedgerpc;
 
+import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface Sipxedgerpc {
     public static final String FEATURE_ID = "sipxedgerpc";
     public static final LocationFeature FEATURE = new LocationFeature(FEATURE_ID);
+    public static final AddressType HTTP_ADDRESS = new AddressType(FEATURE_ID, "http://%s:%d");
+
     //Does nothing - we just need precommit to pass
     public void method();
 }

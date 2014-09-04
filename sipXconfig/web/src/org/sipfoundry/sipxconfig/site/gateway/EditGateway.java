@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.site.gateway;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -113,9 +114,15 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
      * Names of the tabs that are not in navigation components
      */
     public String[] getTabNames() {
-        String[] tabs = new String[] {
-            "config", "gcai", "dialplan"
-        };
+        ArrayList<String> tabsArray = new ArrayList<String>();
+        tabsArray.add("config");
+        if (getGateway().getModel().isCallerIdAware()) {
+            tabsArray.add("gcai");
+        }
+        if (getGateway().getModel().isDialPlanAware()) {
+            tabsArray.add("dialplan");
+        }
+        String[] tabs = tabsArray.toArray(new String[tabsArray.size()]);
         if (getGateway().getModel().getMaxPorts() > 0) {
             tabs = (String[]) ArrayUtils.add(tabs, 1, "ports");
         }

@@ -13,6 +13,8 @@ import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 
 public class GatewayModel extends DeviceDescriptor {
     private int m_maxPorts;
+    private boolean m_dialPlanAware = true;
+    private boolean m_callerIdAware = true;
 
     /**
      * Array of setting names that comprise the port label
@@ -54,5 +56,21 @@ public class GatewayModel extends DeviceDescriptor {
 
     public String getPortLabelFormat() {
         return m_portLabelFormat;
+    }
+
+    public boolean isDialPlanAware() {
+        return m_dialPlanAware;
+    }
+
+    public void setDialPlanAware(boolean dialPlanAware) {
+        m_dialPlanAware = dialPlanAware;
+    }
+
+    public boolean isCallerIdAware() {
+        return m_callerIdAware;
+    }
+
+    public void setCallerIdAware(boolean callerIdAware) {
+        m_callerIdAware = callerIdAware;
     }
 }

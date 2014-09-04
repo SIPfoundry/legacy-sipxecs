@@ -1,4 +1,6 @@
 /**
+ *
+ *
  * Copyright (c) 2014 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -12,13 +14,19 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.sipxedgerpc;
+package org.sipfoundry.sipxconfig.gateway.yard;
 
-import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-public interface SipxedgerpcManager extends Sipxedgerpc {
-    public SipxedgerpcManagerSettings getSettings();
+public class WebRtcBean {
+    @JsonProperty("webrtc")
+    private WebRtcSettingsBean m_webRtc;
 
-    public void saveSettings(SipxedgerpcManagerSettings settings);
+    public WebRtcSettingsBean getWebRtc() {
+        return m_webRtc;
+    }
+
+    public void setWebRtc(WebRtcSettingsBean webRtc) {
+        m_webRtc = webRtc;
+    }
 }

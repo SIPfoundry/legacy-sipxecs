@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  <!-- This is just an example of how to register new gateway -->
+  <bean id="yardGatewayStandard" parent="abstractGatewayModel">
+    <property name="beanId" value="gwYard" />
+    <property name="label" value="Edge Server" />
+    <property name="modelDir" value="yard" />
+	<property name="vendor" value="yard" />
+	<property name="dialPlanAware" value="false" />
+	<property name="callerIdAware" value="false" />
+  </bean>
+
+  <bean id="gwYard" class="org.sipfoundry.sipxconfig.gateway.yard.YardGateway" scope="prototype" parent="gwGeneric">
+    <property name="addressManager" ref="addressManager"/>
+    <property name="domainManager" ref="domainManager"/>
+  </bean>
+</beans>
