@@ -35,7 +35,8 @@
 
 // STATIC VARIABLE INITIALIZATIONS
 static const int MAX_CONCURRENT_THREADS = 10;
-static const bool ENFORCE_MAX_CONCURRENT_THREADS = false;
+static const bool ENFORCE_MAX_CONCURRENT_THREADS = true;
+static const bool ENABLE_THREAD_POOL = true;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -140,7 +141,7 @@ void SipProtocolServerBase::handleSend(SipMessage* pMsg)
 
   delete pMsg;
   
-  if (ENFORCE_MAX_CONCURRENT_THREADS)
+  if (ENABLE_THREAD_POOL && ENFORCE_MAX_CONCURRENT_THREADS)
     _threadPoolSem.set();
 }
 
@@ -156,14 +157,24 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
   
   SipMessage* pMsg = new SipMessage(*message);
   std::string hostPortString = boost::lexical_cast<std::string>(hostPort);
+  
+
   pMsg->setProperty("send-address", hostAddress);
   pMsg->setProperty("send-port", hostPortString);
-  
-  
-  if (ENFORCE_MAX_CONCURRENT_THREADS)
+
+
+  if (ENABLE_THREAD_POOL && ENFORCE_MAX_CONCURRENT_THREADS)
     _threadPoolSem.wait();
   
-  return _threadPool.schedule(boost::bind(&SipProtocolServerBase::handleSend, this, _1), pMsg);
+  if (ENABLE_THREAD_POOL)
+  {
+    return _threadPool.schedule(boost::bind(&SipProtocolServerBase::handleSend, this, _1), pMsg);
+  }
+  else
+  {
+    handleSend(pMsg);
+    return TRUE;
+  }
 }
 
 UtlBoolean SipProtocolServerBase::startListener()
@@ -442,8 +453,7 @@ SipClient::Ptr SipProtocolServerBase::getClientForDestination(const UtlString& h
     
     if (pClient)
     {
-      mutex_lock lock(_clientMutex);
-      _clientList.push_back(pClient);
+      addClient(pClient);
     }
   }
   
