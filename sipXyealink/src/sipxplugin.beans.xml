@@ -7,6 +7,7 @@
     <property name="registrarSettings" ref="registrarSettings"/>
     <property name="uploadManager" ref="uploadManager"/>
     <property name="ldapManager" ref="ldapManager"/>
+    <property name="addressManager" ref="addressManager"/>
 </bean>
 
 <bean id="org.sipfoundry.sipxconfig.phone.yealink.YealinkModel.VER_6X"

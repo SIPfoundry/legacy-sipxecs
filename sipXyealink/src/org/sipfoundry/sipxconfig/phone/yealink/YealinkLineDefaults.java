@@ -100,9 +100,7 @@ public class YealinkLineDefaults {
     @SettingEntry(paths = {
             YealinkConstants.REGISTRATION_SERVER_PORT_V6X_SETTING,
             YealinkConstants.OUTBOUND_PORT_V6X_SETTING,
-            YealinkConstants.BACKUP_OUTBOUND_PORT_V6X_SETTING,
-            YealinkConstants.OUTBOUND_PORT_V7X_SETTING,
-            YealinkConstants.BACKUP_OUTBOUND_PORT_V7X_SETTING
+            YealinkConstants.BACKUP_OUTBOUND_PORT_V6X_SETTING
             })
     public Integer getRegistrationServerPort() {
         return 5060;

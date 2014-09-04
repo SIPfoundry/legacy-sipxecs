@@ -1,4 +1,5 @@
 #set($serial = "$phone.SerialNumber")
+#set($TFTPServer = "$phone.TftpServer")
 #set($maxLineCount = $phone.MaxLineCount)
 #set($signatureL1 = '####################################################')
 #set($signatureL2 = '##         MAC-Oriented CFG File                  ##')
@@ -23,8 +24,8 @@ remote_phonebook.data.${pbId}.name = $book_key
 #end
 #set ($pbLast = ${selected.size()} + 1)
 #foreach($pbId in [${pbLast}..5])
-remote_phonebook.data.${pbId}.url = %NULL%
-remote_phonebook.data.${pbId}.name = %NULL%
+remote_phonebook.data.${pbId}.url = 
+remote_phonebook.data.${pbId}.name = 
 #end
 #end
 ##
@@ -55,7 +56,7 @@ ${prefix}${setting.profileName} = ${value}
 ${array.name}.$math.add(${settingIndex},1).${settingName} = $!{s.value}
 #end
 #else
-${array.name}.$math.add(${settingIndex},1).${settingName} = %NULL%
+${array.name}.$math.add(${settingIndex},1).${settingName} = 
 #end
 #end
 #end
@@ -74,7 +75,7 @@ account.${account}.codec.${i}.enable = 1
 account.${account}.codec.${i}.priority = $!{selected.indexOf($key)}
 #else
 account.${account}.codec.${i}.enable = 0
-account.${account}.codec.${i}.priority = %NULL%
+account.${account}.codec.${i}.priority = 
 #end
 account.${account}.codec.${i}.rtpmap = $!{m}
 account.${account}.codec.${i}.payload_type = $!{pt}
@@ -96,7 +97,7 @@ account.${account}.codec.${i}.payload_type = $!{pt}
 #if(${s.Value})
 ${s.ProfileName} = $!{s.Value}
 #else
-${s.ProfileName} = %NULL%
+${s.ProfileName} = 
 #end
 #end
 #else
@@ -129,13 +130,13 @@ account.${lastLineID}.user_name = $!{setting.Value}
 #if (${setting.Value})
 account.${lastLineID}.${setting.ProfileName} = $!{setting.Value}
 #else
-account.${lastLineID}.${setting.ProfileName} = %NULL%
+account.${lastLineID}.${setting.ProfileName} = 
 #end
 #end
 #end
 #end
 #end
-account.${lastLineID}.sip_listen_port = ${SLP}
+account.${lastLineID}.sip_listen_port = 0
 #end
 
 #set ($lastLineID = $lastLineID + 1)
@@ -146,20 +147,20 @@ account.${lastLineID}.sip_listen_port = ${SLP}
 #set ($SLP = $SLP * 10)
 #set ($SLP = $SLP + 5060)
 account.${L}.enable = 0
-account.${L}.label = %NULL%
-account.${L}.display_name = %NULL%
-account.${L}.user_name = %NULL%
-account.${L}.auth_name = %NULL%
-account.${L}.password = %NULL%
-account.${L}.sip_listen_port = ${SLP}
-account.${L}.sip_server_host = %NULL%
-account.${L}.sip_server_port = 5060
+account.${L}.label = 
+account.${L}.display_name = 
+account.${L}.user_name = 
+account.${L}.auth_name = 
+account.${L}.password = 
+account.${L}.sip_listen_port = 0
+account.${L}.sip_server_host = 
+account.${L}.sip_server_port = 0
 account.${L}.outbound_proxy_enable = 0
-account.${L}.outbound_host = %NULL%
-account.${L}.outbound_port = 5060
+account.${L}.outbound_host = 
+account.${L}.outbound_port = 0
 account.${L}.transport = 3
-account.${L}.backup_outbound_host = %NULL%
-account.${L}.backup_outbound_port = 5060
+account.${L}.backup_outbound_host = 
+account.${L}.backup_outbound_port = 0
 #end
 #end
 
