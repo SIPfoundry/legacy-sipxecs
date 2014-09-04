@@ -264,7 +264,7 @@ void MongoOpLog::internal_run()
   // WARNING: BSONObj must stay in scope for the life of the BSONElement
   createQuery(_lastEntry, query);
 
-  MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+  MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
 
   while (_isRunning)
   {

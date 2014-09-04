@@ -183,7 +183,7 @@ bool DB::findE911InstrumentIdentifier(
   OS_LOG_INFO(FAC_SIP, "");
   mongo::BSONObj query = BSON("mac" << instrument);
 
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
 
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query);
