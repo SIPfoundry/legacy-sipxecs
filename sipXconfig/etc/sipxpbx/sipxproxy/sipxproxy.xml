@@ -120,6 +120,12 @@
       </type>
       <value>true</value>
     </setting>
+    <setting name="SIPX_PROXY_MAX_CONCURRENT" advanced="yes">
+      <type>
+        <integer min="5" max="1024"/>
+      </type>
+      <value>10</value>     
+    </setting>
     <!--  unsure what these next 2 settings do -->
     <setting name="SIPX_PROXY_LOG_CONSOLE" hidden="yes">
       <type><string/></type>
