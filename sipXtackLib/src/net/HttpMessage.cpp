@@ -3881,6 +3881,35 @@ UtlBoolean HttpMessage::isFirstSend() const
     return(!mFirstSent);
 }
 
+void HttpMessage::setProperty(const std::string& key, const std::string& value)
+{
+  mutex_critic_sec_lock lock(_propertiesMutex);
+  _properties[key] = value;
+}
+    
+bool HttpMessage::getProperty(const std::string& key, std::string& value)
+{
+  mutex_critic_sec_lock lock(_propertiesMutex);
+  std::map<std::string, std::string>::iterator iter = _properties.find(key);
+  if (iter == _properties.end())
+    return false;
+  value = iter->second;
+  return !value.empty();
+}
+
+void HttpMessage::removeProperty(const std::string& key)
+{
+  mutex_critic_sec_lock lock(_propertiesMutex);
+  _properties.erase(key);
+}
+
+bool HttpMessage::hasProperty(const std::string& key)
+{
+  mutex_critic_sec_lock lock(_propertiesMutex);
+  std::map<std::string, std::string>::iterator iter = _properties.find(key);
+  return iter != _properties.end();
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
