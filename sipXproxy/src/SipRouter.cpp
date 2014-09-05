@@ -53,6 +53,12 @@ const char* SipBidirectionalProcessorPlugin::Prefix  = "SIPX_TRAN";
 static const char* P_PID_HEADER = "P-Preferred-Identity";
 static const int MAX_CONCURRENT_THREADS = 10;
 static const bool ENFORCE_MAX_CONCURRENT_THREADS = true;
+
+static const bool DEFAULT_REJECT_ON_FILLED_QUEUE = FALSE;
+static const int MIN_REJECT_ON_FILLED_QUEUE_PERCENT = 25;
+static const int DEFAULT_REJECT_ON_FILLED_QUEUE_PERCENT = 75;
+static const int MAX_REJECT_ON_FILLED_QUEUE_PERCENT = 100;
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -78,7 +84,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mpEntityDb(0)
    ,_pThreadPoolSem(0)
    ,_maxConcurrentThreads(MAX_CONCURRENT_THREADS)
-   ,_rejectOnFilledQueue(FALSE)
+   ,_rejectOnFilledQueue(DEFAULT_REJECT_ON_FILLED_QUEUE)
+   ,_rejectOnFilledQueuePercent(DEFAULT_REJECT_ON_FILLED_QUEUE_PERCENT)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -317,6 +324,16 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    _pThreadPoolSem = new Poco::Semaphore(_maxConcurrentThreads);
    
    _rejectOnFilledQueue = configDb.getBoolean("SIPX_PROXY_REJECT_ON_FILLED_QUEUE", FALSE);
+   configDb.get("SIPX_PROXY_REJECT_ON_FILLED_QUEUE_PERCENT", _rejectOnFilledQueuePercent);
+   if (MIN_REJECT_ON_FILLED_QUEUE_PERCENT >_rejectOnFilledQueuePercent ||
+       MAX_REJECT_ON_FILLED_QUEUE_PERCENT < _rejectOnFilledQueuePercent)
+   {
+     _rejectOnFilledQueuePercent = DEFAULT_REJECT_ON_FILLED_QUEUE_PERCENT;
+     Os::Logger::instance().log(FAC_SIP, PRI_NOTICE,
+                   "SipRouter::readConfig "
+                   "SIPX_PROXY_REJECT_ON_FILLED_QUEUE_PERCENT value adjusted to default %d",
+                   _rejectOnFilledQueuePercent);
+   }
 }
 
 // Destructor
@@ -379,33 +396,45 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                }
                else
                {
-                 std::string maxQueueSize;
-                 std::string queueSize;
-                 sipRequest->getProperty("transport-queue-size", queueSize);
-                 sipRequest->getProperty("transport-queue-max-size", maxQueueSize);
-                 
-                 if (_rejectOnFilledQueue && !queueSize.empty() && !maxQueueSize.empty())
+                 if (_rejectOnFilledQueue)
                  {
-                   int max = 0;
-                   int count = 0;
-                   try
+                   std::string maxQueueSize;
+                   std::string queueSize;
+                   sipRequest->getProperty("transport-queue-size", queueSize);
+                   sipRequest->getProperty("transport-queue-max-size", maxQueueSize);
+
+                   if (!queueSize.empty() && !maxQueueSize.empty())
                    {
-                     max = boost::lexical_cast<int>(maxQueueSize);
-                     count = boost::lexical_cast<int>(queueSize);
-                   }
-                   catch(...)
-                   {
-                   }
-                   
-                   if (max && count)
-                   {
-                     if (count > (max - (max/4)))
+                     int max = 0;
+                     int count = 0;
+                     try
                      {
-                       SipMessage finalResponse;
-                       finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
-                       mpSipUserAgent->send(finalResponse);
-                       return TRUE; // Simply return true to indicate we have handled the request
+                       max = boost::lexical_cast<int>(maxQueueSize);
+                       count = boost::lexical_cast<int>(queueSize);
                      }
+                     catch(...)
+                     {
+                       Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "SipRouter::handleMessage"
+                           " failed extracting message's queue size properties");
+                     }
+
+                     if (max && count)
+                     {
+                       if (count > ((max * _rejectOnFilledQueuePercent) / 100))
+                       {
+                         SipMessage finalResponse;
+                         finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
+                         mpSipUserAgent->send(finalResponse);
+
+                         return TRUE; // Simply return true to indicate we have handled the request
+                       }
+                     }
+                   }
+                   else
+                   {
+                     Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "SipRouter::handleMessage"
+                         " message returned empty properties: queueSize %s, maxQueueSize %s",
+                         queueSize.c_str(), maxQueueSize.c_str());
                    }
                  }
                  

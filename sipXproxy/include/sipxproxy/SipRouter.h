@@ -267,6 +267,7 @@ class SipRouter : public OsServerTask
    int _maxConcurrentThreads;
    mutex_critic_sec _outboundMutex;
    UtlBoolean _rejectOnFilledQueue;
+   int _rejectOnFilledQueuePercent;
 };
 
 /* ============================ INLINE METHODS ============================ */
