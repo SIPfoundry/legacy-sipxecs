@@ -263,7 +263,8 @@ class SipRouter : public OsServerTask
    EntityDB* mpEntityDb;
    RegDB* mpRegDb;
    OsThreadPool<SipMessage*> _threadPool;
-   Poco::Semaphore _threadPoolSem;
+   Poco::Semaphore* _pThreadPoolSem;
+   int _maxConcurrentThreads;
    mutex_critic_sec _outboundMutex;
 };
 

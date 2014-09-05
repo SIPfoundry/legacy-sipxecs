@@ -74,8 +74,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mEnsureTcpLifetime(FALSE)
    ,mRelayAllowed(TRUE)
    ,mpEntityDb(0)
-   ,_threadPoolSem(MAX_CONCURRENT_THREADS)
-
+   ,_pThreadPoolSem(0)
+   ,_maxConcurrentThreads(MAX_CONCURRENT_THREADS)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -307,6 +307,11 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       transactionPlugin->announceAssociatedSipUserAgent( this->mpSipUserAgent );
       transactionPlugin->initialize();
    }
+   
+   configDb.get("SIPX_PROXY_MAX_CONCURRENT", _maxConcurrentThreads);
+   if (_maxConcurrentThreads < 5)
+     _maxConcurrentThreads = MAX_CONCURRENT_THREADS;
+   _pThreadPoolSem = new Poco::Semaphore(_maxConcurrentThreads);
 }
 
 // Destructor
@@ -329,6 +334,9 @@ SipRouter::~SipRouter()
 	   delete mpRegDb;
 	   mpRegDb = NULL;
    }
+   
+   delete _pThreadPoolSem;
+   _pThreadPoolSem = 0;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -370,7 +378,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                   // Schedule the processing using the threadPool
                   //
                   if (ENFORCE_MAX_CONCURRENT_THREADS)
-                    _threadPoolSem.wait();
+                    _pThreadPoolSem->wait();
                   SipMessage* pMsg = new SipMessage(*sipRequest);
                                    
                   if (!_threadPool.schedule(boost::bind(&SipRouter::handleRequest, this, _1), pMsg))
@@ -481,7 +489,7 @@ void SipRouter::handleRequest(SipMessage* pSipRequest)
   delete pSipRequest;
   
   if (ENFORCE_MAX_CONCURRENT_THREADS)
-    _threadPoolSem.set();
+    _pThreadPoolSem->set();
 }
 
 void SipRouter::addRuriParams(SipMessage& sipRequest, const UtlString& ruriParams)
