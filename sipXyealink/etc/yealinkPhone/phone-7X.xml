@@ -370,7 +370,7 @@
 	</group>
 	<group name="GENERAL">
 	    <!--// Enable or disable the call waiting feature; 0-Disabled, 1-Enabled (default); //-->
-	    <setting name="call_waiting.enable"><type><boolean/></type><value>0</value></setting>
+	    <setting name="call_waiting.enable"><type><boolean/></type><value>1</value></setting>
 
 	    <!--//
 	    #######################################################################################

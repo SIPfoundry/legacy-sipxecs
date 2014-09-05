@@ -96,7 +96,7 @@
 	<!-- Enable or disable the phone to subscribe the register status; 0-Disabled (default), 1-Enabled;-->
 	<setting name="subscribe_register"><type><boolean/></type><value>0</value></setting>
 	<!-- Enable or disable the phone to subscribe the message waiting indicator; 0-Disabled (default), 1-Enabled;-->
-	<setting name="subscribe_mwi"><type><boolean/></type><value>0</value></setting>
+	<setting name="subscribe_mwi"><type><boolean/></type><value>1</value></setting>
 	<!-- Configure MWI subscribe expiry time (in seconds). It ranges from 0 to 84600, the default value is 3600.-->
 	<setting name="subscribe_mwi_expires"><type><integer/></type><value>3600</value></setting>
 	<!-- Configure the type of SIP header(s) to carry the caller ID; 0-FROM (default), 1-PAI 2-PAI-FROM, 3-PRID-PAI-FROM, 4-PAI-RPID-FROM, 5-RPID-FROM;-->
