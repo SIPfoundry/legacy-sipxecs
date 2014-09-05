@@ -30,8 +30,6 @@
 
 #include <utl/XmlContent.h>
 
-#include "net/HttpMessage.h"
-
 #define SIP_DEFAULT_RTT 500
 // The time in milliseconds that we allow poll() to wait.
 // This must be short, as the run() loop must wake up periodically to check
@@ -328,17 +326,9 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
                                message, address,
                                portToSendTo );
 
-
-      if (!message.hasProperty("disable-outbound-queue"))
-      {
-        OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
-        sendOk = status == OS_SUCCESS;
-      }
-      else
-      {
-        sendOk = handleMessage(sendMsg);
-      }
-      
+      // Post the message to the task's queue.
+      OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
+      sendOk = status == OS_SUCCESS;
       if (!sendOk)
       {
          Os::Logger::instance().log(FAC_SIP, PRI_ERR,

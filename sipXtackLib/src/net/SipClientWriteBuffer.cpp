@@ -76,104 +76,39 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
            &&  (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND
              || msgSubType == SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE))
    {
-      
-      bool disableOutboundQueue = false;
+      // Queued SIP message to send - normal path.
       if (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)
       {
-        SipMessage* pMsg = 0;
-        SipClientSendMsg* sendMsg =
-             dynamic_cast <SipClientSendMsg*> (&eventMessage);
-        pMsg = const_cast<SipMessage*>(sendMsg->getMessage());
-        disableOutboundQueue = pMsg->hasProperty("disable-outbound-queue");
-      }
-     
-      if (!disableOutboundQueue)
-      {
-        // Queued SIP message to send - normal path.
-        if (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)
-        {
-            // Insert the SIP message into the queue, detaching it from
-            // the incoming eventMessage.
-            SipClientSendMsg* sendMsg =
-               dynamic_cast <SipClientSendMsg*> (&eventMessage);
-            if (sendMsg)
-            {
-               insertMessage(sendMsg->detachMessage());
-               messageProcessed = TRUE;
-            }
-            else
-            {
-               Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-                             "SipClientWriteBuffer[%s]::handleMessage "
-                             "message is not a SipClientSendMsg",
-                             mName.data());
-            }
-        }
-        else // send Keep Alive
-        {
-            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                          "SipClientWriteBuffer[%s]::handleMessage send TCP keep-alive CR-LF response",
-                          mName.data());
-            UtlString* pKeepAlive;
-            pKeepAlive = new UtlString("\r\n");
-            insertMessage(pKeepAlive);
-            messageProcessed = TRUE;
-        }
-
-        // Write what we can.
-        writeMore();
-      }
-      else
-      {
-        //
-        // Outbound queue is disabled.  Send the packet directly.
-        //
-        ssize_t msgLength = 0;
-        UtlString msgText;
-        if (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND)
-        {
+          // Insert the SIP message into the queue, detaching it from
+          // the incoming eventMessage.
           SipClientSendMsg* sendMsg =
              dynamic_cast <SipClientSendMsg*> (&eventMessage);
-          SipMessage* message = const_cast<SipMessage*>(sendMsg->getMessage());
-          message->getBytes(&msgText, &msgLength, true);
-          if (msgLength)
+          if (sendMsg)
           {
-            UtlString remoteHostAddress;
-            int remotePort;
-            mClientSocket->getRemoteHostIp(&remoteHostAddress, &remotePort);
-      
-            system_tap_sip_tx(
-                 mLocalHostAddress.data(), portIsValid(mLocalHostPort) ? mLocalHostPort : defaultPort(),
-                 remoteHostAddress.data(), remotePort == PORT_NONE ? defaultPort() : remotePort,
-                 msgText.data(), msgLength);
-
-            mpSipUserAgent->executeAllBufferedSipOutputProcessors(*message, remoteHostAddress.data(),
-                   remotePort == PORT_NONE ? defaultPort() : remotePort);
+             insertMessage(sendMsg->detachMessage());
+             messageProcessed = TRUE;
           }
-        }
-        else
-        {
-          msgText = UtlString("\r\n");
-          msgLength = 2;
-        }
-        
-        if (msgLength && mClientSocket->isOk())
-        {
-          mutex_lock lock(_nonBuffredWriteMutex);
-          if (mClientSocket->write(msgText.data(), msgLength) > 0)
+          else
           {
-            touch();
-            messageProcessed = TRUE;
+             Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+                           "SipClientWriteBuffer[%s]::handleMessage "
+                           "message is not a SipClientSendMsg",
+                           mName.data());
           }
-        }
-        else if (!mClientSocket->isOk())
-        {
-          errno = 1000;
-          // Because TCP is a connection protocol, we know that we cannot
-          // send successfully any more and so should shut down this client.
-          clientStopSelf();
-        }
       }
+      else // send Keep Alive
+      {
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                        "SipClientWriteBuffer[%s]::handleMessage send TCP keep-alive CR-LF response",
+                        mName.data());
+          UtlString* pKeepAlive;
+          pKeepAlive = new UtlString("\r\n");
+          insertMessage(pKeepAlive);
+          messageProcessed = TRUE;
+      }
+
+      // Write what we can.
+      writeMore();
 
       // sendMsg will be deleted by ::run(), as usual.
       // Its destructor will free any storage owned by it.

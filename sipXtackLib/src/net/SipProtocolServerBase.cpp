@@ -23,9 +23,6 @@
 #include <os/OsDateTime.h>
 #include <os/OsEvent.h>
 #include <os/OsLock.h>
-#include <boost/lexical_cast.hpp>
-
-#include "net/HttpMessage.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -34,9 +31,6 @@
 //#define TEST_CLIENT_CREATION
 
 // STATIC VARIABLE INITIALIZATIONS
-static const int MAX_CONCURRENT_THREADS = 10;
-static const bool ENFORCE_MAX_CONCURRENT_THREADS = true;
-static const bool ENABLE_THREAD_POOL = false;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -50,8 +44,8 @@ SipProtocolServerBase::SipProtocolServerBase(SipUserAgent* userAgent,
    mProtocolString(protocolString),
    mDefaultPort(SIP_PORT),
    mSipUserAgent(userAgent),
-  mIsSecureTransport(false),
-  _threadPoolSem(MAX_CONCURRENT_THREADS)
+   mClientLock(OsBSem::Q_FIFO, OsBSem::FULL),
+  mIsSecureTransport(false)
 {
 }
 
@@ -63,7 +57,7 @@ SipProtocolServerBase::~SipProtocolServerBase()
 
    /* We do not seize mClientLock because the caller of a destructor has
     * to ensure single-threaded access anyway. */
-   _clientList.clear();
+   mClientList.destroyAll();
 
    // mServerSocketMap entries are removed rather than destroyed because
    // the keys are owned by mServerPortMap and the values are OsSocket's
@@ -97,84 +91,38 @@ UtlBoolean SipProtocolServerBase::handleMessage(OsMsg& eventMessage)
    return (messageProcessed);
 }
 
-void SipProtocolServerBase::handleSend(SipMessage* pMsg)
-{
-  std::string hostAddress;
-  std::string hostPortString;
-  int hostPort = SIP_PORT;
-  
-  pMsg->getProperty("send-address", hostAddress);
-  if (pMsg->getProperty("send-port", hostPortString))
-  {
-    try
-    {
-      hostPort = boost::lexical_cast<int>(hostPortString);
-    }
-    catch(...)
-    {
-      hostPort = SIP_PORT;
-    }
-  }
-  
-  UtlString localIp(pMsg->getInterfaceIp());
-
-  if (localIp.isNull())
-  {
-      localIp = mDefaultIp;
-  }
-
-  SipClient::Ptr client = getClientForDestination(hostAddress.c_str(), hostPort, localIp);
-  if (client)
-  {
-     if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
-     {
-        UtlString clientNames;
-        client->getClientNames(clientNames);
-        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                      "SipProtocolServerBase[%s]::send %s (%p), %s",
-                      getName().data(), client->getName().data(), client.get(), clientNames.data());
-     }
-
-     pMsg->setProperty("disable-outbound-queue", "true");
-     client->sendTo(*pMsg, hostAddress.c_str(), hostPort);
-  }
-
-  delete pMsg;
-  
-  if (ENABLE_THREAD_POOL && ENFORCE_MAX_CONCURRENT_THREADS)
-    _threadPoolSem.set();
-}
-
 UtlBoolean SipProtocolServerBase::send(SipMessage* message,
                                        const char* hostAddress,
                                        int hostPort)
 {
-  //
-  // clone the message.  we do not own the message pointer
-  //
-  if (!hostPort)
-    hostPort = SIP_PORT;
-  
-  SipMessage* pMsg = new SipMessage(*message);
-  std::string hostPortString = boost::lexical_cast<std::string>(hostPort);
-  
+    UtlBoolean sendOk = FALSE;
 
-  pMsg->setProperty("send-address", hostAddress);
-  pMsg->setProperty("send-port", hostPortString);
+    UtlString localIp(message->getInterfaceIp());
 
+    if (localIp.isNull())
+    {
+        localIp = mDefaultIp;
+    }
 
-  if (ENABLE_THREAD_POOL && ENFORCE_MAX_CONCURRENT_THREADS)
-    _threadPoolSem.wait();
-  
-  if (ENABLE_THREAD_POOL)
-  {
-    return _threadPool.schedule(boost::bind(&SipProtocolServerBase::handleSend, this, _1), pMsg);
-  }
-  else
-  {
-    handleSend(pMsg);
-    return TRUE;
-  }
+    // Take the client list lock, because we have to make sure that
+    // the client isn't deleted before its sendTo() returns.
+    OsLock lock(mClientLock);
+
+    SipClient* client = getClientForDestination(hostAddress, hostPort, localIp);
+    if (client)
+    {
+       if (Os::Logger::instance().willLog(FAC_SIP, PRI_DEBUG))
+       {
+          UtlString clientNames;
+          client->getClientNames(clientNames);
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                        "SipProtocolServerBase[%s]::send %s (%p), %s",
+                        getName().data(), client->getName().data(), client, clientNames.data());
+       }
+       sendOk = client->sendTo(*message, hostAddress, hostPort);
+    }
+
+    return (sendOk);
 }
 
 UtlBoolean SipProtocolServerBase::startListener()
@@ -228,6 +176,116 @@ UtlBoolean SipProtocolServerBase::startListener()
     return(TRUE);
 }
 
+SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddress,
+                                                          int hostPort,
+                                                          const char* localIp)
+{
+   UtlString remoteHostAddr;
+   SipClient* client;
+   UtlBoolean clientStarted = FALSE;
+
+   client = findExistingClientForDestination(hostAddress, hostPort, localIp);
+   if (!client)
+   {
+#ifdef TEST_CLIENT_CREATION
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipProtocolServerBase[%s]::getClientForDestination('%s', %d, '%s')",
+                    getName().data(), hostAddress, hostPort, localIp);
+#endif
+
+      if(!portIsValid(hostPort))
+      {
+         hostPort = mDefaultPort;
+#ifdef TEST_CLIENT_CREATION
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::getClientForDestination port defaulting to %d",
+                       getName().data(), hostPort);
+#endif
+      }
+
+      OsTime time;
+      OsDateTime::getCurTimeSinceBoot(time);
+      long beforeSecs = time.seconds();
+
+      bool isClientSocketReused;
+      OsSocket* clientSocket =
+         buildClientSocket(hostPort, hostAddress, localIp, isClientSocketReused);
+
+      if (clientSocket && clientSocket->isOk())
+      {
+         OsDateTime::getCurTimeSinceBoot(time);
+         long afterSecs = time.seconds();
+         if(afterSecs - beforeSecs > 1)
+         {
+            Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "SIP %s socket create for '%s':%d local '%s' took %d seconds",
+                          mProtocolString.data(), hostAddress, hostPort, localIp,
+                          (int)(afterSecs - beforeSecs));
+         }
+
+#ifdef TEST
+         osPrintf("Socket OK, creating client\n");
+#endif
+         client =
+            strcmp(mProtocolString, SIP_TRANSPORT_UDP) == 0 ?
+            static_cast <SipClient*> (new SipClientUdp(clientSocket, this, mSipUserAgent, isClientSocketReused)):
+            strcmp(mProtocolString, SIP_TRANSPORT_TCP) == 0 ?
+            static_cast <SipClient*> (new SipClientTcp(clientSocket, this, mSipUserAgent, isClientSocketReused)):
+            strcmp(mProtocolString, SIP_TRANSPORT_TLS) == 0 ?
+            static_cast <SipClient*> (new SipClientTls(clientSocket, this, mSipUserAgent, isClientSocketReused)):
+            NULL;
+#ifdef TEST_CLIENT_CREATION
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::getClientForDestination created client %s",
+                       getName().data(), client->getName().data());
+#endif
+
+         // Check to see we could create the SipClient, specifically, that
+         // creating the pipe succeeded.
+         if (client->isOk())
+         {
+            // Start the client's thread.
+            clientStarted = client->start();
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                          "SipProtocolServerBase[%s]::getClientForDestination client: %s(%p) '%s':%d local '%s'",
+                          getName().data(), client->getName().data(),
+                          client, hostAddress, hostPort, localIp);
+            if (!clientStarted)
+            {
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                             "SipProtocolServerBase[%s]::getClientForDestination start() failed",
+                             getName().data());
+               delete client;
+               client = NULL;
+            }
+         }
+         else
+         {
+               Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                             "SipProtocolServerBase[%s]::getClientForDestination creating %s client failed",
+                             getName().data(), mProtocolString.data());
+               delete client;
+               client = NULL;
+         }
+      }
+      else
+      {
+         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+                       "Unable to create %s socket for '%s':%d local '%s'",
+                       mProtocolString.data(), hostAddress, hostPort, localIp);
+         // 'client' is already NULL.
+      }
+
+      // If we created and started a client, add it to the list of
+      // clients for this server.
+      if (client)
+      {
+         mClientList.append(client);
+      }
+   }
+
+   return client;
+}
+
 int SipProtocolServerBase::isOk()
 {
     UtlBoolean bRet = true;
@@ -250,216 +308,229 @@ int SipProtocolServerBase::isOk()
     return bRet && (count > 0);
 }
 
+SipClient* SipProtocolServerBase::findExistingClientForDestination(const char* hostAddress,
+                                                                   int hostPort,
+                                                                   const char* localIp)
+{
+   UtlString hostAddressString(hostAddress ? hostAddress : "");
+   SipClient* client = NULL;
+
+   #ifdef TEST_CLIENT_CREATION
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipProtocolServerBase[%s]::findExistingClientForDestination('%s', %d, '%s')",
+                    getName().data(), hostAddress, hostPort, localIp);
+   #endif
+
+   UtlSListIterator iter(mClientList);
+   while ((client = dynamic_cast <SipClient*> (iter())))
+   {
+      #ifdef TEST_CLIENT_CREATION
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::findExistingClientForDestination examining '%s'",
+                       getName().data(), client->getName().data());
+      #endif
+      // Are these the same host?
+      if( client->isAcceptableForDestination(hostAddressString, hostPort, localIp) )
+      {
+         break;
+      }
+   }
+
+   #ifdef TEST_CLIENT_CREATION
+      if (client)
+      {
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::findExistingClientForDestination('%s', %d, '%s') found %s",
+                       getName().data(), hostAddress, hostPort, localIp,
+                       client->getName().data());
+      }
+      else
+      {
+         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                       "SipProtocolServerBase[%s]::findExistingClientForDestination('%s', %d, '%s') not found",
+                       getName().data(), hostAddress, hostPort, localIp);
+      }
+   #endif
+
+   return (client);
+}
+
 void SipProtocolServerBase::deleteClient(SipClient* sipClient)
 {
-  mutex_lock lock(_clientMutex);
-  for (SipClientList::iterator iter = _clientList.begin(); iter != _clientList.end(); iter++)
-  {
-    SipClient::Ptr pClient = *iter;
-    if (pClient.get() == sipClient)
-    {
-      _clientList.erase(iter);
-    }
-  }
+   #ifdef TEST_PRINT
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipProtocolServerBase[%s]::deleteClient(%p)",
+                    getName().data(), sipClient);
+   #endif
+
+   // Remove sipClient from mClientList (if it is on the list).
+   UtlContainable* ret = mClientList.removeReference(sipClient);
+
+   if (ret != NULL)
+   {
+ #ifdef TEST_PRINT
+      UtlString clientNames;
+      client->getClientNames(clientNames);
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                    "SipProtocolServerBase[%s]::deleteClient Removing %s client %s %p names: %s",
+                    getName().data(),
+                    sipClient->mProtocolString.data(),
+                    sipClient->getName().data(), sipClient,
+                    clientNames.data());
+ #endif
+      delete sipClient;
+   }
+
+ #ifdef TEST_PRINT
+   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                 "SipProtocolServerBase[%s]::deleteClient(%p) done",
+                 getName().data(), sipClient);
+ #endif
 }
 
 void SipProtocolServerBase::removeOldClients(long oldTime)
 {
-  mutex_lock lock(_clientMutex);
-  for (SipClientList::iterator iter = _clientList.begin(); iter != _clientList.end();)
-  {
-    SipClient::Ptr pClient = *iter;
-    
-    if (!pClient->isOk() // socket is bad or task has stopped
-             || pClient->getLastTouchedTime() < oldTime // idle for long enough
-       )
-    {
-      UtlString clientNames;
-      pClient->getClientNames(clientNames);
+   // Find the old clients in the list and shut them down
+   int numClients;
+   int numDelete = 0;
+   SipClient** deleteClientArray = NULL;
+
+   {
+      OsLock lock(mClientLock);
+
+      numClients = mClientList.entries();
+
+      UtlSListIterator iter(mClientList);
+      SipClient* client;
+
+      while ((client = dynamic_cast <SipClient*> (iter())))
+      {
+         // Remove any client with a bad socket
+         // With TCP clients, let them stay around if they are still
+         // good as the may stay open for the session
+         // The clients opened from this side for sending requests
+         // get closed by the server (i.e. other side).  The clients
+         // opened as servers for requests from the remote side are
+         // explicitly closed on this side when the final response is
+         // sent.
+         if (   !client->isOk() // socket is bad or task has stopped
+             || client->getLastTouchedTime() < oldTime // idle for long enough
+            )
+         {
+            UtlString clientNames;
+            client->getClientNames(clientNames);
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                          "SipProtocolServerBase[%s]::removeOldClients Removing old client %s(%p): %s",
+                          getName().data(), client->getName().data(),
+                          client, clientNames.data());
+
+            mClientList.removeReference(client);
+            // Record the client in the array so it can be deleted
+            // after we release the lock.
+            if (!deleteClientArray)
+            {
+               deleteClientArray = new SipClient*[numClients];
+            }
+            deleteClientArray[numDelete] = client;
+            numDelete++;
+         }
+         else
+         {
+            #ifdef TEST_PRINT
+            UtlString names;
+            client->getClientNames(names);
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                          "SipProtocolServerBase[%s]::removeOldClients leaving client %s(%p): %s",
+                          getName().data(), client->getName().data(),
+                          client, clientNames.data());
+            #endif
+         }
+      }
+   }
+
+   if (numDelete > 0) // get rid of lots of 'doing nothing when nothing to do' messages in the log
+   {
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipProtocolServerBase[%s]::removeOldClients Removing old client %s(%p): %s",
-                    getName().data(), pClient->getName().data(),
-                    pClient.get(), clientNames.data());
-      
-      _clientList.erase(iter++);
-    }
-    else
-    {
-      ++iter;
-    }
-  }
+                    "SipProtocolServerBase[%s]::removeOldClients deleting %d of %d SipClients",
+                    getName().data(), numDelete, numClients);
+   }
+
+   // If there are any clients that have been removed from the list, delete them
+   // now that we have released the lock.
+   if (deleteClientArray)
+   {
+      for (int clientIndex = 0; clientIndex < numDelete; clientIndex++)
+      {
+         delete deleteClientArray[clientIndex];
+      }
+      delete[] deleteClientArray;
+   }
 }
 
 void SipProtocolServerBase::startClients()
 {
-  mutex_lock lock(_clientMutex);
-  for (SipClientList::iterator iter = _clientList.begin(); iter != _clientList.end(); iter++)
-  {
-    (*iter)->start();
-  }
+   UtlSListIterator iter(mClientList);
+   SipClient* client;
+   while ((client = dynamic_cast <SipClient*> (iter())))
+   {
+      client->start();
+   }
 }
 
 void SipProtocolServerBase::shutdownClients()
 {
-  mutex_lock lock(_clientMutex);
-  // For each client, request shutdown.
-  for (SipClientList::iterator iter = _clientList.begin(); iter != _clientList.end(); iter++)
-  {
-    (*iter)->requestShutdown();
-  }
+   // For each client, request shutdown.
+   UtlSListIterator iter(mClientList);
+   SipClient* client;
+   while ((client = dynamic_cast <SipClient*> (iter())))
+   {
+      client->requestShutdown();
+   }
 }
 
 /* ============================ ACCESSORS ================================= */
 int SipProtocolServerBase::getClientCount()
 {
-  mutex_lock lock(_clientMutex);
-  return _clientList.size();
+   return (mClientList.entries());
 }
 
-void SipProtocolServerBase::addClient(const SipClient::Ptr& pClient)
+void SipProtocolServerBase::addClient(SipClient* client)
 {
-  mutex_lock lock(_clientMutex);
-  if (pClient)
-  {
-    _clientList.push_back(pClient);
-  }
+   if (client)
+   {
+      mClientList.append(client);
+   }
+}
+
+UtlBoolean SipProtocolServerBase::clientExists(SipClient* client)
+{
+   return mClientList.contains(client);
 }
 
 void SipProtocolServerBase::printStatus()
 {
-   mutex_lock lock(_clientMutex);
-   int numClients = _clientList.size();
+   int numClients = mClientList.entries();
 
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipProtocolServerBase[%s]::printStatus %d clients in list at time %ld",
                  getName().data(), numClients, OsDateTime::getSecsSinceEpoch());
 
-
-   for (SipClientList::iterator iter = _clientList.begin(); iter != _clientList.end(); iter++)
+   UtlSListIterator iter(mClientList);
+   SipClient* client;
+   while ((client = dynamic_cast <SipClient*> (iter())))
    {
-      SipClient::Ptr pClient = *iter;
-      long clientTouchedTime = pClient->getLastTouchedTime();
-      bool clientOk = pClient->isOk();
+      long clientTouchedTime = client->getLastTouchedTime();
+      bool clientOk = client->isOk();
       UtlString clientNames;
-      pClient->getClientNames(clientNames);
+      client->getClientNames(clientNames);
 
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipProtocolServerBase[%s]::printStatus client %s %p last used: %ld, ok: %d, names: %s",
                     getName().data(),
-                    pClient->getName().data(), pClient.get(),
+                    client->getName().data(), client,
                     clientTouchedTime, clientOk, clientNames.data());
    }
 }
-
-SipClient::Ptr SipProtocolServerBase::findExistingClientForDestination(const UtlString& hostAddress, int hostPort, const UtlString& localIp)
-{
-  mutex_lock lock(_clientMutex);
-  SipClient::Ptr pClient;
-  for (SipClientList::iterator iter = _clientList.begin(); iter != _clientList.end(); iter++)
-  {
-    pClient = *iter;
-    if (pClient->isAcceptableForDestination(hostAddress, hostPort, localIp))
-      break;
-  }   
-  return pClient;
-}
-
-SipClient::Ptr SipProtocolServerBase::getClientForDestination(const UtlString& hostAddress, int hostPort, const UtlString& localIp)
-{
-
-  UtlString remoteHostAddr;
-  SipClient::Ptr pClient;
-  UtlBoolean clientStarted = FALSE;
-
-  pClient = findExistingClientForDestination(hostAddress, hostPort, localIp);
-  
-  if (!pClient)
-  {
-    if(!portIsValid(hostPort))
-    {
-       hostPort = mDefaultPort;
-    }
-    
-    OsTime time;
-    OsDateTime::getCurTimeSinceBoot(time);
-    long beforeSecs = time.seconds();
-
-    bool isClientSocketReused;
-    OsSocket* clientSocket = buildClientSocket(hostPort, hostAddress, localIp, isClientSocketReused);
-    
-    if (clientSocket && clientSocket->isOk())
-    {
-      OsDateTime::getCurTimeSinceBoot(time);
-      long afterSecs = time.seconds();
-      if(afterSecs - beforeSecs > 1)
-      {
-         Os::Logger::instance().log(FAC_SIP, PRI_WARNING, "SIP %s socket create for '%s':%d local '%s' took %d seconds",
-                       mProtocolString.data(), hostAddress.data(), hostPort, localIp.data(),
-                       (int)(afterSecs - beforeSecs));
-      }
-
-      pClient =
-         strcmp(mProtocolString, SIP_TRANSPORT_UDP) == 0 ?
-         SipClient::Ptr(new SipClientUdp(clientSocket, this, mSipUserAgent, isClientSocketReused)) :
-         strcmp(mProtocolString, SIP_TRANSPORT_TCP) == 0 ?
-         SipClient::Ptr(new SipClientTcp(clientSocket, this, mSipUserAgent, isClientSocketReused)):
-         strcmp(mProtocolString, SIP_TRANSPORT_TLS) == 0 ?
-         SipClient::Ptr(new SipClientTls(clientSocket, this, mSipUserAgent, isClientSocketReused)):
-         SipClient::Ptr();
-       
-       // Check to see we could create the SipClient, specifically, that
-      // creating the pipe succeeded.
-      if (pClient && pClient->isOk())
-      {
-         // Start the client's thread.
-         clientStarted = pClient->start();
-         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                       "SipProtocolServerBase[%s]::getClientForDestination client: %s(%p) '%s':%d local '%s'",
-                       getName().data(), pClient->getName().data(),
-                       pClient.get(), hostAddress.data(), hostPort, localIp.data());
-         if (!clientStarted)
-         {
-            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                          "SipProtocolServerBase[%s]::getClientForDestination start() failed",
-                          getName().data());
-            return SipClient::Ptr();
-         }
-      }
-      else
-      {
-        //
-        // If we havent created the client, socket will leak
-        //
-        if (!pClient && clientSocket)
-        {
-          delete clientSocket;
-          clientSocket = 0;
-        }
-        
-        Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                      "SipProtocolServerBase[%s]::getClientForDestination creating %s client failed",
-                      getName().data(), mProtocolString.data());
-        
-        return SipClient::Ptr();
-      }
-    }
-    else
-    {
-      Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                    "Unable to create %s socket for '%s':%d local '%s'",
-                    mProtocolString.data(), hostAddress.data(), hostPort, localIp.data());
-      return SipClient::Ptr();
-    }
-    
-    if (pClient)
-    {
-      addClient(pClient);
-    }
-  }
-  
-  return pClient;
-}
-
 
 /* ============================ INQUIRY =================================== */
 

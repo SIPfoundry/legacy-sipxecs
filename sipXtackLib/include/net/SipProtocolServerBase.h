@@ -23,10 +23,6 @@
 #include <os/OsLockingList.h>
 #include <os/OsRWMutex.h>
 #include <utl/UtlHashMap.h>
-#include <Poco/Semaphore.h>
-#include <os/OsThreadPool.h>
-#include <list>
-#include <boost/thread.hpp>
 
 // DEFINES
 // MACROS
@@ -45,10 +41,6 @@ class SipProtocolServerBase : public OsServerTask
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-  typedef boost::mutex mutex;
-  typedef boost::lock_guard<mutex> mutex_lock;
-  typedef std::list<SipClient::Ptr> SipClientList;
-  
    enum EventSubTypes
    {
       SIP_SERVER_GC = 1
@@ -95,24 +87,32 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
+   // Caller must hold mClientLock.
    int getClientCount();
 
+   // Caller must hold mClientLock.
    virtual void printStatus();
 
    /** Find the SipClient for this address, and create one if it does not
     *  exist.
     */
+   // Caller must hold mClientLock.
    // Returns NULL if it is unable to create a client.
-   
-   SipClient::Ptr getClientForDestination(const UtlString& hostAddress, int hostPort, const UtlString& localIp);
+   SipClient* getClientForDestination(const char* hostAddress,
+                                      int hostPort,
+                                      const char* localIp);
 
+   // Caller must hold mClientLock.
    void startClients();
 
+   // Caller must hold mClientLock.
    void shutdownClients();
 
+   // Caller must hold mClientLock.
    UtlBoolean clientExists(SipClient* client);
 
-   void addClient(const SipClient::Ptr& pClient);
+   // Caller must hold mClientLock.
+   void addClient(SipClient* client);
 
    /// Create a socket suitable for use by a SipClient.
    //  Must be non-blocking.
@@ -144,18 +144,20 @@ protected:
    // SipClient's.
    UtlHashMap mServers;
 
- 
-   SipClient::Ptr findExistingClientForDestination(const UtlString& hostAddress, int hostPort, const UtlString& localIp);
+   // Caller must hold mClientLock.
+   SipClient* findExistingClientForDestination(const char* hostAddress,
+                                               int hostPort,
+                                               const char* localIp);
 
+   // Caller must hold mClientLock.
    void deleteClient(SipClient* client);
-   
-   void handleSend(SipMessage* pMsg);
 
+   // Lock to protect mClientList and the external state of the SipClient's on it.
+   OsBSem mClientLock;
+   // List of client (sending) SipClient's.
+   UtlSList mClientList;
 
    bool mIsSecureTransport;
-   
-   SipClientList _clientList;
-   mutex _clientMutex;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -165,9 +167,6 @@ private:
 
    SipProtocolServerBase& operator=(const SipProtocolServerBase& rhs);
    //:disable Assignment operator
-public:
-  OsThreadPool<SipMessage*> _threadPool;
-  Poco::Semaphore _threadPoolSem;
 };
 
 /* ============================ INLINE METHODS ============================ */
