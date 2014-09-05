@@ -266,6 +266,7 @@ class SipRouter : public OsServerTask
    Poco::Semaphore* _pThreadPoolSem;
    int _maxConcurrentThreads;
    mutex_critic_sec _outboundMutex;
+   UtlBoolean _rejectOnFilledQueue;
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -30,6 +30,8 @@
 
 #include <utl/XmlContent.h>
 
+#include <boost/lexical_cast.hpp>
+
 #define SIP_DEFAULT_RTT 500
 // The time in milliseconds that we allow poll() to wait.
 // This must be short, as the run() loop must wake up periodically to check
@@ -956,6 +958,8 @@ bool SipClient::preprocessMessage(SipMessage& msg,
                                   int msgLength)
 {
   
+  msg.setProperty("transport-queue-size", boost::lexical_cast<std::string>(this->getMessageQueue()->numMsgs()));
+  msg.setProperty("transport-queue-max-size", boost::lexical_cast<std::string>(this->getMessageQueue()->maxMsgs()));
 
    // Canonicalize short field names.
    msg.replaceShortFieldNames();

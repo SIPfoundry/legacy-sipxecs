@@ -158,6 +158,7 @@ HttpMessage::HttpMessage(const HttpMessage& rHttpMessage) :
 #endif
     mSendAddress = rHttpMessage.mSendAddress;
     mSendPort = rHttpMessage.mSendPort;
+    _properties = rHttpMessage._properties;
 }
 
 // Destructor
@@ -246,6 +247,8 @@ HttpMessage::operator=(const HttpMessage& rHttpMessage)
 #endif
        mSendAddress = rHttpMessage.mSendAddress;
        mSendPort = rHttpMessage.mSendPort;
+       
+       _properties = rHttpMessage._properties;
    }
 
    return *this;

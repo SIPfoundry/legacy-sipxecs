@@ -35,6 +35,8 @@
 #include "net/HttpRequestContext.h"
 #include "net/NameValuePairInsensitive.h"
 
+#include <boost/lexical_cast.hpp>
+
 // DEFINES
 //#define TEST_PRINT 1
 
@@ -76,6 +78,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mpEntityDb(0)
    ,_pThreadPoolSem(0)
    ,_maxConcurrentThreads(MAX_CONCURRENT_THREADS)
+   ,_rejectOnFilledQueue(FALSE)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -312,6 +315,8 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    if (_maxConcurrentThreads < 5)
      _maxConcurrentThreads = MAX_CONCURRENT_THREADS;
    _pThreadPoolSem = new Poco::Semaphore(_maxConcurrentThreads);
+   
+   _rejectOnFilledQueue = configDb.getBoolean("SIPX_PROXY_REJECT_ON_FILLED_QUEUE", FALSE);
 }
 
 // Destructor
@@ -374,7 +379,36 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                }
                else
                {
-                  //
+                 std::string maxQueueSize;
+                 std::string queueSize;
+                 sipRequest->getProperty("transport-queue-size", queueSize);
+                 sipRequest->getProperty("transport-queue-max-size", maxQueueSize);
+                 
+                 if (_rejectOnFilledQueue && !queueSize.empty() && !maxQueueSize.empty())
+                 {
+                   int max = 0;
+                   int count = 0;
+                   try
+                   {
+                     max = boost::lexical_cast<int>(maxQueueSize);
+                     count = boost::lexical_cast<int>(queueSize);
+                   }
+                   catch(...)
+                   {
+                   }
+                   
+                   if (max && count)
+                   {
+                     if (count > (max - (max/4)))
+                     {
+                       SipMessage finalResponse;
+                       finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
+                       mpSipUserAgent->send(finalResponse);
+                       return TRUE; // Simply return true to indicate we have handled the request
+                     }
+                   }
+                 }
+                 
                   // Schedule the processing using the threadPool
                   //
                   if (ENFORCE_MAX_CONCURRENT_THREADS)
@@ -387,7 +421,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                     finalResponse.setResponseData(pMsg, SIP_5XX_CLASS_CODE, "No Thread Available");
                     mpSipUserAgent->send(finalResponse);
 
-                    OS_LOG_ERROR(FAC_SIP, "SipRegistrarServer::handleMessage failed to create pooled thread!  Threadpool size="
+                    OS_LOG_ERROR(FAC_SIP, "SipRouter::handleMessage failed to create pooled thread!  Threadpool size="
                       << _threadPool.threadPool().available());
 
                     delete pMsg;
