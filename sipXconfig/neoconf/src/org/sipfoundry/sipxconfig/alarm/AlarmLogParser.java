@@ -89,10 +89,27 @@ public class AlarmLogParser {
     AlarmEvent parseEvent(Date when, String line) {
         Map<String, String> fields = parseFields("SIPXECS-ALARM-NOTIFICATION-MIB", line);
         if (fields.isEmpty()) {
+            fields = parseFields("DISMAN-EVENT-MIB", line);
+        }
+        if (fields.isEmpty()) {
             return null;
         }
-        AlarmDefinition def = new AlarmDefinition(fields.get("sipxecsAlarmId"));
+        String alarmId = fields.get("sipxecsAlarmId");
+        AlarmDefinition def = new AlarmDefinition(alarmId);
         String msg = fields.get("sipxecsAlarmDescr");
+        if (StringUtils.isBlank(alarmId)) {
+            alarmId = fields.get("mteHotTrigger.0");
+            if (StringUtils.equals(alarmId, AlarmServerManager.DISK_USAGE_THRESHOLD_EXCEEDED.getId())
+                    || StringUtils.equals(alarmId, AlarmServerManager.DISK_USAGE_THRESHOLD_RECOVERED.getId())
+                    || StringUtils.equals(alarmId, AlarmServerManager.CPU_THRESHOLD_EXCEEDED.getId())
+                    || StringUtils.equals(alarmId, AlarmServerManager.CPU_THRESHOLD_RECOVERED.getId())) {
+                def = new AlarmDefinition(alarmId);
+                msg = fields.get("mteHotValue.0");
+            } else {
+                return null;
+            }
+        }
+
         AlarmEvent e = new AlarmEvent(when, def, msg);
         return e;
     }
@@ -127,7 +144,7 @@ public class AlarmLogParser {
     String decodeValue(String encoded) {
         String[] split = StringUtils.split(encoded, ":", 2);
         if (split.length == 2) {
-            if (split[0].equals("= STRING")) {
+            if (split[0].equals("= STRING") || split[0].equals("= INTEGER")) {
                 String v = split[1].trim();
                 if (StringUtils.isNotBlank(v)) {
                     if (v.charAt(0) == '"' && v.charAt(v.length() - 1) == '"') {

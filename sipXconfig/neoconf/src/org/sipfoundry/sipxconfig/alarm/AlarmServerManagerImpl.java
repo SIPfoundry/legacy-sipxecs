@@ -60,6 +60,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private Set<ActiveMonitorAlarmProvider> m_activeAlarmProviders;
     private JdbcTemplate m_jdbcTemplate;
 
+    @Override
     public Map<String, AlarmDefinition> getAlarmDefinitions() {
         Map<String, AlarmDefinition> defs = new HashMap<String, AlarmDefinition>();
         for (AlarmProvider p : getAlarmProviders()) {
@@ -83,8 +84,9 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_sipxUser = sipxUser;
     }
 
+    @Override
     public AlarmGroup loadAlarmGroup(Serializable id) {
-        return (AlarmGroup) getHibernateTemplate().load(AlarmGroup.class, id);
+        return getHibernateTemplate().load(AlarmGroup.class, id);
     }
 
     private void clearAlarmStorage(String groupName, List<Alarm> alarms) {
@@ -104,10 +106,11 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return false;
     }
 
+    @Override
     public boolean removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms) {
         boolean affectDefaultGroup = false;
         for (Integer id : groupsIds) {
-            AlarmGroup group = (AlarmGroup) getHibernateTemplate().load(AlarmGroup.class, id);
+            AlarmGroup group = getHibernateTemplate().load(AlarmGroup.class, id);
             // Don't delete the default group.
             if (!isDefaultGroup(group)) {
                 // Remove matching group numbers from alarm before removing the alarm group.
@@ -126,6 +129,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_logDirectory = logDirectory;
     }
 
+    @Override
     public String getLogDirectory() {
         return m_logDirectory;
     }
@@ -136,17 +140,17 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     /**
-     * Creates the alarm server if it does not exist.
-     * Checks if the 'default' alarm group has email contact(s).
-     * Used ony on FirstRunTask.
+     * Creates the alarm server if it does not exist. Checks if the 'default' alarm group has
+     * email contact(s). Used ony on FirstRunTask.
      */
     public void deployAlarms() {
         getAlarmServer();
-        //we don't need to replicate since it will be done anyway in initLocations()
-        //a strange race condition will trigger some NPEs
+        // we don't need to replicate since it will be done anyway in initLocations()
+        // a strange race condition will trigger some NPEs
         updateDefaultAlarmGroup();
     }
 
+    @Override
     public AlarmServer getAlarmServer() {
         List servers = getHibernateTemplate().loadAll(AlarmServer.class);
         AlarmServer server = (AlarmServer) DataAccessUtils.singleResult(servers);
@@ -204,20 +208,24 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_jdbcTemplate.batchUpdate(sql, save);
     }
 
+    @Override
     public String getHost() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
+    @Override
     public List<AlarmGroup> getAlarmGroups() {
         List<AlarmGroup> groups = getHibernateTemplate().loadAll(AlarmGroup.class);
 
         return groups;
     }
 
+    @Override
     public AlarmGroup getAlarmGroupById(Integer alarmGroupId) {
-        return (AlarmGroup) getHibernateTemplate().load(AlarmGroup.class, alarmGroupId);
+        return getHibernateTemplate().load(AlarmGroup.class, alarmGroupId);
     }
 
+    @Override
     public AlarmGroup getAlarmGroupByName(String alarmGroupName) {
         List<AlarmGroup> alarmGroups = getAlarmGroups();
         for (AlarmGroup alarmGroup : alarmGroups) {
@@ -229,6 +237,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return null;
     }
 
+    @Override
     public List<Alarm> getAlarms() {
         final List<Alarm> alarms = new ArrayList<Alarm>();
         final Map<String, AlarmDefinition> defs = new HashMap<String, AlarmDefinition>(getAlarmDefinitions());
@@ -332,7 +341,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         List<AlarmGroup> groups = getAlarmGroups();
         for (AlarmGroup group : groups) {
             Set<User> users = group.getUsers();
-            if (users.remove((User) entity)) {
+            if (users.remove(entity)) {
                 getHibernateTemplate().saveOrUpdate(group);
             }
         }
@@ -349,8 +358,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     Set<AlarmProvider> getAlarmProviders() {
         if (m_providers == null) {
-            Map<String, AlarmProvider> beanMap = m_beanFactory.getBeansOfType(
-                    AlarmProvider.class, false, false);
+            Map<String, AlarmProvider> beanMap = m_beanFactory.getBeansOfType(AlarmProvider.class, false, false);
             m_providers = new HashSet<AlarmProvider>(beanMap.values());
         }
 
@@ -367,6 +375,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return m_activeAlarmProviders;
     }
 
+    @Override
     public Collection<String> getActiveMonitorConfiguration(SnmpManager snmpManager, Collection<Alarm> alarms,
             Location location) {
         List<String> config = new ArrayList<String>();
@@ -405,6 +414,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         getHibernateTemplate().saveOrUpdateAll(receivers);
     }
 
+    @Override
     public FeatureManager getFeatureManager() {
         return m_featureManager;
     }
@@ -423,6 +433,13 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     @Override
+    /*
+     * Add built-in net-snmp alarms. These alarms are defined in MIBs that get installed by the
+     * net-snmp package. For example DISK_USAGE_* and CPU_THRESHOLD_* alarms are defined in
+     * /usr/share/mibs/ietf/HOST-RESOURCES-MIB. This configuration goes to snmpd.conf. Also, when
+     * defining new built-in alarms, please make sure they are correctly parsed by the
+     * sipXconfig's AlarmLogParser.java. This ensures they are added to the alarms history page.
+     */
     public String getActiveMonitorSnmpConfiguration(SnmpManager snmpManager, AlarmServerManager alarmManager,
             Alarm alarm, Location location) {
         if (!alarm.isEnabled()) {

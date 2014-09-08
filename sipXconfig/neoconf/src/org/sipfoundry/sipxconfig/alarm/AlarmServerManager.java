@@ -19,8 +19,17 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public interface AlarmServerManager {
+    /**
+     * From HOST_RESOURCES_MIB: The average, over the last minute, of the percentage of time that
+     * this processor was not idle. Implementations may approximate this one minute smoothing
+     * period if necessary.
+     */
     public static final AlarmDefinition CPU_THRESHOLD_EXCEEDED = new AlarmDefinition("CPU_THRESHOLD_EXCEEDED", 90);
     public static final AlarmDefinition CPU_THRESHOLD_RECOVERED = new AlarmDefinition("CPU_THRESHOLD_RECOVERED", 40);
+    /**
+     * From HOST_RESOURCES_MIB: The total size for this long-term storage device. If the media is
+     * removable and is currently removed, this value should be zero.
+     */
     public static final AlarmDefinition DISK_USAGE_THRESHOLD_EXCEEDED = new AlarmDefinition(
             "DISK_USAGE_THRESHOLD_EXCEEDED", 95);
     public static final AlarmDefinition DISK_USAGE_THRESHOLD_RECOVERED = new AlarmDefinition(
@@ -67,6 +76,7 @@ public interface AlarmServerManager {
 
     /**
      * key is alarm definition id
+     *
      * @return
      */
     Map<String, AlarmDefinition> getAlarmDefinitions();
