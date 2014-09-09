@@ -334,6 +334,11 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
                    "SIPX_PROXY_REJECT_ON_FILLED_QUEUE_PERCENT value adjusted to default %d",
                    _rejectOnFilledQueuePercent);
    }
+   
+   if (_rejectOnFilledQueue)
+   {
+     OS_LOG_NOTICE(FAC_SIP, "Transaction rejection is in effect when queue is at " <<  _rejectOnFilledQueuePercent << "% capacity.");
+   }
 }
 
 // Destructor
@@ -396,13 +401,15 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                }
                else
                {
+                 std::string maxQueueSize;
+                 std::string queueSize;
+                 sipRequest->getProperty("transport-queue-size", queueSize);
+                 sipRequest->getProperty("transport-queue-max-size", maxQueueSize);
+                   
+                 OS_LOG_INFO(FAC_SIP, "SipRouter::handleMessage - transport queue size for new transaction is " << queueSize << "/" <<  maxQueueSize);
+                 
                  if (_rejectOnFilledQueue)
-                 {
-                   std::string maxQueueSize;
-                   std::string queueSize;
-                   sipRequest->getProperty("transport-queue-size", queueSize);
-                   sipRequest->getProperty("transport-queue-max-size", maxQueueSize);
-
+                 {  
                    if (!queueSize.empty() && !maxQueueSize.empty())
                    {
                      int max = 0;
@@ -422,11 +429,29 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                      {
                        if (count > ((max * _rejectOnFilledQueuePercent) / 100))
                        {
-                         SipMessage finalResponse;
-                         finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
-                         mpSipUserAgent->send(finalResponse);
-
-                         return TRUE; // Simply return true to indicate we have handled the request
+                         Url fromUrl;
+                         Url toUrl;
+                         UtlString fromTag;
+                         UtlString toTag;
+                         
+                         sipRequest->getFromUrl(fromUrl);
+                         fromUrl.getFieldParameter("tag", fromTag);
+                         
+                         sipRequest->getToUrl(toUrl);
+                         toUrl.getFieldParameter("tag", toTag);
+                         bool midDialog = !fromTag.isNull() && !toTag.isNull();
+                         
+                         if (!midDialog)
+                         {
+                            OS_LOG_INFO(FAC_SIP, "SipRouter::handleMessage - rejecting incoming transaction.  Queue size is too big: " 
+                                << queueSize << "/" <<  maxQueueSize 
+                                << " which exceeds " << _rejectOnFilledQueuePercent << "%");
+                              
+                            SipMessage finalResponse;
+                            finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
+                            mpSipUserAgent->send(finalResponse);
+                            return TRUE; // Simply return true to indicate we have handled the request
+                         }
                        }
                      }
                    }
