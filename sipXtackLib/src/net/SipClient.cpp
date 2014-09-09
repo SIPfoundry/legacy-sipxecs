@@ -958,8 +958,8 @@ bool SipClient::preprocessMessage(SipMessage& msg,
                                   int msgLength)
 {
   
-  msg.setProperty("transport-queue-size", boost::lexical_cast<std::string>(this->getMessageQueue()->numMsgs()));
-  msg.setProperty("transport-queue-max-size", boost::lexical_cast<std::string>(this->getMessageQueue()->maxMsgs()));
+  msg.setProperty("transport-queue-size", boost::lexical_cast<std::string>(mIncomingQ.numMsgs()));
+  msg.setProperty("transport-queue-max-size", boost::lexical_cast<std::string>(mIncomingQ.maxMsgs()));
 
    // Canonicalize short field names.
    msg.replaceShortFieldNames();
