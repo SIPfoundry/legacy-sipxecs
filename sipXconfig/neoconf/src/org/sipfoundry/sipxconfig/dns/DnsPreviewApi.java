@@ -30,6 +30,7 @@ public class DnsPreviewApi extends Resource {
     private DnsViewApi m_dnsViewApi;
     private DnsPreview.Show m_showLevel;
 
+    @Override
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
         getVariants().add(new Variant(APPLICATION_JSON));
@@ -46,6 +47,9 @@ public class DnsPreviewApi extends Resource {
     @Override
     public void acceptRepresentation(Representation entity) throws ResourceException {
         DnsView view = m_dnsViewApi.readViewHandleErrors(entity);
+        if (view.getPlanId() == null) {
+            view.setPlanId(0);
+        }
         getResponse().setEntity(new StringRepresentation(m_dnsPreview.getZone(view, m_showLevel)));
     }
 
