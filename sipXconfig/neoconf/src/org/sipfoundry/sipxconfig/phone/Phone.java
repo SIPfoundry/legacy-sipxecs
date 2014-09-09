@@ -287,11 +287,18 @@ public abstract class Phone extends Device implements Replicable, SystemAuditabl
 
     /**
      * Find a phone user. By convention phone user is a user associated with the phone first line.
-     *
      */
     public User getPrimaryUser() {
         List<Line> lines = getLines();
         if (lines.isEmpty()) {
+            return null;
+        }
+        if (lines.get(0) == null) {
+            /*
+             * Note that it is possible although very improbable to have a non empty list of lines
+             * but line 0 to be null (a line on position 1). This is a misconfiguration, but we
+             * need to take care of this possibility.
+             */
             return null;
         }
         return lines.get(0).getUser();

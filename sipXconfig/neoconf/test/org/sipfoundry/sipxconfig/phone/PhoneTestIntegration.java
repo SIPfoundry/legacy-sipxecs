@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phone;
 
 import static org.junit.Assert.assertArrayEquals;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -80,13 +81,13 @@ public class PhoneTestIntegration extends MongoTestIntegration {
         assertEquals("999123456789", p.getSerialNumber());
 
         context.storePhone(p);
-        
+
         MongoTestCaseHelper.assertObjectWithFieldsValuesPresent(getImdb().getCollection("entity"), new String[] {
             "ent", "mac"
         }, new String[] {
             "phone", "999123456789"
         });
-        
+
         Integer id = p.getId();
         context.deletePhone(p);
         try {
@@ -98,7 +99,7 @@ public class PhoneTestIntegration extends MongoTestIntegration {
         flush();
         assertEquals(0, db().queryForInt("select count(*) from phone"));
         assertEquals(0, db().queryForInt("select count(*) from line"));
-        
+
         MongoTestCaseHelper.assertObjectWithFieldsValuesNotPresent(getImdb().getCollection("entity"), new String[] {
             "ent", "mac"
         }, new String[] {
@@ -260,6 +261,14 @@ public class PhoneTestIntegration extends MongoTestIntegration {
         sql("phone/PhoneVersionSeed.sql");
         Phone phone = context.loadPhone(1000);
         assertNull(phone.getPrimaryUser());
+    }
+
+    public void testGetPrimaryUserLineError() throws IOException {
+        sql("common/TestUserSeed.sql");
+        loadDataSet("phone/ErroneousLineSeed.xml");
+        Phone phone = context.loadPhone(1000);
+        User user = phone.getPrimaryUser();
+        assertNull(user);
     }
 
     public void testPopulatePhones() throws Exception {
