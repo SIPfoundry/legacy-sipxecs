@@ -8,5 +8,11 @@
     {
       "fqdn": "location2.example.com"
     }
+  ],
+  "wrtc-locations": [
+    {
+      "fqdn": "1.5.4.6",
+      "port": 5064
+    }
   ]
 }}

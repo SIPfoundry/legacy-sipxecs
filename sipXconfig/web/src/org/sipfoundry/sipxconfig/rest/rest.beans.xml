@@ -380,6 +380,7 @@
     <property name="ldapManager" ref="ldapManager"/>
     <property name="configManager" ref="configManager"/>
     <property name="addressManager" ref="addressManager"/>
+    <property name="gatewayContext" ref="gatewayContext" />
   </bean>
   <alias name="loginDetailsResourceWithPin" alias="/my/logindetailsunite" />
   <alias name="loginDetailsResourceWithPin" alias="/my/logindetailsunite/logout" />  

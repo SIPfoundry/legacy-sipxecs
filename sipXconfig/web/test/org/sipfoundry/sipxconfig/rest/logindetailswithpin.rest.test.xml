@@ -9,4 +9,10 @@
       <fqdn>location2.example.com</fqdn>
     </im-location>
   </im-locations>
+  <wrtc-locations>
+    <wrtc-location>
+      <fqdn>1.5.4.6</fqdn>
+      <port>5064</port>
+    </wrtc-location>
+  </wrtc-locations>
 </login-details>

@@ -46,12 +46,13 @@ import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.WebRtcGateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.sipxedgerpc.Sipxedgerpc;
 import org.springframework.beans.factory.annotation.Required;
 
-public class YardGateway extends Gateway {
+public class YardGateway extends Gateway implements WebRtcGateway {
     private static final Log LOG = LogFactory.getLog(YardGateway.class);
     private static final String WEBRTC_LOG_LEVEL = "webrtc/log-level";
     private static final String WEBRTC_WS_PORT = "webrtc/ws-port";
@@ -89,7 +90,7 @@ public class YardGateway extends Gateway {
         executePost("ip-address", getAddress());
         executePost("realm", m_domainManager.getDomain().getSipRealm());
         executePost("domain", m_domainManager.getDomain().getName());
-        executePost("ws-port", getSettings().getSetting(WEBRTC_WS_PORT).getValue());
+        executePost("ws-port", getWsPort());
         executePost("tcp-udp-port", getSettings().getSetting(WEBRTC_TCP_UDP_PORT).getValue());
         executePost("bridge-tcp-udp-port", getSettings().getSetting(WEBRTC_BRIDGE_TCP_UDP_PORT).getValue());
         executePost("proxy-address", m_domainManager.getDomain().getName());
@@ -278,5 +279,10 @@ public class YardGateway extends Gateway {
         public String getSwitchEslPort() {
             return m_bean != null ? m_bean.getWebRtc().getSwitchEslPort() : "N/A";
         }
+    }
+
+    @Override
+    public String getWsPort() {
+        return getSettings().getSetting(WEBRTC_WS_PORT).getValue();
     }
 }

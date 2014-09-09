@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.apache.ApacheManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.gateway.WebRtcGateway;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,6 +50,7 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
     private static final String LOGOUT = "/logout";
     private ConfigManager m_configManager;
     private AddressManager m_addressManager;
+    private GatewayContext m_gatewayContext;
 
     @Override
     public Representation represent(Variant variant) throws ResourceException {
@@ -69,9 +72,15 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
             imLocations.add(new LocationRepresentable(location.getFqdn()));
         }
         Collections.shuffle(imLocations);
+
+        List<? extends WebRtcGateway> webrtcGateways = m_gatewayContext.getGatewayByType(WebRtcGateway.class);
+        List<WebRtcRepresentable> wrtcList = new ArrayList<WebRtcRepresentable>();
+        for (WebRtcGateway wrtcGateway : webrtcGateways) {
+            wrtcList.add(new WebRtcRepresentable(wrtcGateway.getAddress(), Integer.parseInt(wrtcGateway.getWsPort())));
+        }
         RepresentableWithPin representableWithPin = new RepresentableWithPin(representable.getUserName(),
             representable.getImId(), representable.isLdapImAuth(), representable.getSipPassword(), password,
-            imLocations);
+            imLocations, wrtcList);
 
         return new LoginDetailsWithPin(details.getMediaType(), representableWithPin);
     }
@@ -113,12 +122,14 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         private static final long serialVersionUID = 1L;
         private final String m_pin;
         private final List<LocationRepresentable> m_imLocations = new ArrayList<LocationRepresentable>();
+        private final List<WebRtcRepresentable> m_webRtcLocations = new ArrayList<WebRtcRepresentable>();
 
         public RepresentableWithPin(String userName, String imId, boolean ldapAuth, String sipPassword, String pin,
-            List<LocationRepresentable> imLocations) {
+            List<LocationRepresentable> imLocations, List<WebRtcRepresentable> webRtcLocations) {
             super(userName, imId, ldapAuth, sipPassword);
             m_pin = pin;
             m_imLocations.addAll(imLocations);
+            m_webRtcLocations.addAll(webRtcLocations);
         }
 
         @SuppressWarnings("unused")
@@ -130,6 +141,11 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         public List<LocationRepresentable> getImLocations() {
             return m_imLocations;
         }
+
+        @SuppressWarnings("unused")
+        public List<WebRtcRepresentable> getWebRtcLocations() {
+            return m_webRtcLocations;
+        }
     }
 
     private static class LocationRepresentable implements Serializable {
@@ -138,6 +154,27 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
 
         public LocationRepresentable(String fqdn) {
             m_fqdn = fqdn;
+        }
+
+        @SuppressWarnings("unused")
+        public String getFqdn() {
+            return m_fqdn;
+        }
+    }
+
+    private static class WebRtcRepresentable implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String m_fqdn;
+        private int m_port;
+
+        public WebRtcRepresentable(String fqdn, int port) {
+            m_fqdn = fqdn;
+            m_port = port;
+        }
+
+        @SuppressWarnings("unused")
+        public int getPort() {
+            return m_port;
         }
 
         @SuppressWarnings("unused")
@@ -156,6 +193,11 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         m_addressManager = addressManager;
     }
 
+    @Required
+    public void setGatewayContext(GatewayContext gatewayContext) {
+        m_gatewayContext = gatewayContext;
+    }
+
     protected static class LoginDetailsWithPin extends LoginDetails {
         public LoginDetailsWithPin(MediaType mediaType, Representable object) {
             super(mediaType, object);
@@ -165,12 +207,15 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         protected void configureXStream(XStream xstream) {
             super.configureXStream(xstream);
             xstream.aliasField("im-locations", RepresentableWithPin.class, "imLocations");
+            xstream.aliasField("wrtc-locations", RepresentableWithPin.class, "webRtcLocations");
             xstream.alias("im-location", LocationRepresentable.class);
+            xstream.alias("wrtc-location", WebRtcRepresentable.class);
         }
 
         @Override
         protected void configureImplicitCollections(XStream xstream) {
             xstream.addImplicitCollection(RepresentableWithPin.class, "m_imLocations", LocationRepresentable.class);
+            xstream.addImplicitCollection(RepresentableWithPin.class, "m_webRtcLocations", WebRtcRepresentable.class);
         }
     }
 }

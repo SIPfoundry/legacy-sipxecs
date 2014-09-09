@@ -41,6 +41,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.gateway.WebRtcGateway;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -55,6 +57,7 @@ public class LoginDetailsResourceTest extends TestCase {
     private ConfigManager m_configManager;
     private LocationsManager m_locationsManager;
     private FeatureManager m_featureManager;
+    private GatewayContext m_gatewayContext;
 
     @Override
     protected void setUp() throws Exception {
@@ -86,6 +89,7 @@ public class LoginDetailsResourceTest extends TestCase {
         m_configManager = createMock(ConfigManager.class);
         m_locationsManager = createMock(LocationsManager.class);
         m_featureManager = createMock(FeatureManager.class);
+        m_gatewayContext = createMock(GatewayContext.class);
         Location location1 = new Location();
         location1.setFqdn("location1.example.com");
         Location location2 = new Location();
@@ -99,7 +103,21 @@ public class LoginDetailsResourceTest extends TestCase {
         m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE);
         expectLastCall().andReturn(locations).times(1);
 
-        replay(m_coreContext, m_ldapManager, m_locationsManager, m_configManager, m_featureManager);
+        List<WebRtcGateway> wrtcList = new ArrayList<WebRtcGateway>();
+
+        WebRtcGateway gateway = createMock(WebRtcGateway.class);
+        gateway.getAddress();
+        expectLastCall().andReturn("1.5.4.6").times(1);
+        gateway.getWsPort();
+        expectLastCall().andReturn("5064").times(1);
+
+        replay(gateway);
+
+        wrtcList.add(gateway);
+        m_gatewayContext.getGatewayByType(WebRtcGateway.class);
+        expectLastCall().andReturn(wrtcList).times(1);
+
+        replay(m_coreContext, m_ldapManager, m_locationsManager, m_configManager, m_featureManager, m_gatewayContext);
     }
 
     @Override
@@ -114,6 +132,7 @@ public class LoginDetailsResourceTest extends TestCase {
 
         LoginDetailsResourceWithPin resourceWithPin = new LoginDetailsResourceWithPin();
         resourceWithPin.setConfigManager(m_configManager);
+        resourceWithPin.setGatewayContext(m_gatewayContext);
         setContexts(resourceWithPin);
         assertEqualsXML(resourceWithPin, "logindetailswithpin.rest.test.xml");
     }
@@ -125,6 +144,7 @@ public class LoginDetailsResourceTest extends TestCase {
 
         LoginDetailsResourceWithPin resourceWithPin = new LoginDetailsResourceWithPin();
         resourceWithPin.setConfigManager(m_configManager);
+        resourceWithPin.setGatewayContext(m_gatewayContext);
         setContexts(resourceWithPin);
         assertEqualsJSON(resourceWithPin, "logindetailswithpin.rest.test.json");
     }
