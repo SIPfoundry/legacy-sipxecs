@@ -19,9 +19,12 @@ package org.sipfoundry.sipxconfig.site.admin.systemaudit;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +63,7 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
 
     private static final Log LOG = LogFactory.getLog(SystemAuditHistory.class);
     private static final String SESSION = "session";
+    private String[] m_sortedTypes;
 
     @Persist(value = SESSION)
     public abstract Date getStartDate();
@@ -74,14 +78,32 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
     public abstract void setType(String type);
 
     public IPropertySelectionModel getTypeModel() {
+        if (m_sortedTypes == null) {
+            m_sortedTypes = getSortedTypes();
+        }
         StringPropertySelectionModel typeModel = new StringPropertySelectionModel(
-                getSystemAuditLocalizationProvider().getConfigChangeTypeArray()) {
+                m_sortedTypes) {
             @Override
             public String getLabel(int index) {
                 return super.getOption(index).toString();
             }
         };
         return new LocalizedOptionModelDecorator(typeModel, getMessages(), null);
+    }
+
+    /**
+     * Returns a String array with Config Change Types sorted alphabetically
+     */
+    private String[] getSortedTypes() {
+        String[] values = getSystemAuditLocalizationProvider()
+                .getConfigChangeTypeArray();
+        Map<String, String> map = new TreeMap<String, String>();
+        for (String value : values) {
+            String localizedValue = getMessages().getMessage(value);
+            map.put(localizedValue, value);
+        }
+        Collection<String> sortedValues = map.values();
+        return sortedValues.toArray(new String[sortedValues.size()]);
     }
 
     @Persist(value = SESSION)
