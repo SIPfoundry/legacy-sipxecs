@@ -14,9 +14,8 @@
   <extension name="going-in">
     <condition>
       <action application="set" data="ignore_display_updates=true"/>
-      <action application="set" data="transfer_ringback=$${us-ring}"/>
-      <action application="bridge" data="sofia/ezuce.ro/${destination_number}@ezuce.ro"/>
-      <action application="answer"/>
+      <action application="set" data="ringback=${us-ring}"/>
+      <action application="bridge" data="{api_on_answer='uuid_simplify ${uuid}'}sofia/ezuce.ro/${destination_number}@ezuce.ro"/>
     </condition>
   </extension>
 </context>
