@@ -48,7 +48,11 @@ public class SettingsWithLocationDaoImpl<T extends SettingsWithLocation> extends
 
     @Override
     public void upsert(T bean) {
-        getHibernateTemplate().saveOrUpdate(bean);
+        if (bean.isNew()) {
+            getHibernateTemplate().save(bean);
+        } else {
+            getHibernateTemplate().merge(bean);
+        }
     }
 
     @Override

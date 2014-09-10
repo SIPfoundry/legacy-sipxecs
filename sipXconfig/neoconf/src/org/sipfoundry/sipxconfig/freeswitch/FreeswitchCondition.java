@@ -23,8 +23,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 
-public class FreeswitchCondition extends BeanWithId {
+public class FreeswitchCondition extends BeanWithId implements NamedObject {
 
     private String m_field;
     private String m_expression;
@@ -101,5 +102,14 @@ public class FreeswitchCondition extends BeanWithId {
 
     public void setRegex(boolean regex) {
         m_regex = regex;
+    }
+
+    @Override
+    public String getName() {
+        return getField();
+    }
+
+    @Override
+    public void setName(String name) {
     }
 }

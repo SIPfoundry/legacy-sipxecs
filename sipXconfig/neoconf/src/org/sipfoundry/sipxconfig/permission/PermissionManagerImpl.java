@@ -41,7 +41,11 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         if (isLabelInUse(permission)) {
             throw new DuplicatePermissionLabelException(permission.getLabel());
         }
-        getHibernateTemplate().saveOrUpdate(permission);
+        if (permission.isNew()) {
+            getHibernateTemplate().save(permission);
+        } else {
+            getHibernateTemplate().merge(permission);
+        }
         m_permissions = null;
         m_customPermissions = null;
     }

@@ -17,11 +17,12 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
+import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 /**
  * Permission Copy of permission setting names exist in user-setting.xml
  */
-public class Permission extends BeanWithId implements Comparable<Permission> {
+public class Permission extends BeanWithId implements Comparable<Permission>, SystemAuditable {
     public enum Type {
         APPLICATION(APPLICATION_NAME, APPLICATION_PATH), // application permissions
         CALL(CALLHANDLING_NAME, CALL_PERMISSION_PATH), // call permissions
@@ -184,5 +185,15 @@ public class Permission extends BeanWithId implements Comparable<Permission> {
             setTrueValue(ENABLE);
             setFalseValue(DISABLE);
         }
+    }
+
+    @Override
+    public String getEntityIdentifier() {
+        return getLabel();
+    }
+
+    @Override
+    public String getConfigChangeType() {
+        return getClass().getSimpleName();
     }
 }

@@ -99,8 +99,12 @@ public abstract class SystemAuditHistory extends BaseComponent implements PageBe
                 .getConfigChangeTypeArray();
         Map<String, String> map = new TreeMap<String, String>();
         for (String value : values) {
-            String localizedValue = getMessages().getMessage(value);
-            map.put(localizedValue, value);
+            if (value.equals(ConfigChangeType.ALL.getName())) {
+                map.put("A", value);
+            } else {
+                String localizedValue = getMessages().getMessage(value);
+                map.put(localizedValue, value);
+            }
         }
         Collection<String> sortedValues = map.values();
         return sortedValues.toArray(new String[sortedValues.size()]);
