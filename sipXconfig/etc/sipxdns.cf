@@ -24,6 +24,10 @@ bundle agent sipxdns {
       "managed_ext" string => ".unmanaged";
 
   methods:
+    !sipxdns_unmanaged::
+      "any" usebundle => sipxecs_network_config;
+      "any" usebundle => network_scripts;
+      
     sipxdns::
       "any" usebundle => sipxdns_config;
 
@@ -38,8 +42,14 @@ bundle agent sipxdns {
 
     !sipxdns_unmanaged.fedora16_or_greater::
       "any" usebundle => named_systemctl_running;
-    !sipxdns_unmanaged::
-      "any" usebundle => network_scripts;
+}
+
+bundle agent sipxecs_network_config {
+  files:
+    "/etc/sipxecs.cfg"
+      comment => "create sipxecs network configuration file if not found",
+      perms => mog("644","root","root"),
+      create => "true";
 }
 
 bundle agent network_scripts {
@@ -48,21 +58,25 @@ bundle agent network_scripts {
       "entry" string => readfile("/etc/sipxecs.cfg", "400");
       "default_entry" string => "/etc/sysconfig/network-scripts/ifcfg-eth0";
 
-  classes:
-    "config_network_interface_file_exists" expression => fileexists("/etc/sipxecs.cfg");
-    "network_interface_entry" and => {config_network_interface_file_exists, regcmp(".+","$(entry)")};    
-    "default_network_interface_file_exists" expression => fileexists("$(default_entry)");
-                                     
+  classes:   
+    "network_interface_entry" not => strcmp("","$(entry)");
+    "peerdns_added" and => {network_interface_entry, regline("PEERDNS=NO", "$(entry)")};
+    "nmcontrolled_added" and => {network_interface_entry, regline("NM_CONTROLLED=NO", "$(entry)")};
+            
+    "default_network_interface_file_exists" expression => fileexists("$(default_entry)");            
+    "default_peerdns_added" and => {default_network_interface_file_exists, regline("PEERDNS=NO", "$(default_entry)")};
+    "default_nmcontrolled_added" and => {default_network_interface_file_exists, regline("NM_CONTROLLED=NO", "$(default_entry)")};    
+    
   files:
-    network_interface_entry::
+    network_interface_entry.(!peerdns_added|!nm_controlled_added)::
       "$(entry)"
         comment => "add peerdns and nmcontrolled network settings in custom: $(entry)",
         create => "false",
         edit_line => edit_network_scripts;
       
-    !network_interface_entry.default_network_interface_file_exists::
+    !network_interface_entry.default_network_interface_file_exists.(!default_peerdns_added|!default_nmcontrolled_added)::
       "$(default_entry)"
-        comment => "add peerdns and nmcontrolled network settings in default: $(default_entry)",
+        comment => ": $(default_entry)",
         create => "false",
         edit_line => edit_network_scripts;  
 }
