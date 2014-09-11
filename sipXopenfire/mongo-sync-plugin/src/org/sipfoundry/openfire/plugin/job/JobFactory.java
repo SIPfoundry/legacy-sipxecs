@@ -184,11 +184,13 @@ public class JobFactory extends AbstractJobFactory {
                 if (imGroupProperty != null) {
                     // im group was enabled
                     groupName = lookupGroupName(id);
-                    UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
-                    if (group != null) {
-                        logger.debug("Add all users in group " + groupName);
-                        groupJob = new GroupUpdateJob(groupName, groupName, true, group.getDescription(), 
-                                group.isImbotEnabled(), imBotJid, getGroupMembers(groupName));
+                    if (groupName != null) {
+                        UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
+                        if (group != null) {
+                            logger.debug("Add all users in group " + groupName);
+                            groupJob = new GroupUpdateJob(groupName, groupName, true, group.getDescription(), 
+                                    group.isImbotEnabled(), imBotJid, getGroupMembers(groupName));
+                        }
                     }
                 }
             }
@@ -226,6 +228,9 @@ public class JobFactory extends AbstractJobFactory {
         DBObject query = new BasicDBObject("_id", uid);
         DBObject fields = new BasicDBObject("imid", 1);
         DBObject user = getCollection().findOne(query, fields);
+        if (user == null) {
+            return null;
+        }
         return (String) user.get("imid");
     }
 
@@ -233,6 +238,9 @@ public class JobFactory extends AbstractJobFactory {
         DBObject query = new BasicDBObject("_id", groupId);
         DBObject fields = new BasicDBObject("uid", 1);
         DBObject user = getCollection().findOne(query, fields);
+        if (user == null) {
+            return null;
+        }
         return (String) user.get("uid");
     }
 
