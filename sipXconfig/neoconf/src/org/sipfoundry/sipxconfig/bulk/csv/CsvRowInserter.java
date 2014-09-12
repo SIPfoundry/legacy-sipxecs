@@ -187,10 +187,12 @@ public class CsvRowInserter extends RowInserter<String[]> {
 
         Index.PIN.setProperty(user, row);
         String voicemailPin = Index.VOICEMAIL_PIN.get(row);
-        if (isHashed(voicemailPin)) {
-            user.setVoicemailPintoken(voicemailPin);
-        } else {
-            user.setVoicemailPintoken(Md5Encoder.digestEncryptPassword(userName, voicemailPin));
+        if (!StringUtils.isEmpty(voicemailPin)) {
+            if (isHashed(voicemailPin)) {
+                user.setVoicemailPintoken(voicemailPin);
+            } else {
+                user.setVoicemailPintoken(Md5Encoder.digestEncryptPassword(userName, voicemailPin));
+            }
         }
 
         Index.FIRST_NAME.setProperty(user, row);
