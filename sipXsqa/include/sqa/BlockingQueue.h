@@ -66,6 +66,21 @@ public:
     return true;
   }
   
+  bool dequeueAll(std::vector<T>& dataVec)
+  {
+    mutex_lock lock(_mutex);
+    if (_queue.empty() || _terminating)
+      return false;
+
+    while (!_queue.empty())
+    {
+      dataVec.push_back(_queue.front());
+      _queue.pop();
+    }
+
+    return true;
+  }
+
   bool enqueue(const T& data)
   {
     _mutex.lock();

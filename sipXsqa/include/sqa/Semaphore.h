@@ -64,6 +64,11 @@ public:
         --_count;
     }
 
+    void clear()
+    {
+        boost::unique_lock<boost::mutex> lock(_mutex);
+        _count = 0;
+    }
 };
 
 #endif	/* SEMAPHORE_H */
