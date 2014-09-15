@@ -126,15 +126,21 @@
       </type>
       <value>10</value>     
     </setting>
-    <setting name="SIPX_PROXY_REJECT_ON_FILLED_QUEUE" hidden="yes">
+    <setting name="SIPX_PROXY_REJECT_ON_FILLED_QUEUE" advanced="yes">
       <type refid="true-false"/>
-      <value>false</value>
+      <value>true</value>
     </setting>
-    <setting name="SIPX_PROXY_REJECT_ON_FILLED_QUEUE_PERCENT" hidden="yes">
+    <setting name="SIPX_PROXY_REJECT_ON_FILLED_QUEUE_PERCENT" advanced="yes">
       <type>
         <integer min="25" max="100"/>
       </type>
       <value>75</value>     
+    </setting>
+    <setting name="SIPX_PROXY_MAX_TRANSACTION_COUNT" advanced="yes">
+      <type>
+        <integer min="10000" max="100000"/>
+      </type>
+      <value>20000</value>     
     </setting>
     <!--  unsure what these next 2 settings do -->
     <setting name="SIPX_PROXY_LOG_CONSOLE" hidden="yes">
