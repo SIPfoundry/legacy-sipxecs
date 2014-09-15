@@ -106,7 +106,7 @@ public class FreeswitchCondition extends BeanWithId implements NamedObject {
 
     @Override
     public String getName() {
-        return getField();
+        return getExtension();
     }
 
     @Override
