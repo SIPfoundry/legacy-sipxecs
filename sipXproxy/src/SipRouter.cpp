@@ -54,10 +54,12 @@ static const char* P_PID_HEADER = "P-Preferred-Identity";
 static const int MAX_CONCURRENT_THREADS = 10;
 static const bool ENFORCE_MAX_CONCURRENT_THREADS = true;
 
-static const bool DEFAULT_REJECT_ON_FILLED_QUEUE = FALSE;
+static const UtlBoolean DEFAULT_REJECT_ON_FILLED_QUEUE = FALSE;
 static const int MIN_REJECT_ON_FILLED_QUEUE_PERCENT = 25;
 static const int DEFAULT_REJECT_ON_FILLED_QUEUE_PERCENT = 75;
 static const int MAX_REJECT_ON_FILLED_QUEUE_PERCENT = 100;
+static const int MAX_APP_QUEUE_SIZE = 1024;
+static const bool ALWAYS_REJECT_ON_FILLED_QUEUE = false;
 
 // STRUCTS
 // TYPEDEFS
@@ -72,7 +74,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                ForwardRules& forwardingRules,
                OsConfigDb&   configDb
                )
-   :OsServerTask("SipRouter-%d", NULL, 2000)
+   :OsServerTask("SipRouter-%d", NULL, MAX_APP_QUEUE_SIZE)
    ,mpSipUserAgent(&sipUserAgent)
    ,mAuthenticationEnabled(true)    
    ,mNonceExpiration(NONCE_EXPIRATION_PERIOD) // the period in seconds that nonces are valid
@@ -323,7 +325,11 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
      _maxConcurrentThreads = MAX_CONCURRENT_THREADS;
    _pThreadPoolSem = new Poco::Semaphore(_maxConcurrentThreads);
    
-   _rejectOnFilledQueue = configDb.getBoolean("SIPX_PROXY_REJECT_ON_FILLED_QUEUE", FALSE);
+   if (ALWAYS_REJECT_ON_FILLED_QUEUE)
+      _rejectOnFilledQueue = TRUE;
+   else
+      _rejectOnFilledQueue = configDb.getBoolean("SIPX_PROXY_REJECT_ON_FILLED_QUEUE", DEFAULT_REJECT_ON_FILLED_QUEUE);
+   
    configDb.get("SIPX_PROXY_REJECT_ON_FILLED_QUEUE_PERCENT", _rejectOnFilledQueuePercent);
    if (MIN_REJECT_ON_FILLED_QUEUE_PERCENT >_rejectOnFilledQueuePercent ||
        MAX_REJECT_ON_FILLED_QUEUE_PERCENT < _rejectOnFilledQueuePercent)
@@ -337,8 +343,12 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    
    if (_rejectOnFilledQueue)
    {
-     OS_LOG_NOTICE(FAC_SIP, "Transaction rejection is in effect when queue is at " <<  _rejectOnFilledQueuePercent << "% capacity.");
+     int maxTransactionCount = 0;
+     configDb.get("SIPX_PROXY_MAX_TRANSACTION_COUNT", maxTransactionCount);
+     mpSipUserAgent->setMaxTransactionCount(maxTransactionCount);
+     OS_LOG_NOTICE(FAC_SIP, "Transaction rejection is in effect when queue is at " <<  _rejectOnFilledQueuePercent << "% capacity and transaction maximum count is " << maxTransactionCount);
    }
+   
 }
 
 // Destructor
@@ -403,33 +413,20 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                {
                  std::string maxQueueSize;
                  std::string queueSize;
+                 std::string transactionCount;
                  sipRequest->getProperty("transport-queue-size", queueSize);
                  sipRequest->getProperty("transport-queue-max-size", maxQueueSize);
-                   
-                 OS_LOG_INFO(FAC_SIP, "SipRouter::handleMessage - transport queue size for new transaction is " << queueSize << "/" <<  maxQueueSize);
+                 sipRequest->getProperty("transaction-count", transactionCount);
                  
-                 if (_rejectOnFilledQueue)
-                 {  
-                   if (!queueSize.empty() && !maxQueueSize.empty())
-                   {
-                     int max = 0;
-                     int count = 0;
-                     try
-                     {
-                       max = boost::lexical_cast<int>(maxQueueSize);
-                       count = boost::lexical_cast<int>(queueSize);
-                     }
-                     catch(...)
-                     {
-                       Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "SipRouter::handleMessage"
-                           " failed extracting message's queue size properties");
-                     }
-
-                     if (max && count)
-                     {
-                       if (count > ((max * _rejectOnFilledQueuePercent) / 100))
-                       {
-                         Url fromUrl;
+                 int appQueueSize = getMessageQueue()->numMsgs();
+                 int appMaxQueueSize = getMessageQueue()->maxMsgs();
+                   
+                 OS_LOG_INFO(FAC_SIP, "SipRouter::handleMessage - queue sizes for new transaction are " 
+                   << "transport: " << queueSize << "/" <<  maxQueueSize
+                   << " application: " << appQueueSize << "/" << appMaxQueueSize);
+                 
+                 
+                 Url fromUrl;
                          Url toUrl;
                          UtlString fromTag;
                          UtlString toTag;
@@ -441,18 +438,39 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                          toUrl.getFieldParameter("tag", toTag);
                          bool midDialog = !fromTag.isNull() && !toTag.isNull();
                          
-                         if (!midDialog)
-                         {
-                            OS_LOG_INFO(FAC_SIP, "SipRouter::handleMessage - rejecting incoming transaction.  Queue size is too big: " 
-                                << queueSize << "/" <<  maxQueueSize 
-                                << " which exceeds " << _rejectOnFilledQueuePercent << "%");
-                              
-                            SipMessage finalResponse;
-                            finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
-                            mpSipUserAgent->send(finalResponse);
-                            return TRUE; // Simply return true to indicate we have handled the request
-                         }
-                       }
+                 if (_rejectOnFilledQueue)
+                 {  
+                   if (!queueSize.empty() && !maxQueueSize.empty())
+                   {
+                     int transportMaxQueueSize = 0;
+                     int count = 0;
+                     int transCount = 0;
+                     try
+                     {
+                       transportMaxQueueSize = boost::lexical_cast<int>(maxQueueSize);
+                       count = boost::lexical_cast<int>(queueSize);
+                     }
+                     catch(...)
+                     {
+                       Os::Logger::instance().log(FAC_AUTH, PRI_ERR, "SipRouter::handleMessage"
+                           " failed extracting message's queue size properties");
+                     }
+
+                     bool transportQueueSizeViolation = count > ((transportMaxQueueSize * _rejectOnFilledQueuePercent) / 100);
+                     bool applicationQueueSizeViolation = count > ((appMaxQueueSize * _rejectOnFilledQueuePercent) / 100);
+                     if (transportQueueSizeViolation ||  applicationQueueSizeViolation)
+                     {
+                        if (!midDialog)
+                        {
+                          SipMessage finalResponse;
+                          OS_LOG_WARNING(FAC_SIP, "SipRouter::handleMessage - rejecting incoming transaction.  Queue size is too big:" 
+                              << " application: " << appQueueSize << "/" << appMaxQueueSize
+                              << " transport: " << queueSize << "/" <<  maxQueueSize 
+                              << " which exceeds " << _rejectOnFilledQueuePercent << "%");
+                          finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
+                          mpSipUserAgent->send(finalResponse);
+                          return TRUE; // Simply return true to indicate we have handled the request
+                        }
                      }
                    }
                    else
@@ -468,8 +486,12 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                   if (ENFORCE_MAX_CONCURRENT_THREADS)
                     _pThreadPoolSem->wait();
                   SipMessage* pMsg = new SipMessage(*sipRequest);
-                                   
-                  if (!_threadPool.schedule(boost::bind(&SipRouter::handleRequest, this, _1), pMsg))
+                     
+                  if (midDialog)
+                  {
+                    handleRequest(pMsg);
+                  }
+                  else if (!_threadPool.schedule(boost::bind(&SipRouter::handleRequest, this, _1), pMsg))
                   {
                     SipMessage finalResponse;
                     finalResponse.setResponseData(pMsg, SIP_5XX_CLASS_CODE, "No Thread Available");
@@ -550,7 +572,7 @@ void SipRouter::handleRequest(SipMessage* pSipRequest)
      // clear timestamps, protocol, and port information
      // so send will recalculate it
   {
-     mutex_critic_sec_lock lock(_outboundMutex);
+     //mutex_critic_sec_lock lock(_outboundMutex);
      pSipRequest->resetTransport();
      mpSipUserAgent->send(*pSipRequest);
   }
@@ -558,7 +580,7 @@ void SipRouter::handleRequest(SipMessage* pSipRequest)
 
   case SendResponse:
   {
-     mutex_critic_sec_lock lock(_outboundMutex);
+     //mutex_critic_sec_lock lock(_outboundMutex);
      sipResponse.resetTransport();
      mpSipUserAgent->send(sipResponse);
   }

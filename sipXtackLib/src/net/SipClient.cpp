@@ -329,8 +329,17 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
                                portToSendTo );
 
       // Post the message to the task's queue.
-      OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
-      sendOk = status == OS_SUCCESS;
+      
+      if (mSocketType != OsSocket::UDP)
+      {
+        OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);
+        sendOk = status == OS_SUCCESS;
+      }
+      else
+      {
+        sendOk = handleMessage(sendMsg);
+      }
+      
       if (!sendOk)
       {
          Os::Logger::instance().log(FAC_SIP, PRI_ERR,

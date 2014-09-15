@@ -93,7 +93,8 @@ void SipTransactionList::addTransaction(SipTransaction* transaction,
 SipTransaction*
 SipTransactionList::findTransactionFor(const SipMessage& message,
                                        UtlBoolean isOutgoing,
-                                       enum SipTransaction::messageRelationship& relationship)
+                                       enum SipTransaction::messageRelationship& relationship,
+                                       bool garbageCollect)
 {
     SipTransaction* transactionFound = NULL;
     SipTransaction* transaction2xxFound = NULL;
@@ -104,6 +105,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     //
     // Call garbage collection before we further process existence of a transaction.
     //
+    if (garbageCollect)
     {
     boost::mutex::scoped_lock lock(_garbageCollectionMutex, boost::try_to_lock);
     if (lock)

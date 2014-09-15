@@ -51,6 +51,11 @@
 #include <os/OsLogger.h>
 #include <os/OsFS.h>
 #include <utl/UtlTokenizer.h>
+#include <boost/lexical_cast.hpp>
+#include <Poco/Semaphore.h>
+
+#include "net/HttpMessage.h"
+#include "net/SipMessage.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -64,6 +69,7 @@
 #define MAXIMUM_SIP_LOG_SIZE 100000
 #define SIP_UA_LOG "sipuseragent.log"
 #define CONFIG_LOG_DIR SIPX_LOGDIR
+#define BOOL_ENABLE_MESSAGE_LOGGING TRUE
 
 #ifndef  VENDOR
 # define VENDOR "sipXecs"
@@ -91,7 +97,8 @@
 //#define TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
 
 // STATIC VARIABLE INITIALIZATIONS
-
+const int MAX_EVENT_THREAD = 10;
+static Poco::Semaphore gEventSem(MAX_EVENT_THREAD);
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -137,6 +144,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbForceSymmetricSignaling(bForceSymmetricSignaling)
         , mbShuttingDown(FALSE)
         , mbShutdownDone(FALSE)
+        , _maxTransactionCount(0)
 {
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipUserAgent[%s]::_ sipTcpPort = %d, sipUdpPort = %d, "
@@ -221,6 +229,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     mForkingEnabled = TRUE;
     mRecurseOnlyOne300Contact = FALSE;
+    
+    mMessageLogEnabled = FALSE;
 
     mMaxSrvRecords = 4;
     mDnsSrvTimeout = 4; // seconds
@@ -1727,6 +1737,33 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
        delete message;
        return;
    }
+   
+   if (_maxTransactionCount && mSipTransactions.size() > _maxTransactionCount)
+    {
+      if (!message->isResponse())
+      {
+        Url fromUrl;
+        Url toUrl;
+        UtlString fromTag;
+        UtlString toTag;
+
+        message->getFromUrl(fromUrl);
+        fromUrl.getFieldParameter("tag", fromTag);
+
+        message->getToUrl(toUrl);
+        toUrl.getFieldParameter("tag", toTag);
+        bool midDialog = !fromTag.isNull() && !toTag.isNull();
+        if (!midDialog)
+        {
+          //
+          // Better to stay silent since we are already overwhelmed 
+          // OS_LOG_WARNING(FAC_SIP, "SipUserAgent::dispatch - Not processing incoming request because transactions limit is reached : " << mSipTransactions.size());
+          //
+          delete message;
+          return;
+        }
+      }
+    }
 
    ssize_t len;
    UtlString msgBytes;
@@ -2093,6 +2130,12 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             int maxForwards;
 
             message->getRequestMethod(&method);
+            
+            //
+            // Set the transaction count property
+            //
+            message->setProperty("transaction-count", boost::lexical_cast<std::string>(mSipTransactions.size()));
+            
             if(isUaTransaction)
             {
                getAllowedMethods(&allowedMethods);
@@ -2683,11 +2726,12 @@ UtlBoolean checkExtensions(SipMessage* message)
         return(TRUE);
 }
 
-
-UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
+void SipUserAgent::handleThreadedMessage(OsMsg* pMsg)
 {
-   UtlBoolean messageProcessed = FALSE;
-   //osPrintf("SipUserAgent: handling message\n");
+  OsMsg& eventMessage = *pMsg;
+  UtlBoolean messageProcessed = FALSE;
+  
+  //osPrintf("SipUserAgent: handling message\n");
    int msgType = eventMessage.getMsgType();
    int msgSubType = eventMessage.getMsgSubType();
    // Print message if input queue to SipUserAgent exceeds 100.
@@ -2768,7 +2812,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       {
          const SipMessage* sipMessage = sipEvent->getMessage();
          int msgEventType = sipEvent->getMessageStatus();
-
+         
          // Resend timeout
          if(msgEventType == SipMessageEvent::TRANSACTION_RESEND)
          {
@@ -2808,7 +2852,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
 #           endif
                SipTransaction* transaction = mSipTransactions.findTransactionFor(*sipMessage,
                                                                                  TRUE, // timers are only set for outgoing messages I think
-                                                                                 relationship);
+                                                                                 relationship,
+                                                                                  true /* Perform garbage collection */);
                if (transaction)
                {
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
@@ -3077,8 +3122,25 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       garbageCollection();
    }
 #endif
+   gEventSem.set();
+   
+   delete pMsg;
+}
 
-   return(messageProcessed);
+UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
+{
+  gEventSem.wait();
+  OsMsg* pMsg = eventMessage.createCopy();
+  if (!_threadPool.schedule(boost::bind(&SipUserAgent::handleThreadedMessage, this, _1), pMsg))
+  {
+    delete pMsg;
+    return FALSE;
+  }
+  
+  //
+  // pMsg is owned by the thread
+  //
+  return TRUE;
 }
 
 void SipUserAgent::garbageCollection()
@@ -3086,8 +3148,8 @@ void SipUserAgent::garbageCollection()
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
     long bootime = time.seconds();
-
-    long then = bootime - (mTransactionStateTimeoutMs / 1000);
+    long delay = 1/*(mTransactionStateTimeoutMs / 1000)*/;
+    long then = bootime - delay;
     long tcpThen = bootime - mMaxTcpSocketIdleTime;
     long oldTransaction = then - (mTransactionStateTimeoutMs / 1000);
     long oldInviteTransaction = then - mMinInviteTransactionTimeout;
@@ -3099,11 +3161,11 @@ void SipUserAgent::garbageCollection()
         tcpThen = -1;
     }
 
-    if(mLastCleanUpTime < then && getMessageQueue()->isEmpty())      // tx timeout could have happened
+    if(mLastCleanUpTime < then /*&& getMessageQueue()->isEmpty()*/)      // tx timeout could have happened
     {
        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipUserAgent[%s]::garbageCollection reaping terminated transactions.",
-                    getName().data());
+                    "SipUserAgent[%s]::garbageCollection reaping terminated transactions. Message Queue size %d",
+                    getName().data(), getMessageQueue()->numMsgs());
 
        #ifdef LOG_TIME
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
@@ -3974,7 +4036,7 @@ void SipUserAgent::whichExtensionsNotAllowed(const SipMessage* message,
 
 UtlBoolean SipUserAgent::isMessageLoggingEnabled()
 {
-    return(mMessageLogEnabled);
+    return(BOOL_ENABLE_MESSAGE_LOGGING);
 }
 
 UtlBoolean SipUserAgent::isForkingEnabled()

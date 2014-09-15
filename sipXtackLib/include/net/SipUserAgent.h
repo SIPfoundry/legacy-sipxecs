@@ -26,6 +26,9 @@
 #include <os/OsQueuedEvent.h>
 #include <net/SipOutputProcessor.h>
 #include <net/SipInputProcessor.h>
+#include "os/OsThreadPool.h"
+#include <Poco/Semaphore.h>
+#include <boost/thread.hpp>
 
 // DEFINES
 #define SIP_DEFAULT_RTT     100 // Default T1 value (RFC 3261), in msec.
@@ -296,6 +299,8 @@ public:
 
     //! For internal use only
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
+    
+    void handleThreadedMessage(OsMsg* pMsg);
 
     //! Deprecated (Add a SIP message recipient)
     virtual void addMessageConsumer(OsServerTask* messageConsumer);
@@ -698,6 +703,10 @@ public:
     void setStaticNATAddress(const UtlString& address);
 
     const UtlString& getStaticNATAddress() const;
+    
+    void setMaxTransactionCount(int maxTransactionCount);
+    
+    int getMaxTransactionCount() const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -865,6 +874,11 @@ private:
     //! flags used during shutdown
     UtlBoolean mbShuttingDown;
     UtlBoolean mbShutdownDone;
+    
+    OsThreadPool<OsMsg*> _threadPool;
+    Poco::Semaphore* _pThreadPoolSem;
+    int _maxConcurrentThreads;
+    int _maxTransactionCount;
 
     //! Disabled copy constructor
     SipUserAgent(const SipUserAgent& rSipUserAgent);
@@ -885,6 +899,16 @@ inline void SipUserAgent::setStaticNATAddress(const UtlString& address)
 inline const UtlString& SipUserAgent::getStaticNATAddress() const
 {
   return mStaticNATAddress;
+}
+
+inline void SipUserAgent::setMaxTransactionCount(int maxTransactionCount)
+{
+  _maxTransactionCount = maxTransactionCount;
+}
+    
+inline int SipUserAgent::getMaxTransactionCount() const
+{
+  return _maxTransactionCount;
 }
 
 
