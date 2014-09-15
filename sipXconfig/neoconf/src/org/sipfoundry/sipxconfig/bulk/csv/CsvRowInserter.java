@@ -243,6 +243,9 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.ANONYMOUS_CALLER_ALIAS.setProperty(user, row);
         Index.AUTH_ACCOUNT_NAME.setProperty(user, row);
         Index.EMAIL_ADDRESS_ALIASES.setProperty(user, row);
+        Index.CUSTOM_1.setProperty(user, row);
+        Index.CUSTOM_2.setProperty(user, row);
+        Index.CUSTOM_3.setProperty(user, row);
 
         return user;
     }

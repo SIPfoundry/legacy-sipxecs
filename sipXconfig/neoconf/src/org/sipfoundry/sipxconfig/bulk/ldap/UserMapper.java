@@ -97,6 +97,9 @@ public class UserMapper implements NameClassPairMapper {
         setProperty(user, attrs, Index.AUTH_ACCOUNT_NAME);
         setProperty(user, attrs, Index.EMAIL_ADDRESS_ALIASES);
         setProperty(user, attrs, Index.EMPLOYEE_ID);
+        setProperty(user, attrs, Index.CUSTOM_1);
+        setProperty(user, attrs, Index.CUSTOM_2);
+        setProperty(user, attrs, Index.CUSTOM_3);
     }
 
     public void setAliasesSet(Set<String> aliases, User user) {

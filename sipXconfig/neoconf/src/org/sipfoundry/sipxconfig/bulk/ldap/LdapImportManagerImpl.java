@@ -128,6 +128,9 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
                 Index.OFFICE_STATE.set(row, preview.getUser().getUserProfile().getOfficeAddress().getState());
                 Index.OFFICE_COUNTRY.set(row, preview.getUser().getUserProfile().getOfficeAddress().getCountry());
                 Index.OFFICE_ZIP.set(row, preview.getUser().getUserProfile().getOfficeAddress().getZip());
+                Index.CUSTOM_1.set(row, preview.getUser().getUserProfile().getCustom1());
+                Index.CUSTOM_2.set(row, preview.getUser().getUserProfile().getCustom2());
+                Index.CUSTOM_3.set(row, preview.getUser().getUserProfile().getCustom3());
                 writer.write(row);
             }
         } catch (IOException e) {

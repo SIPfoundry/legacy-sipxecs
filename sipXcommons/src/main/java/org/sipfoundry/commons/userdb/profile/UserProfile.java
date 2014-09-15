@@ -95,6 +95,13 @@ public class UserProfile {
     private Date m_lastImportedDate;
     private Date m_disabledDate;
 
+    @Indexed
+    private String m_custom1;
+    @Indexed
+    private String m_custom2;
+    @Indexed
+    private String m_custom3;
+
     public String getUserId() {
         return m_userid;
     }
@@ -461,5 +468,29 @@ public class UserProfile {
 
     public void setEmailAddressAliasesSet(Set<String> emailAddressAliasesSet) {
         m_emailAddressAliasesSet = emailAddressAliasesSet;
+    }
+
+    public String getCustom1() {
+        return m_custom1;
+    }
+
+    public void setCustom1(String custom1) {
+        m_custom1 = custom1;
+    }
+
+    public String getCustom2() {
+        return m_custom2;
+    }
+
+    public void setCustom2(String custom2) {
+        m_custom2 = custom2;
+    }
+
+    public String getCustom3() {
+        return m_custom3;
+    }
+
+    public void setCustom3(String custom3) {
+        m_custom3 = custom3;
     }
 }

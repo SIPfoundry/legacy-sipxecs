@@ -292,6 +292,34 @@
     	<input jwcid="officeZip@PropertySelection" id="user:officeZip", value="ognl:attrMap.attribute['userProfile.officeAddress.zip']"
     		model="ognl:attributesOptionalSelectionModel"
     		displayName="message:label.zip"/>
-    </tr>   
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="custom1"
+    	for="user:custom1"
+        field="component:custom1"
+        label="message:label.custom1"
+        description="message:description.custom1">
+    	<input jwcid="custom1@PropertySelection" id="user: custom1", value="ognl:attrMap.attribute['userProfile.custom1']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.custom1"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="custom2"
+    	for="user:custom2"
+        field="component:custom2"
+        label="message:label.custom2"
+        description="message:description.custom2">
+    	<input jwcid="custom2@PropertySelection" id="user: custom2", value="ognl:attrMap.attribute['userProfile.custom2']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.custom2"/>
+    </tr>     
+    <tr jwcid="@common/FieldPanel" id="custom3"
+    	for="user:custom3"
+        field="component:custom3"
+        label="message:label.custom3"
+        description="message:description.custom3">
+    	<input jwcid="custom3@PropertySelection" id="user: custom3", value="ognl:attrMap.attribute['userProfile.custom3']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.custom3"/>
+    </tr>     
+         
   </table>
 </div>

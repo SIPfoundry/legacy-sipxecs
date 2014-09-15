@@ -102,6 +102,30 @@
          value="ognl:user.userProfile.emailAddress"
          type="text" autocomplete="off"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="custom1"
+        field="component:custom1"
+        label="message:label.custom1"
+        description="message:desc.custom1">
+       <span jwcid="custom1@TextField" id="custom1" maxlength="255"
+         value="ognl:user.userProfile.custom1"
+         type="text" autocomplete="off"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="custom2"
+        field="component:custom2"
+        label="message:label.custom2"
+        description="message:desc.custom2">
+       <span jwcid="custom2@TextField" id="custom2" maxlength="255"
+         value="ognl:user.userProfile.custom2"
+         type="text" autocomplete="off"/>
+      </tr>      
+      <tr jwcid="@common/FieldPanel" for="custom3"
+        field="component:custom3"
+        label="message:label.custom3"
+        description="message:desc.custom3">
+       <span jwcid="custom3@TextField" id="custom3" maxlength="255"
+         value="ognl:user.userProfile.custom3"
+         type="text" autocomplete="off"/>
+      </tr>
       <tr jwcid="@common/FieldPanel" for="user:notified"
         field="component:notified"
         label="message:notified"
@@ -125,6 +149,6 @@
       <tr>
          <td><label><span key="label.disabledDate"/></label></td>
          <td><b><span jwcid="disabledDate@Insert" id="user:disabledDate" value="ognl:user.disabledDateStr"/></b></td>
-      </tr>        
+      </tr>              
     </table>
   </fieldset>
