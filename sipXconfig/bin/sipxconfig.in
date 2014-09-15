@@ -144,6 +144,7 @@ buildCommand() {
      -Djetty.log.dir=${LogDir} \
      -Dorg.apache.lucene.lockdir=${IndexDir} \
      -Dorg.apache.commons.loging.Log=org.apache.commons.logging.impl.Log4JLogger \
+     -Dorg.eclipse.jetty.server.Request.maxFormKeys=2000 \
      -Djava.awt.headless=true"
 }
 
