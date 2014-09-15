@@ -67,12 +67,12 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
             throw new ExtensionInUseException(parkOrbitTypeName, extension);
         }
 
-        getDaoEventPublisher().publishSave(parkOrbit);
         if (parkOrbit.isNew()) {
             getHibernateTemplate().save(parkOrbit);
         } else {
             getHibernateTemplate().merge(parkOrbit);
         }
+        getDaoEventPublisher().publishSave(parkOrbit);
     }
 
     public void removeParkOrbits(Collection ids) {
