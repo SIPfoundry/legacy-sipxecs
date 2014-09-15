@@ -19,5 +19,9 @@ shift
 
 # Still want to send trap
 if [ "$RESTART" == "1" ]; then
-$*
+  $*
+  EXIT_CODE=$?
+  if [ "$EXIT_CODE" != "0" ];then
+    @SIPX_BINDIR@/sipxtrap PROCESS_FAILED "$PROCESS failed to start; exit code: $EXIT_CODE"
+  fi
 fi
