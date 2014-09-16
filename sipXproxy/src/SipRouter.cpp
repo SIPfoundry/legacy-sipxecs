@@ -18,6 +18,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsLogger.h"
 #include "os/OsEventMsg.h"
+#include "os/OsTime.h"
 #include "utl/UtlRandom.h"
 #include "net/NameValueTokenizer.h"
 #include "net/SignedUrl.h"
@@ -60,6 +61,7 @@ static const int DEFAULT_REJECT_ON_FILLED_QUEUE_PERCENT = 75;
 static const int MAX_REJECT_ON_FILLED_QUEUE_PERCENT = 100;
 static const int MAX_APP_QUEUE_SIZE = 1024;
 static const bool ALWAYS_REJECT_ON_FILLED_QUEUE = false;
+static const int FILLED_QUEUE_ALARM_RATE = 300;
 
 // STRUCTS
 // TYPEDEFS
@@ -88,6 +90,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,_maxConcurrentThreads(MAX_CONCURRENT_THREADS)
    ,_rejectOnFilledQueue(DEFAULT_REJECT_ON_FILLED_QUEUE)
    ,_rejectOnFilledQueuePercent(DEFAULT_REJECT_ON_FILLED_QUEUE_PERCENT)
+   ,_lastFilledQueueAlarmLog(0)
+   ,_maxTransactionCount(0)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -343,10 +347,9 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    
    if (_rejectOnFilledQueue)
    {
-     int maxTransactionCount = 0;
-     configDb.get("SIPX_PROXY_MAX_TRANSACTION_COUNT", maxTransactionCount);
-     mpSipUserAgent->setMaxTransactionCount(maxTransactionCount);
-     OS_LOG_NOTICE(FAC_SIP, "Transaction rejection is in effect when queue is at " <<  _rejectOnFilledQueuePercent << "% capacity and transaction maximum count is " << maxTransactionCount);
+     configDb.get("SIPX_PROXY_MAX_TRANSACTION_COUNT", _maxTransactionCount);
+     mpSipUserAgent->setMaxTransactionCount(_maxTransactionCount);
+     OS_LOG_NOTICE(FAC_SIP, "Transaction rejection is in effect when queue is at " <<  _rejectOnFilledQueuePercent << "% capacity and transaction maximum count is " << _maxTransactionCount);
    }
    
 }
@@ -449,6 +452,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                      {
                        transportMaxQueueSize = boost::lexical_cast<int>(maxQueueSize);
                        count = boost::lexical_cast<int>(queueSize);
+                       transCount = boost::lexical_cast<int>(transactionCount);
                      }
                      catch(...)
                      {
@@ -458,6 +462,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
 
                      bool transportQueueSizeViolation = count > ((transportMaxQueueSize * _rejectOnFilledQueuePercent) / 100);
                      bool applicationQueueSizeViolation = count > ((appMaxQueueSize * _rejectOnFilledQueuePercent) / 100);
+                     bool transactionCountViolation = transCount > _maxTransactionCount;
                      if (transportQueueSizeViolation ||  applicationQueueSizeViolation)
                      {
                         if (!midDialog)
@@ -470,6 +475,24 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                           finalResponse.setResponseData(sipRequest, SIP_5XX_CLASS_CODE, "Queue Size Is Too High");
                           mpSipUserAgent->send(finalResponse);
                           return TRUE; // Simply return true to indicate we have handled the request
+                        }
+                     }
+                     
+                     if (transportQueueSizeViolation ||  applicationQueueSizeViolation || transactionCountViolation)
+                     {
+                        OsTime time;
+                        OsDateTime::getCurTimeSinceBoot(time);
+                        long now = time.seconds();
+                        
+                        if (!_lastFilledQueueAlarmLog || now >= _lastFilledQueueAlarmLog + FILLED_QUEUE_ALARM_RATE)
+                        {
+                          _lastFilledQueueAlarmLog = now;
+                          OS_LOG_WARNING(FAC_SIP, "ALARM_PROXY_FILLED_QUEUE Queue Size or Transanction Count is too big:" 
+                              << " application: " << appQueueSize << "/" << appMaxQueueSize
+                              << " transport: " << queueSize << "/" <<  maxQueueSize 
+                              << " which exceeds " << _rejectOnFilledQueuePercent << "%"
+                              << " trasanctionCount: " << transCount 
+                              << " which exceeds " << _maxTransactionCount);
                         }
                      }
                    }
