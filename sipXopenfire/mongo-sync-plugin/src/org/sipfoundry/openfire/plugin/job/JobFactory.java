@@ -1,3 +1,19 @@
+/**
+ *
+ *
+ * Copyright (c) 2014 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
+ *
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ */
 package org.sipfoundry.openfire.plugin.job;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.DESCR;
@@ -41,6 +57,7 @@ public class JobFactory extends AbstractJobFactory {
     private static Logger logger = Logger.getLogger(JobFactory.class);
     private static final String COLLECTION_NAME = "entity";
 
+    @Override
     public Job createJob(MongoOperation op, DBObject dbObj, Object id) {
         Job job = null;
 
@@ -48,7 +65,7 @@ public class JobFactory extends AbstractJobFactory {
             if (id instanceof String) {
                 job = createJob(op, dbObj, (String) id);
             } else if (id instanceof Long) {
-                job = createJob(op, dbObj, (Long) id);
+                job = createJob(op, dbObj, id);
             } else if (id instanceof ObjectId) {
                 // we assume all id's that are Mongo ObjectId
                 // are avatar operations
@@ -188,7 +205,7 @@ public class JobFactory extends AbstractJobFactory {
                         UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
                         if (group != null) {
                             logger.debug("Add all users in group " + groupName);
-                            groupJob = new GroupUpdateJob(groupName, groupName, true, group.getDescription(), 
+                            groupJob = new GroupUpdateJob(groupName, groupName, true, group.getDescription(),
                                     group.isImbotEnabled(), imBotJid, getGroupMembers(groupName));
                         }
                     }
