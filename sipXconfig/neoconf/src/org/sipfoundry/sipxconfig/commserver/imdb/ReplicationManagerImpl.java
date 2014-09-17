@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.commserver.imdb;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.ENTITY_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IDENTITY;
 import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
@@ -69,6 +70,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
+import com.mongodb.QueryBuilder;
 
 /**
  * This class manages all effective replications.The replication is triggered by
@@ -93,6 +95,9 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     private static final DataSet[] GROUP_DATASETS = {
         DataSet.ATTENDANT, DataSet.PERMISSION, DataSet.CALLER_ALIAS, DataSet.SPEED_DIAL, DataSet.USER_FORWARD,
         DataSet.USER_LOCATION, DataSet.USER_STATIC, DataSet.MAILSTORE, DataSet.E911
+    };
+    private static final DataSet[] PHONE_GROUP_DATASETS = {
+        DataSet.E911
     };
     private static final DataSet[] BRANCH_DATASETS = {
         DataSet.USER_LOCATION
@@ -521,21 +526,41 @@ public class ReplicationManagerImpl extends SipxHibernateDaoSupport implements R
     @Override
     public void deleteGroup(Group group) {
         LOG.info("Starting regeneration of group members.");
-        DBCursor users = m_validUsers.getUsersInGroup(group.getName());
-        try {
-            for (DBObject user : users) {
-                String uid = user.get(MongoConstants.UID).toString();
-                User u = m_coreContext.loadUserByUserName(uid);
-                replicateEntity(u, GROUP_DATASETS);
-                getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+        if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
+            DBCursor users = m_validUsers.getUsersInGroup(group.getName());
+            try {
+                for (DBObject user : users) {
+                    String uid = user.get(MongoConstants.UID).toString();
+                    User u = m_coreContext.loadUserByUserName(uid);
+                    replicateEntity(u, GROUP_DATASETS);
+                    getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+                }
+                LOG.info("End of regeneration of group members.");
+            } catch (Exception e) {
+                LOG.error(ERROR_PERMISSION, e);
+                throw new UserException(ERROR_PERMISSION, e);
+            } finally {
+                users.close();
             }
-            LOG.info("End of regeneration of group members.");
-        } catch (Exception e) {
-            LOG.error(ERROR_PERMISSION, e);
-            throw new UserException(ERROR_PERMISSION, e);
-        } finally {
-            users.close();
+
+        } else if (Phone.GROUP_RESOURCE_ID.equals(group.getResource())) {
+            DBObject query = QueryBuilder.start(ENTITY_NAME).is("phone").and(GROUPS).is(group.getName()).get();
+            DBCursor phones = getEntityCollection().find(query);
+            try {
+                for (DBObject phone : phones) {
+                    String serialNumber = phone.get(MongoConstants.SERIAL_NUMBER).toString();
+                    Phone p = m_phoneContext.getPhoneBySerialNumber(serialNumber);
+                    replicateEntity(p, PHONE_GROUP_DATASETS);
+                    getHibernateTemplate().clear(); // clear the H session (see XX-9741)
+                }
+            } catch (Exception e) {
+                LOG.error(e);
+                throw new UserException(e);
+            } finally {
+                phones.close();
+            }
         }
+
     }
 
     /*

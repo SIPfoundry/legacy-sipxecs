@@ -169,8 +169,8 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements DaoEv
      * @param group
      */
     private void deleteGroup(Group group) {
+        m_replicationManager.deleteGroup(group);
         if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
-            m_replicationManager.deleteGroup(group);
             activateGroup();
         }
     }

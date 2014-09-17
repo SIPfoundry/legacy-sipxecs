@@ -196,7 +196,7 @@ public class ValidUsers {
 
     /**
      * Find a list of users DBObjects based on a search query. The DBObject will have only
-     * the fields specified by projection. 
+     * the fields specified by projection.
      * @param query
      * @param projection
      * @return
@@ -206,7 +206,7 @@ public class ValidUsers {
         cursor.close();
         return cursor.toArray();
     }
-    
+
     public DBCursor getUsersWithSpeedDial() {
         DBCursor cursor = getEntityCollection().find(
                 QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER)
@@ -377,7 +377,7 @@ public class ValidUsers {
     }
 
     public DBCursor getUsersInGroup(String name) {
-        DBObject query = QueryBuilder.start(GROUPS).is(name).get();
+        DBObject query = QueryBuilder.start(ENTITY_NAME).is(ENTITY_NAME_USER).and(GROUPS).is(name).get();
         DBCursor cursor = getEntityCollection().find(query);
         return cursor;
     }

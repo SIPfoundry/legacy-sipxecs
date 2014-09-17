@@ -9,10 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.SERIAL_NUMBER;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -385,6 +387,7 @@ public abstract class Phone extends Device implements Replicable, SystemAuditabl
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(SERIAL_NUMBER, getSerialNumber());
         props.put(TIMESTAMP, System.currentTimeMillis());
+        props.put(GROUPS, Arrays.asList(getGroupsNames().split(" ")));
         return props;
     }
 
