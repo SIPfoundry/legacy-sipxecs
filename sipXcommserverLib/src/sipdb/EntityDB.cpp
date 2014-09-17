@@ -17,6 +17,7 @@
 #include <mongo/client/dbclient.h>
 #include "os/OsLogger.h"
 #include "sipdb/EntityDB.h"
+#include "sipdb/MongoDB.h"
 #include <boost/algorithm/string.hpp>
 #include <vector>
 
@@ -60,7 +61,9 @@ static std::string validate_identity_string(const std::string& identity)
 
 bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
 {
-    std::string identity = validate_identity_string(ident);
+  MongoDB::ReadTimer readTimer(const_cast<EntityDB&>(*this));
+  
+  std::string identity = validate_identity_string(ident);
 
 	mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
@@ -86,6 +89,8 @@ bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
 
 bool EntityDB::findByUserId(const string& uid, EntityRecord& entity) const
 {
+  MongoDB::ReadTimer readTimer(const_cast<EntityDB&>(*this));
+  
   std::string userId = validate_identity_string(uid);
 
 	mongo::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
@@ -129,6 +134,8 @@ bool EntityDB::findByIdentityOrAlias(const string& identity, const string& alias
 
 bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) const
 {
+  MongoDB::ReadTimer readTimer(const_cast<EntityDB&>(*this));
+  
 	mongo::BSONObj query = BSON( EntityRecord::aliases_fld() <<
 			BSON_ELEM_MATCH( BSON(EntityRecord::aliasesId_fld() << alias) ) );
 
@@ -237,6 +244,8 @@ bool EntityDB::findByIdentity(const Url& uri, EntityRecord& entity) const
 bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   // minKey is smaller than any other possible value
 
+  MongoDB::ReadTimer readTimer(const_cast<EntityDB&>(*this));
+  
   static bool hasLastTailId = false;
   MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
   if (!hasLastTailId)

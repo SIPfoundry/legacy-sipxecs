@@ -19,6 +19,9 @@
 
 #include <queue>
 #include <vector>
+#include <os/OsTime.h>
+#include <boost/circular_buffer.hpp>
+#include <boost/thread.hpp>
 
 // Avoids this error
 //   /usr/include/mongo/client/../pch.h:116:15: error: expected unqualified-id before string constant
@@ -160,10 +163,13 @@ private:
         bool _useReadTags; 
 };
 
+class UpdateTimer;
+class ReadTimer;
+
 class BaseDB
 {
 public:
-	BaseDB(const ConnectionInfo& info);
+	BaseDB(const ConnectionInfo& info, const std::string& ns);
 
 	virtual ~BaseDB()
 	{
@@ -202,12 +208,58 @@ public:
 
 	const bool useReadTags() const { return _info.useReadTags(); };
 
+  void registerTimer(const UpdateTimer* pTimer);
+  
+  void registerTimer(const ReadTimer* pTimer);
+  
+  int getUpdateAverageSpeed() const;
+  
+  int getLastUpdateSpeed() const;
+  
+  int getReadAverageSpeed() const;
+  
+  int getLastReadSpeed() const;
+  
 protected:
+  std::string _ns;
 	mutable ConnectionInfo _info;
+  boost::circular_buffer<int> _updateTimerSamples;
+  boost::circular_buffer<int> _readTimerSamples;
+  mutable boost::mutex _updateTimerSamplesMutex; 
+  mutable boost::mutex _readTimerSamplesMutex; 
+  int _lastReadSpeed;
+  int _lastUpdateSpeed;
+  long _lastAlarmLog;
 };
 
-}
-;
+class UpdateTimer
+{
+public:
+  UpdateTimer(BaseDB& db);
+  ~UpdateTimer();
+  
+protected:
+  OsTime _start;
+  OsTime _end;
+  BaseDB& _db;
+  friend class BaseDB;
+};
+
+class ReadTimer
+{
+public:
+  ReadTimer(BaseDB& db);
+  ~ReadTimer();
+  
+protected:
+  OsTime _start;
+  OsTime _end;
+  BaseDB& _db;
+  friend class BaseDB;  
+};
+
+
+} // namespace MongoDB
 
 #endif	/* MONGODB_H */
 

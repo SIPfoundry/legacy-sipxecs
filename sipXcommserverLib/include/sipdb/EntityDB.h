@@ -36,14 +36,14 @@ public:
 	}
 
 	EntityDB(const MongoDB::ConnectionInfo& info) :
-		BaseDB(info), _ns(NS)
+		BaseDB(info, NS)
 	{
 		init();
 	}
 	;
 
 	EntityDB(const MongoDB::ConnectionInfo& info, const std::string& ns) :
-		BaseDB(info), _ns(ns)
+		BaseDB(info, ns)
 	{
 		init();
 	}
@@ -81,7 +81,6 @@ public:
 
 private:
   mongo::BSONElement _lastTailId;
-  std::string _ns;
 };
 
 #endif	/* ENTITYDB_H */

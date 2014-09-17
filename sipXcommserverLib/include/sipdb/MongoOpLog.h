@@ -137,7 +137,6 @@ protected:
   mongo::BSONObj _lastEntry;
 
 private:
-  std::string _ns;
   static const unsigned int EXCEPTION_RECOVER_TIME_SEC = 1;
 };
 

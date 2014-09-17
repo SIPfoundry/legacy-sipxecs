@@ -50,6 +50,8 @@ void SubscribeDB::getAll(Subscriptions& subscriptions, bool preferPrimary)
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
     }
 
+  MongoDB::ReadTimer readTimer(const_cast<SubscribeDB&>(*this));
+  
   mongo::BSONObjBuilder builder;
 	if (preferPrimary)
     BaseDB::primaryPreferred(builder, query.obj());
@@ -102,6 +104,9 @@ void SubscribeDB::upsert (
             version);
       return;
     }
+    
+    MongoDB::UpdateTimer updateTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObj query = BSON(
         "toUri" << toUri.str() <<
         "fromUri" << fromUri.str() <<
@@ -171,6 +176,9 @@ void SubscribeDB::remove (
     _local->remove(component, to, from, callid, subscribeCseq);
     return;
   }
+  
+  MongoDB::UpdateTimer updateTimer(const_cast<SubscribeDB&>(*this));
+  
     mongo::BSONObj query = BSON(
         Subscription::toUri_fld() << to.str() <<
         Subscription::fromUri_fld() << from.str() <<
@@ -192,6 +200,9 @@ void SubscribeDB::removeError (
     _local->removeError(component, to, from, callid);
     return;
   }
+  
+  MongoDB::UpdateTimer updateTimer(const_cast<SubscribeDB&>(*this));
+  
     mongo::BSONObj query = BSON(
         Subscription::toUri_fld() << to.str() <<
         Subscription::fromUri_fld() << from.str() <<
@@ -226,6 +237,8 @@ bool SubscribeDB::subscriptionExists (
     query.append(Subscription::shardId_fld(), getShardId());
   } 
 
+  MongoDB::ReadTimer readTimer(const_cast<SubscribeDB&>(*this));
+  
   mongo::BSONObjBuilder builder;
 	if (preferPrimary)
     BaseDB::primaryPreferred(builder, query.obj());
@@ -256,6 +269,9 @@ void SubscribeDB::removeExpired( const UtlString& component, const unsigned long
       _local->removeExpired(component, timeNow);
       return;
     }
+    
+    MongoDB::UpdateTimer updateTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObj query = BSON(
         Subscription::component_fld() << component.str() <<
         Subscription::expires_fld() << BSON_LESS_THAN((long long)timeNow));
@@ -279,6 +295,8 @@ void SubscribeDB::getUnexpiredSubscriptions (
       _local->getUnexpiredSubscriptions(component, key, eventTypeKey, timeNow, subscriptions, preferPrimary);
       return;
     }
+    
+    MongoDB::ReadTimer readTimer(const_cast<SubscribeDB&>(*this));
     mongo::BSONObjBuilder query;
     query.append(Subscription::key_fld(), key.str());
     query.append(Subscription::eventTypeKey_fld(), eventTypeKey.str());
@@ -316,6 +334,8 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
     } 
 
+    MongoDB::ReadTimer readTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObjBuilder builder;
     if (preferPrimary)
       BaseDB::primaryPreferred(builder, query.obj());
@@ -360,6 +380,9 @@ void SubscribeDB::updateNotifyUnexpiredSubscription(
             version);
       return;
     }
+    
+    MongoDB::UpdateTimer updateTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObj query = BSON(
         Subscription::toUri_fld() << to.str() <<
         Subscription::callId_fld() << callid.str() <<
@@ -437,6 +460,9 @@ void SubscribeDB::updateToTag(
       _local->updateToTag(callid, fromtag, totag);
       return;
     }
+    
+    MongoDB::UpdateTimer updateTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObj query = BSON(Subscription::callId_fld() << callid.str());
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
     mongo::DBClientBase* client = conn->get();
@@ -504,6 +530,8 @@ bool SubscribeDB::findFromAndTo(
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
     }
 
+    MongoDB::ReadTimer readTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObjBuilder builder;
     if (preferPrimary)
       BaseDB::primaryPreferred(builder, query.obj());
@@ -555,6 +583,8 @@ int SubscribeDB::getMaxVersion(const UtlString& uri, bool preferPrimary) const
       query.append(Subscription::shardId_fld(), BSON("$ne" << getShardId()));
     }
 
+    MongoDB::ReadTimer readTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObjBuilder builder;
     if (preferPrimary)
       BaseDB::primaryPreferred(builder, query.obj());
@@ -583,6 +613,8 @@ void SubscribeDB::removeAllExpired()
     
     OS_LOG_INFO(FAC_SIP, "SubscribeDB::removeAllExpired INVOKED for shard == " << getShardId() << " and expireTime <= " << timeNow);
 
+    MongoDB::UpdateTimer updateTimer(const_cast<SubscribeDB&>(*this));
+    
     mongo::BSONObj query = BSON(
       Subscription::shardId_fld() << getShardId() <<
       Subscription::expires_fld() << BSON_LESS_THAN_EQUAL((long long)timeNow));

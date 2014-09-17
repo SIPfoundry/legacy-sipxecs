@@ -52,19 +52,19 @@ public:
 	static const std::string NS;
     typedef std::vector<Subscription> Subscriptions;
     SubscribeDB(const MongoDB::ConnectionInfo& info) :
-                BaseDB(info), _ns(NS), _local(NULL)
+                BaseDB(info, NS), _local(NULL)
 	{
 	}
 	;
 
     SubscribeDB(const MongoDB::ConnectionInfo& info, SubscribeDB* local) :
-		BaseDB(info), _ns(NS), _local(local)
+		BaseDB(info, NS) , _local(local)
 	{
 	}
 	;
 
     SubscribeDB(const MongoDB::ConnectionInfo& info, SubscribeDB* local, std::string ns) :
-		BaseDB(info), _ns(ns), _local(local)
+		BaseDB(info, ns), _local(local)
 	{
 	}
 	;
@@ -184,7 +184,6 @@ public:
 private:
     void ensureIndex(mongo::DBClientBase* client) const;
 
-    std::string _ns;
     SubscribeDB* _local;
 };
 

@@ -56,6 +56,9 @@ void RegDB::updateBinding(RegBinding& binding)
 		_local->updateBinding(binding);
 		return;
 	}
+  
+  MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
+  
 	if (binding.getTimestamp() == 0)
 		binding.setTimestamp(OsDateTime::getSecsSinceEpoch());
 
@@ -127,11 +130,13 @@ void RegDB::updateBinding(RegBinding& binding)
 
 void RegDB::expireOldBindings(const string& identity, const string& callId, unsigned int cseq,
 		unsigned long timeNow)
-{
+{ 
 	if (_local != NULL) {
 		_local->expireOldBindings(identity, callId, cseq, timeNow);
 		return;
 	}
+  
+  MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
 	mongo::BSONObj query = BSON(
 			"identity" << identity <<
 			"callId"<< callId <<
@@ -155,6 +160,8 @@ void RegDB::expireAllBindings(const string& identity, const string& callId, unsi
 		_local->expireAllBindings(identity, callId, cseq, timeNow);
 		return;
 	}
+  
+  MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
 	mongo::BSONObj query = BSON(
                         "shardId" << getShardId() <<
 			"identity" << identity);
@@ -181,7 +188,7 @@ void RegDB::removeAllExpired()
   unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
   OS_LOG_INFO(FAC_SIP, "RegDB::removeAllExpired INVOKED for shard == " << getShardId() << " and expireTime <= " << timeNow);
 
-  
+  MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
   mongo::BSONObj query = BSON(
             "shardId" << getShardId() <<
             "expirationTime" << BSON_LESS_THAN_EQUAL((long long)timeNow));
@@ -226,6 +233,8 @@ bool RegDB::isRegisteredBinding(const Url& curl, bool preferPrimary)
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	} 
 
+  MongoDB::ReadTimer readTimer(const_cast<RegDB&>(*this));
+  
 	mongo::BSONObjBuilder builder;
 	if (!preferPrimary)
 	  BaseDB::nearest(builder, query.obj());
@@ -257,6 +266,8 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
 		_local->getUnexpiredContactsUser(identity, timeNow, bindings, preferPrimary);
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	}
+  
+   MongoDB::ReadTimer readTimer(const_cast<RegDB&>(*this));
 
 	if (isGruu) {
 		string searchString(identity);
@@ -323,6 +334,8 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsi
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	} 
 
+  MongoDB::ReadTimer readTimer(const_cast<RegDB&>(*this));
+   
 	mongo::BSONObjBuilder builder;
 	if (!preferPrimary)
 	  BaseDB::nearest(builder, query.obj());
@@ -363,6 +376,8 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	} 
 
+  MongoDB::ReadTimer readTimer(const_cast<RegDB&>(*this));
+   
 	mongo::BSONObjBuilder builder;
 	if (!preferPrimary)
 	  BaseDB::nearest(builder, query.obj());
@@ -399,7 +414,9 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, unsigned lo
 		query.append("shardId", BSON("$ne" << _local->getShardId()));
 	} 
 
-	mongo::BSONObjBuilder builder;
+  MongoDB::ReadTimer readTimer(const_cast<RegDB&>(*this));
+	
+  mongo::BSONObjBuilder builder;
 	if (!preferPrimary)
 	  BaseDB::nearest(builder, query.obj());
 	else
@@ -426,6 +443,8 @@ void RegDB::cleanAndPersist(int currentExpireTime)
 		_local->cleanAndPersist(currentExpireTime);
 		return;
 	}
+  
+   MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
     mongo::BSONObj query = BSON(
         "expirationTime" << BSON_LESS_THAN(currentExpireTime));
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
@@ -439,6 +458,9 @@ void RegDB::clearAllBindings()
 		_local->clearAllBindings();
 		return;
 	}
+  
+  MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
+  
 	mongo::BSONObj all;
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
     conn->get()->remove(_ns, all);

@@ -37,13 +37,12 @@ MongoOpLog::MongoOpLog(const MongoDB::ConnectionInfo& info,
                        const mongo::BSONObj& customQuery,
                        const int querySleepTime,
                        const unsigned long startFromTimestamp) :
-	MongoDB::BaseDB(info),
+	MongoDB::BaseDB(info, NS),
   _isRunning(false),
   _pThread(0),
   _querySleepTime(querySleepTime),
   _startFromTimestamp(startFromTimestamp),
-  _customQuery(customQuery),
-  _ns(NS)
+  _customQuery(customQuery)
 {
   OS_LOG_INFO(FAC_SIP, "MongoOpLog::MongoOpLog:" <<
                         " entering" <<
