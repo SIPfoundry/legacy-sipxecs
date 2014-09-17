@@ -26,7 +26,6 @@
   <extension name="ParkOrbitTransfer">
     <condition field="destination_number" expression="^1111$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
-      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="set" data="fifo_caller_exit_key=0"/>
       <action application="set" data="fifo_caller_exit_to_orbit=true"/>
@@ -42,7 +41,6 @@
   <extension name="ParkOrbitBare">
     <condition field="destination_number" expression="^2222$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
-      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="fifo" data="QPark2222 in"/>
       <action application="hangup"/>
