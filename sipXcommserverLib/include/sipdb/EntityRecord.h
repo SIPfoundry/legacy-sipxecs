@@ -156,6 +156,12 @@ public:
     static const char* permission_fld();
 
     //
+    // Permission array to which the user has access to
+    //
+    std::string& entity();
+    static const char* entity_fld();
+
+    //
     // Caller alias to be sent to certain target domains
     //
     CallerId& callerId();
@@ -208,6 +214,7 @@ private:
     //bool _transformCallerExtension;
     int _callForwardTime;
     std::set<std::string> _permissions;
+    std::string _entity;
     std::vector<Alias> _aliases;
     std::vector<StaticUserLoc> _staticUserLoc;
     bool _vmOnDnd;
@@ -266,6 +273,11 @@ inline int& EntityRecord::callForwardTime()
 inline std::set<std::string>& EntityRecord::permissions()
 {
     return _permissions;
+}
+
+inline std::string& EntityRecord::entity()
+{
+    return _entity;
 }
 
 inline EntityRecord::CallerId& EntityRecord::callerId()

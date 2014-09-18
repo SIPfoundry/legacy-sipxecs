@@ -29,6 +29,7 @@ const char* EntityRecord::pin_fld(){ static std::string fld = "pntk"; return fld
 const char* EntityRecord::authType_fld(){ static std::string fld = "authtp"; return fld.c_str(); }
 const char* EntityRecord::location_fld(){ static std::string fld = "loc"; return fld.c_str(); }
 const char* EntityRecord::permission_fld(){ static std::string fld = "prm"; return fld.c_str(); }
+const char* EntityRecord::entity_fld(){ static std::string fld = "ent"; return fld.c_str(); }
 
 const char* EntityRecord::callerId_fld(){ static std::string fld = "clrid"; return fld.c_str(); }
 const char* EntityRecord::callerIdEnforcePrivacy_fld(){ static std::string fld = "blkcid"; return fld.c_str(); }
@@ -68,6 +69,7 @@ EntityRecord::EntityRecord(const EntityRecord& entity)
     _authType = entity._authType;
     _location = entity._location;
     _permissions = entity._permissions;
+    _entity = entity._entity;
     _callerId = entity._callerId;
     _aliases = entity._aliases;
     _callForwardTime = entity._callForwardTime;
@@ -97,6 +99,7 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_authType, entity._authType);
     std::swap(_location, entity._location);
     std::swap(_permissions, entity._permissions);
+    std::swap(_entity, entity._entity);
     std::swap(_callerId, entity._callerId);
     std::swap(_aliases, entity._aliases);
     std::swap(_callForwardTime, entity._callForwardTime);
@@ -194,6 +197,11 @@ EntityRecord& EntityRecord::operator = (const mongo::BSONObj& bsonObj)
 				_permissions.insert(iter->String());
 			}
 		}
+	}
+
+	if (bsonObj.hasField(EntityRecord::entity_fld()))
+	{
+	  _entity = bsonObj.getStringField(EntityRecord::entity_fld());
 	}
 
 	if (bsonObj.hasField(EntityRecord::aliases_fld()))
