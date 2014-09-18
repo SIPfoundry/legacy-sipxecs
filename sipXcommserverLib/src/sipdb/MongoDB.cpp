@@ -12,11 +12,11 @@
 #include <os/OsLogger.h>
 #include <os/OsDateTime.h>
 
-const int READ_TIMER_SAMPLES = 5;
-const int UPDATE_TIMER_SAMPLES = 5;
-const int MAX_READ_DELAY = 100;
-const int MAX_UPDATE_DELAY = 500;
-const int ALARM_RATE = 300;
+const int READ_TIMER_SAMPLES = 5; // Number of samples for getting the read delay
+const int UPDATE_TIMER_SAMPLES = 5; // Number of samples for getting the update delay
+const int MAX_READ_DELAY_MS = 100; // Maximum allowable delay for reads in milliseconds
+const int MAX_UPDATE_DELAY_MS = 500; // Maximum allowable delay for updates in milliseconds
+const int ALARM_RATE_SEC = 300; // Send alarm ever nth seconds when threshold is violated
   
 using namespace std;
 
@@ -151,20 +151,20 @@ namespace MongoDB
 
   void BaseDB::registerTimer(const UpdateTimer* pTimer)
   {
-    _updateTimerSamplesMutex.lock();
+    boost::lock_guard<boost::mutex> lock(_updateTimerSamplesMutex);
     
     int start = pTimer->_start.cvtToMsecs();
     int end = pTimer->_end.cvtToMsecs();
     _lastUpdateSpeed = end - start;
     _updateTimerSamples.push_back(_lastReadSpeed);
     
-    if (_lastUpdateSpeed > MAX_UPDATE_DELAY)
+    if (_lastUpdateSpeed > MAX_UPDATE_DELAY_MS)
     {
       OsTime time;
       OsDateTime::getCurTimeSinceBoot(time);
       long now = time.seconds();
 
-      if (!_lastAlarmLog || now >= _lastAlarmLog + ALARM_RATE)
+      if (!_lastAlarmLog || now >= _lastAlarmLog + ALARM_RATE_SEC)
       {
         _lastAlarmLog = now;
         OS_LOG_EMERGENCY(FAC_SIP, "ALARM_MONGODB_SLOW_UPDATE Last Mongo update took a long time:" 
@@ -172,26 +172,24 @@ namespace MongoDB
             << " delay: " << _lastUpdateSpeed << " milliseconds");
       }
     }
-    
-    _updateTimerSamplesMutex.unlock();
   }
 
   void BaseDB::registerTimer(const ReadTimer* pTimer)
   {
-    _readTimerSamplesMutex.lock();
+    boost::lock_guard<boost::mutex> lock(_readTimerSamplesMutex);
     
     int start = pTimer->_start.cvtToMsecs();
     int end = pTimer->_end.cvtToMsecs();
     _lastReadSpeed = end - start;
     _readTimerSamples.push_back(_lastReadSpeed);
     
-    if (_lastReadSpeed > MAX_READ_DELAY)
+    if (_lastReadSpeed > MAX_READ_DELAY_MS)
     {
       OsTime time;
       OsDateTime::getCurTimeSinceBoot(time);
       long now = time.seconds();
 
-      if (!_lastAlarmLog || now >= _lastAlarmLog + ALARM_RATE)
+      if (!_lastAlarmLog || now >= _lastAlarmLog + ALARM_RATE_SEC)
       {
         _lastAlarmLog = now;
         OS_LOG_EMERGENCY(FAC_SIP, "ALARM_MONGODB_SLOW_READ Last Mongo update took a long time:" 
@@ -199,8 +197,6 @@ namespace MongoDB
             << " delay: " << _lastReadSpeed << " milliseconds");
       }
     }
-    
-    _readTimerSamplesMutex.lock();
   }
   
   int BaseDB::getUpdateAverageSpeed() const
