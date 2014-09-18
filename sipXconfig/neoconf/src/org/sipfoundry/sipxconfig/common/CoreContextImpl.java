@@ -279,6 +279,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         }
         getDaoEventPublisher().publishDeleteCollection(users);
         getHibernateTemplate().deleteAll(users);
+        getDaoEventPublisher().publishAfterDeleteCollection(users);
         return affectAdmin;
     }
 

@@ -9,14 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
+import static org.sipfoundry.sipxconfig.common.AbstractUser.IM_ACCOUNT;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.imdb.MongoTestCaseHelper;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -24,6 +30,8 @@ import org.sipfoundry.sipxconfig.test.TestHelper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class SpeedDialManagerTestIntegration extends ImdbTestCase {
     private SpeedDialManager m_speedDialManager;
@@ -95,8 +103,9 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
 
         MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
 
-        //Test clear speed dials directly from Mongo
-        int result = getEntityCollection().find(QueryBuilder.start(MongoConstants.SPEEDDIAL).exists(true).get()).count();
+        // Test clear speed dials directly from Mongo
+        int result = getEntityCollection().find(QueryBuilder.start(MongoConstants.SPEEDDIAL).exists(true).get())
+                .count();
         assertEquals(1, result);
         m_speedDialManager.clear();
         result = getEntityCollection().find(QueryBuilder.start(MongoConstants.SPEEDDIAL).exists(true).get()).count();
@@ -215,6 +224,98 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         m_settingDao.deleteGroups(Collections.singleton(1001));
         assertEquals(0, countRowsInTable("speeddial_group_button"));
         assertEquals(0, countRowsInTable("speeddial_group"));
+    }
+
+    public void testXmppSpecialUser() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
+        loadDataSet("speeddial/speeddial-special-user.db.xml");
+
+        User u1001 = m_coreContext.loadUser(1001);
+        u1001.setSettingTypedValue(IM_ACCOUNT, true);
+        m_coreContext.saveUser(u1001);
+
+        DBObject user = new BasicDBObject().append(ID, "~~id~xmpprlsclient");
+        BasicDBObject speeddial = new BasicDBObject("usr", "~~rl~F~~~id~xmpprlsclient").append("usrcns",
+                "~~rl~C~~~id~xmpprlsclient");
+        List<DBObject> btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:user1@example.org").append("name", "user1"));
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+
+        u1001.setSettingTypedValue(IM_ACCOUNT, false);
+        m_coreContext.saveUser(u1001);
+
+        MongoTestCaseHelper.assertObjectNotPresent(getEntityCollection(), user);
+
+        u1001.setSettingTypedValue(IM_ACCOUNT, true);
+        m_coreContext.saveUser(u1001);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+
+        m_coreContext.deleteUser(u1001);
+
+        MongoTestCaseHelper.assertObjectNotPresent(getEntityCollection(), user);
+
+        User u1002 = m_coreContext.loadUser(1002);
+        User u1003 = m_coreContext.loadUser(1003);
+        User u1004 = m_coreContext.loadUser(1004);
+
+        Group group = m_settingDao.getGroup(1003);
+        group.setSettingValue("im/im-account", "1");
+        m_settingDao.saveGroup(group);
+
+        btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:user2@example.org").append("name", "user2"));
+        btns.add(new BasicDBObject("uri", "sip:user3@example.org").append("name", "user3"));
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+
+        m_coreContext.deleteUser(u1002);
+        MongoTestCaseHelper.assertObjectNotPresent(getEntityCollection(), user);
+        btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:user3@example.org").append("name", "user3"));
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+        group.setSettingValue("im/im-account", "0");
+        m_settingDao.saveGroup(group);
+
+        MongoTestCaseHelper.assertObjectNotPresent(getEntityCollection(), user);
+
+        group.setSettingValue("im/im-account", "1");
+        m_settingDao.saveGroup(group);
+
+        btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:user3@example.org").append("name", "user3"));
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+
+        Set<Group> groups = new TreeSet<Group>();
+        groups.add(group);
+        u1004.setGroups(groups);
+        m_coreContext.saveUser(u1004);
+
+        btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:user3@example.org").append("name", "user3"));
+        btns.add(new BasicDBObject("uri", "sip:user4@example.org").append("name", "user4"));
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+
+        m_settingDao.deleteGroups(Arrays.asList(new Integer[] {
+            1003
+        }));
+
+        MongoTestCaseHelper.assertObjectNotPresent(getEntityCollection(), user);
     }
 
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {

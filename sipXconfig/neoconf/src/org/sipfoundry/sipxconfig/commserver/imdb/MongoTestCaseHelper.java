@@ -38,6 +38,10 @@ public final class MongoTestCaseHelper {
         TestCase.assertTrue(collection.find(ref).size() > 0);
     }
 
+    public static final void assertObjectNotPresent(DBCollection collection, DBObject ref) {
+        TestCase.assertTrue(collection.find(ref).size() == 0);
+    }
+
     public static final void assertObjectWithIdPresent(DBCollection collection, String id) {
         DBObject ref = new BasicDBObject();
         ref.put(ID, id);

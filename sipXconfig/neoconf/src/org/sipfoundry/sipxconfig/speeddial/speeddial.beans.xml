@@ -20,6 +20,7 @@
     <property name="featureId" value="rls"/>
     <property name="validUsers" ref="validUsers" />
     <property name="aliasManager" ref="aliasManagerImpl" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="speedDialOnEdit" class="org.sipfoundry.sipxconfig.speeddial.SpeadDialOnEdit">

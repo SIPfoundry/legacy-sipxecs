@@ -21,10 +21,15 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.SpecialUser;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListenerAdvanced;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
@@ -33,12 +38,14 @@ import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> implements SpeedDialManager {
+public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> implements SpeedDialManager,
+        DaoEventListener, DaoEventListenerAdvanced {
     private static final int MAX_BUTTONS = 136;
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
     private ValidUsers m_validUsers;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     private AliasManager m_aliasManager;
     private String m_featureId;
@@ -251,5 +258,41 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
     @Required
     public void setFeatureId(String feature) {
         m_featureId = feature;
+    }
+
+    @Override
+    public void onDelete(Object entity) {
+        // TODO: on group deletion publish delete is called after the delete (unlike for users)
+        replicateXmppSpecialUser(entity);
+    }
+
+    @Override
+    public void onSave(Object entity) {
+        replicateXmppSpecialUser(entity);
+    }
+
+    private void replicateXmppSpecialUser(Object entity) {
+        if (entity instanceof User
+                || (entity instanceof Group && ((Group) entity).getResource().equals(User.GROUP_RESOURCE_ID))) {
+            getHibernateTemplate().flush();
+            SpecialUser su = m_coreContext.getSpecialUserAsSpecialUser(SpecialUserType.XMPP_SERVER);
+            if (su != null) {
+                m_sipxReplicationContext.generate(m_coreContext
+                        .getSpecialUserAsSpecialUser(SpecialUserType.XMPP_SERVER));
+            }
+        }
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    @Override
+    public void onBeforeSave(Object entity) {
+    }
+
+    @Override
+    public void onAfterDelete(Object entity) {
+        replicateXmppSpecialUser(entity);
     }
 }

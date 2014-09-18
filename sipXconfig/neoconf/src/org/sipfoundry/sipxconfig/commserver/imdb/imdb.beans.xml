@@ -57,6 +57,7 @@
   <bean id="speeddialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.commserver.imdb.SpeedDials">
     <property name="speedDialManager" ref="speedDialManager" />
+    <property name="jdbcTemplate" ref="configJdbcTemplate" />
   </bean>
   <bean id="mailstoreDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.commserver.imdb.Mailstore">
