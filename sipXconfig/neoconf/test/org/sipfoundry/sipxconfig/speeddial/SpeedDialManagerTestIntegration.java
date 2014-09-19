@@ -206,15 +206,16 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
 
     public void testOnDeleteUser() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
+        flush();
         loadDataSetXml("commserver/seedLocations.xml");
         loadDataSet("speeddial/speeddial.db.xml");
-        assertEquals(3, countRowsInTable("speeddial_button"));
-        assertEquals(1, countRowsInTable("speeddial"));
+        assertEquals(5, countRowsInTable("speeddial_button"));
+        assertEquals(2, countRowsInTable("speeddial"));
         getDaoEventPublisher().resetListeners();
         m_coreContext.deleteUsers(Collections.singleton(1001));
         flush();
-        assertEquals(0, countRowsInTable("speeddial_button"));
-        assertEquals(0, countRowsInTable("speeddial"));
+        assertEquals(2, countRowsInTable("speeddial_button"));
+        assertEquals(1, countRowsInTable("speeddial"));
     }
 
     public void testOnDeleteGroup() throws Exception {
@@ -224,6 +225,29 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         m_settingDao.deleteGroups(Collections.singleton(1001));
         assertEquals(0, countRowsInTable("speeddial_group_button"));
         assertEquals(0, countRowsInTable("speeddial_group"));
+    }
+
+    public void testSpeedDialRemovalOnUserDelete() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        loadDataSetXml("commserver/seedLocations.xml");
+        loadDataSet("speeddial/speeddial.db.xml");
+
+        User u1020 = m_coreContext.loadUser(1020);
+        m_coreContext.saveUser(u1020);
+
+        DBObject user = new BasicDBObject().append(ID, "User1020");
+        BasicDBObject speeddial = new BasicDBObject("usr", "~~rl~F~user20").append("usrcns", "~~rl~C~user20");
+        List<DBObject> btns = new ArrayList<DBObject>();
+        btns.add(new BasicDBObject("uri", "sip:user21@example.org").append("name", "X"));
+        btns.add(new BasicDBObject("uri", "sip:user22@example.org").append("name", "X"));
+        speeddial.append("btn", btns);
+        user.put("spdl", speeddial);
+
+        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+
+        m_coreContext.deleteUsers(Arrays.asList(new Integer[]{1021}));
+
+        MongoTestCaseHelper.assertObjectNotPresent(getEntityCollection(), user);
     }
 
     public void testXmppSpecialUser() throws Exception {

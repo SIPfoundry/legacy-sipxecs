@@ -20,13 +20,13 @@ import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.UserValidationUtils;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListenerAdvanced;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.SipxReplicationContext;
@@ -37,15 +37,21 @@ import org.sipfoundry.sipxconfig.rls.Rls;
 import org.sipfoundry.sipxconfig.rls.RlsRule;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.data.mongodb.core.MongoTemplate;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> implements SpeedDialManager,
-        DaoEventListener, DaoEventListenerAdvanced {
+        DaoEventListenerAdvanced {
     private static final int MAX_BUTTONS = 136;
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
     private ConfigManager m_configManager;
     private ValidUsers m_validUsers;
     private SipxReplicationContext m_sipxReplicationContext;
+    private MongoTemplate m_imdbTemplate;
 
     private AliasManager m_aliasManager;
     private String m_featureId;
@@ -283,6 +289,22 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
         }
     }
 
+    private void removeBlfFromUsers(String userName) {
+        DBCollection entity = m_imdbTemplate.getCollection("entity");
+        String uri = SipUri.format(userName, m_coreContext.getDomainName(), false);
+
+        DBObject findCommand = new BasicDBObject();
+        findCommand.put(MongoConstants.ENTITY_NAME, "user");
+        findCommand
+                .put(String.format("%s.%s.%s", MongoConstants.SPEEDDIAL, MongoConstants.BUTTONS, MongoConstants.URI),
+                        uri);
+        DBObject removeCommand = new BasicDBObject();
+        removeCommand.put("$pull",
+                new BasicDBObject(String.format("%s.%s", MongoConstants.SPEEDDIAL, MongoConstants.BUTTONS),
+                        new BasicDBObject(MongoConstants.URI, uri)));
+        entity.update(findCommand, removeCommand);
+    }
+
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
     }
@@ -294,5 +316,12 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
     @Override
     public void onAfterDelete(Object entity) {
         replicateXmppSpecialUser(entity);
+        if (entity instanceof User) {
+            removeBlfFromUsers(((User) entity).getUserName());
+        }
+    }
+
+    public void setImdbTemplate(MongoTemplate imdbTemplate) {
+        m_imdbTemplate = imdbTemplate;
     }
 }

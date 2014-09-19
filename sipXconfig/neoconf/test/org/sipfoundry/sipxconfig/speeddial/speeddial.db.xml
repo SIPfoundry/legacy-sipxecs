@@ -15,6 +15,7 @@
   
   <speeddial speeddial_id="2000" user_id="1001"/>
   
+
   <speeddial_button position="0" speeddial_id="2000" label="A" number="000" blf="false"/>
   <speeddial_button position="1" speeddial_id="2000" label="B" number="111" blf="true"/>
   <speeddial_button position="2" speeddial_id="2000" label="C" number="222" blf="false"/>
@@ -28,4 +29,12 @@
   <speeddial_group_button position="0" speeddial_id="2003" label="A" number="000" blf="false"/>
   <speeddial_group_button position="1" speeddial_id="2003" label="B" number="111" blf="true"/>
   <speeddial_group_button position="2" speeddial_id="2003" label="C" number="222" blf="false"/>
+
+  <users user_name="user20" user_id="1020" pintoken="1234" user_type="C"/>
+  <users user_name="user21" user_id="1021" pintoken="1234" user_type="C"/>
+  <users user_name="user22" user_id="1022" pintoken="1234" user_type="C"/>
+  <speeddial speeddial_id="2020" user_id="1020"/>
+  <speeddial_button position="0" speeddial_id="2020" label="X" number="user21" blf="true"/>
+  <speeddial_button position="1" speeddial_id="2020" label="X" number="user22" blf="true"/>
+  
 </dataset>
