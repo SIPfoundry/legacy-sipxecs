@@ -44,6 +44,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.USER_CONS;
 
 public class SpeedDials extends AbstractDataSetGenerator {
+    private static final String IM_ENABLED = "im_enabled";
     private static final String QUERY = "SELECT u.user_id, u.user_name, v.value as im_enabled, vs.value as subscribe, "
             + "(SELECT count(*) from group_storage gs inner join setting_value sv on gs.group_id = sv.value_storage_id "
             + "inner join user_group ug on gs.group_id = ug.group_id where gs.resource='user' "
@@ -98,8 +99,8 @@ public class SpeedDials extends AbstractDataSetGenerator {
 
                     @Override
                     public void processRow(ResultSet rs) throws SQLException {
-                        if (StringUtils.isNotBlank(rs.getString("im_enabled"))
-                                && rs.getString("im_enabled").equals("1") || rs.getInt("group_im_enabled") == 1) {
+                        if (StringUtils.isNotBlank(rs.getString(IM_ENABLED))
+                                && rs.getString(IM_ENABLED).equals("1") || rs.getInt("group_im_enabled") == 1) {
                             String userName = rs.getString("user_name");
                             DBObject buttonDBO = new BasicDBObject();
                             buttonDBO.put(URI, buildUri(userName, getSipDomain()));
@@ -127,11 +128,12 @@ public class SpeedDials extends AbstractDataSetGenerator {
         } else {
             // not a URI - check if we have a user
             User user = getCoreContext().loadUserByAlias(number);
+            String uname = number;
             if (user != null) {
                 // if number matches any known user make sure to use username and not an alias
-                number = user.getUserName();
+                uname = user.getUserName();
             }
-            uri.append(SipUri.format(number, domainName, false));
+            uri.append(SipUri.format(uname, domainName, false));
         }
         return uri.toString();
     }
