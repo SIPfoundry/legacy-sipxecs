@@ -571,7 +571,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
                 view.setEnabled(rs.getBoolean(ENABLED));
                 view.setUniqueId(rs.getInt("dns_view_id"));
                 view.setName(rs.getString(NAME));
-                view.setPlanId(rs.getInt(DNS_PLAN_ID));
+                view.setPlanId(rs.getInt(DNS_PLAN_ID) == 0 ? null : rs.getInt(DNS_PLAN_ID));
                 view.setRegionId(rs.getInt(REGION_ID));
                 view.setExcluded(decodeExcluded(rs.getString(EXCLUDED)));
                 views.add(view);
