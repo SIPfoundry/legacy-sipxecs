@@ -51,8 +51,8 @@ EnforceAuthRules::EnforceAuthRules(const UtlString& pluginName ///< the name for
 {
     Os::Logger::instance().log(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
                  mInstanceName.data());
-    mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
-    mpRegDb = RegDB::CreateInstance();
+    mpEntityDb = SipRouter::getEntityDBInstance();
+    mpRegDb = SipRouter::getRegDBInstance();
 };
 
 /// Read (or re-read) the authorization rules.
@@ -391,11 +391,6 @@ EnforceAuthRules::~EnforceAuthRules()
          delete mpAuthorizationRules;
          mpAuthorizationRules = NULL;
       }
-   }
-   if (mpEntityDb != NULL)
-   {
-	   delete mpEntityDb;
-	   mpEntityDb = NULL;
    }
 }
 

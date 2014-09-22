@@ -57,8 +57,7 @@ CallerAlias::CallerAlias(const UtlString& pluginName ///< the name for this inst
 	AuthPlugin(pluginName),
   mpSipRouter(0)
 {
-        MongoDB::ConnectionInfo info = MongoDB::ConnectionInfo::globalInfo();
-	mpEntityDb = new EntityDB(info);
+	mpEntityDb = SipRouter::getEntityDBInstance();
 }
 ;
 
@@ -348,10 +347,6 @@ void CallerAlias::announceAssociatedSipRouter( SipRouter* sipRouter )
 /// destructor
 CallerAlias::~CallerAlias()
 {
-   if (mpEntityDb != NULL) {
-	   delete mpEntityDb;
-	   mpEntityDb = 0;
-   }
 }
 
 static std::string string_right(const std::string& str, size_t size)

@@ -37,6 +37,7 @@
 #include "net/NameValuePairInsensitive.h"
 
 #include <boost/lexical_cast.hpp>
+#include <boost/thread/pthread/mutex.hpp>
 
 // DEFINES
 //#define TEST_PRINT 1
@@ -62,12 +63,38 @@ static const int MAX_REJECT_ON_FILLED_QUEUE_PERCENT = 100;
 static const int MAX_APP_QUEUE_SIZE = 1024;
 static const bool ALWAYS_REJECT_ON_FILLED_QUEUE = false;
 static const int FILLED_QUEUE_ALARM_RATE = 300;
+static const int MAX_DB_READ_DELAY_MS = 100;
+static const int MAX_DB_UPDATE_DELAY_MS = 500;
+static const int DISPATCH_SPEED_SAMPLES_COUNT = 5;
+static const int DISPATCH_MAX_YIELD_TIME_IN_SEC = 32;
+static const int MAX_DISPATCH_DELAY_IN_MS = 200; // This is 5 messages per sec which is so poor!
+static const int ALARM_ON_CONSECUTIVE_YIELD = 5;
 
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+EntityDB* SipRouter::getEntityDBInstance()
+{
+  static EntityDB* pEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
+  return pEntityDb;
+}
+   
+RegDB* SipRouter::getRegDBInstance()
+{
+  static RegDB* pRegDB = RegDB::CreateInstance();
+  return pRegDB;
+}
+   
+SubscribeDB* SipRouter::getSubscribeDBInstance()
+{
+  static SubscribeDB* pSubscribeDB = SubscribeDB::CreateInstance();
+  return pSubscribeDB;
+}
+
+
 
 /* ============================ CREATORS ================================== */
 
@@ -92,6 +119,10 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,_rejectOnFilledQueuePercent(DEFAULT_REJECT_ON_FILLED_QUEUE_PERCENT)
    ,_lastFilledQueueAlarmLog(0)
    ,_maxTransactionCount(0)
+   ,_dispatchSamples(DISPATCH_SPEED_SAMPLES_COUNT)
+   ,_lastDispatchSpeed(0)
+   ,_lastDispatchYieldTime(0)
+   ,_isDispatchYielding(false)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -196,8 +227,10 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                                       NULL     // observerData
                                       );
 
-   mpEntityDb = new EntityDB(MongoDB::ConnectionInfo::globalInfo());
-   mpRegDb = RegDB::CreateInstance();
+   mpEntityDb = SipRouter::getEntityDBInstance();
+   mpRegDb = SipRouter::getRegDBInstance();
+   
+   mpSipUserAgent->setPreDispatchEvaluator(boost::bind(&SipRouter::preDispatch, this, _1));
      
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
@@ -363,23 +396,179 @@ SipRouter::~SipRouter()
       mpSipUserAgent->removeMessageObserver(*getMessageQueue());
    }
    delete mSharedSecret;
-   if (mpEntityDb != NULL)
-   {
-	   delete mpEntityDb;
-	   mpEntityDb = NULL;
-   }
-   
-   if (mpRegDb != NULL)
-   {
-	   delete mpRegDb;
-	   mpRegDb = NULL;
-   }
    
    delete _pThreadPoolSem;
    _pThreadPoolSem = 0;
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+
+SipRouter::DispatchTimer::DispatchTimer(SipRouter& router) :
+  _router(router)
+{
+  struct timeval sTimeVal;
+	gettimeofday( &sTimeVal, NULL );
+	_start = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
+}
+
+SipRouter::DispatchTimer::~DispatchTimer()
+{
+  struct timeval sTimeVal;
+	gettimeofday( &sTimeVal, NULL );
+	_end = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
+  _router.registerDispatchTimer(*this);
+}
+
+void SipRouter::registerDispatchTimer(DispatchTimer& dispatchTimer)
+{
+  _dispatchSamplesMutex.lock();
+  
+  _lastDispatchSpeed = dispatchTimer._end - dispatchTimer._start;
+  _dispatchSamples.push_back(_lastDispatchSpeed);
+  
+  _dispatchSamplesMutex.unlock();
+}
+
+Int64 SipRouter::getLastDispatchSpeed() const
+{
+  mutex_critic_sec_lock lock(_dispatchSamplesMutex);
+  return _lastDispatchSpeed;
+}
+   
+Int64 SipRouter::getAverageDispatchSpeed() const
+{
+  mutex_critic_sec_lock lock(_dispatchSamplesMutex);
+    
+  Int64 sum = 0;
+  for (boost::circular_buffer<Int64>::const_iterator iter = _dispatchSamples.begin(); iter != _dispatchSamples.end(); iter++)
+  {
+    sum += *iter;
+  }
+  
+  if (_dispatchSamples.empty())
+    return 0;
+
+  return sum / _dispatchSamples.size();
+}
+
+bool SipRouter::preDispatch(SipMessage* pMsg)
+{
+  //
+  // This is called by SipUserAgent for dialog forming requests.
+  // If we return false here, SipUserAgent will not proceed with
+  // dispatching the request to the transaction layer resulting 
+  // to an intentional timeout (408).
+  // 
+  // There are many use cases why we want an intentional timeout to occur.
+  // One might be to drop messages from a known scanner like sipvicious.
+  // Although right now, our main purpose for introducing this callback is
+  // for us to intentionally drop incoming requests if the system is slowing
+  // down and the proxy message queue will not be able to process incoming
+  // requests as fast as they get queued resulting to an exponential decay.
+  //
+  //
+  
+  static int consecutiveYields = 0;
+  static int currentYieldTime = 1;
+  
+  bool preProcess = false;
+  UtlString method;
+  if (!pMsg->isResponse())
+  {
+    pMsg->getRequestMethod(&method); // only process INVITE, SUBSCRIBE and REGISTER
+    preProcess = method.compareTo( SIP_INVITE_METHOD ) == 0 || method.compareTo( SIP_REGISTER_METHOD ) == 0 || method.compareTo( SIP_SUBSCRIBE_METHOD ) == 0;
+  }
+  
+  if (!preProcess)
+    return true;
+  
+  mutex_critic_sec_lock lock(_preDispatchMutex);
+  if (_isDispatchYielding)
+  {
+    //
+    // Check if we have yielded long enough
+    //
+    OsTime time;
+    OsDateTime::getCurTimeSinceBoot(time);
+    long now = time.seconds();
+    //DISPATCH_MAX_YIELD_TIME_IN_SEC
+    _isDispatchYielding = (now < _lastDispatchYieldTime + currentYieldTime);
+    
+    if (!_isDispatchYielding)
+    {
+      //
+      // We are done yielding.  Let this message proceed so we can get latest dispatch samples
+      //
+      return true;
+    }
+  }
+  
+  if (!_isDispatchYielding)
+  {
+    //
+    // We are not yielding.  Check if we need to based on the last read samples
+    //
+    _isDispatchYielding = getLastDispatchSpeed() > MAX_DISPATCH_DELAY_IN_MS;
+    
+    if (_isDispatchYielding)
+    {
+      //
+      // We have transitioned from not yielding to yielding
+      //
+      consecutiveYields++;
+      currentYieldTime++;
+      if (currentYieldTime > DISPATCH_MAX_YIELD_TIME_IN_SEC)
+        currentYieldTime = DISPATCH_MAX_YIELD_TIME_IN_SEC;
+           
+      OS_LOG_CRITICAL(FAC_SIP,
+        "SipRouter::preDispatch - " <<
+        "Discarding SIP Request " << method.data() <<
+        " due to slow processing capacity. " <<
+        " Last Dispatch Speed: " << getLastDispatchSpeed() << " ms"
+        " Average Dispatch Speed: " << getAverageDispatchSpeed() << " ms"
+        " EntityDB Last Read: " << mpEntityDb->getLastReadSpeed() << " ms"
+        " EntityDB Read Average: " << mpEntityDb->getReadAverageSpeed() << " ms"
+        " RegDB Last Read: " << mpRegDb->getLastReadSpeed() << " ms"
+        " RegDB Read Average: " << mpRegDb->getReadAverageSpeed() << " ms"
+        " Proxy Queue Size: " << getMessageQueue()->numMsgs() << " messages"
+        " User Agent Queue Size: " << mpSipUserAgent->getMessageQueue()->numMsgs() << " messages"
+        " Total Active Transactions: " <<  mpSipUserAgent->getSipTransactions().size()
+        );
+      
+      if (consecutiveYields == ALARM_ON_CONSECUTIVE_YIELD)
+      {
+        //
+        // Send out an alarm at the specified consecutive yields
+        //
+        OS_LOG_EMERGENCY(FAC_SIP,
+        "ALARM_PROXY_POOR_CAPACITY " <<
+        "Discarding SIP Request " << method.data() <<
+        " due to slow processing capacity. " <<
+        " Last Dispatch Speed: " << getLastDispatchSpeed() << " ms"
+        " Average Dispatch Speed: " << getAverageDispatchSpeed() << " ms"
+        " EntityDB Last Read: " << mpEntityDb->getLastReadSpeed() << " ms"
+        " EntityDB Read Average: " << mpEntityDb->getReadAverageSpeed() << " ms"
+        " RegDB Last Read: " << mpRegDb->getLastReadSpeed() << " ms"
+        " RegDB Read Average: " << mpRegDb->getReadAverageSpeed() << " ms"
+        " Proxy Queue Size: " << getMessageQueue()->numMsgs() << " messages"
+        " User Agent Queue Size: " << mpSipUserAgent->getMessageQueue()->numMsgs() << " messages"
+        " Total Active Transactions: " <<  mpSipUserAgent->getSipTransactions().size()
+        );
+      }
+    }
+    else
+    {
+      //
+      // Reset the counters
+      //
+      consecutiveYields = 0;
+      currentYieldTime = 1;
+    }
+  }
+
+  return !_isDispatchYielding;
+}
 
 UtlBoolean
 SipRouter::handleMessage( OsMsg& eventMessage )
@@ -487,7 +676,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
                         if (!_lastFilledQueueAlarmLog || now >= _lastFilledQueueAlarmLog + FILLED_QUEUE_ALARM_RATE)
                         {
                           _lastFilledQueueAlarmLog = now;
-                          OS_LOG_WARNING(FAC_SIP, "ALARM_PROXY_FILLED_QUEUE Queue Size or Transanction Count is too big:" 
+                          OS_LOG_EMERGENCY(FAC_SIP, "ALARM_PROXY_FILLED_QUEUE Queue Size or Transanction Count is too big:" 
                               << " application: " << appQueueSize << "/" << appMaxQueueSize
                               << " transport: " << queueSize << "/" <<  maxQueueSize 
                               << " which exceeds " << _rejectOnFilledQueuePercent << "%"
@@ -587,8 +776,46 @@ SipRouter::handleMessage( OsMsg& eventMessage )
 
 void SipRouter::handleRequest(SipMessage* pSipRequest)
 {
+  
+  bool timedDispatch = false;
+  UtlString method;
+  if (!pSipRequest->isResponse())
+  {
+    pSipRequest->getRequestMethod(&method); // only time dispatch of INVITE, SUBSCRIBE and REGISTER
+    timedDispatch = method.compareTo( SIP_INVITE_METHOD ) == 0 || method.compareTo( SIP_REGISTER_METHOD ) == 0 || method.compareTo( SIP_SUBSCRIBE_METHOD ) == 0;
+  }
+  
+  
+  SipRouter::ProxyAction action = SipRouter::DoNothing;
   SipMessage sipResponse;
-  switch (proxyMessage(*pSipRequest, sipResponse))
+  if (timedDispatch)
+  {
+    DispatchTimer timer(*this);
+    action = proxyMessage(*pSipRequest, sipResponse);
+  }
+  else
+  {
+    action = proxyMessage(*pSipRequest, sipResponse);
+  }
+  
+  if (timedDispatch)
+  {
+    OS_LOG_NOTICE(FAC_SIP,
+        "SipRouter::handleRequest metrics -" <<
+        " Method: " << method.data() <<
+        " Last Dispatch Speed: " << getLastDispatchSpeed() << " ms |"
+        " Average Dispatch Speed: " << getAverageDispatchSpeed() << " ms |"
+        " EntityDB Last Read: " << mpEntityDb->getLastReadSpeed() << " ms |"
+        " EntityDB Read Average: " << mpEntityDb->getReadAverageSpeed() << " ms |"
+        " RegDB Last Read: " << mpRegDb->getLastReadSpeed() << " ms |"
+        " RegDB Read Average: " << mpRegDb->getReadAverageSpeed() << " ms |"
+        " Proxy Queue Size: " << getMessageQueue()->numMsgs() << " messages |"
+        " User Agent Queue Size: " << mpSipUserAgent->getMessageQueue()->numMsgs() << " messages |"
+        " Total Active Transactions: " <<  mpSipUserAgent->getSipTransactions().size()
+        );
+  }
+  
+  switch (action)
   {
   case SendRequest:
      // sipRequest may have been rewritten entirely by proxyMessage().

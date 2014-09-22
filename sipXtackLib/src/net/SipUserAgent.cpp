@@ -949,8 +949,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          // other than ACK and CANCEL
          else
          {
-            // Should not be getting here
-            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent::send %s request matches existing transaction",
                           method.data());
 
@@ -1738,32 +1737,47 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
        return;
    }
    
-   if (_maxTransactionCount && mSipTransactions.size() > _maxTransactionCount)
-    {
-      if (!message->isResponse())
+   bool dontDispatch = false;
+   
+   if (SipMessageEvent::APPLICATION && !message->isResponse())
+   {
+      bool midDialogRequest = true;
+
+      Url fromUrl;
+      Url toUrl;
+      UtlString fromTag;
+      UtlString toTag;
+
+      message->getFromUrl(fromUrl);
+      fromUrl.getFieldParameter("tag", fromTag);
+
+      message->getToUrl(toUrl);
+      toUrl.getFieldParameter("tag", toTag);
+
+      midDialogRequest = (!fromTag.isNull() && !toTag.isNull());
+      
+      if (!midDialogRequest)
       {
-        Url fromUrl;
-        Url toUrl;
-        UtlString fromTag;
-        UtlString toTag;
-
-        message->getFromUrl(fromUrl);
-        fromUrl.getFieldParameter("tag", fromTag);
-
-        message->getToUrl(toUrl);
-        toUrl.getFieldParameter("tag", toTag);
-        bool midDialog = !fromTag.isNull() && !toTag.isNull();
-        if (!midDialog)
-        {
-          //
-          // Better to stay silent since we are already overwhelmed 
-          // OS_LOG_WARNING(FAC_SIP, "SipUserAgent::dispatch - Not processing incoming request because transactions limit is reached : " << mSipTransactions.size());
-          //
-          delete message;
-          return;
-        }
+        //
+        // Don't dispatch if we have too much transactions active
+        //
+        dontDispatch = _maxTransactionCount && mSipTransactions.size() > _maxTransactionCount;
       }
-    }
+      
+      if (!dontDispatch && _preDispatch)
+      {
+        //
+        // Don't dispatch if application pre-dispatch exists and returned false;
+        //
+        dontDispatch = !_preDispatch(message);
+      }
+   }
+   
+   if (dontDispatch)
+   {
+      delete message;
+      return;
+   }
 
    ssize_t len;
    UtlString msgBytes;

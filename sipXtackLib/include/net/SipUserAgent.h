@@ -170,6 +170,8 @@ public:
     friend class SipUdpServer;
     friend int SipUdpServer::run(void* runArg);
 
+    typedef boost::function<bool(SipMessage*)> DispatchEvaluator;
+    
     enum EventSubTypes
     {
         UNSPECIFIED = 0,
@@ -707,6 +709,10 @@ public:
     void setMaxTransactionCount(int maxTransactionCount);
     
     int getMaxTransactionCount() const;
+    
+    void setPreDispatchEvaluator(const DispatchEvaluator& preDispatch);
+
+    const SipTransactionList& getSipTransactions() const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -767,7 +773,8 @@ protected:
     void setInviteTransactionTimeoutSeconds(int expiresSeconds);
 
     void garbageCollection();
-
+    
+    
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -879,6 +886,7 @@ private:
     Poco::Semaphore* _pThreadPoolSem;
     int _maxConcurrentThreads;
     int _maxTransactionCount;
+    DispatchEvaluator _preDispatch;
 
     //! Disabled copy constructor
     SipUserAgent(const SipUserAgent& rSipUserAgent);
@@ -909,6 +917,16 @@ inline void SipUserAgent::setMaxTransactionCount(int maxTransactionCount)
 inline int SipUserAgent::getMaxTransactionCount() const
 {
   return _maxTransactionCount;
+}
+
+inline const SipTransactionList& SipUserAgent::getSipTransactions() const
+{
+  return mSipTransactions;
+}
+
+inline void SipUserAgent::setPreDispatchEvaluator(const DispatchEvaluator& preDispatch)
+{
+  _preDispatch = preDispatch;
 }
 
 

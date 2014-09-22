@@ -313,7 +313,7 @@ void SipClientWriteBuffer::writeMore()
          else
          {
             // Error while writing.
-            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipClientWriteBuffer[%s]::writeMore "
                           "OsSocket::write() returned %d, errno = %d",
                           getName().data(), ret, errno);

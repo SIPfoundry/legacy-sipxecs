@@ -11,18 +11,21 @@
 #define _SipRouter_h_
 
 // SYSTEM INCLUDES
-#include "sipdb/EntityDB.h"
 
 // APPLICATION INCLUDES
 #include <os/OsServerTask.h>
 #include "os/OsThreadPool.h"
+#include <os/OsTime.h>
 #include <sipXecsService/SipNonceDb.h>
 #include <utl/PluginHooks.h>
 #include <sipxproxy/AuthPlugin.h>
 #include <net/SipBidirectionalProcessorPlugin.h>
 #include <sipdb/RegDB.h>
+#include "sipdb/EntityDB.h"
+#include "sipdb/SubscribeDB.h"
 #include <Poco/Semaphore.h>
 #include <boost/thread.hpp>
+#include <boost/circular_buffer.hpp>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -79,6 +82,19 @@ class SipRouter : public OsServerTask
     
   typedef boost::mutex mutex_critic_sec;
   typedef boost::lock_guard<mutex_critic_sec> mutex_critic_sec_lock;
+
+  class DispatchTimer
+  {
+  public:
+    DispatchTimer(SipRouter& router);
+    ~DispatchTimer();
+
+  protected:
+    Int64 _start;
+    Int64 _end;
+    SipRouter& _router;
+    friend class SipRouter;  
+  };
 
    /// Default constructor
    SipRouter(SipUserAgent& sipUserAgent, 
@@ -177,6 +193,12 @@ class SipRouter : public OsServerTask
 
    SipUserAgent* getUserAgent() const;
    
+   static EntityDB* getEntityDBInstance();
+   
+   static RegDB* getRegDBInstance();
+   
+   static SubscribeDB* getSubscribeDBInstance();
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
@@ -221,6 +243,14 @@ class SipRouter : public OsServerTask
    
 
    void handleRequest(SipMessage* pMsg);
+   
+   bool preDispatch(SipMessage* pMsg);
+   
+   void registerDispatchTimer(DispatchTimer& dispatchTimer);
+   
+   Int64 getLastDispatchSpeed() const;
+   
+   Int64 getAverageDispatchSpeed() const;
    
    SipUserAgent* mpSipUserAgent;         ///< SIP stack interface
    bool          mAuthenticationEnabled; ///< based on SIPX_PROXY_AUTHENTICATE_ALGORITHM
@@ -270,6 +300,12 @@ class SipRouter : public OsServerTask
    int _rejectOnFilledQueuePercent;
    long _lastFilledQueueAlarmLog;
    int _maxTransactionCount;
+   boost::circular_buffer<Int64> _dispatchSamples;
+   mutable mutex_critic_sec _dispatchSamplesMutex;
+   mutable mutex_critic_sec _preDispatchMutex; 
+   Int64 _lastDispatchSpeed;
+   long _lastDispatchYieldTime;
+   bool _isDispatchYielding;
 };
 
 /* ============================ INLINE METHODS ============================ */

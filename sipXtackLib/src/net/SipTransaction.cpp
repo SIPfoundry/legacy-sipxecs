@@ -434,7 +434,7 @@ SipTransaction::addResponse(SipMessage*& response,
         // 2xx ACK will be sent to proxy and forwarded to next hop
         if (mpAck)
         {
-            Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipTransaction::addResponse"
                           " ACK already exists, IGNORED");
             delete response ;

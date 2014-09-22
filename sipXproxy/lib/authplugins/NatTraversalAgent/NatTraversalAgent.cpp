@@ -163,19 +163,8 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
                     " NAT Traversal feature is DISABLED", mInstanceName.data() );
   }
 
-   if (mpRegDb != NULL) {
-       delete mpRegDb;
-       mpRegDb = NULL;
-   }
-
-
-   mpRegDb = RegDB::CreateInstance();
-
-   if (mpSubscribeDb != NULL) {
-       delete mpSubscribeDb;
-       mpSubscribeDb = NULL;
-   }
-   mpSubscribeDb = new SubscribeDB(MongoDB::ConnectionInfo::globalInfo());
+   mpRegDb = SipRouter::getRegDBInstance();
+   mpSubscribeDb = SipRouter::getSubscribeDBInstance();
 }
 
 AuthPlugin::AuthResult
@@ -1001,16 +990,6 @@ NatTraversalAgent::~NatTraversalAgent()
    }
    mCallTrackersMap.destroyAll();
 
-   if (mpRegDb != NULL)
-   {
-       delete mpRegDb;
-       mpRegDb = NULL;
-   }
-
-   if (mpSubscribeDb != NULL) {
-       delete mpSubscribeDb;
-       mpSubscribeDb = NULL;
-   }
 
    if (mpMediaRelay != NULL)
    {

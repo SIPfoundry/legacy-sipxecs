@@ -152,10 +152,8 @@ namespace MongoDB
   void BaseDB::registerTimer(const UpdateTimer* pTimer)
   {
     boost::lock_guard<boost::mutex> lock(_updateTimerSamplesMutex);
-    
-    int start = pTimer->_start.cvtToMsecs();
-    int end = pTimer->_end.cvtToMsecs();
-    _lastUpdateSpeed = end - start;
+
+    _lastUpdateSpeed = pTimer->_end - pTimer->_start;
     _updateTimerSamples.push_back(_lastReadSpeed);
     
     if (_lastUpdateSpeed > MAX_UPDATE_DELAY_MS)
@@ -178,9 +176,8 @@ namespace MongoDB
   {
     boost::lock_guard<boost::mutex> lock(_readTimerSamplesMutex);
     
-    int start = pTimer->_start.cvtToMsecs();
-    int end = pTimer->_end.cvtToMsecs();
-    _lastReadSpeed = end - start;
+
+    _lastReadSpeed = pTimer->_end - pTimer->_start;
     _readTimerSamples.push_back(_lastReadSpeed);
     
     if (_lastReadSpeed > MAX_READ_DELAY_MS)
@@ -199,39 +196,45 @@ namespace MongoDB
     }
   }
   
-  int BaseDB::getUpdateAverageSpeed() const
+  Int64 BaseDB::getUpdateAverageSpeed() const
   {
     boost::lock_guard<boost::mutex> lock(_updateTimerSamplesMutex);
     
-    int sum = 0;
-    for (boost::circular_buffer<int>::const_iterator iter = _updateTimerSamples.begin(); iter != _updateTimerSamples.end(); iter++)
+    Int64 sum = 0;
+    for (boost::circular_buffer<Int64>::const_iterator iter = _updateTimerSamples.begin(); iter != _updateTimerSamples.end(); iter++)
     {
       sum += *iter;
     }
     
+    if (_updateTimerSamples.empty())
+      return 0;
+    
     return sum / _updateTimerSamples.size();
   }
   
-  int BaseDB::getLastUpdateSpeed() const
+  Int64 BaseDB::getLastUpdateSpeed() const
   {
     boost::lock_guard<boost::mutex> lock(_updateTimerSamplesMutex);
     return _lastUpdateSpeed;
   }
   
-  int BaseDB::getReadAverageSpeed() const
+  Int64 BaseDB::getReadAverageSpeed() const
   {
     boost::lock_guard<boost::mutex> lock(_readTimerSamplesMutex);
     
-    int sum = 0;
-    for (boost::circular_buffer<int>::const_iterator iter = _readTimerSamples.begin(); iter != _readTimerSamples.end(); iter++)
+    Int64 sum = 0;
+    for (boost::circular_buffer<Int64>::const_iterator iter = _readTimerSamples.begin(); iter != _readTimerSamples.end(); iter++)
     {
       sum += *iter;
     }
     
+    if (_readTimerSamples.empty())
+      return 0;
+    
     return sum / _readTimerSamples.size();
   }
   
-  int BaseDB::getLastReadSpeed() const
+  Int64 BaseDB::getLastReadSpeed() const
   {
     boost::lock_guard<boost::mutex> lock(_readTimerSamplesMutex);
     return _lastReadSpeed;
@@ -240,23 +243,31 @@ namespace MongoDB
   UpdateTimer::UpdateTimer(BaseDB& db) :
     _db(db)
   {
-    OsDateTime::getCurTimeSinceBoot(_start);
+    struct timeval sTimeVal;
+    gettimeofday( &sTimeVal, NULL );
+    _start = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
   }
   UpdateTimer::~UpdateTimer()
   {
-    OsDateTime::getCurTimeSinceBoot(_end);
+    struct timeval sTimeVal;
+    gettimeofday( &sTimeVal, NULL );
+    _end = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
     _db.registerTimer(this);
   }
 
   ReadTimer::ReadTimer(BaseDB& db) :
     _db(db)
   {
-    OsDateTime::getCurTimeSinceBoot(_start);
+    struct timeval sTimeVal;
+    gettimeofday( &sTimeVal, NULL );
+    _start = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
   }
 
   ReadTimer::~ReadTimer()
   {
-    OsDateTime::getCurTimeSinceBoot(_end);
+    struct timeval sTimeVal;
+    gettimeofday( &sTimeVal, NULL );
+    _end = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
     _db.registerTimer(this);
   }
   

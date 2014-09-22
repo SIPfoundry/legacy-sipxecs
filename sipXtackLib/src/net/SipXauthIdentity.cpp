@@ -166,7 +166,7 @@ void SipXauthIdentity::normalize(SipMessage & message,  HeaderName headerName)
    {
       UtlString rUri;
       message.getRequestUri(&rUri);
-      Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::remove"
                     ": '%d' occurrances of SipXauthIdentity in request to '%s'",
                     idHeaderCount, rUri.data());

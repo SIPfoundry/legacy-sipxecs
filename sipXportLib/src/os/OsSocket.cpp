@@ -166,7 +166,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
    bytesSent = send(socketDescriptor, buffer, bufferLength, flags);
    if (bytesSent != bufferLength)
    {
-      Os::Logger::instance().log(FAC_KERNEL, PRI_ERR,
+      Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                     "OsSocket::write %d (%s:%d %s:%d) send returned %zd, errno=%d '%s'",
                     socketDescriptor,
                     remoteHostName.data(), remoteHostPort,
@@ -318,7 +318,7 @@ int OsSocket::read(char* buffer, int bufferLength,
 
          // Others should not.
          default:
-            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                           "OsSocket::read %d (%s:%d %s:%d) recvfrom returned %d '%s'",
                           socketDescriptor,
                           remoteHostName.data(), remoteHostPort,
@@ -457,7 +457,7 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
         {
             rSocketError = TRUE;
             numReady = -1;
-            Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
+            Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                           "OsSocket::isReadyToRead %d (%s:%d %s:%d) poll returned %d (errno=%d '%s') in socket: %x %p",
                           socketDescriptor,
                           remoteHostName.data(), remoteHostPort,
@@ -611,7 +611,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
 
        if(resCode < 0)
        {
-          Os::Logger::instance().log(FAC_KERNEL, PRI_WARNING,
+          Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
                         "OsSocket::isReadyToWrite %d (%s:%d %s:%d) poll returned %d (errno=%d '%s') in socket: %d %p",
                         socketDescriptor,
                         remoteHostName.data(), remoteHostPort,

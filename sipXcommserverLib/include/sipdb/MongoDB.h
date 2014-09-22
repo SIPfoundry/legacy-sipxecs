@@ -212,23 +212,23 @@ public:
   
   void registerTimer(const ReadTimer* pTimer);
   
-  int getUpdateAverageSpeed() const;
+  Int64 getUpdateAverageSpeed() const;
   
-  int getLastUpdateSpeed() const;
+  Int64 getLastUpdateSpeed() const;
   
-  int getReadAverageSpeed() const;
+  Int64 getReadAverageSpeed() const;
   
-  int getLastReadSpeed() const;
+  Int64 getLastReadSpeed() const;
   
 protected:
   std::string _ns;
 	mutable ConnectionInfo _info;
-  boost::circular_buffer<int> _updateTimerSamples;
-  boost::circular_buffer<int> _readTimerSamples;
+  boost::circular_buffer<Int64> _updateTimerSamples;
+  boost::circular_buffer<Int64> _readTimerSamples;
   mutable boost::mutex _updateTimerSamplesMutex; 
   mutable boost::mutex _readTimerSamplesMutex; 
-  int _lastReadSpeed;
-  int _lastUpdateSpeed;
+  Int64 _lastReadSpeed;
+  Int64 _lastUpdateSpeed;
   long _lastAlarmLog;
 };
 
@@ -239,8 +239,8 @@ public:
   ~UpdateTimer();
   
 protected:
-  OsTime _start;
-  OsTime _end;
+  Int64 _start;
+  Int64 _end;
   BaseDB& _db;
   friend class BaseDB;
 };
@@ -252,8 +252,8 @@ public:
   ~ReadTimer();
   
 protected:
-  OsTime _start;
-  OsTime _end;
+  Int64 _start;
+  Int64 _end;
   BaseDB& _db;
   friend class BaseDB;  
 };
