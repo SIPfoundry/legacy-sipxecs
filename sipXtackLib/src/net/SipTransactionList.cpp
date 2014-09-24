@@ -101,6 +101,10 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     UtlString callId;
     SipTransaction::buildHash(message, isOutgoing, callId);
 
+#if 0 
+    // Note:  garbage collection is now performed by a separate thread.  No need to call
+    // it here.
+    //     
     //
     // Call garbage collection before we further process existence of a transaction.
     //
@@ -112,6 +116,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     }
     //else { // some other thread is already doing garbageCollection, no need to wait here}
     }
+#endif
 
     lock();
 

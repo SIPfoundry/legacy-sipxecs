@@ -3086,8 +3086,8 @@ void SipUserAgent::garbageCollection()
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
     long bootime = time.seconds();
-
-    long then = bootime - (mTransactionStateTimeoutMs / 1000);
+    long delay = 1/*(mTransactionStateTimeoutMs / 1000)*/;
+    long then = bootime - delay;
     long tcpThen = bootime - mMaxTcpSocketIdleTime;
     long oldTransaction = then - (mTransactionStateTimeoutMs / 1000);
     long oldInviteTransaction = then - mMinInviteTransactionTimeout;
@@ -3099,11 +3099,11 @@ void SipUserAgent::garbageCollection()
         tcpThen = -1;
     }
 
-    if(mLastCleanUpTime < then && getMessageQueue()->isEmpty())      // tx timeout could have happened
+    if(mLastCleanUpTime < then /*&& getMessageQueue()->isEmpty()*/)      // tx timeout could have happened
     {
        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipUserAgent[%s]::garbageCollection reaping terminated transactions.",
-                    getName().data());
+                    "SipUserAgent[%s]::garbageCollection reaping terminated transactions. Message Queue size %d",
+                    getName().data(), getMessageQueue()->numMsgs());
 
        #ifdef LOG_TIME
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
