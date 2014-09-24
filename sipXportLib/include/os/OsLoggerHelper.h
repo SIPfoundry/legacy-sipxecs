@@ -1,6 +1,7 @@
 #ifndef OSLOGGERHELPER_H
 #define	OSLOGGERHELPER_H
 
+#include <syslog.h>
 #include <string>
 #include "os/OsStatus.h"
 #include "os/OsServerTask.h"
@@ -13,6 +14,18 @@ namespace Os
 {
   struct LoggerHelper
   {
+    LoggerHelper()
+    {
+    }
+    
+    ~LoggerHelper()
+    {
+      //
+      // Close the syslog
+      //
+      closelog ();
+    }
+    
     std::string getHostName()
     {
       if (hostName.empty())
@@ -43,18 +56,49 @@ namespace Os
       static LoggerHelper T;
       return T;
     }
+    
+    void initSysLog()
+    {
+      setlogmask (LOG_UPTO (LOG_NOTICE));
+      openlog (0, LOG_PID | LOG_NDELAY | LOG_CONS, LOG_DAEMON );
+      Logger::instance().setExternalLogger(boost::bind(&LoggerHelper::logPreview, this, _1, _2, _3, _4));
+    }
 
     bool initialize(int priorityLevel, const char* path)
     {
+      initSysLog();
       return Logger::instance().initialize<LoggerHelper>(priorityLevel, path, *this);
     }
     
     bool initialize(const char* path)
     {
+      initSysLog();
       return Logger::instance().initialize<LoggerHelper>(path, *this);
     }
     
-    static UtlString unescape(const UtlString& source)
+
+    static UtlString unescape(const UtlString& source);
+
+    bool logPreview(int facility, int level, const std::ostringstream& headers, std::string& message)
+    {
+      //
+      // We dump emergency level to syslog
+      //
+      if (level == PRI_EMERG)
+        syslog (LOG_EMERG, message.c_str());
+      return false; // Tell the subsystem that we are not consuming the log by returning false
+    }
+
+    static bool parseLogString(const std::string& logData,
+                             std::string& date,
+                             std::string& eventCount,
+                             std::string& facility,
+                             std::string& priority,
+                             std::string& hostName,
+                             std::string& taskName,
+                             std::string& taskId,
+                             std::string& processId,
+                             std::string& content)
     {
        UtlString    results ;
        const char* pStart = source.data() ;
