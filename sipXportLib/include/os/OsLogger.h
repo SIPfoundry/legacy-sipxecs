@@ -26,6 +26,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+typedef boost::function<bool(int /*facility*/, int /*level*/, const std::ostringstream& /*headers*/, std::string& /*message*/)> OsExternalLogger;
 
 
 enum tagOsSysLogFacility
@@ -1013,6 +1014,11 @@ namespace Os
       if (_pFilter->filter(facility, level, taskName, headers, message))
       {
         //
+        // Check if an external logger is set and has consumed the log
+        //
+        if (_externalLogger && _externalLogger(facility, level, headers, message))
+          return;
+        //
         // Flush the log
         //
         headers << "\"" << message << "\"" << std::endl;
@@ -1087,6 +1093,11 @@ namespace Os
     {
       _enableConsoleOutput = enableConsoleOutput;
     }
+    
+    void setExternalLogger(const OsExternalLogger& externalLogger)
+    {
+      _externalLogger = externalLogger;
+    }
 
   private:
     TChannel* _pChannel;
@@ -1096,6 +1107,7 @@ namespace Os
     unsigned _flushRate;
     TaskCallBack getCurrentTask;
     bool _enableConsoleOutput;
+    OsExternalLogger _externalLogger;
   };
 
   typedef LogLevelFilter<
