@@ -23,12 +23,18 @@ bundle agent sipxrelay {
 
 bundle agent sipxrelay_logwatcher {
   files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxrelay.tmp"
+      comment => "sipxrelay log watcher tmp",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxrelay/sipxrelay.sec.erb --out $(this.promiser)";
+
     "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxrelay.sec"
       comment => "sipxrelay log watcher",
       create => "true",
       perms => m(644),
-      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxrelay/sipxrelay.sec.erb --out $(this.promiser)",
-      classes => if_repaired("reload_sipxlogwatcher");
+      copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxrelay.tmp"),
+      classes => if_repaired("reload_sipxlogwatcher");      
 }
 
 bundle agent sipxrelay_running {
@@ -79,6 +85,12 @@ bundle edit_line sipxrelay_log4j_properties_contents {
       "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxrelay.log";
       "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
       "log4j.appender.file.layout.facility=sipXrelay";
+      "# ALARMS log";
+      "log4j.logger.alarms=info,alarms";
+	  "log4j.additivity.alarms=false";
+	  "log4j.appender.alarms=org.sipfoundry.commons.log4j.SipFoundryAppender";
+	  "log4j.appender.alarms.File=$(sipx.SIPX_LOGDIR)/sipxrelay-alarms.log";
+	  "log4j.appender.alarms.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
   delete_lines:
     any::
       ".*";

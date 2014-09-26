@@ -57,6 +57,7 @@ public class SymmitronServer implements Symmitron {
 
     static Logger logger = Logger.getLogger(SymmitronServer.class.getPackage()
             .getName());
+    private static Logger alarm_logger = Logger.getLogger("alarms");
 
     protected static Timer timer = new Timer();
 
@@ -1715,7 +1716,7 @@ public class SymmitronServer implements Symmitron {
     }
     
     public static void raiseAlarm(String id, Object... args) {
-        logger.error("ALARM_MEDIA_RELAY_" + format(id, args));
+        alarm_logger.error("ALARM_MEDIA_RELAY_" + format(id, args));
     }
 
     public static void start() throws Exception {

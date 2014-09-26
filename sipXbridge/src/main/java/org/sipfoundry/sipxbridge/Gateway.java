@@ -54,6 +54,7 @@ import org.sipfoundry.sipxrelay.SymmitronClient;
 public class Gateway {
 
     private static Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
+    private static Logger alarm_logger = Logger.getLogger("alarms");
 
     private static String configurationFile = "file:///etc/sipxpbx/sipxbridge.xml";
     private static String domainConfigFile = "file:///etc/sipxpbx/domain-config";
@@ -406,7 +407,7 @@ public class Gateway {
     }
 
     public static void raiseAlarm(String id, Object... args) {
-        logger.error("ALARM_BRIDGE_" + format(id, args));
+        alarm_logger.error("ALARM_BRIDGE_" + format(id, args));
     }
 
     /**

@@ -18,17 +18,33 @@
 bundle agent zz_sipxlogwatcher {
   methods:
     sipxlogwatcher::
+      "any" usebundle => "create_sipxlogwatcher";
       "any" usebundle => "sipxlogwatcher_config";
     any::
       "any" usebundle => "sipxlogwatcher_running";
       "any" usebundle => "sipxlogwatcher_setup";
 }
 
-bundle agent sipxlogwatcher_config {
+bundle agent create_sipxlogwatcher {
   files:
-    sipxlogwatcher::
-      "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc"
-        comment => "Config SIPXLOGWATCHER service",
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc"
+    perms => m(644),
+    create => "true";          
+}
+bundle agent sipxlogwatcher_config {
+  vars:
+    any::
+      "sec_args" string => "SEC_ARGS=";
+      "file_entry" string => "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc";
+      "file_entry_content" string => readfile("$(file_entry)", "9");
+  
+  classes:
+    "sec_args_missing" not => strcmp("$(sec_args)","$(file_entry_content)");
+        
+  files:
+    sipxlogwatcher.sec_args_missing::
+      "$(file_entry)"
+        comment => "Config SIPXLOGWATCHER service $(file_entry_content)",
         create => "true",
         perms => m(644),
         edit_line => sipxlogwatcher_config_contents,
@@ -38,7 +54,7 @@ bundle agent sipxlogwatcher_config {
 bundle edit_line sipxlogwatcher_config_contents {
   insert_lines:
     any::
-      "SEC_ARGS=\"--log=$(sipx.SIPX_LOGDIR)/sipxlogwatcher.log --debug=$(sipx.logwatcher_debug) --detach --conf=$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/*.sec --input=$(sipx.SIPX_LOGDIR)/*.log --input=/var/log/messages --input=/var/log/mongodb/mongodb.log --pid=$(sipx.SIPX_RUNDIR)/sipxlogwatcher.pid --quoting\"";
+      "SEC_ARGS=\"--log=$(sipx.SIPX_LOGDIR)/sipxlogwatcher.log --debug=$(sipx.logwatcher_debug) --detach --conf=$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/*.sec --input=/var/log/mongodb/mongodb.log --input=$(sipx.SIPX_LOGDIR)/*-alarms.log --input=$(sipx.SIPX_LOGDIR)/sipxconfig.log --input=$(sipx.SIPX_LOGDIR)/sipxsecurity.log --input=$(sipx.SIPX_LOGDIR)/backup.log --pid=$(sipx.SIPX_RUNDIR)/sipxlogwatcher.pid --quoting\"";
 
   delete_lines:
     any::
