@@ -61,8 +61,6 @@
 
 typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
-using namespace mongoMod;
-
 namespace MongoDB
 {
    //typedef boost::scoped_ptr<mongo::ScopedDbConnection> ScopedDbConnectionPtr;
@@ -78,19 +76,29 @@ class ConnectionInfo
 {
 public:
 	ConnectionInfo(const ConnectionInfo& rhs) :
-                 _connectionString(rhs._connectionString), _shard(rhs._shard), _useReadTags(rhs._useReadTags)
+      _connectionString(rhs._connectionString),
+      _shard(rhs._shard),
+      _useReadTags(rhs._useReadTags),
+      _clusterId(rhs._clusterId),
+      _queryTimeoutMs(rhs._queryTimeoutMs)
 	{
 	}
 	;
 
 	ConnectionInfo(const mongo::ConnectionString& connectionString) :
-		 _connectionString(connectionString), _shard(0), _useReadTags(false)
+		 _connectionString(connectionString),
+		 _shard(0),
+		 _useReadTags(false),
+		 _queryTimeoutMs(0)
 	{
 	}
 	;
 
 	ConnectionInfo(const mongo::ConnectionString& connectionString, const int shard) :
-		 _connectionString(connectionString), _shard(shard), _useReadTags(false)
+		 _connectionString(connectionString),
+		 _shard(shard),
+		 _useReadTags(false),
+       _queryTimeoutMs(0)
 	{
 	}
 	;
@@ -157,15 +165,26 @@ public:
     return _clusterId;
   }
 
+  const unsigned int getQueryTimeoutMs() const
+  {
+    return _queryTimeoutMs;
+  }
+
 private:
 
- ConnectionInfo() : _connectionString(), _shard(0), _useReadTags(false) {
-	}
+  ConnectionInfo() :
+      _connectionString(),
+      _shard(0),
+      _useReadTags(false),
+      _queryTimeoutMs(0)
+  {
+  }
 
 	mongo::ConnectionString _connectionString;
 	int _shard;
   bool _useReadTags; 
   std::string _clusterId;
+  unsigned int _queryTimeoutMs;
 };
 
 class BaseDB
@@ -211,6 +230,8 @@ public:
 	const bool useReadTags() const { return _info.useReadTags(); };
   
   const std::string& getClusterId() const { return _info.getClusterId(); }
+
+  const double getQueryTimeout() const { double queryTimeout = _info.getQueryTimeoutMs(); return queryTimeout/1000; }
 
 protected:
 	mutable ConnectionInfo _info;

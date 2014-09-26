@@ -53,65 +53,101 @@ const ConnectionInfo ConnectionInfo::globalInfo()
 
 const ConnectionInfo ConnectionInfo::localInfo()
 {
-	ifstream file(SIPX_CONFDIR "/mongo-local.ini");
-    if (!file)
-    {
-    	return ConnectionInfo();
-    }
-    return ConnectionInfo(file);
+  ifstream file(SIPX_CONFDIR "/mongo-local.ini");
+
+  if (!file)
+  {
+    return ConnectionInfo();
+  }
+
+  return ConnectionInfo(file);
 }
 
-ConnectionInfo::ConnectionInfo(ifstream& file) : _shard(0), _useReadTags(false)
+ConnectionInfo::ConnectionInfo(ifstream& file) :
+    _shard(0),
+    _useReadTags(false),
+    _queryTimeoutMs(0)
 {
-	set<string> options;
-    options.insert("*");
-    string connectionString;
-    for (boost::program_options::detail::config_file_iterator i(file, options), e; i != e; ++i) {
-        if (i->string_key == "connectionString") {
-        	connectionString = i->value[0];
-        }
-        if (i->string_key == "shardId") {
-        	_shard = atoi(i->value[0].c_str());
-        }
-        if (i->string_key == "clusterId")
-        {
-          _clusterId = i->value[0];
-        }
-        if (i->string_key == "useReadTags") {
-  	  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, i->value[0].c_str());
-	  if (strncmp(i->value[0].c_str(), "true", 4) == 0) {
-    	    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "useReadTags enabled");
-	    _useReadTags = true;
-	  }
-        }
-    }
-    file.close();
-    if (connectionString.size() == 0)
+  set<string> options;
+  options.insert("*");
+  string connectionString;
+  for (boost::program_options::detail::config_file_iterator i(file, options), e; i != e; ++i)
+  {
+    if (i->string_key == "connectionString")
     {
-        BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(std::string("Invalid contents, missing parameter 'connectionString' in file ")));
+      connectionString = i->value[0];
     }
 
-	string errmsg;
-	_connectionString = mongo::ConnectionString::parse(connectionString, errmsg);
-	if (!_connectionString.isValid()) {
-	    BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(errmsg));
-	}
-  	Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", connectionString.c_str());
+    if (i->string_key == "shardId")
+    {
+      _shard = atoi(i->value[0].c_str());
+    }
+
+    if (i->string_key == "clusterId")
+    {
+      _clusterId = i->value[0];
+    }
+
+    if (i->string_key == "useReadTags")
+    {
+      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, i->value[0].c_str());
+      if (strncmp(i->value[0].c_str(), "true", 4) == 0)
+      {
+        _useReadTags = true;
+      }
+    }
+
+    if (i->string_key == "queryTimeoutMs")
+    {
+      _queryTimeoutMs = atoi(i->value[0].c_str());
+    }
+  }
+
+  OS_LOG_INFO(FAC_SIP, "ConnectionInfo::ConnectionInfo "
+      << "connectionString: " << connectionString
+      << ", shardId: " << _shard
+      << ", clusterId: " << _clusterId
+      << ", useReadTags: " << _useReadTags
+      << ", queryTimeoutMs: " << _queryTimeoutMs);
+
+  file.close();
+  if (connectionString.size() == 0)
+  {
+    BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(std::string("Invalid contents, missing parameter 'connectionString' in file ")));
+  }
+
+  string errmsg;
+  _connectionString = mongo::ConnectionString::parse(connectionString, errmsg);
+  if (!_connectionString.isValid())
+  {
+    BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(errmsg));
+  }
+
+  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", connectionString.c_str());
 }
 
-void  BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const {
-	if (_info.useReadTags()) {
-	  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Using read preferences tags for ");
-	  std::string shardIdStr = boost::to_string(getShardId());
+void  BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const
+{
+  if (_info.useReadTags())
+  {
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Using read preferences tags for ");
+    std::string shardIdStr = boost::to_string(getShardId());
     std::string clusterId = getClusterId();
+
     if (clusterId.empty())
+    {
       clusterId = "1"; // for backward compatibility with old behavior
-	  mongo::BSONArray tags = BSON_ARRAY(BSON("shardId" << shardIdStr) << BSON("clusterId" << clusterId));
-	  builder.append("$readPreference", BSON("mode" << readPreferrence << "tags" << tags));
-	} else {
-	  builder.append("$readPreference", BSON("mode" << readPreferrence));
-	}
-	builder.append("query", query);
+    }
+
+    mongo::BSONArray tags = BSON_ARRAY(BSON("clusterId" << clusterId) << BSON("shardId" << shardIdStr));
+    builder.append("$readPreference", BSON("mode" << readPreferrence << "tags" << tags));
+  }
+  else
+  {
+    builder.append("$readPreference", BSON("mode" << readPreferrence));
+  }
+
+  builder.append("query", query);
 }
 
 void  BaseDB::nearest(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const
@@ -124,19 +160,18 @@ void  BaseDB::primaryPreferred(mongo::BSONObjBuilder& builder, mongo::BSONObj qu
   setReadPreference(builder, query, "primaryPreferred");
 }
 
-
 void BaseDB::forEach(mongo::BSONObj& query, const std::string& ns, boost::function<void(mongo::BSONObj)> doSomething)
 {
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
-    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns, query, 0, 0, 0, mongo::QueryOption_SlaveOk);
-    if (pCursor.get() && pCursor->more())
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getQueryTimeout()));
+  auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns, query, 0, 0, 0, mongo::QueryOption_SlaveOk);
+  if (pCursor.get() && pCursor->more())
+  {
+    while (pCursor->more())
     {
-        while (pCursor->more())
-        {
-            doSomething(pCursor->next());
-        }
+      doSomething(pCursor->next());
     }
+  }
 
-    conn->done();
+  conn->done();
 }
 

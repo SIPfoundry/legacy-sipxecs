@@ -604,6 +604,7 @@ int main(int argc, char* argv[]) {
       "",
       PROXY_CONFIG_PREFIX,
       false, // do not check mongo connection
+      true,
       true, // increase application file descriptor limits
       SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,

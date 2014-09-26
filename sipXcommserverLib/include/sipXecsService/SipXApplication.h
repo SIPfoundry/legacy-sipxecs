@@ -29,6 +29,7 @@ struct SipXApplicationData
   std::string _configPrefix;      // Configuration prefix
 
   bool _checkMongo;               // Tells if mongo connection will be check or not
+  bool _enableMongoDriverLogging;
   bool _increaseResourceLimits;   // Tells if file descriptor limits should be increased or not
 
 
@@ -193,6 +194,8 @@ class SipXApplication
       * Signal handler function called when SIGUSR2 is received. Currently the action is to start portlib instrumentation
       */
     void handleSIGUSR2();
+
+    void enableMongoDriverLogging() const;
 
     OsServiceOptions* _pOsServiceOptions; // Configuration Database (used for OsSysLog)
     SipXApplicationData _appData;       // SipXApplicationData structure

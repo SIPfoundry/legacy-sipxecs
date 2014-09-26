@@ -91,6 +91,7 @@ main(int argc, char* argv[] )
       CONFIG_NODE_FILE,
       CONFIG_SETTING_PREFIX,
       false, // do not check mongo connection
+      true, // enable mongo driver logging
       true, // increase application file descriptor limits
       SipXApplicationData::ConfigFileFormatConfigDb, // format type for configuration file
       OsMsgQShared::QUEUE_UNLIMITED,

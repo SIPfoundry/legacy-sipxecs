@@ -19,7 +19,7 @@
 
 #include <os/OsLogger.h>
 
-const string MongoOpLog::NS("local.oplog.rs");
+const std::string MongoOpLog::NS("local.oplog.rs");
 
 const int MongoOpLog::MULTIPLIER = 1000;
 

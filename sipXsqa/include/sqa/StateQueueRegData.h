@@ -17,6 +17,8 @@
 #ifndef STATEQUEUEREGDATA_H
 #define	STATEQUEUEREGDATA_H
 
+#include "sqaclient.h"
+#include "StateQueueClient.h"
 #include "StateQueueMessage.h"
 
 struct StateQueueRegDataRecord

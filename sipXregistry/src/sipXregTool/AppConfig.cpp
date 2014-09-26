@@ -143,6 +143,7 @@ bool AppConfig::parseOptions()
       "",
 
       false, // do not check mongo connection
+      false, // do not enable mongo driver logging
       false, // increase application file descriptor limits
       SipXApplicationData::ConfigFileFormatIni, // format type for configuration file
       OsMsgQShared::QUEUE_LIMITED, //limited queue

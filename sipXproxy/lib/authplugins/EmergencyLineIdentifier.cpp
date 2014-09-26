@@ -153,7 +153,7 @@ bool DB::findE911LineIdentifier(
     std::string& location)
 {
   mongo::BSONObj query = BSON(EntityRecord::identity_fld() << userId);
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getQueryTimeout()));
     mongo::BSONObjBuilder builder;
     BaseDB::nearest(builder, query);
     std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
@@ -183,7 +183,7 @@ bool DB::findE911InstrumentIdentifier(
   OS_LOG_INFO(FAC_SIP, "");
   mongo::BSONObj query = BSON("mac" << instrument);
 
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getQueryTimeout()));
 
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query);
