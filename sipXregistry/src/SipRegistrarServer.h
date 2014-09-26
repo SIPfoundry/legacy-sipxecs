@@ -115,9 +115,17 @@ protected:
         const unsigned long timeNow, ///< base time for all expiration calculations
         const SipMessage& registerMessage, ///< message containing bindings
         RegistrationExpiryIntervals*& expiryIntervalsUsed,
-        bool& isUnregister); ///< returns the expiry interval used to bound the expiry of the registration
+        bool& isUnregister, std::vector<RegBinding::Ptr>& newBindings);
 
-
+    void mergeNewBindings(
+      const RegDB::Bindings& unexpiredRegs, 
+      const std::vector<RegBinding::Ptr>& newBindings, 
+      RegDB::Bindings& mergedResult);
+    
+    void validateUnregisteredBindings(
+      const SipMessage& registerMessage, 
+      const RegDB::Bindings& unexpiredBindings, 
+      RegDB::Bindings& mergedResult);
 
     // Process a single REGISTER request
     UtlBoolean handleMessage( OsMsg& eventMessage );

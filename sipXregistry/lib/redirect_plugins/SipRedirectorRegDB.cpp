@@ -129,13 +129,13 @@ SipRedirectorRegDB::lookUp(
          //   getUnexpiredContactsUserInstrument(requestUriCopy, instrumentp, timeNow, registrations);
          UtlString identity;
          requestUriCopy.getIdentity(identity);
-         regDb->getUnexpiredContactsUserInstrument(identity.str(), instrumentp, timeNow, registrations, true);
+         regDb->getUnexpiredContactsUserInstrument(identity.str(), instrumentp, timeNow, registrations);
       }
       else
       {
          // This is a ~~in~[instrument] URI.
          const char* instrumentp = user.data() + sizeof (URI_IN_PREFIX) - 1;
-         regDb->getUnexpiredContactsInstrument(instrumentp, timeNow, registrations, true);
+         regDb->getUnexpiredContactsInstrument(instrumentp, timeNow, registrations);
       }         
    }
    else
@@ -148,7 +148,7 @@ SipRedirectorRegDB::lookUp(
 
       UtlString identity;
      requestUriCopy.getIdentity(identity);
-     regDb->getUnexpiredContactsUser(identity.str(), timeNow, registrations, true);
+     regDb->getUnexpiredContactsUser(identity.str(), timeNow, registrations);
 
    }
 

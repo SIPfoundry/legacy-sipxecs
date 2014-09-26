@@ -76,53 +76,70 @@ namespace MongoDB
       }
       return ConnectionInfo(file);
   }
-
+  
   ConnectionInfo::ConnectionInfo(ifstream& file) : _shard(0), _useReadTags(false)
   {
     set<string> options;
-      options.insert("*");
-      string connectionString;
-      for (boost::program_options::detail::config_file_iterator i(file, options), e; i != e; ++i) {
-          if (i->string_key == "connectionString") {
-            connectionString = i->value[0];
-          }
-          if (i->string_key == "shardId") {
-            _shard = atoi(i->value[0].c_str());
-          }
-          if (i->string_key == "useReadTags") {
-        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, i->value[0].c_str());
-      if (strncmp(i->value[0].c_str(), "true", 4) == 0) {
-            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "useReadTags enabled");
-        _useReadTags = true;
-      }
-          }
-      }
-      file.close();
-      if (connectionString.size() == 0)
+    options.insert("*");
+    string connectionString;
+    for (boost::program_options::detail::config_file_iterator i(file, options), e; i != e; ++i) 
+    {
+      if (i->string_key == "connectionString") 
       {
-          BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(std::string("Invalid contents, missing parameter 'connectionString' in file ")));
+        connectionString = i->value[0];
       }
-
+      if (i->string_key == "shardId") 
+      {
+        _shard = atoi(i->value[0].c_str());
+      }
+      if (i->string_key == "clusterId")
+      {
+        _clusterId = i->value[0];
+      }
+      if (i->string_key == "useReadTags") 
+      {
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, i->value[0].c_str());
+        if (strncmp(i->value[0].c_str(), "true", 4) == 0) 
+        {
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "useReadTags enabled");
+          _useReadTags = true;
+        }
+      }
+    }
+    
+    file.close();
+    if (connectionString.size() == 0)
+    {
+        BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(std::string("Invalid contents, missing parameter 'connectionString' in file ")));
+    }
+    
     string errmsg;
     _connectionString = mongo::ConnectionString::parse(connectionString, errmsg);
     if (!_connectionString.isValid()) {
         BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(errmsg));
     }
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", connectionString.c_str());
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", connectionString.c_str());
   }
-
-  void  BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const {
-    if (_info.useReadTags()) {
+  
+  void  BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const 
+  {
+    if (_info.useReadTags()) 
+    {
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Using read preferences tags for ");
       std::string shardIdStr = boost::to_string(getShardId());
-      mongo::BSONArray tags = BSON_ARRAY(BSON("shardId" << shardIdStr) << BSON("clusterId" << "1"));
+      std::string clusterId = getClusterId();
+      if (clusterId.empty())
+        clusterId = "1"; // for backward compatibility with old behavior
+      mongo::BSONArray tags = BSON_ARRAY(BSON("shardId" << shardIdStr) << BSON("clusterId" << clusterId));
       builder.append("$readPreference", BSON("mode" << readPreferrence << "tags" << tags));
-    } else {
+    } 
+    else 
+    {
       builder.append("$readPreference", BSON("mode" << readPreferrence));
     }
     builder.append("query", query);
   }
-
+ 
   void  BaseDB::nearest(mongo::BSONObjBuilder& builder, mongo::BSONObj query) const
   {
     setReadPreference(builder, query, "nearest");
@@ -195,7 +212,7 @@ namespace MongoDB
       }
     }
   }
-  
+ 
   Int64 BaseDB::getUpdateAverageSpeed() const
   {
     boost::lock_guard<boost::mutex> lock(_updateTimerSamplesMutex);
@@ -247,6 +264,7 @@ namespace MongoDB
     gettimeofday( &sTimeVal, NULL );
     _start = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
   }
+  
   UpdateTimer::~UpdateTimer()
   {
     struct timeval sTimeVal;
@@ -270,7 +288,7 @@ namespace MongoDB
     _end = (Int64)( sTimeVal.tv_sec * 1000 + ( sTimeVal.tv_usec / 1000 ) );
     _db.registerTimer(this);
   }
-  
+
 } // namespace MongoDB
 
 
