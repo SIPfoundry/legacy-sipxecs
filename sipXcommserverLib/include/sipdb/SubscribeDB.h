@@ -79,7 +79,7 @@ public:
 	;
 
     void getAll(Subscriptions& subscriptions,
-        bool preferPrimary = true);
+        bool preferPrimary = false);
 
     void upsert (
         const UtlString& component,
@@ -119,7 +119,7 @@ public:
        const UtlString& from,
        const UtlString& callid,
        const unsigned long timeNow,
-        bool preferPrimary = true);
+        bool preferPrimary = false);
 
 //    void removeRows (const UtlString& key);
 
@@ -131,13 +131,13 @@ public:
         const UtlString& eventTypeKey,
         const unsigned long& timeNow,
         Subscriptions& subscriptions,
-        bool preferPrimary = true);
+        bool preferPrimary = false);
 
     void getUnexpiredContactsFieldsContaining(
         UtlString& substringToMatch,
         const unsigned long& timeNow,
         std::vector<std::string>& matchingContactFields,
-        bool preferPrimary = true ) const;
+        bool preferPrimary = false ) const;
 
     void updateNotifyUnexpiredSubscription (
         const UtlString& component,
@@ -172,10 +172,10 @@ public:
        const UtlString& totag,
        UtlString& from,
        UtlString& to,
-       bool preferPrimary = true) const;
+       bool preferPrimary = false) const;
 
     int getMaxVersion(const UtlString& uri,
-        bool preferPrimary = true) const;
+        bool preferPrimary = false) const;
 
     void removeAllExpired();
 
