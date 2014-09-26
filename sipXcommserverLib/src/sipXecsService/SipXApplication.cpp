@@ -419,24 +419,23 @@ void SipXApplication::waitForTerminationRequest(int seconds)
   std::cout << "Termination Signal RECEIVED" << std::endl;
 }
 
-static mongo::LogLevel convertToMongoLogLevel(unsigned int logLevel)
+static int convertToMongoLogLevel(int level)
 {
-  logLevel = SipXApplication::normalizeLogLevel(logLevel);
+  OsSysLogPriority logLevel = (OsSysLogPriority)SipXApplication::normalizeLogLevel(level);
 
   switch (logLevel)
   {
   case PRI_DEBUG:
-    return mongo::LL_DEBUG;
+    return 5;
   case PRI_INFO:
-      return mongo::LL_INFO;
+    return 4;
   case PRI_NOTICE:
-      return mongo::LL_NOTICE;
+    return 3;
   case PRI_WARNING:
-      return mongo::LL_WARNING;
+    return 2;
   case PRI_ERR:
-      return mongo::LL_ERROR;
   default:
-      return mongo::LL_SEVERE;
+      return 1;
   }
 }
 
@@ -446,7 +445,7 @@ void SipXApplication::enableMongoDriverLogging() const
   OsServiceOptions mongoClientConfig(mongoClientIniFilePath);
 
   mongoClientConfig.addOptionString(0, "enable-driver-logging", "", OsServiceOptions::ConfigOption, false);
-  mongoClientConfig.addOption<unsigned int>(0, "driver-log-level","", OsServiceOptions::ConfigOption, false);
+  mongoClientConfig.addOption<int>(0, "driver-log-level","", OsServiceOptions::ConfigOption, false);
 
   if (mongoClientConfig.parseOptions())
   {
@@ -456,8 +455,8 @@ void SipXApplication::enableMongoDriverLogging() const
 
     if (enableDriverLogging)
     {
-      unsigned int driverLogLevel = 0;
-      mongoClientConfig.getOption<unsigned int>("driver-log-level", driverLogLevel);
+      int driverLogLevel = 0;
+      mongoClientConfig.getOption<int>("driver-log-level", driverLogLevel);
       OS_LOG_INFO(FAC_SIP, "SipXApplication::enableMongoDriverLogging Mongo driver log level = " << driverLogLevel);
 
       mongo::logLevel = convertToMongoLogLevel(driverLogLevel);
