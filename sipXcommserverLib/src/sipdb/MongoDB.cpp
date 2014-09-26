@@ -97,7 +97,7 @@ ConnectionInfo::ConnectionInfo(ifstream& file) :
       }
     }
 
-    if (i->string_key == "queryTimeoutMs")
+    if (i->string_key == "query-timeout-ms")
     {
       _queryTimeoutMs = atoi(i->value[0].c_str());
     }
