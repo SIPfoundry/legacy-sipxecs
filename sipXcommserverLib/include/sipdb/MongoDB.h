@@ -152,10 +152,10 @@ public:
 	}
 	;
   
-    const int getClusterId() const
-    {
-      return _clusterId;
-    }
+  const std::string& getClusterId() const
+  {
+    return _clusterId;
+  }
 
 private:
 
@@ -164,8 +164,8 @@ private:
 
 	mongo::ConnectionString _connectionString;
 	int _shard;
-    bool _useReadTags; 
-    int _clusterId;
+  bool _useReadTags; 
+  std::string _clusterId;
 };
 
 class BaseDB
