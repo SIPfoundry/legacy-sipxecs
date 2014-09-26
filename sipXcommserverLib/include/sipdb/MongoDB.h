@@ -151,6 +151,11 @@ public:
 		return !_connectionString.isValid();
 	}
 	;
+  
+  const std::string& getClusterId() const
+  {
+    return _clusterId;
+  }
 
 private:
 
@@ -159,7 +164,8 @@ private:
 
 	mongo::ConnectionString _connectionString;
 	int _shard;
-        bool _useReadTags; 
+  bool _useReadTags; 
+  std::string _clusterId;
 };
 
 class BaseDB
@@ -203,6 +209,8 @@ public:
 	const int getShardId() const { return _info.getShardId(); };
 
 	const bool useReadTags() const { return _info.useReadTags(); };
+  
+  const std::string& getClusterId() const { return _info.getClusterId(); }
 
 protected:
 	mutable ConnectionInfo _info;
