@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.commserver.Location;
 
 public class InvalidChange {
-    private static final String ERROR_REQUIRED_FEATURE_AT_LOCATION = "&error.requiredFeatureAtLocation.{0}.{1}.{2}";
     private Feature m_feature;
     private Location m_location;
     private InvalidChangeException m_message;

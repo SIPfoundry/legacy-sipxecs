@@ -34,17 +34,19 @@ public class MongoConfigTest {
     private Location m_s2;
     private List<Location> m_single;
     private List<Location> m_multi;
-    
+
     @Before
     public void setUp() {
         m_config = new MongoConfig();
         m_s1 = new Location("one");
+        m_s1.setUniqueId(1);
         m_s1.setRegionId(regionOne);
         m_s2 = new Location("two");
+        m_s2.setUniqueId(2);
         m_multi = Arrays.asList(m_s1, m_s2);
         m_single = Collections.singletonList(m_s1);
     }
-    
+
     @Test
     public void getConnectionString() {
         assertEquals("sipxecs/one:1", m_config.getConnectionString(m_single, "sipxecs", 1));
@@ -53,8 +55,7 @@ public class MongoConfigTest {
 
     @Test
     public void getConnectionUrl() {
-        assertEquals("mongodb://one:1/?readPreference=nearest&readPreferenceTags=shardId:99;readPreferenceTags=clusterId:1;readPreferenceTags=", m_config.getConnectionUrl(m_single, 99, true, 1));
-        assertEquals("mongodb://one:1,two:1/?readPreference=nearest", m_config.getConnectionUrl(m_multi, 66, false, 1));
+        assertEquals("mongodb://one:1/?readPreference=nearest&readPreferenceTags=clusterId:1;readPreferenceTags=shardId:99;readPreferenceTags=", m_config.getConnectionUrl(m_single, 1, 99, 1));
     }
 
     @Test
