@@ -161,6 +161,7 @@ int main(int argc, char** argv)
       "",
       "",
       false, // do not check mongo connection
+      false,
       true, // increase application file descriptor limits
       SipXApplicationData::ConfigFileFormatIni, // format type for configuration file
       OsMsgQShared::QUEUE_LIMITED, //limited queue
