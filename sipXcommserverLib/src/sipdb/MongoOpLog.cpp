@@ -139,14 +139,14 @@ bool MongoOpLog::processQuery(mongo::DBClientCursor* cursor,
 
   while (_isRunning)
   {
-    if(!cursor->more())
+    if (!cursor->more())
     {
       if (_querySleepTime)
       {
         sleep(_querySleepTime);
       }
 
-      if(cursor->isDead())
+      if (cursor->isDead())
       {
         break;
       }
@@ -263,7 +263,7 @@ void MongoOpLog::internal_run()
   // WARNING: BSONObj must stay in scope for the life of the BSONElement
   createQuery(_lastEntry, query);
 
-  MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+  MongoDB::ScopedDbConnectionPtr pConn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
 
   while (_isRunning)
   {
