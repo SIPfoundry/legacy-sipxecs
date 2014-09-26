@@ -75,7 +75,7 @@ ConnectionInfo::ConnectionInfo(ifstream& file) : _shard(0), _useReadTags(false)
         }
         if (i->string_key == "clusterId")
         {
-          _clusterId = i->value[0];
+          _clusterId = atoi(i->value[0].c_str());
         }
         if (i->string_key == "useReadTags") {
   	  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, i->value[0].c_str());
@@ -103,10 +103,8 @@ void  BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj q
 	if (_info.useReadTags()) {
 	  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Using read preferences tags for ");
 	  std::string shardIdStr = boost::to_string(getShardId());
-    std::string clusterId = getClusterId();
-    if (clusterId.empty())
-      clusterId = "1"; // for backward compatibility with old behavior
-	  mongo::BSONArray tags = BSON_ARRAY(BSON("shardId" << shardIdStr) << BSON("clusterId" << clusterId));
+      std::string clusterIdStr = boost::to_string(getClusterId());
+	  mongo::BSONArray tags = BSON_ARRAY(BSON("clusterId" << clusterIdStr) << BSON("shardId" << shardIdStr));
 	  builder.append("$readPreference", BSON("mode" << readPreferrence << "tags" << tags));
 	} else {
 	  builder.append("$readPreference", BSON("mode" << readPreferrence));
