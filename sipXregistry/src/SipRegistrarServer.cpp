@@ -791,10 +791,23 @@ void SipRegistrarServer::validateUnregisteredBindings(const SipMessage& register
   //
   // Loop through the reg bindings and remove the current registerContactStr from the vector
   //
+  Url registerContactURL(registerContactStr);
+  UtlString hostPort;
+  registerContactURL.getHostWithPort(hostPort);
   for (RegDB::Bindings::const_iterator iter = unexpiredBindings.begin(); iter != unexpiredBindings.end(); iter++)
   {
-    if (iter->getContact().find(registerContactStr.data()) == std::string::npos)
+    Url contact(iter->getContact().c_str());
+    UtlString contactHost;
+    contact.getHostWithPort(contactHost);
+    if (contactHost != hostPort)
+    {
+      
       mergedResult.push_back(*iter);
+    }
+    else
+    {
+      OS_LOG_INFO(FAC_SIP, "SipRegistrarServer::validateUnregisteredBinding: Manually removing unregistered contact " << iter->getContact() );
+    }
   }
 
 }
@@ -822,7 +835,10 @@ void SipRegistrarServer::mergeNewBindings(const RegDB::Bindings& unexpiredRegs, 
     }
     
     if (!found)
+    {
+      OS_LOG_INFO(FAC_SIP, "SipRegistrarServer::mergeNewBindings: Manually merging " << rec->getContact() << " to the list of registered bindings.");
       mergedResult.push_back(*(rec.get()));
+    }
   }
 }
 
@@ -932,9 +948,13 @@ void SipRegistrarServer::handleRegister(SipMessage* pMsg)
                   RegDB::Bindings registrations;
                   
                   if (!isUnregister)
+                  {
                     mergeNewBindings(unexpiredRegs, newBindings, registrations);
+                  }
                   else
+                  {
                     validateUnregisteredBindings(message, unexpiredRegs, registrations);
+                  }
                            
                   if (!isUnregister && applyStatus == REGISTER_SUCCESS && registrations.empty())
                   {
