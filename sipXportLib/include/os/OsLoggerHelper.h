@@ -63,26 +63,51 @@ namespace Os
       openlog (0, LOG_PID | LOG_NDELAY | LOG_CONS, LOG_DAEMON );
       Logger::instance().setExternalLogger(boost::bind(&LoggerHelper::logPreview, this, _1, _2, _3, _4));
     }
+    
+    void initAlarmLog(const char* alarmLog)
+    {
+      if (!alarmLog)
+        return;
+      
+      std::ostringstream path;
+      path << alarmLog;
+      _alarmLog.open(path.str().c_str());
+    }
 
-    bool initialize(int priorityLevel, const char* path)
+    bool initialize(int priorityLevel, const char* path, const char* alarmLog = 0)
     {
       initSysLog();
+      initAlarmLog(alarmLog);
       return Logger::instance().initialize<LoggerHelper>(priorityLevel, path, *this);
     }
     
-    bool initialize(const char* path)
+    bool initialize(const char* path, const char* alarmLog = 0)
     {
       initSysLog();
+      initAlarmLog(alarmLog);
       return Logger::instance().initialize<LoggerHelper>(path, *this);
     }
     
     bool logPreview(int facility, int level, const std::ostringstream& headers, std::string& message)
     {
       //
-      // We dump emergency level to syslog
+      // Dump critical->emergency log entries to alarms 
       //
-      if (level == PRI_EMERG)
-        syslog (LOG_EMERG, message.c_str());
+      if (level >= PRI_CRIT)
+      {
+        if (_alarmLog.is_open())
+        {
+          std::ostringstream log;
+          log << headers.str() << "\"" << message << "\"" << std::endl;
+          _alarmLog.write(log.str().c_str(), log.str().size());
+        }
+        //
+        // We dump emergency level to syslog as well
+        //
+        if (level == PRI_EMERG)
+          syslog (LOG_EMERG, message.c_str());
+      }
+      
       return false; // Tell the subsystem that we are not consuming the log by returning false
     }
 
@@ -174,6 +199,9 @@ namespace Os
 
     std::string hostName;
     std::string processName;
+    
+  protected:
+    LogFileChannel _alarmLog;
   };
 }
 
