@@ -354,6 +354,7 @@ void SipXApplication::initLoggerByConfigurationFile()
   UtlString consoleLogging;      // Enable console logging by default?
   UtlString fileTarget;         // Path to store log file.
   UtlBoolean bSpecifiedDirError ;  // Set if the specified log dir does not
+  std::ostringstream alarmLogfile; // Where to dump alarms
                         // exist
 
   // If no log file is given don't start logger
@@ -401,6 +402,8 @@ void SipXApplication::initLoggerByConfigurationFile()
     fileTarget = workingDirectory +
       OsPathBase::separator +
       _appData._logFilename;
+    
+    alarmLogfile << workingDirectory.data() << OsPathBase::separator << _appData._appName << "-alarms.log";
   }
   else
   {
@@ -412,6 +415,8 @@ void SipXApplication::initLoggerByConfigurationFile()
     fileTarget = fileTarget +
       OsPathBase::separator +
       _appData._logFilename;
+    
+    alarmLogfile << fileTarget.data() << OsPathBase::separator << _appData._appName << "-alarms.log";
   }
 
 
@@ -420,7 +425,7 @@ void SipXApplication::initLoggerByConfigurationFile()
   //
   SipXecsService::setLogPriority(_pOsServiceOptions->getOsConfigDb(), _appData._configPrefix.c_str());
   Os::Logger::instance().setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-  Os::LoggerHelper::instance().initialize(fileTarget);
+  Os::LoggerHelper::instance().initialize(fileTarget.data(), alarmLogfile.str().c_str());
 
   //
   // Get/Apply console logging
