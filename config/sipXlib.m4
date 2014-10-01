@@ -594,9 +594,11 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     fi
     SIPXCOMMSERVERLIB=$foundpath
 
-    AC_SUBST(SIPXCOMMSERVER_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserver.la"])
+    POCO_LIBS="-lPocoFoundation -lPocoUtil -lPocoNet -lPocoXML"
+    AC_SUBST(SIPXCOMMSERVER_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserver.la $POCO_LIBS"])
+
     # just assume that the test lib is there too
-    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserverTest.la"])
+    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserverTest.la POCO_LIBS"])
 ]) # SFAC_LIB_COMMSERVER
 
 
