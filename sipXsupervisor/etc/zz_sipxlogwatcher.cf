@@ -17,38 +17,29 @@
 
 bundle agent zz_sipxlogwatcher {
   methods:
-    sipxlogwatcher::
-      "any" usebundle => "create_sipxlogwatcher";
+    sipxlogwatcher::      
       "any" usebundle => "sipxlogwatcher_config";
     any::
       "any" usebundle => "sipxlogwatcher_running";
       "any" usebundle => "sipxlogwatcher_setup";
 }
 
-bundle agent create_sipxlogwatcher {
-  files:
-    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc"
-    perms => m(644),
-    create => "true";          
-}
 bundle agent sipxlogwatcher_config {
-  vars:
-    any::
-      "sec_args" string => "SEC_ARGS=";
-      "file_entry" string => "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc";
-      "file_entry_content" string => readfile("$(file_entry)", "9");
-  
-  classes:
-    "sec_args_missing" not => strcmp("$(sec_args)","$(file_entry_content)");
-        
+  # Generate sipxlogwatcher-rc only once
   files:
-    sipxlogwatcher.sec_args_missing::
-      "$(file_entry)"
-        comment => "Config SIPXLOGWATCHER service $(file_entry_content)",
+    sipxlogwatcher::
+      "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc.tmp"
+        comment => "Config SIPXLOGWATCHER service tmp ",
         create => "true",
         perms => m(644),
-        edit_line => sipxlogwatcher_config_contents,
-        classes => if_repaired("reload_sipxlogwatcher");
+        edit_line => sipxlogwatcher_config_contents;
+
+      "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc"
+        comment => "Config SIPXLOGWATCHER service",
+        create => "true",
+        perms => m(644),
+        copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc.tmp"),
+        classes => if_repaired("reload_sipxlogwatcher");        
 }
 
 bundle edit_line sipxlogwatcher_config_contents {
