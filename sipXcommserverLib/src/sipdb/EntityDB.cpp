@@ -76,11 +76,7 @@ bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
 
 	mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
 
-<<<<<<< HEAD
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
-=======
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getQueryTimeout()));
->>>>>>> origin/release-14.04
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query);
