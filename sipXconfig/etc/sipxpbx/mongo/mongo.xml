@@ -53,11 +53,17 @@
       <type refid="loglevel" />
       <value>5</value>
     </setting>    
-    <setting name="query-timeout-ms">
+    <setting name="read-query-timeout-ms">
       <type>
         <integer required="yes"/>
       </type>    
       <value>100</value>
-    </setting>    
+    </setting>
+    <setting name="write-query-timeout-ms">
+      <type>
+        <integer required="yes"/>
+      </type>    
+      <value>400</value>
+    </setting>     
   </group>
 </model>
