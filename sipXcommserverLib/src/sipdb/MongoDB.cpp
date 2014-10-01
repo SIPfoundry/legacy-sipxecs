@@ -66,7 +66,8 @@ const ConnectionInfo ConnectionInfo::localInfo()
 ConnectionInfo::ConnectionInfo(ifstream& file) :
     _shard(0),
     _useReadTags(false),
-    _queryTimeoutMs(0)
+    _readQueryTimeoutMs(0),
+    _writeQueryTimeoutMs(0)
 {
   set<string> options;
   options.insert("*");
@@ -97,10 +98,16 @@ ConnectionInfo::ConnectionInfo(ifstream& file) :
       }
     }
 
-    if (i->string_key == "query-timeout-ms")
+    if (i->string_key == "read-query-timeout-ms")
     {
-      _queryTimeoutMs = atoi(i->value[0].c_str());
+      _readQueryTimeoutMs = atoi(i->value[0].c_str());
     }
+
+    if (i->string_key == "write-query-timeout-ms")
+    {
+      _writeQueryTimeoutMs = atoi(i->value[0].c_str());
+    }
+
   }
 
   OS_LOG_INFO(FAC_SIP, "ConnectionInfo::ConnectionInfo "
@@ -108,7 +115,8 @@ ConnectionInfo::ConnectionInfo(ifstream& file) :
       << ", shardId: " << _shard
       << ", clusterId: " << _clusterId
       << ", useReadTags: " << _useReadTags
-      << ", queryTimeoutMs: " << _queryTimeoutMs);
+      << ", readQueryTimeoutMs: " << _readQueryTimeoutMs
+      << ", writeQueryTimeoutMs: " << _writeQueryTimeoutMs);
 
   file.close();
   if (connectionString.size() == 0)
@@ -162,7 +170,7 @@ void  BaseDB::primaryPreferred(mongo::BSONObjBuilder& builder, mongo::BSONObj qu
 
 void BaseDB::forEach(mongo::BSONObj& query, const std::string& ns, boost::function<void(mongo::BSONObj)> doSomething)
 {
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getQueryTimeout()));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
   auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns, query, 0, 0, 0, mongo::QueryOption_SlaveOk);
   if (pCursor.get() && pCursor->more())
   {

@@ -110,7 +110,7 @@ bool DB::findE911LineIdentifier(
     std::string& location)
 {
   mongo::BSONObj query = BSON(EntityRecord::identity_fld() << userId);
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getQueryTimeout()));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
 	if (pCursor.get() && pCursor->more())
 	{

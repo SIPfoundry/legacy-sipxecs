@@ -80,7 +80,8 @@ public:
       _shard(rhs._shard),
       _useReadTags(rhs._useReadTags),
       _clusterId(rhs._clusterId),
-      _queryTimeoutMs(rhs._queryTimeoutMs)
+      _readQueryTimeoutMs(rhs._readQueryTimeoutMs),
+      _writeQueryTimeoutMs(rhs._writeQueryTimeoutMs)
 	{
 	}
 	;
@@ -89,7 +90,8 @@ public:
 		 _connectionString(connectionString),
 		 _shard(0),
 		 _useReadTags(false),
-		 _queryTimeoutMs(0)
+		 _readQueryTimeoutMs(0),
+		 _writeQueryTimeoutMs(0)
 	{
 	}
 	;
@@ -98,7 +100,8 @@ public:
 		 _connectionString(connectionString),
 		 _shard(shard),
 		 _useReadTags(false),
-       _queryTimeoutMs(0)
+     _readQueryTimeoutMs(0),
+     _writeQueryTimeoutMs(0)
 	{
 	}
 	;
@@ -165,10 +168,16 @@ public:
     return _clusterId;
   }
 
-  const unsigned int getQueryTimeoutMs() const
+  const unsigned int getReadQueryTimeoutMs() const
   {
-    return _queryTimeoutMs;
+    return _readQueryTimeoutMs;
   }
+
+  const unsigned int getWriteQueryTimeoutMs() const
+  {
+    return _writeQueryTimeoutMs;
+  }
+
 
 private:
 
@@ -176,7 +185,8 @@ private:
       _connectionString(),
       _shard(0),
       _useReadTags(false),
-      _queryTimeoutMs(0)
+      _readQueryTimeoutMs(0),
+      _writeQueryTimeoutMs(0)
   {
   }
 
@@ -184,7 +194,8 @@ private:
 	int _shard;
   bool _useReadTags; 
   std::string _clusterId;
-  unsigned int _queryTimeoutMs;
+  unsigned int _readQueryTimeoutMs;
+  unsigned int _writeQueryTimeoutMs;
 };
 
 class BaseDB
@@ -231,7 +242,9 @@ public:
   
   const std::string& getClusterId() const { return _info.getClusterId(); }
 
-  const double getQueryTimeout() const { double queryTimeout = _info.getQueryTimeoutMs(); return queryTimeout/1000; }
+  const double getReadQueryTimeout() const { double readQueryTimeout = _info.getReadQueryTimeoutMs(); return readQueryTimeout/1000; }
+
+  const double getWriteQueryTimeout() const { double writeQueryTimeout = _info.getWriteQueryTimeoutMs(); return writeQueryTimeout/1000; }
 
 protected:
 	mutable ConnectionInfo _info;
