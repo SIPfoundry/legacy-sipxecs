@@ -60,24 +60,44 @@ static std::string validate_identity_string(const std::string& identity)
 
 bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
 {
-    std::string identity = validate_identity_string(ident);
+  std::string identity = validate_identity_string(ident);
+  
+  OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
+  //
+  // Check if we have it cache
+  //
+  ExpireCacheable pCacheObj = const_cast<ExpireCache&>(_cache).get(identity);
+  if (pCacheObj)
+  {
+    OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _ns << " (CACHED)");
+    entity = *pCacheObj;
+    return true;
+  }
 
 	mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
 
+<<<<<<< HEAD
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
+=======
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getQueryTimeout()));
+>>>>>>> origin/release-14.04
 
-    mongo::BSONObjBuilder builder;
-    BaseDB::nearest(builder, query);
+  mongo::BSONObjBuilder builder;
+  BaseDB::nearest(builder, query);
 
-    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+  auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
 		OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _ns);
 		entity = pCursor->next();
 		conn->done();
+    //
+    // Cache the entity
+    //
+    const_cast<ExpireCache&>(_cache).add(identity, ExpireCacheable(new EntityRecord(entity)));
 		return true;
 	}
+  
 	OS_LOG_DEBUG(FAC_ODBC, identity << " is NOT present in namespace " << _ns);
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _ns);
     conn->done();
@@ -87,17 +107,31 @@ bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
 bool EntityDB::findByUserId(const string& uid, EntityRecord& entity) const
 {
   std::string userId = validate_identity_string(uid);
+  
+  OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _ns);
+  ExpireCacheable pCacheObj = const_cast<ExpireCache&>(_cache).get(userId);
+  if (pCacheObj)
+  {
+    OS_LOG_DEBUG(FAC_ODBC, userId << " is present in namespace " << _ns << " (CACHED)");
+    entity = *pCacheObj;
+    return true;
+  }
 
 	mongo::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
     mongo::BSONObjBuilder builder;
     BaseDB::nearest(builder, query);
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _ns);
+
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
-        conn->done();
+    conn->done();
+    //
+    // Cache the entity
+    //
+    const_cast<ExpireCache&>(_cache).add(userId, ExpireCacheable(new EntityRecord(entity)));
+    
 		return true;
 	}
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
@@ -129,6 +163,14 @@ bool EntityDB::findByIdentityOrAlias(const string& identity, const string& alias
 
 bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) const
 {
+  ExpireCacheable pCacheObj = const_cast<ExpireCache&>(_cache).get(alias);
+  if (pCacheObj)
+  {
+    OS_LOG_DEBUG(FAC_ODBC, "EntityDB::findByAliasUserId - " << alias << " is present in namespace " << _ns << " (CACHED)");
+    entity = *pCacheObj;
+    return true;
+  }
+
 	mongo::BSONObj query = BSON( EntityRecord::aliases_fld() <<
 			BSON_ELEM_MATCH( BSON(EntityRecord::aliasesId_fld() << alias) ) );
 
@@ -136,11 +178,15 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
     BaseDB::nearest(builder, query);
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Finding entity record for alias " << alias << " from namespace " << _ns);
+
 	if (pCursor.get() && pCursor->more())
 	{
 		entity = pCursor->next();
 		conn->done();
+    //
+    // Cache the entity
+    //
+    const_cast<ExpireCache&>(_cache).add(alias, ExpireCacheable(new EntityRecord(entity)));
 		return true;
 	}
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _ns);
