@@ -15,6 +15,7 @@
 package org.sipfoundry.sipxconfig.api.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -32,8 +33,6 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class PhoneLineApiImpl implements PhoneLineApi {
     private static final String PHONE_NOT_FOUND = "Phone not found";
@@ -105,7 +104,7 @@ public class PhoneLineApiImpl implements PhoneLineApi {
         Phone phone = getPhoneByIdOrMac(phoneId);
         if (line != null) {
             Collection<Line> lines = DataCollectionUtil.removeByPrimaryKey(phone.getLines(), lineId);
-            phone.setLines(Arrays.asList(lines.toArray()));
+            phone.setLines((List<Line>) lines);
             m_phoneContext.storePhone(phone);
             return Response.ok().build();
         }
