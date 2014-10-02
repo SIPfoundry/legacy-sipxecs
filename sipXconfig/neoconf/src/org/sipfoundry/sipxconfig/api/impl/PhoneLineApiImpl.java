@@ -14,6 +14,8 @@
  */
 package org.sipfoundry.sipxconfig.api.impl;
 
+import java.util.Collection;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -23,12 +25,15 @@ import org.sipfoundry.sipxconfig.api.model.PhoneBean.LineBean;
 import org.sipfoundry.sipxconfig.api.model.PhoneBean.LineList;
 import org.sipfoundry.sipxconfig.api.model.SettingsList;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class PhoneLineApiImpl implements PhoneLineApi {
     private static final String PHONE_NOT_FOUND = "Phone not found";
@@ -39,7 +44,7 @@ public class PhoneLineApiImpl implements PhoneLineApi {
     public Response deletePhoneLines(String phoneId) {
         Phone phone = getPhoneByIdOrMac(phoneId);
         if (phone == null) {
-            return Response.status(Status.NOT_FOUND).entity(PHONE_NOT_FOUND).build();
+            return Response.status(Status.BAD_REQUEST).entity(PHONE_NOT_FOUND).build();
         }
         for (Line line : phone.getLines()) {
             m_phoneContext.deleteLine(line);
@@ -57,7 +62,7 @@ public class PhoneLineApiImpl implements PhoneLineApi {
         if (lineBean.getUser() != null) {
             User user = m_coreContext.loadUserByUserNameOrAlias(lineBean.getUser());
             if (user == null) {
-                return Response.status(Status.NOT_FOUND).entity("User not found").build();
+                return Response.status(Status.BAD_REQUEST).entity("User not found").build();
             }
             line.setUser(user);
         } else {
@@ -82,7 +87,7 @@ public class PhoneLineApiImpl implements PhoneLineApi {
         if (phone != null) {
             return Response.ok().entity(LineList.convertLineList(phone.getLines())).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     @Override
@@ -91,17 +96,20 @@ public class PhoneLineApiImpl implements PhoneLineApi {
         if (line != null) {
             return Response.ok().entity(LineBean.convertLine(line)).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     @Override
     public Response deletePhoneLine(String phoneId, Integer lineId) {
         Line line = m_phoneContext.loadLine(lineId);
+        Phone phone = getPhoneByIdOrMac(phoneId);
         if (line != null) {
-            m_phoneContext.deleteLine(line);
+            Collection<Line> lines = DataCollectionUtil.removeByPrimaryKey(phone.getLines(), lineId);
+            phone.setLines(Arrays.asList(lines.toArray()));
+            m_phoneContext.storePhone(phone);
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     @Override
