@@ -927,6 +927,12 @@ CallTracker* NatTraversalAgent::createCallTrackerAndAddToMap( const UtlString& c
                                         "new Call Tracker into map.  key : '%s'",
                                         mInstanceName.data(), callId.data() );
    }
+   else
+   {
+     OS_LOG_INFO(FAC_NAT, "NatTraversalAgent::createCallTrackerAndAddToMap - Added new call tracker for Call-Id: " 
+       << callId.data() << " Map Size: " << mCallTrackersMap.entries());
+   }
+   
    return pCallTracker;
 }
 
