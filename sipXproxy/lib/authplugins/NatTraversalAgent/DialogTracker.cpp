@@ -103,7 +103,8 @@ DialogTracker::DialogTracker( const UtlString& handle,
    mbInitialDialogEstablished( false ),
    mTimerTickCounter( 0 ),
    pOwningSessionContext( pOwningSessionContext ),
-   mbNonIntialOfferAnswerExchangeDoneFlag( false )
+   mbNonIntialOfferAnswerExchangeDoneFlag( false ),
+   mpCopyOfPatchedSdpBody( 0 )
 {
    // Init state pointers
    initializeStatePointers();
@@ -128,6 +129,12 @@ DialogTracker::~DialogTracker()
    Os::Logger::instance().log(FAC_NAT, PRI_DEBUG, "-DialogTracker tracker %p deleted; Handle=%s-",
                                        this,
                                        mHandle.data() );
+   
+   if (mpCopyOfPatchedSdpBody)
+   {
+     delete mpCopyOfPatchedSdpBody;
+     mpCopyOfPatchedSdpBody = 0;
+   }
 }
 
 bool DialogTracker::handleRequest( SipMessage& message, const char* address, int port, bool bFromCallerToCallee )
@@ -1230,6 +1237,11 @@ DialogTracker::RequestRetransmissionDescriptor::operator= ( const RequestRetrans
 {
    if( this != &rhs )
    {
+      if (mpSavedPatchedSdp)
+      {
+        delete mpSavedPatchedSdp;
+        mpSavedPatchedSdp = 0;
+      }
       mpSavedPatchedSdp = ( rhs.mpSavedPatchedSdp ? rhs.mpSavedPatchedSdp->copy() : 0 );
       mMethod           = rhs.mMethod;
       mSequenceNumber   = rhs.mSequenceNumber;
@@ -1275,6 +1287,11 @@ DialogTracker::ResponseRetransmissionDescriptor::operator= ( const ResponseRetra
 {
    if( this != &rhs )
    {
+      if (mpSavedPatchedSdp)
+      {
+        delete mpSavedPatchedSdp;
+        mpSavedPatchedSdp = 0;
+      }
       mpSavedPatchedSdp = ( rhs.mpSavedPatchedSdp ? rhs.mpSavedPatchedSdp->copy() : 0 );
       mMethod           = rhs.mMethod;
       mSequenceNumber   = rhs.mSequenceNumber;
