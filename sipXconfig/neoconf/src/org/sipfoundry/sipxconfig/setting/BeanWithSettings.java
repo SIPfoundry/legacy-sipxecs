@@ -91,30 +91,42 @@ public abstract class BeanWithSettings extends BeanWithId {
     }
 
     public String getSettingValue(String path) {
-        if (getSettings() != null) {
-            return getSettings().getSetting(path).getValue();
+        if (getSetting(path) != null) {
+            return getSetting(path).getValue();
         }
         return EMPTY_STRING;
     }
 
     public String getSettingDefaultValue(String path) {
-        if (getSettings() != null) {
-            return getSettings().getSetting(path).getDefaultValue();
+        if (getSetting(path) != null) {
+            return getSetting(path).getDefaultValue();
         }
         return EMPTY_STRING;
     }
 
     public Object getSettingTypedValue(String path) {
-        return getSettings().getSetting(path).getTypedValue();
+        if (getSetting(path) != null) {
+            return getSetting(path).getTypedValue();
+        }
+        return null;
+    }
+
+    private Setting getSetting(String path) {
+        if (getSettings() != null) {
+            return getSettings().getSetting(path);
+        }
+        return null;
     }
 
     public void setSettingValue(String path, String value) {
-        Setting setting = getSettings().getSetting(path);
+        if(getSetting(path) != null) {
+        Setting setting = getSetting(path);
         setting.setValue(value);
+        }
     }
 
     public void setSettingTypedValue(String path, Object value) {
-        Setting setting = getSettings().getSetting(path);
+        Setting setting = getSetting(path);
         setting.setTypedValue(value);
     }
 
