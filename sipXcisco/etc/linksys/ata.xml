@@ -1911,4 +1911,12 @@
       <value>no</value>
     </setting>
   </group>
+ <group name="e911">
+    <setting name="location">
+      <type>
+        <integer/>
+      </type>
+    <value>1</value>
+    </setting>
+  </group>
 </model>

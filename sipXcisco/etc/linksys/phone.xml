@@ -1842,8 +1842,7 @@
       </type>
     </setting>
   </group>
-
-  <group name="e911" hidden="yes">
+  <group name="e911">
     <setting name="location">
       <type>
         <integer/>
@@ -1851,4 +1850,3 @@
     </setting>    
   </group>
 </model>
-

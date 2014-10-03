@@ -1,11 +1,13 @@
 <flat-profile>
 #foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName} != "e911")
 [${group.ProfileName}]
 #foreach ($setting in $group.Values)
 #if ($!setting.Value)
 <${setting.Name} group="$!{setting.ProfileName}">$!{setting.Value}</${setting.Name}>
 #else
 <${setting.Name} group="$!{setting.ProfileName}"/>
+#end
 #end
 #end
 
