@@ -5,6 +5,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.test.RestApiIntegrationTestCase;
+import org.sipfoundry.sipxconfig.test.TestHelper;
 
 public class PhoneLineApiTestIntegration extends RestApiIntegrationTestCase {
     private PhoneContext m_phoneContext;
@@ -17,6 +18,8 @@ public class PhoneLineApiTestIntegration extends RestApiIntegrationTestCase {
 
     @Test
     public void testJson() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        clear();
         loadDataSet("api/phoneSeed.xml");
         loadDataSet("common/TestUserSeed.db.xml");
         assertEquals(1, m_phoneContext.getPhonesCount());
@@ -85,7 +88,9 @@ public class PhoneLineApiTestIntegration extends RestApiIntegrationTestCase {
         assertEquals(0, m_phoneContext.getPhoneBySerialNumber("000000000000").getLines().size());
     }
 
-    public void testXml() {
+    public void testXml() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        clear();
         loadDataSet("api/phoneSeed.xml");
         loadDataSet("common/TestUserSeed.db.xml");
         assertEquals(1, m_phoneContext.getPhonesCount());
