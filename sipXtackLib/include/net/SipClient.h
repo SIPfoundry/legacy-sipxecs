@@ -242,7 +242,7 @@ public:
    SipClientSendMsg(const SipClientSendMsg& rOsMsg);
      //:Copy constructor
 
-   ~SipClientSendMsg();
+   virtual ~SipClientSendMsg();
      //:Destructor
 
    virtual OsMsg* createCopy(void) const;
