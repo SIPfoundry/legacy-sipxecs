@@ -194,6 +194,9 @@ SipRedirectorRegDB::lookUp(
       }
    }
 
+   UtlString callGroupUser;
+   bool hasCallGroupParam = requestUriCopy.getUrlParameter("callgroup", callGroupUser);
+
    for (RegDB::Bindings::const_iterator iter = registrations.begin(); iter != registrations.end(); iter++)
    {
       // Query the Registration DB for the contact, expires and qvalue columns.
@@ -207,6 +210,11 @@ SipRedirectorRegDB::lookUp(
       if (foundUserCfwdTimer)
       {
           contactUri.setHeaderParameter("expires", userCfwdTimer.str().c_str());
+      }
+
+      if (hasCallGroupParam)
+      {
+        contactUri.setUrlParameter("callgroup", callGroupUser.data());
       }
 
       // If the contact URI is the same as the request URI, ignore it.
