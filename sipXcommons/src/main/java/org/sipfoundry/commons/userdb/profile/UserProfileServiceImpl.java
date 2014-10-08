@@ -138,7 +138,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public List<UserProfile> getUserProfileByAuthAccountName(String authAccountName) {
         if (authAccountName != null) {
-            return m_template.find(new Query(Criteria.where(AUTH_ACCOUNT_NAME).is(authAccountName.toLowerCase())),
+            return m_template.find(new Query(Criteria.where(AUTH_ACCOUNT_NAME).is(authAccountName)),
                     UserProfile.class, USER_PROFILE_COLLECTION);
         }
         return null;
@@ -147,9 +147,9 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public List<UserProfile> getUserProfileByEmail(String email) {
         if (email != null) {
-            Query query = new Query(new Criteria().orOperator(Criteria.where(PRIMARY_EMAIL).is(email.toLowerCase()),
-                    Criteria.where(ALTERNATE_EMAIL).is(email.toLowerCase()),
-                    Criteria.where(ALIASES_EMAIL_SET).is(email.toLowerCase())));
+            Query query = new Query(new Criteria().orOperator(Criteria.where(PRIMARY_EMAIL).is(email),
+                    Criteria.where(ALTERNATE_EMAIL).is(email),
+                    Criteria.where(ALIASES_EMAIL_SET).is(email)));
             return m_template.find(query, UserProfile.class, USER_PROFILE_COLLECTION);
         }
         return null;

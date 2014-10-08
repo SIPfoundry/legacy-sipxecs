@@ -278,7 +278,7 @@ public class UserProfile {
     }
 
     public void setEmailAddress(String emailAddress) {
-        m_emailAddress = emailAddress;
+        m_emailAddress = StringUtils.lowerCase(emailAddress);
     }
 
     public String getAvatar() {
@@ -313,7 +313,7 @@ public class UserProfile {
     }
 
     public void setAlternateEmailAddress(String alternateEmailAddress) {
-        m_alternateEmailAddress = alternateEmailAddress;
+        m_alternateEmailAddress = StringUtils.lowerCase(alternateEmailAddress);
     }
 
     public String getDidNumber() {
@@ -443,7 +443,7 @@ public class UserProfile {
     }
 
     public void setAuthAccountName(String authAccountName) {
-        m_authAccountName = authAccountName;
+        m_authAccountName = StringUtils.lowerCase(authAccountName);
     }
 
     public String getEmailAddressAliases() {
@@ -454,7 +454,7 @@ public class UserProfile {
     }
 
     public void setEmailAddressAliases(String emailAddressAliases) {
-        m_emailAddressAliases = emailAddressAliases;
+        m_emailAddressAliases = StringUtils.lowerCase(emailAddressAliases);
         if (emailAddressAliases != null) {
             m_emailAddressAliasesSet = new LinkedHashSet<String>(Arrays.asList(m_emailAddressAliases.split(";")));
         } else {
