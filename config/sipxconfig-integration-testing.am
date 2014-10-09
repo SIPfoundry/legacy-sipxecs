@@ -5,8 +5,10 @@ sipxconfig_test_integration_core_PKGS = \
 	dbunit \
 	easymock \
 	easymockclassextension \
+	jsonassert \
 	junit \
 	junitperf \
+	org.json \
 	p6spy \
 	spring-mock \
 	xml-apis \
