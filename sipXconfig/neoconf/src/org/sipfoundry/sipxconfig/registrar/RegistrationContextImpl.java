@@ -64,7 +64,7 @@ public class RegistrationContextImpl implements RegistrationContext {
 
     @Override
     public List<RegistrationItem> getRegistrationsByUser(User user, Integer start, Integer count) {
-        return getItems(getRegistrarCollection().find(getUserQuery(user)).skip(start).limit(count));
+        return getItems(getRegistrarCollection().find(getUserQuery(user)).sort(new BasicDBObject("expirationTime", -1)).skip(start).limit(count));
     }
 
     @Override
@@ -89,7 +89,7 @@ public class RegistrationContextImpl implements RegistrationContext {
 
     @Override
     public List<RegistrationItem> getRegistrationsByServer(String server, Integer start, Integer limit) {
-        return getItems(getRegistrarCollection().find(getServerQuery(server)).skip(start).limit(limit));
+        return getItems(getRegistrarCollection().find(getServerQuery(server)).sort(new BasicDBObject("expirationTime", -1)).skip(start).limit(limit));
     }
 
     @Override
