@@ -76,7 +76,7 @@ public class PromptsApiImpl extends FileManager implements PromptsApi {
         if (promptName != null) {
             boolean fileExists = checkFile(promptName);
             if (!fileExists) {
-                return Response.status(Status.NOT_FOUND).entity("Prompt not found").build();
+                return Response.status(Status.BAD_REQUEST).entity("Prompt not found").build();
             }
         }
         return null;

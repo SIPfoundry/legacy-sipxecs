@@ -55,7 +55,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             }
             return buildRegistrationResponse(m_context.getRegistrationsByUser(user));
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).entity("User  not found").build();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             m_context.dropRegistrationsByUser(user);
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).entity("User  not found").build();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class RegistrationApiImpl implements RegistrationApi {
         if (phone != null) {
             return buildRegistrationResponse(m_context.getRegistrationsByMac(serialId));
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).entity("Phone not found").build();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             m_context.dropRegistrationsByMac(serialId);
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).entity("Phone not found").build();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             }
             return buildRegistrationResponse(m_context.getRegistrationsByServer(location.getAddress()));
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).entity("Server not found").build();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             m_context.dropRegistrationsByServer(location.getAddress());
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).entity("Server not found").build();
     }
 
     private Response buildRegistrationResponse(List<RegistrationItem> items) {
@@ -149,6 +149,8 @@ public class RegistrationApiImpl implements RegistrationApi {
         return metrics;
     }
 
+    //TODO: this might return inconsistent results if one user's id is
+    //another user's username; investigate that
     private User getUserByIdOrUserName(String id) {
         User user = null;
         try {

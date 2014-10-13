@@ -526,6 +526,8 @@ public class LoginServlet extends ProvisioningServlet {
         parameterTranslation.put("default_session_refresh_interval_in_seconds", "regRefresh");
         parameterTranslation.put(ENABLED, ENABLED);
         parameterTranslation.put(PROTOCOL, PROTOCOL);
+        parameterTranslation.put("transport", "sipTransport");
+        parameterTranslation.put("srtp", "requiredSrtp");
 
         return parameterTranslation;
     }

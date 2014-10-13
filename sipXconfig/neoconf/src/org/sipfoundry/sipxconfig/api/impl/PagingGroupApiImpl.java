@@ -44,7 +44,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
         if (groups != null) {
             return Response.ok().entity(PageGroupList.convertPageList(groups)).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     @Override
@@ -69,7 +69,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
         if (group != null) {
             return Response.ok().entity(PageGroupBean.convertGroup(group)).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
             m_featureContext.deletePagingGroupsById(Collections.singletonList(groupId));
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     @Override
@@ -98,7 +98,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
             m_context.savePagingGroup(group);
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     private Response populateUsers(PageGroupBean bean, PagingGroup group) {
@@ -111,7 +111,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
                 user = m_coreContext.loadUserByUserNameOrAlias(userBean.getUserName());
             }
             if (user == null) {
-                return Response.status(Status.NOT_FOUND).entity(userBean).build();
+                return Response.status(Status.BAD_REQUEST).entity(userBean).build();
             }
             group.getUsers().add(user);
         }

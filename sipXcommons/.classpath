@@ -193,5 +193,6 @@
 	<classpathentry kind="lib" path="lib/jetty-5.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/reflections-0.9.8.jar"/>
 	<classpathentry kind="lib" path="lib/guava-11.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsonassert-1.2.3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>
