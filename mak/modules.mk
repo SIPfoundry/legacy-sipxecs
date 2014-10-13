@@ -117,8 +117,7 @@ lib_all = \
   rubygem-net-sftp \
   ruby-postgres \
   jasperserver \
-  libjsonrpccpp \
-  libevent2
+  libjsonrpccpp
 
 lib_exclude_fedora_16 = \
   epel \

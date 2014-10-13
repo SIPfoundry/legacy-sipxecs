@@ -88,6 +88,3 @@
 [submodule "freeswitch_edge"]
 	path = freeswitch_edge
 	url = git://github.com/SIPfoundry/freeswitch.git
-[submodule "sipXedgeServices/applications/sems"]
-	path = sipXedgeServices/applications/sems
-	url = ssh://git@github.com/joegen/sems
