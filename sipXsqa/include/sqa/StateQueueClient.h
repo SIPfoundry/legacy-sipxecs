@@ -1168,7 +1168,7 @@ private:
           break;
 
         OS_LOG_INFO(FAC_NET, "StateQueueClient::eventLoop received event: " << id);
-        OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << data);
+        OS_LOG_DEBUG(FAC_NET, "StateQueueClient::eventLoop received data: " << std::endl << data);
 
         if (_type == Worker)
         {
