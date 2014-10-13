@@ -85,7 +85,7 @@ public class ServerApiImpl implements ServerApi {
             return Response.ok()
                     .entity(ServerBean.convertLocation(location, registeredLocations.contains(location))).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -95,7 +95,7 @@ public class ServerApiImpl implements ServerApi {
             m_configManager.sendProfiles(Collections.singletonList(location));
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class ServerApiImpl implements ServerApi {
             m_locationsManager.deleteLocation(location);
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ServerApiImpl implements ServerApi {
             m_locationsManager.saveLocation(ServerBean.convertToLocation(location, server));
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -125,7 +125,7 @@ public class ServerApiImpl implements ServerApi {
             List<ServiceStatus> statuses = m_snmpManager.getServicesStatuses(location);
             return Response.ok().entity(ServiceList.convertServiceList(statuses)).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -139,7 +139,7 @@ public class ServerApiImpl implements ServerApi {
                 }
             }
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -153,7 +153,7 @@ public class ServerApiImpl implements ServerApi {
                 return Response.ok().build();
             }
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -169,7 +169,7 @@ public class ServerApiImpl implements ServerApi {
                 return Response.ok().entity(BundleBean.convertBundle(bundle)).build();
             }
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Bundle not found").build();
     }
 
     @Override
@@ -220,7 +220,7 @@ public class ServerApiImpl implements ServerApi {
             }
             return Response.ok().entity(FeatureList.buildFeatureList(features)).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -230,7 +230,7 @@ public class ServerApiImpl implements ServerApi {
             m_featureManager.enableLocationFeature(new LocationFeature(featureId), location, true);
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override
@@ -240,7 +240,7 @@ public class ServerApiImpl implements ServerApi {
             m_featureManager.enableLocationFeature(new LocationFeature(featureId), location, false);
             return Response.ok().build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.status(Status.NOT_FOUND).entity("Server not found").build();
     }
 
     @Override

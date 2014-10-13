@@ -22,7 +22,7 @@ EXTRA_DIST = \
     config/sipxedge-setup \
     config/sipxwebrtcd \
     config/freeswitch_edged \
-    config/sems_edged
+    config/sipxyard_edged
 
 
 bin_PROGRAMS = sipxcallgen_fs sipxwebrtc sipxedgerpc

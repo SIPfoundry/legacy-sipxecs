@@ -316,26 +316,41 @@
         <type>
           <enum>
             <option>
-              <value>automatic</value>
+              <value>0</value>
             </option>
             <option>
-              <value>tcp</value>
+              <value>1</value>
             </option>
             <option>
-              <value>udp</value>
-            </option>
-            <option>
-              <value>tls</value>
+              <value>2</value>
             </option>
           </enum>
         </type>
-        <value>automatic</value>
+        <value>0</value>
       </setting>
       <setting name="enable_rinstance">
         <type refid="true-false" />
         <value>true</value>
       </setting>
     </group>
+  <group name="srtp">
+    <setting name="srtp">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+  </group>
   </group>
   <group name="voicemail">
     <setting name="forward_always" hidden="yes">

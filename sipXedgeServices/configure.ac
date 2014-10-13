@@ -51,9 +51,6 @@ AC_PROG_JAVA_CC([javac])
 AC_PROG_JAVA([java])
 PROG_JAVA_DEP
 
-m4_include([config/sems.m4])
-SFAC_SEMS_CONFIGURE
-
 AC_CONFIG_FILES([
   applications/Makefile
   bin/Makefile

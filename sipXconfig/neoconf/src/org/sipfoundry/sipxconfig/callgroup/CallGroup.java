@@ -193,7 +193,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable, Syste
                     // decrement q so that VM contact has lower q than the last contact
                     forkQueueValue.getSerial();
                 }
-                String vmailContact = lastRing.calculateContact(domainName, forkQueueValue, false, m_userForward,
+                String vmailContact = lastRing.calculateContact(domainName, null, forkQueueValue, false, m_userForward,
                         MappingRule.Voicemail.VM_PREFIX);
                 mappings.add(new AliasMapping(m_name, vmailContact, ALIAS_RELATION));
             }

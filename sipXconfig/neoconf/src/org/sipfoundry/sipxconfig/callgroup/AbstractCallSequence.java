@@ -145,7 +145,7 @@ public class AbstractCallSequence extends BeanWithId {
             if (!ignoreVoiceMail) {
                 ignoreVoiceMail = Type.IMMEDIATE.equals(r.getType());
             }
-            String contact = r.calculateContact(domain, q, ignoreVoiceMail, userForward, null);
+            String contact = r.calculateContact(domain, identity, q, ignoreVoiceMail, userForward, null);
             AliasMapping alias = new AliasMapping(identity, contact, ALIAS_RELATION);
             aliases.add(alias);
         }

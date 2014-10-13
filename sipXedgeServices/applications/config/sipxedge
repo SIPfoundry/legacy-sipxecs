@@ -19,12 +19,12 @@ PID_FROM_PATH=${EDGE_CONFIG}/pid_from_path.pl
 WEBRTC_PIDFILE=/var/log/sipxpbx/edge/sipxwebrtc.pid
 MONIT_PIDFILE=/var/log/sipxpbx/edge/monit.pid
 FREESWITCH_PIDFILE=/var/log/sipxpbx/edge/freeswitch.pid
-SEMS_PIDFILE=/var/log/sipxpbx/edge/sems.pid
+YARD_PIDFILE=/var/log/sipxpbx/edge/sipxyard.pid
 
 WEBRTC_PROC=/usr/bin/sipxwebrtc
 MONIT_PROC=/opt/sipxecs/edge/monit/bin/monit
 FREESWITCH_PROC=/opt/sipxecs/edge/freeswitch/bin/freeswitch
-SEMS_PROC=/usr/sbin/sems
+YARD_PROC=/usr/bin/sipxyard
 
 do_setlimits()
 {
@@ -141,9 +141,9 @@ do_check_freeswitch_process()
   fi
 }
 
-do_check_sems_process()
+do_check_yard_process()
 {
-  if check_process "${SEMS_PIDFILE}" $1; then
+  if check_process "${YARD_PIDFILE}" $1; then
     echo_success
     echo ""
     return 0
@@ -251,10 +251,10 @@ do_assure_freeswitch_shutdown()
   echo ""
 }
 
-do_assure_sems_shutdown()
+do_assure_yard_shutdown()
 {
-  assure_process_shutdown "${SEMS_PIDFILE}" 30
-  process_pid=`${PID_FROM_PATH} ${SEMS_PROC}`
+  assure_process_shutdown "${YARD_PIDFILE}" 30
+  process_pid=`${PID_FROM_PATH} ${YARD_PROC}`
   if [ "$process_pid" != "" ]; then
         kill -9 ${process_pid}
   fi
@@ -296,9 +296,9 @@ obliterate()
         kill -9 `${PID_FROM_PATH} ${pid}`
     fi
 
-    pid=`${PID_FROM_PATH} ${SEMS_PROC}`
+    pid=`${PID_FROM_PATH} ${YARD_PROC}`
     if [ "$pid" != "" ]; then
-        echo "${SEMS_PROC} shutdown signal 9 sent"
+        echo "${YARD_PROC} shutdown signal 9 sent"
         kill -9 `${PID_FROM_PATH} ${pid}`
     fi
 }
@@ -318,7 +318,7 @@ do_start()
 
 do_stop()
 {
-  echo -n "Stoping Monit"
+  echo -n "Stoping Monit "
   do_assure_monit_shutdown
 
   echo -n "Stopping WebRTC "
@@ -327,8 +327,8 @@ do_stop()
   echo -n "Stopping FreeSWITCH "
   do_assure_freeswitch_shutdown
 
-  echo -n "Stopping SEMS "
-  do_assure_sems_shutdown
+  echo -n "Stopping YARD "
+  do_assure_yard_shutdown
 
   sleep 1
 
@@ -349,8 +349,8 @@ do_status()
   do_check_webrtc_process 1
   echo -n "Checking FreeSWITCH "
   do_check_freeswitch_process 1
-  echo -n "Checking SEMS "
-  do_check_sems_process 1
+  echo -n "Checking YARD "
+  do_check_yard_process 1
   ${MONIT_PROC} -c ${EDGE_CONFIG}/monitrc -p ${MONIT_PIDFILE} status
   Status=$?
 }

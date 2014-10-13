@@ -30,6 +30,8 @@ SIPXEDGE_WS_PORT=5064
 SIPXEDGE_WS_TCP_UDP_PORT=5065
 SIPXEDGE_BRIDGE_TCP_UDP_PORT=${SIPXEDGE_FS_SIP_PORT}
 
+SIPXEDGE_YARD_PORT=8020
+
 SIPXEDGE_HOST_IP_DEFAULT=`ifconfig | grep -Eo 'inet (addr:)?([0-9]*\\.){3}[0-9]*' | grep -Eo '([0-9]*\\.){3}[0-9]*' | grep -v '127.0.0.1' | head -n 1`
 
 ask_for_yes_no()
@@ -129,6 +131,12 @@ edge_setup()
         sed -i "s:%SIPXEDGE_REALM%:${SIPXEDGE_REALM}:g" ./sipxwebrtcd
 
         #
+        # Configure sipXyard
+        #
+        sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" ./sipxyard_edged
+        sed -i "s:%SIPXEDGE_YARD_PORT%:${SIPXEDGE_YARD_PORT}:g" ./sipxyard_edged
+
+        #
         # Configure sems
         #
         sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" /etc/sipxpbx/edge/sems/etc/sems/sems.conf
@@ -158,8 +166,8 @@ edge_setup()
         chmod +x /usr/bin/sipxwebrtcd
         mv ./freeswitch_edged /usr/bin
         chmod +x /usr/bin/freeswitch_edged
-        mv ./sems_edged /usr/bin
-        chmod +x /usr/bin/sems_edged
+        mv ./sipxyard_edged /usr/bin
+        chmod +x /usr/bin/sipxyard_edged
 
         #
         # Move the setup-script

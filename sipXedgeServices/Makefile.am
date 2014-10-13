@@ -7,11 +7,3 @@ SUBDIRS = \
 	bin \
 	etc \
 	config-plugin
-
-EXTRA_DIST += $(srcdir)/applications/sems/*
-
-dist-hook:
-	rm $(top_distdir)/applications/sems/pkg/rpm/sems.spec
-
-all install:
-	make -C applications/sems/build $@

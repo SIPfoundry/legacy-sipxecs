@@ -22,20 +22,24 @@ public class AbstractRingTest extends TestCase {
         ring.setExpiration(45);
         ring.setType(AbstractRing.Type.IMMEDIATE);
 
-        String contact = ring.calculateContact("sipfoundry.org", q, false, true, null);
-        assertEquals("<sip:444@sipfoundry.org?expires=45>;q=1.0", contact);
+        String contact = ring.calculateContact("sipfoundry.org", "400", q, false, true, null);
+        assertEquals("<sip:444@sipfoundry.org;callgroup=400?expires=45>;q=1.0", contact);
 
+        // without callgroup
+        contact = ring.calculateContact("sipfoundry.org", null, q, false, true, null);
+        assertEquals("<sip:444@sipfoundry.org?expires=45>;q=1.0", contact);
+        
         AbstractRing ring2 = new RingMock("333");
         ring2.setExpiration(25);
         ring2.setType(AbstractRing.Type.DELAYED);
-        String contact2 = ring2.calculateContact("sipfoundry.org", q, true, true, null);
-        assertEquals("<sip:333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95",
+        String contact2 = ring2.calculateContact("sipfoundry.org", "400", q, true, true, null);
+        assertEquals("<sip:333@sipfoundry.org;callgroup=400;sipx-noroute=Voicemail?expires=25>;q=0.95",
                 contact2);
 
         // with new q value - ring2 is delayed, q mustbe < 1.0
         ForkQueueValue q1 = new ForkQueueValue(3);
-        contact2 = ring2.calculateContact("sipfoundry.org", q1, false, false, null);
-        assertEquals("<sip:333@sipfoundry.org;sipx-userforward=false?expires=25>;q=0.95", contact2);
+        contact2 = ring2.calculateContact("sipfoundry.org", "400", q1, false, false, null);
+        assertEquals("<sip:333@sipfoundry.org;callgroup=400;sipx-userforward=false?expires=25>;q=0.95", contact2);
     }
 
     public void testCalculateContactWithPrefix() {
@@ -45,14 +49,14 @@ public class AbstractRingTest extends TestCase {
         ring.setExpiration(45);
         ring.setType(AbstractRing.Type.IMMEDIATE);
 
-        String contact = ring.calculateContact("sipfoundry.org", q, false, true, "~~vm~");
-        assertEquals("<sip:~~vm~444@sipfoundry.org?expires=45>;q=1.0", contact);
+        String contact = ring.calculateContact("sipfoundry.org", "400", q, false, true, "~~vm~");
+        assertEquals("<sip:~~vm~444@sipfoundry.org;callgroup=400?expires=45>;q=1.0", contact);
 
         AbstractRing ring2 = new RingMock("333");
         ring2.setExpiration(25);
         ring2.setType(AbstractRing.Type.DELAYED);
-        String contact2 = ring2.calculateContact("sipfoundry.org", q, true, true, "~~vm~");
-        assertEquals("<sip:~~vm~333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95",
+        String contact2 = ring2.calculateContact("sipfoundry.org", "400", q, true, true, "~~vm~");
+        assertEquals("<sip:~~vm~333@sipfoundry.org;callgroup=400;sipx-noroute=Voicemail?expires=25>;q=0.95",
                 contact2);
     }
 

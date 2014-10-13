@@ -11,11 +11,12 @@ set httpd port %SIPXEDGE_MONIT_HTTPPORT% and
   allow admin:%SIPXEDGE_MONIT_PASSWORD%         # require user 'admin' with password
 
 #
-# Monitor SIPXWEBRTC Process
+# Monitor YARD Process
 #
-check process sipxwebrtc with pidfile /var/log/sipxpbx/edge/sipxwebrtc.pid
-  start program "/usr/bin/sipxwebrtcd start"
-  stop program "/usr/bin/sipxwebrtcd stop"
+check process yard with pidfile  /var/log/sipxpbx/edge/sipxyard.pid
+    start program "/usr/bin/sipxyard_edged start"
+    stop program "/usr/bin/sipxyard_edged stop"
+
 
 #
 # Monitor FREESWITCH Process
@@ -25,9 +26,13 @@ check process freeswitch with pidfile  /var/log/sipxpbx/edge/freeswitch.pid
     stop program "/usr/bin/freeswitch_edged stop"
 
 #
-# Monitor SEMS Process
+# Monitor SIPXWEBRTC Process
 #
-check process sems with pidfile  /var/log/sipxpbx/edge/sems.pid
-    start program "/usr/bin/sems_edged start"
-    stop program "/usr/bin/sems_edged stop"
+check process sipxwebrtc with pidfile /var/log/sipxpbx/edge/sipxwebrtc.pid
+  start program "/usr/bin/sipxwebrtcd start"
+  stop program "/usr/bin/sipxwebrtcd stop"
+  depends on yard, freeswitch
+
+
+
 

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+EDGE_CONFIG=/etc/sipxpbx/edge/config
+PID_FROM_PATH=${EDGE_CONFIG}/pid_from_path.pl
+
+YARD_PROC=/usr/bin/sipxyard
+YARD_LOGFILE=/var/log/sipxpbx/edge/sipxyard.log
+YARD_LOGLEVEL=7
+YARD_PIDFILE=/var/log/sipxpbx/edge/sipxyard.pid
+YARD_DATA=/etc/sipxpbx/edge/config
+
+SIPXEDGE_HOST_IP=%SIPXEDGE_HOST_IP%
+SIPXEDGE_YARD_PORT=%SIPXEDGE_YARD_PORT%
+
+YARD_START_CMD="${YARD_PROC} --data-directory ${YARD_DATA} --host ${SIPXEDGE_HOST_IP} --port ${SIPXEDGE_YARD_PORT} --log-level ${YARD_LOGLEVEL} --log-file ${YARD_LOGFILE} --pid-file ${YARD_PIDFILE}"
+
+
+case "$1" in
+  start)
+    ${YARD_START_CMD}
+    ;;
+  stop)
+    pid=`${PID_FROM_PATH} ${YARD_PROC}`
+    if [ "$pid" = "" ]; then
+        echo "${YARD_PROC} is not running"
+    else
+        kill $pid
+        echo "Send SIGKILL signal to process ID $pid"
+    fi
+    ;;
+  restart)
+    stop
+    sleep 3
+    start
+    ;;
+  status)
+    pid=`${PID_FROM_PATH} ${YARD_PROC}`
+    if [ "$pid" = "" ]; then
+        echo "${YARD_PROC} is not running"
+    else
+        echo "${YARD_PROC} is not running with process ID $pid"
+    fi
+  ;;
+*)
+echo "Usage: $0 (start|stop|restart|status)"
+esac
+
+exit 0
