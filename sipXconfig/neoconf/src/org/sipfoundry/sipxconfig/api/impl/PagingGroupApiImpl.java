@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.paging.PagingSettings;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 
 public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGroupApi {
+    private static final String PAGING_GROUP_NOT_FOUND = "Paging group not found.";
     private PagingContext m_context;
     private PagingFeatureContext m_featureContext;
     private CoreContext m_coreContext;
@@ -44,7 +45,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
         if (groups != null) {
             return Response.ok().entity(PageGroupList.convertPageList(groups)).build();
         }
-        return Response.status(Status.BAD_REQUEST).build();
+        return Response.status(Status.NOT_FOUND).entity("No paging group found.").build();
     }
 
     @Override
@@ -69,7 +70,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
         if (group != null) {
             return Response.ok().entity(PageGroupBean.convertGroup(group)).build();
         }
-        return Response.status(Status.BAD_REQUEST).build();
+        return Response.status(Status.NOT_FOUND).entity(PAGING_GROUP_NOT_FOUND).build();
     }
 
     @Override
@@ -79,7 +80,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
             m_featureContext.deletePagingGroupsById(Collections.singletonList(groupId));
             return Response.ok().build();
         }
-        return Response.status(Status.BAD_REQUEST).build();
+        return Response.status(Status.NOT_FOUND).entity(PAGING_GROUP_NOT_FOUND).build();
     }
 
     @Override
@@ -98,7 +99,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
             m_context.savePagingGroup(group);
             return Response.ok().build();
         }
-        return Response.status(Status.BAD_REQUEST).build();
+        return Response.status(Status.NOT_FOUND).entity(PAGING_GROUP_NOT_FOUND).build();
     }
 
     private Response populateUsers(PageGroupBean bean, PagingGroup group) {
@@ -111,7 +112,7 @@ public class PagingGroupApiImpl extends BaseServiceApiImpl implements PagingGrou
                 user = m_coreContext.loadUserByUserNameOrAlias(userBean.getUserName());
             }
             if (user == null) {
-                return Response.status(Status.BAD_REQUEST).entity(userBean).build();
+                return Response.status(Status.NOT_FOUND).entity(PAGING_GROUP_NOT_FOUND).build();
             }
             group.getUsers().add(user);
         }
