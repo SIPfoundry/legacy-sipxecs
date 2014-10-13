@@ -417,11 +417,15 @@ SipRedirectorPickUp::lookUp(
    ErrorDescriptor& errorDescriptor)
 {
    UtlString userId;
-   bool bSupportsReplaces;
    UtlString incomingCallId;
 
    requestUri.getUserId(userId);
    message.getCallIdField(&incomingCallId);
+
+   UtlString ident;
+   requestUri.getIdentity(ident);
+   bool foundCallRetrieveCode = false;
+   std::string orbitIdent;
 
    if (!mCallPickUpCode.isNull() &&
        !mCallRetrieveCode.isNull() &&
@@ -430,18 +434,49 @@ SipRedirectorPickUp::lookUp(
    {
       // We have both a Call Pickup and Retrieve codes defined and the userid contains the
       // Pickup code at the beginning.  Check if the remainder of the userid is a park orbit.
-      // If it is, replace the Pickup code with the Retrieve code in the userid.
-      // Extract the orbit number.
-      UtlString orbit(userId.data() + mCallPickUpCode.length());
-      if (mOrbitFileReader.findInOrbitList(orbit) != NULL)
-      {
-         // userid contains a park orbit.  replace the pickup code with the retrieve code.
-         userId.replace(0, mCallPickUpCode.length(), mCallRetrieveCode);
-         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPickup::lookUp replace Pickup for Retrieve = %s and requestString = %s",
-                       userId.data(), requestString.data());
-      }
+      // If it is, stop processing here and let SipRedirectorAliasDB do the rest of the job
+
+      // Extract the orbit ident.
+      orbitIdent = ident.data() + mCallPickUpCode.length();
    }
+   else if (!mCallRetrieveCode.isNull() &&
+       userId.length() > mCallRetrieveCode.length() &&
+       userId.index(mCallRetrieveCode.data()) == 0 )
+   {
+     // We have a Retrieve codes defined and the userid contains the Retrieve code at the beginning.
+     // Check if the remainder of the userid is a park orbit.
+     // If it is, stop processing here and let SipRedirectorAliasDB do the rest of the job
+
+     // Extract the orbit ident.
+
+     orbitIdent = ident.data() + mCallRetrieveCode.length();
+     foundCallRetrieveCode = true;
+   }
+
+    EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
+    EntityRecord entity;
+    if (entityDb->findByIdentity(orbitIdent, entity) &&
+        (entity.entity() == "parkorbit"))
+    {
+       // userid contains a park orbit.
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                     "SipRedirectorPickup::lookUp stop here for park orbit = %s and requestString = %s",
+                     userId.data(), requestString.data());
+       return RedirectPlugin::SUCCESS;
+    }
+    else if (foundCallRetrieveCode)
+    {
+       // It appears to be a call retrieve, but the orbit number is invalid.
+       // Return ERROR.
+
+       UtlString reasonPhrase;
+       reasonPhrase = "Park Orbit " + orbitIdent + " Not Found";
+       errorDescriptor.setStatusLineData( SIP_NOT_FOUND_CODE, reasonPhrase );
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                     "%s::lookUp Invalid orbit number '%s'",
+                     mLogName.data(), orbitIdent.c_str());
+       return RedirectPlugin::ERROR;
+    }
 
    if (!mCallPickUpCode.isNull() &&
        userId.length() > mCallPickUpCode.length() &&
@@ -517,89 +552,6 @@ SipRedirectorPickUp::lookUp(
          reasonPhrase.append( ALL_CREDENTIALS_USER );
          errorDescriptor.setStatusLineData( SIP_BAD_METHOD_CODE, reasonPhrase );
          errorDescriptor.setAllowFieldValue( SIP_SUBSCRIBE_METHOD );
-         return RedirectPlugin::ERROR;
-      }
-   }
-   else if (!mCallRetrieveCode.isNull() &&
-            mOrbitFileReader.findInOrbitList(userId) != NULL)
-   {
-      // Check if call retrieve is active, and this is a request for
-      // an extension that is an orbit number.
-
-      // Add the contact to the contact list.
-      UtlString contactStr = "sip:" + userId + "@" + mParkServerDomain;
-      Url contactUri(contactStr, Url::AddrSpec);
-      contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "PARK");
-      contactList.add( contactUri, *this );
-
-      return RedirectPlugin::SUCCESS;
-   }
-   else if (!mCallRetrieveCode.isNull() &&
-            userId.length() > mCallRetrieveCode.length() &&
-            userId.index(mCallRetrieveCode.data()) == 0)
-   {
-      // Check if call retrieve is active, and this is a request for
-      // call retrieve.
-      // Test for supports: replaces
-      // sipXtapi now sends "Supported: replaces", so we can test for its
-      // presence and act on it, without causing a calling sipXtapi to fail.
-      bSupportsReplaces = message.isInSupportedField("replaces");
-
-      // Extract the putative orbit number.
-      UtlString orbit(userId.data() + mCallRetrieveCode.length());
-
-      if (bSupportsReplaces)
-      {
-         // Look it up in the orbit list.
-         if (mOrbitFileReader.findInOrbitList(orbit) != NULL)
-         {
-
-           UtlString  retrieveRequestString(requestString);
-           ssize_t    pickupCodeIndex;
-
-           // If the requestString contains the call pickup code, replace it with call retrieve code.  Used for one button
-           // parked call pickup.
-           pickupCodeIndex = retrieveRequestString.index(mCallPickUpCode.data());
-           if ( pickupCodeIndex != UTL_NOT_FOUND )
-           {
-             retrieveRequestString.replace( pickupCodeIndex, mCallPickUpCode.length(), mCallRetrieveCode);
-           }
-            return lookUpDialog(retrieveRequestString,
-
-                                incomingCallId,
-                                contactList,
-                                requestSeqNo,
-                                redirectorNo,
-                                privateStorage,
-                                // The orbit number.
-                                orbit.data(),
-                                // Only examine confirmed dialogs.
-                                stateConfirmed);
-         }
-         else
-         {
-            // It appears to be a call retrieve, but the orbit number is invalid.
-            // Return ERROR.
-            UtlString reasonPhrase;
-            reasonPhrase = "Park Orbit " + orbit + " Not Found";
-            errorDescriptor.setStatusLineData( SIP_NOT_FOUND_CODE, reasonPhrase );
-            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                          "%s::lookUp Invalid orbit number '%s'",
-                          mLogName.data(), orbit.data());
-            return RedirectPlugin::ERROR;
-         }
-      }
-      else
-      {
-         // The park retrieve failed because the UA does not support INVITE/Replaces
-         UtlString reasonPhrase;
-         reasonPhrase = "Replaces Extension Required";
-         errorDescriptor.setStatusLineData( SIP_EXTENSION_REQUIRED_CODE, reasonPhrase );
-         errorDescriptor.setRequireFieldValue( SIP_REPLACES_EXTENSION );
-
-         Os::Logger::instance().log(FAC_SIP, PRI_ERR,
-                       "%s::lookUp Executor does not support INVITE/Replaces",
-                       mLogName.data());
          return RedirectPlugin::ERROR;
       }
    }
@@ -731,33 +683,6 @@ SipRedirectorPickUp::lookUpDialog(
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "%s::lookUpDialog userId '%s'",
                     mLogName.data(), userId.data());
-      // Test to see if this is a call retrieval
-      if (!mCallRetrieveCode.isNull() &&
-          userId.length() > mCallRetrieveCode.length() &&
-          userId.index(mCallRetrieveCode.data()) == 0)
-      {
-         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                       "%s::lookUpDialog doing call retrieval",
-                       mLogName.data());
-
-         // Construct the contact address for the call retrieval.
-         UtlString contactString("sip:");
-         // The user of the request URI is our subscribeUser parameter.
-         contactString.append(subscribeUser);
-         contactString.append("@");
-         contactString.append(mParkServerDomain);
-
-         Url contact_URI(contactString, Url::AddrSpec);
-
-         contact_URI.setUrlParameter("operation", "retrieve");
-         contact_URI.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "RPARK");
-
-         contactList.add( contact_URI, *this );
-         // We do not need to suspend this time.*/
-         return RedirectPlugin::SUCCESS;
-      }
-      else
-      {
          // Construct the SUBSCRIBE for the call pickup.
          SipMessage subscribe;
          Url subscribeRequestUri;
@@ -870,7 +795,6 @@ SipRedirectorPickUp::lookUpDialog(
 
          // Suspend processing the request.
          return RedirectPlugin::SEARCH_PENDING;
-      }
    }
 }
 
