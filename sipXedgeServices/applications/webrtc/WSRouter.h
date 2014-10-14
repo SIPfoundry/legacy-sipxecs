@@ -22,6 +22,7 @@
 #include <jsonrpc/rpc.h>
 #include "ReproGlue.h"
 #include <esl/EslListener.h>
+#include <sipxyard/RESTClient.h>
 
   
 class WSRouter : public OsServiceOptions
@@ -58,6 +59,13 @@ public:
   const std::string& getRealm() const;
   
   ReproGlue* repro();
+  
+  bool mergeOption(const std::string& option, std::string& value, const char* defval = 0);
+  
+  bool mergeOption(const std::string& option, std::vector<std::string>& value);
+  
+  bool mergeOption(const std::string& option, int& value, int defval = -1);
+  
 protected:
   ReproGlue* _pRepro;
   std::string _proxyAddress;
@@ -75,6 +83,7 @@ protected:
   int _eslPort;
   jsonrpc::Client* _pRpc;
   std::string _rpcUrl;
+  RESTClient* _pConfigClient;
 };
 
 
