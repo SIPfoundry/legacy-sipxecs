@@ -33,6 +33,9 @@ import org.sipfoundry.sipxconfig.registrar.RegistrationContext;
 import org.sipfoundry.sipxconfig.registrar.RegistrationMetrics;
 
 public class RegistrationApiImpl implements RegistrationApi {
+    private static final String SERVER_NOT_FOUND = "Server not found";
+    private static final String PHONE_NOT_FOUND = "Phone not found";
+    private static final String USER_NOT_FOUND = "User  not found";
     private RegistrationContext m_context;
     private CoreContext m_coreContext;
     private PhoneContext m_phoneContext;
@@ -55,7 +58,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             }
             return buildRegistrationResponse(m_context.getRegistrationsByUser(user));
         }
-        return Response.status(Status.BAD_REQUEST).entity("User  not found").build();
+        return Response.status(Status.NOT_FOUND).entity(USER_NOT_FOUND).build();
     }
 
     @Override
@@ -65,7 +68,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             m_context.dropRegistrationsByUser(user);
             return Response.ok().build();
         }
-        return Response.status(Status.BAD_REQUEST).entity("User  not found").build();
+        return Response.status(Status.NOT_FOUND).entity(USER_NOT_FOUND).build();
     }
 
     @Override
@@ -74,7 +77,7 @@ public class RegistrationApiImpl implements RegistrationApi {
         if (phone != null) {
             return buildRegistrationResponse(m_context.getRegistrationsByMac(serialId));
         }
-        return Response.status(Status.BAD_REQUEST).entity("Phone not found").build();
+        return Response.status(Status.NOT_FOUND).entity(PHONE_NOT_FOUND).build();
     }
 
     @Override
@@ -84,7 +87,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             m_context.dropRegistrationsByMac(serialId);
             return Response.ok().build();
         }
-        return Response.status(Status.BAD_REQUEST).entity("Phone not found").build();
+        return Response.status(Status.NOT_FOUND).entity(PHONE_NOT_FOUND).build();
     }
 
     @Override
@@ -119,7 +122,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             }
             return buildRegistrationResponse(m_context.getRegistrationsByServer(location.getAddress()));
         }
-        return Response.status(Status.BAD_REQUEST).entity("Server not found").build();
+        return Response.status(Status.NOT_FOUND).entity(SERVER_NOT_FOUND).build();
     }
 
     @Override
@@ -129,7 +132,7 @@ public class RegistrationApiImpl implements RegistrationApi {
             m_context.dropRegistrationsByServer(location.getAddress());
             return Response.ok().build();
         }
-        return Response.status(Status.BAD_REQUEST).entity("Server not found").build();
+        return Response.status(Status.NOT_FOUND).entity(SERVER_NOT_FOUND).build();
     }
 
     private Response buildRegistrationResponse(List<RegistrationItem> items) {

@@ -23,6 +23,7 @@
 #include <resip/stack/Helper.hxx>
 #include <resip/stack/ParameterTypes.hxx>
 #include <sipXecsService/SipXApplication.h>
+#include <utl/cJSON.h>
 
 #include "WSRouter.h"
 #include "AuthInformationGrabber.h"
@@ -33,6 +34,9 @@
 #define SWITCH_APPLICATION_NAME "WebRtcBridge"
 #define DEFAULT_ESL_ADDRESS "127.0.0.1"
 #define DEFAULT_ESL_PORT 11000
+#define DEFAULT_CONFIG_ADDRESS "127.0.0.1"
+#define DEFAULT_CONFIG_PORT 8020
+#define DEFAULT_CONFIG_PATH "/root/system-config/webrtc"
 
 //
 // Extension URI Parameters
@@ -136,6 +140,22 @@ static void escape_url_parameter(std::string& result, const char* _str, const ch
   result = front;
 }
 
+static std::string json_string(const std::string& rawData, const std::string& param)
+{
+  std::string value;
+  cJSON* pJson = cJSON_Parse(rawData.c_str());
+  
+  cJSON* svalue = cJSON_GetObjectItem(pJson, param.c_str());
+  
+  if (svalue)
+    value = svalue->valuestring;
+  
+  if (pJson)
+    cJSON_Delete(pJson);
+  
+  return value;
+}
+
 WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName) :
   OsServiceOptions(argc, argv),
   _pRepro(0),
@@ -143,7 +163,8 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName) :
   _wsPort(0),
   _tcpUdpPort(0),
   _eslPort(DEFAULT_ESL_PORT),
-  _pRpc(0)
+  _pRpc(0),
+  _pConfigClient(0)
 {
   setCommandLine(argc, argv);
   addDefaultOptions();
@@ -161,30 +182,135 @@ WSRouter::WSRouter(int argc, char** argv, const std::string& daemonName) :
   addOptionString("db-path", ": Specify a specific directory where application databases will be saved.", CommandLineOption, false);
   addOptionInt("bridge-esl-port", ": The ESL Port where the bridge will listen for incoming connection from the switch.", CommandLineOption, false);
   addOptionInt("switch-esl-port", ": The ESL Port where the switch will listen for incoming connection from the bridge.", CommandLineOption, false);
+  
+  _pConfigClient = new RESTClient(DEFAULT_CONFIG_ADDRESS, DEFAULT_CONFIG_PORT);
 }
 
 WSRouter::~WSRouter()
 {
   delete _pRepro;
   delete _pRpc;
+  delete _pConfigClient;
   DomainConfig::delete_instance();
+}
+
+bool WSRouter::mergeOption(const std::string& option, std::string& value, const char* defval)
+{
+  std::string restValue;
+  std::string commandLineValue;
+  int status = 0;
+  std::ostringstream path;
+  path << DEFAULT_CONFIG_PATH << "/" << option;
+  getOption(option, commandLineValue);
+  _pConfigClient->restGET(path.str(), restValue, status);
+  
+  if (!restValue.empty())
+  {
+    value = json_string(restValue, option);
+    OS_LOG_INFO(FAC_SIP, "WSRouter::mergeOption (YARD) - " << option << ": " << value);
+    return true;
+  }
+  else if (!commandLineValue.empty())
+  {
+    value = commandLineValue;
+    OS_LOG_INFO(FAC_SIP, "WSRouter::mergeOption (CMD) - " << option << ": " << value);
+    _pConfigClient->restPUT(path.str(), commandLineValue, status);
+    return true;
+  }
+  
+  if (defval)
+  {
+    value = defval;
+    return true;
+  }
+  
+  return false;
+}
+
+bool WSRouter::mergeOption(const std::string& option, std::vector<std::string>& value)
+{
+  std::string restValue;
+  int status = 0;
+  std::ostringstream path;
+  path << DEFAULT_CONFIG_PATH << "/" << option;
+  _pConfigClient->restGET(path.str(), restValue, status);
+  
+  if (!restValue.empty())
+  {
+    std::string restVal = json_string(restValue, option);
+    OS_LOG_INFO(FAC_SIP, "WSRouter::mergeOption (YARD) - " << option << ": " << restVal);
+    value.push_back(restVal);
+    return true;
+  }
+  else
+  {
+    return getOption(option, value);
+  }
+    
+  return false;
+}
+  
+bool WSRouter::mergeOption(const std::string& option, int& value, int defval)
+{
+  std::string restValue;
+  int commandLineValue;
+  int status = 0;
+  std::ostringstream path;
+  path << DEFAULT_CONFIG_PATH << "/" << option;
+  bool hasCommandLineValue = getOption(option, commandLineValue);
+  bool hashRestValue = _pConfigClient->restGET(path.str(), restValue, status);
+  
+  if (hashRestValue && !restValue.empty())
+  {
+    try
+    {
+      value = boost::lexical_cast<int>(json_string(restValue, option));
+      OS_LOG_INFO(FAC_SIP, "WSRouter::mergeOption (YARD) - " << option << ": " << value);
+      return true;
+    }
+    catch(...)
+    {
+      OS_LOG_ERROR(FAC_SIP, "WSRouter::mergeOption (REST) - Integer Cast Exception for value " << restValue);
+    }
+  }
+  else if (hasCommandLineValue)
+  {
+    try
+    {
+      value = commandLineValue;
+      _pConfigClient->restPUT(path.str(), boost::lexical_cast<std::string>(commandLineValue), status);
+      OS_LOG_INFO(FAC_SIP, "WSRouter::mergeOption (CMD) - " << option << ": " << commandLineValue);
+      return true;
+    }catch(...)
+    {
+      OS_LOG_ERROR(FAC_SIP, "WSRouter::mergeOption (Command Line) - Integer Cast Exception for value " << commandLineValue);
+    }
+  }
+  
+  if (defval != -1)
+  {
+    value = defval;
+    return true;
+  }
+  
+  return false;
 }
 
 bool WSRouter::initialize()
 {
   OS_LOG_INFO(FAC_SIP, "WSRouter::initialize INVOKED")
-  assert(getOption("ip-address", _address));
-  assert(getOption("ws-port", _wsPort));
-  assert(getOption("tcp-udp-port", _tcpUdpPort));
+  assert(mergeOption("ip-address", _address));
+  assert(mergeOption("ws-port", _wsPort));
+  assert(mergeOption("tcp-udp-port", _tcpUdpPort));
   
-  getOption("db-path", _dbPath, SIPX_DBDIR);
+  mergeOption("db-path", _dbPath, SIPX_DBDIR);
   if (!verify_directory(_dbPath))
     return false;
   
-  getOption("proxy-address", _proxyAddress);
-  getOption("proxy-port", _proxyPort, 0);
-  getOption("domain", _domains);
-  getOption("realm", _realm);
+  mergeOption("proxy-address", _proxyAddress);
+  mergeOption("proxy-port", _proxyPort, 0);
+  mergeOption("domain", _domains);
+  mergeOption("realm", _realm);
   
   if (_domains.empty())
   {
@@ -237,7 +363,7 @@ bool WSRouter::initialize()
     gEnableReproLogging = true;
   }
   
-  if (!_pRpc && getOption("rpc-url", _rpcUrl))
+  if (!_pRpc && mergeOption("rpc-url", _rpcUrl))
   {
     OS_LOG_INFO(FAC_SIP, "WSRouter::initialize - Setting up RPC service to " << _rpcUrl);
     _pRpc = new jsonrpc::Client(new jsonrpc::HttpClient(_rpcUrl));
@@ -281,7 +407,7 @@ bool WSRouter::initialize()
   // Initialize authentication
   //
   std::string userCache;
-  getOption("user-cache", userCache);
+  mergeOption("user-cache", userCache);
 
   if (!userCache.empty())
   {
@@ -296,12 +422,9 @@ bool WSRouter::initialize()
   _pRepro->setProxyConfigValue("DisableAuthInt", "true");
   _pRepro->setExternalAuthGrabber(new AuthInformationGrabber(this, 0, _pRpc, userCache.empty() ? 0 : userCache.c_str()));
   
-  
-  if (hasOption("bridge-tcp-udp-port"))
-  {
-    _bridgePort = 0;
-    getOption("bridge-tcp-udp-port", _bridgePort);
-  }
+
+  mergeOption("bridge-tcp-udp-port", _bridgePort);
+ 
   
   return true;
 }
@@ -319,7 +442,7 @@ int WSRouter::main()
     //
     // Run the ESL Event Layer
     //
-    getOption("bridge-esl-port", _eslPort, DEFAULT_ESL_PORT);
+    mergeOption("bridge-esl-port", _eslPort, DEFAULT_ESL_PORT);
 
     if (!_eventListener.listenForEvents(boost::bind(&WSRouter::handleBridgeEvent, this, _1, _2), DEFAULT_ESL_ADDRESS, _eslPort))
       return -1;
