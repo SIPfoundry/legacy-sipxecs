@@ -425,37 +425,33 @@ SipRedirectorPickUp::lookUp(
    UtlString ident;
    requestUri.getIdentity(ident);
    bool foundCallRetrieveCode = false;
-   std::string orbitIdent;
+   std::string realIdent;
 
    if (!mCallPickUpCode.isNull() &&
-       !mCallRetrieveCode.isNull() &&
        userId.length() > mCallPickUpCode.length() &&
        userId.index(mCallPickUpCode.data()) == 0 )
    {
-      // We have both a Call Pickup and Retrieve codes defined and the userid contains the
-      // Pickup code at the beginning.  Check if the remainder of the userid is a park orbit.
-      // If it is, stop processing here and let SipRedirectorAliasDB do the rest of the job
+      // We have a Call Pickup code defined and the userid contains the
+      // pickup code at the beginning. Extract the remainder of the userid.
 
-      // Extract the orbit ident.
-      orbitIdent = ident.data() + mCallPickUpCode.length();
+      realIdent.append(ident.data() + mCallPickUpCode.length());
    }
    else if (!mCallRetrieveCode.isNull() &&
        userId.length() > mCallRetrieveCode.length() &&
        userId.index(mCallRetrieveCode.data()) == 0 )
    {
-     // We have a Retrieve codes defined and the userid contains the Retrieve code at the beginning.
-     // Check if the remainder of the userid is a park orbit.
-     // If it is, stop processing here and let SipRedirectorAliasDB do the rest of the job
+     // We have a Call Retrieve code defined and the userid contains the
+     // retrieve code at the beginning. Extract the remainder of the userid.
 
-     // Extract the orbit ident.
-
-     orbitIdent = ident.data() + mCallRetrieveCode.length();
+     realIdent.append(ident.data() + mCallRetrieveCode.length());
      foundCallRetrieveCode = true;
    }
 
     EntityDB* entityDb = SipRegistrar::getInstance(NULL)->getEntityDB();
     EntityRecord entity;
-    if (entityDb->findByIdentity(orbitIdent, entity) &&
+     // Check if the real ident (remainder of the userid) is a park orbit.
+     // If it is, stop processing here and let SipRedirectorAliasDB do the rest of the job
+    if (entityDb->findByIdentity(realIdent, entity) &&
         (entity.entity() == "parkorbit"))
     {
        // userid contains a park orbit.
@@ -470,11 +466,11 @@ SipRedirectorPickUp::lookUp(
        // Return ERROR.
 
        UtlString reasonPhrase;
-       reasonPhrase = "Park Orbit " + orbitIdent + " Not Found";
+       reasonPhrase = "Park Orbit " + realIdent + " Not Found";
        errorDescriptor.setStatusLineData( SIP_NOT_FOUND_CODE, reasonPhrase );
        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                      "%s::lookUp Invalid orbit number '%s'",
-                     mLogName.data(), orbitIdent.c_str());
+                     mLogName.data(), realIdent.c_str());
        return RedirectPlugin::ERROR;
     }
 
@@ -503,7 +499,8 @@ SipRedirectorPickUp::lookUp(
                           // directed call pick-up code.
                           userId.data() + mCallPickUpCode.length(),
                           // Only examine early dialogs.
-                          stateEarly);
+                          stateEarly,
+                          entity.entity());
    }
    else if (!mGlobalPickUpCode.isNull() &&
             userId.compareTo(mGlobalPickUpCode) == 0)
@@ -518,7 +515,8 @@ SipRedirectorPickUp::lookUp(
                           // The all-exetnsions user.
                           ALL_CREDENTIALS_USER,
                           // Only examine early dialogs.
-                          stateEarly);
+                          stateEarly,
+                          entity.entity());
    }
    else if (!mGlobalPickUpCode.isNull() &&
             userId.compareTo(ALL_CREDENTIALS_USER) == 0)
@@ -571,7 +569,8 @@ SipRedirectorPickUp::lookUpDialog(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
    const char* subscribeUser,
-   State stateFilter)
+   State stateFilter,
+   const std::string& entity)
 {
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "%s::lookUpDialog requestString = '%s', "
@@ -696,10 +695,15 @@ SipRedirectorPickUp::lookUpDialog(
          subscribeRequestUri.setHostAddress(mDomain);
          // Serialize as URI, without URI-parameters.
          subscribeRequestUri.toString(subscribeRequestStringShort);
-         // Add URI-parameters to prevent forwarding of the SUBSCRIBE to
-         // irrelevant contacts.
+         // Add URI-parameters to prevent forwarding of the SUBSCRIBE to irrelevant contacts.
          subscribeRequestUri.setUrlParameter("sipx-noroute", "Voicemail");
-         subscribeRequestUri.setUrlParameter("sipx-userforward", "false");
+         if (entity != "callgroup")
+         {
+           // forwarding is needed for huntgroups only so that SUBSCRIBE is forwarded
+           // to hunt group's contacts
+           subscribeRequestUri.setUrlParameter("sipx-userforward", "false");
+         }
+
          // Serialize as name-addr, with URI-parameters.
          subscribeRequestUri.getUri(subscribeRequestStringLong);
          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
