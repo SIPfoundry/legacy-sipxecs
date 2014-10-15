@@ -247,32 +247,32 @@ public class UserTest extends TestCase {
         List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         assertEquals(8, aliasMappings.size());
 
-        AliasMapping alias = (AliasMapping) aliasMappings.get(0);
+        AliasMapping alias = aliasMappings.get(0);
         assertEquals("mambo", alias.getIdentity());
 
         assertNotNull(alias.getContact());
-        alias = (AliasMapping) aliasMappings.get(1);
+        alias = aliasMappings.get(1);
         assertEquals("tango", alias.getIdentity());
         assertNotNull(alias.getContact());
 
-        AliasMapping imIdAlias = (AliasMapping) aliasMappings.get(2);
+        AliasMapping imIdAlias = aliasMappings.get(2);
         assertEquals("imid", imIdAlias.getIdentity());
 
-        AliasMapping faxAlias = (AliasMapping) aliasMappings.get(3);
+        AliasMapping faxAlias = aliasMappings.get(3);
         assertEquals("321", faxAlias.getIdentity());
         assertEquals("sip:~~ff~" + user.getUserName() + "@sipfoundry.org", faxAlias.getContact());
 
-        AliasMapping faxAliasDid = (AliasMapping) aliasMappings.get(4);
+        AliasMapping faxAliasDid = aliasMappings.get(4);
         assertEquals("+1234", faxAliasDid.getIdentity());
         assertEquals("sip:~~ff~" + user.getUserName() + "@sipfoundry.org", faxAliasDid.getContact());
 
-        AliasMapping callFwdAliasImmediate = (AliasMapping) aliasMappings.get(5);
+        AliasMapping callFwdAliasImmediate = aliasMappings.get(5);
         assertEquals("username", callFwdAliasImmediate.getIdentity());
-        assertEquals("<sip:343434@sipfoundry.org;sipx-noroute=Voicemail?expires=30>;q=1.0", callFwdAliasImmediate.getContact());
+        assertEquals("<sip:343434@sipfoundry.org;callgroup=username;sipx-noroute=Voicemail?expires=30>;q=1.0", callFwdAliasImmediate.getContact());
 
-        AliasMapping callFwdAliasDelayed = (AliasMapping) aliasMappings.get(6);
+        AliasMapping callFwdAliasDelayed = aliasMappings.get(6);
         assertEquals("username", callFwdAliasDelayed.getIdentity());
-        assertEquals("<sip:454545@sipfoundry.org;sipx-noroute=Voicemail?expires=30>;q=0.933", callFwdAliasDelayed.getContact());
+        assertEquals("<sip:454545@sipfoundry.org;callgroup=username;sipx-noroute=Voicemail?expires=30>;q=0.933", callFwdAliasDelayed.getContact());
 
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
@@ -412,7 +412,7 @@ public class UserTest extends TestCase {
         List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         // actually there is 1 alias that is the ~~vm~
         assertEquals(1, aliasMappings.size());
-        AliasMapping alias = (AliasMapping) aliasMappings.get(0);
+        AliasMapping alias = aliasMappings.get(0);
         assertEquals("~~vm~" + user.getUserName(), alias.getIdentity());
     }
 

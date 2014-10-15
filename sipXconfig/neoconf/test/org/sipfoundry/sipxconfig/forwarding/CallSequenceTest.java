@@ -52,7 +52,7 @@ public class CallSequenceTest extends TestCase {
             assertEquals("abc", alias.getIdentity());
             String contact = alias.getContact();
             assertTrue(contact.matches("<sip:\\d+@" + MYDOMAIN
-                    + ";sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+                    + ";callgroup=abc;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
         }
     }
 
@@ -82,7 +82,7 @@ public class CallSequenceTest extends TestCase {
             assertEquals("abc", alias.getIdentity());
             String contact = alias.getContact();
             assertTrue(contact.matches("<sip:\\d+@" + MYDOMAIN
-                    + ";sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+                    + ";callgroup=abc;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
         }
     }
 

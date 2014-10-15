@@ -95,8 +95,8 @@ public abstract class AbstractRing extends BeanWithId implements SystemAuditable
      * @param q contact q value
      * @return String representing the contact
      */
-    public final String calculateContact(String domain, String callgroupName, ForkQueueValue q, boolean appendIgnoreVoicemail,
-            boolean userforward, String prefix) {
+    public final String calculateContact(String domain, String callgroupName, ForkQueueValue q,
+            boolean appendIgnoreVoicemail, boolean userforward, String prefix) {
 
         StringBuilder userPart = new StringBuilder(StringUtils.defaultString(prefix));
         userPart.append(getUserPart().toString());
@@ -109,9 +109,9 @@ public abstract class AbstractRing extends BeanWithId implements SystemAuditable
 
         StringBuilder fieldParams = new StringBuilder();
 
-        // XX-11404 sipXconfig should add hunt group extension as a param to all its contact (callgroup=<callgroupid>)
-        if (null != callgroupName)
-        {
+        // XX-11404 sipXconfig should add hunt group extension as a param to all its contact
+        // (callgroup=<callgroupid>)
+        if (null != callgroupName) {
             fieldParams.append(PARAM_DELIMITER);
             fieldParams.append(String.format(CALLGROUP_FORMAT_FIELD_PARAM, callgroupName));
         }
@@ -127,8 +127,8 @@ public abstract class AbstractRing extends BeanWithId implements SystemAuditable
         StringBuilder urlParams = new StringBuilder(q.getValue(m_type));
         addUrlParams(urlParams);
 
-        return String.format(FORMAT, userPart, domainPart, fieldParams.toString(), m_expiration, urlParams
-                .toString());
+        return String.format(FORMAT, userPart, domainPart, fieldParams.toString(), m_expiration,
+                urlParams.toString());
     }
 
     protected void addUrlParams(@SuppressWarnings("unused") StringBuilder params) {
