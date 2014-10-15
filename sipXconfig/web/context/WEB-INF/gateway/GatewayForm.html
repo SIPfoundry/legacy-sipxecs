@@ -83,15 +83,17 @@
             translator="translator:sipxnumber,omitZero=true"
             displayName="message:label.addressPort"/>
         </label>
-        <label jwcid="@common/FieldPanel" for="gateway:addressTransport"
-          field="component:gatewayAddressTransport"
-          label="message:label.addressTransport"
-          description="message:description.addressTransport">
-          <select jwcid="gatewayAddressTransport@PropertySelection"
-            id="gateway:addressTransport"
-            value="ognl:gateway.addressTransport"
-            model="ognl:addressTransportModel" />
-        </label>
+        <div jwcid="@If" condition="ognl:gateway.model.addressTransportAware" renderTag="false">
+          <label jwcid="@common/FieldPanel" for="gateway:addressTransport"
+            field="component:gatewayAddressTransport"
+            label="message:label.addressTransport"
+            description="message:description.addressTransport">
+            <select jwcid="gatewayAddressTransport@PropertySelection"
+              id="gateway:addressTransport"
+              value="ognl:gateway.addressTransport"
+              model="ognl:addressTransportModel" />
+          </label>
+        </div>  
       </div>
       <div jwcid="@If" condition="ognl:gateway.model.hasSerialNumber" renderTag="false">
         <label jwcid="@common/FieldPanel" for="gateway:serial"
@@ -116,18 +118,22 @@
           displayName="message:label.firmwareVersion"/>
       </tr>
       </div>
-      <tr  jwcid="@common/FieldPanel" for="gateway:site" field="component:site"
-        label="message:label.site"
-        description="message:description.site">
-        <select jwcid="site@PropertySelection" id="gateways:site"
-          model="ognl:siteModel"
-          value="ognl:gateway.branch"/>
-      </tr>
-	  <tr jwcid="@common/FieldPanel" for="gateway:shared" field="component:shared"
-	      label="message:label.shared"
-	      description="message:description.shared">
-         <span jwcid="shared@Checkbox" id="gateway:shared" value="ognl:gateway.shared"/>
-      </tr>
+      <div jwcid="@If" condition="ognl:gateway.model.locationAware" renderTag="false">
+        <tr  jwcid="@common/FieldPanel" for="gateway:site" field="component:site"
+          label="message:label.site"
+          description="message:description.site">
+          <select jwcid="site@PropertySelection" id="gateways:site"
+            model="ognl:siteModel"
+            value="ognl:gateway.branch"/>
+        </tr>
+      </div>
+      <div jwcid="@If" condition="ognl:gateway.model.sharedAware" renderTag="false">
+	    <tr jwcid="@common/FieldPanel" for="gateway:shared" field="component:shared"
+	        label="message:label.shared"
+	        description="message:description.shared">
+           <span jwcid="shared@Checkbox" id="gateway:shared" value="ognl:gateway.shared"/>
+        </tr>
+      </div>
       <label jwcid="@common/FieldPanel" for="gateway:description"
         field="component:gatewayDescription"
         label="message:label.description">

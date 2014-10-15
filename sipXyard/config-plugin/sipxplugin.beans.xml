@@ -9,10 +9,16 @@
 	<property name="vendor" value="yard" />
 	<property name="dialPlanAware" value="false" />
 	<property name="callerIdAware" value="false" />
+	<property name="addressTransportAware" value="false" />
+	<property name="locationAware" value="false" />
+	<property name="sharedAware" value="false" />
+	<property name="serialNumberPattern" value="" />
   </bean>
 
   <bean id="gwYard" class="org.sipfoundry.sipxconfig.gateway.yard.YardGateway" scope="prototype" parent="gwGeneric">
     <property name="addressManager" ref="addressManager"/>
     <property name="domainManager" ref="domainManager"/>
+    <property name="featureManager" ref="featureManager"/>
+    <property name="locationManager" ref="locationsManager"/>
   </bean>
 </beans>

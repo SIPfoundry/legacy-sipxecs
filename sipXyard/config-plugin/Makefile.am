@@ -14,8 +14,7 @@ noinst_DATA = \
 jardir = @SIPX_JAVADIR@/sipXconfig/plugins
 jar_DATA = $(cfg_JAR)
 cfg_JAR = yard-gateway-plugin.jar
-cfg_RESOURCES = \
-	$(shell cd $(srcdir); find plugin -type f) \
+cfg_RESOURCES = \	
 	sipxplugin.beans.xml
 
 $(cfg_JAR) : javac-cfg $(cfg_RESOURCES)

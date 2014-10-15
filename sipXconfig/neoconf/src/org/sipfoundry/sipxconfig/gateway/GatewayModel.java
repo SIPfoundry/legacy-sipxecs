@@ -15,6 +15,9 @@ public class GatewayModel extends DeviceDescriptor {
     private int m_maxPorts;
     private boolean m_dialPlanAware = true;
     private boolean m_callerIdAware = true;
+    private boolean m_addressTransportAware = true;
+    private boolean m_locationAware = true;
+    private boolean m_sharedAware = true;
 
     /**
      * Array of setting names that comprise the port label
@@ -72,5 +75,29 @@ public class GatewayModel extends DeviceDescriptor {
 
     public void setCallerIdAware(boolean callerIdAware) {
         m_callerIdAware = callerIdAware;
+    }
+
+    public boolean isAddressTransportAware() {
+        return m_addressTransportAware;
+    }
+
+    public void setAddressTransportAware(boolean addressTransportAware) {
+        m_addressTransportAware = addressTransportAware;
+    }
+
+    public boolean isLocationAware() {
+        return m_locationAware;
+    }
+
+    public void setLocationAware(boolean locationAware) {
+        m_locationAware = locationAware;
+    }
+
+    public boolean isSharedAware() {
+        return m_sharedAware;
+    }
+
+    public void setSharedAware(boolean sharedAware) {
+        m_sharedAware = sharedAware;
     }
 }

@@ -43,8 +43,10 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.WebRtcGateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -69,6 +71,8 @@ public class YardGateway extends Gateway implements WebRtcGateway {
     private WebRtcBean m_bean;
     private AddressManager m_addressManager;
     private DomainManager m_domainManager;
+    private FeatureManager m_featureManager;
+    private LocationsManager m_locationManager;
 
     @Override
     protected Setting loadSettings() {
@@ -83,6 +87,11 @@ public class YardGateway extends Gateway implements WebRtcGateway {
             m_bean = convertJson(response);
         }
         addDefaultBeanSettingHandler(new YardDefaults());
+        //automatically start edge RPC service on master node if not already started
+        //rpc service can run on any node
+        if (!m_featureManager.isFeatureEnabled(Sipxedgerpc.FEATURE)) {
+            m_featureManager.enableLocationFeature(Sipxedgerpc.FEATURE, m_locationManager.getPrimaryLocation(), true);
+        }
     }
 
     @Override
@@ -91,16 +100,9 @@ public class YardGateway extends Gateway implements WebRtcGateway {
         executePost("realm", m_domainManager.getDomain().getSipRealm());
         executePost("domain", m_domainManager.getDomain().getName());
         executePost("ws-port", getWsPort());
-        executePost("tcp-udp-port", getSettings().getSetting(WEBRTC_TCP_UDP_PORT).getValue());
-        executePost("bridge-tcp-udp-port", getSettings().getSetting(WEBRTC_BRIDGE_TCP_UDP_PORT).getValue());
         executePost("proxy-address", m_domainManager.getDomain().getName());
         executePost("rpc-url", getEdgeRpcUris());
-        executePost("proxy-port", "0");
-        executePost("enable-library-logging", getSettings().getSetting(WEBRTC_ENABLE_LIBRARY_LOGGING).getValue());
         executePost("user-cache", getSettings().getSetting(WEBRTC_USER_CACHE).getValue());
-        executePost("db-path", getSettings().getSetting(WEBRTC_DB_PATH).getValue());
-        executePost("bridge-esl-port", getSettings().getSetting(WEBRTC_BRIDGE_ESL_PORT).getValue());
-        executePost("switch-esl-port", getSettings().getSetting(WEBRTC_SWITCH_ESL_PORT).getValue());
         executePost("log-level", getSettings().getSetting(WEBRTC_LOG_LEVEL).getValue());
     }
 
@@ -118,6 +120,9 @@ public class YardGateway extends Gateway implements WebRtcGateway {
     }
 
     public String executePost(String property, String value) {
+        if (value == null) {
+            return null;
+        }
         HttpClient client = getHttpClient();
         PostMethod postMethod = new PostMethod(getYardURI(property));
         postMethod.addParameter("value", value);
@@ -234,6 +239,16 @@ public class YardGateway extends Gateway implements WebRtcGateway {
         m_domainManager = domainManager;
     }
 
+    @Required
+    public void setFeatureManager(FeatureManager featureManager) {
+        m_featureManager = featureManager;
+    }
+
+    @Required
+    public void setLocationManager(LocationsManager locationManager) {
+        m_locationManager = locationManager;
+    }
+
     public class YardDefaults {
         @SettingEntry(path = WEBRTC_LOG_LEVEL)
         public String getLogLevel() {
@@ -283,6 +298,10 @@ public class YardGateway extends Gateway implements WebRtcGateway {
 
     @Override
     public String getWsPort() {
-        return getSettings().getSetting(WEBRTC_WS_PORT).getValue();
+        return getYardValue(WEBRTC_WS_PORT);
+    }
+
+    private String getYardValue(String key) {
+        return getSettings().getSetting(key).getValue();
     }
 }

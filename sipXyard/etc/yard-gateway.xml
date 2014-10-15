@@ -58,27 +58,27 @@
         <integer/>
       </type>
 	</setting>
-	<setting name="tcp-udp-port">
+	<setting name="tcp-udp-port" hidden="true">
 	  <type>
         <integer/>
       </type>
 	</setting>
-	<setting name="bridge-tcp-udp-port">
+	<setting name="bridge-tcp-udp-port" hidden="true">
 	  <type>
         <integer/>
       </type>
 	</setting>
-	<setting name="enable-library-logging">
+	<setting name="enable-library-logging" hidden="true">
 	  <type refid="true-false"/>				  
 	</setting>
 	<setting name="user-cache"/>
-	<setting name="db-path"/>
-	<setting name="bridge-esl-port">	
+	<setting name="db-path" hidden="true"/>
+	<setting name="bridge-esl-port" hidden="true">	
 	  <type>
         <integer/>
       </type>
 	</setting>
-	<setting name="switch-esl-port">
+	<setting name="switch-esl-port" hidden="true">
 	  <type>
         <integer/>
       </type>
