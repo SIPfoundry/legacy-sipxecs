@@ -18,6 +18,7 @@ AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 SFAC_INIT_FLAGS
 SFAC_LIB_PORT
 SFAC_LIB_COMMSERVER
+SFAC_LIB_YARD
 
 AC_ARG_ENABLE(dep-check,
   AS_HELP_STRING([--disable-dep-check],

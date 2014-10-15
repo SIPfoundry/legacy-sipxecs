@@ -175,7 +175,8 @@ class SipRedirectorPickUp : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       const char* subscribeUser,
-      State stateFilter);
+      State stateFilter,
+      const std::string& entity /* imdb entity string for the request uri user id*/);
 
    SipLineMgr* addCredentials(UtlString domain, UtlString realm);
    

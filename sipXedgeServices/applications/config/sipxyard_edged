@@ -12,7 +12,7 @@ YARD_DATA=/etc/sipxpbx/edge/config
 SIPXEDGE_HOST_IP=%SIPXEDGE_HOST_IP%
 SIPXEDGE_YARD_PORT=%SIPXEDGE_YARD_PORT%
 
-YARD_START_CMD="${YARD_PROC} --data-directory ${YARD_DATA} --host ${SIPXEDGE_HOST_IP} --port ${SIPXEDGE_YARD_PORT} --log-level ${YARD_LOGLEVEL} --log-file ${YARD_LOGFILE} --pid-file ${YARD_PIDFILE}"
+YARD_START_CMD="${YARD_PROC} --data-directory ${YARD_DATA} --port ${SIPXEDGE_YARD_PORT} --log-level ${YARD_LOGLEVEL} --log-file ${YARD_LOGFILE} --pid-file ${YARD_PIDFILE}"
 
 
 case "$1" in
