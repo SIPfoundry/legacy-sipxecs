@@ -119,9 +119,9 @@ public abstract class BeanWithSettings extends BeanWithId {
     }
 
     public void setSettingValue(String path, String value) {
-        if(getSetting(path) != null) {
-        Setting setting = getSetting(path);
-        setting.setValue(value);
+        if (getSetting(path) != null) {
+            Setting setting = getSetting(path);
+            setting.setValue(value);
         }
     }
 
