@@ -108,6 +108,10 @@ public:
     virtual void logMessage(const char* message, int messageLength) = 0;
 
     virtual void getContactUri(UtlString* contactUri) ;
+    
+    void setDomain(const std::string& domain);
+    
+    const std::string& getDomain() const;
 
 /* ============================ INQUIRY =================================== */
 
@@ -130,6 +134,7 @@ protected:
     OsRWMutex mObserverMutex;
     UtlHashBag mConfigChangeObservers;
     SipContactDb mContactDb;
+    std::string _domain;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -154,5 +159,16 @@ inline void SipUserAgentBase::executeAllBufferedSipOutputProcessors( SipMessage&
 {
 }
 /* ============================ INLINE METHODS ============================ */
+
+inline void SipUserAgentBase::setDomain(const std::string& domain)
+{
+  _domain = domain;
+}
+    
+inline const std::string& SipUserAgentBase::getDomain() const
+{
+  return _domain;
+}
+
 
 #endif  // _SipUserAgentBase_h_

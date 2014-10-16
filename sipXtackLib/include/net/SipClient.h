@@ -129,6 +129,10 @@ protected:
     bool preprocessMessage(SipMessage& msg,
                            const UtlString& msgText,
                            int msgLength);
+    
+    bool preprocessRequestLine(SipMessage& msg);
+    
+    bool preprocessUriHeader(SipMessage& msg, const char* headerName);
 
     /// Test whether the socket is ready to read.  (Does not block.)
     UtlBoolean isReadyToRead();

@@ -31,6 +31,9 @@
 #include <utl/XmlContent.h>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <sstream>
+#include <vector>
 
 #define SIP_DEFAULT_RTT 500
 // The time in milliseconds that we allow poll() to wait.
@@ -960,6 +963,239 @@ int SipClient::run(void* runArg)
    return 0;        // and then exit
 }
 
+static std::vector<std::string> string_tokenize(const std::string& str, const char* tok)
+{
+  std::vector<std::string> tokens;
+  boost::split(tokens, str, boost::is_any_of(tok), boost::token_compress_on);
+  return tokens;
+}
+
+static bool convert_tel_to_sip_uri(const std::string& telUri, const std::string& domain, std::string& sipUri)
+{
+  sipUri.reserve(telUri.size() + domain.size() + 11);
+  sipUri = "sip:";
+  std::string scheme;
+  scheme.reserve(5);
+  bool foundScheme = false;
+  bool foundParams = false;
+  for (std::string::const_iterator iter = telUri.begin(); iter != telUri.end(); iter++)
+  {
+    if (!foundScheme)
+    {
+      if (*iter == ':')
+      {
+        foundScheme = true;
+        if (scheme != "tel")
+        {
+          return false;
+        }
+      }
+      else
+      {
+        scheme.push_back(*iter);
+      }
+    }
+    else if (!foundParams)
+    {
+      if (*iter == ';')
+      {
+        foundParams = true;
+        sipUri += "@";
+        sipUri += domain;
+        sipUri += ";user=phone;";
+      }
+      else
+      {
+        sipUri.push_back(*iter);
+      }
+    }
+    else
+    {
+      sipUri.push_back(*iter);
+    }
+  }
+  
+  if (!foundParams)
+  {
+    sipUri += "@";
+    sipUri += domain;
+    sipUri += ";user=phone";
+  }
+  
+  return true;
+}
+
+static bool convert_start_line_tel_uri(const std::string& startLine, const std::string& domain, std::string& requestLine)
+{
+  //
+  // Tokenize the start line 
+  //
+  std::vector<std::string> startLineTokens = string_tokenize(startLine, " ");
+  if (startLineTokens.size() != 3)
+  {
+    OS_LOG_WARNING(FAC_SIP, "SipClient::convert_start_line_tel_uri - unable to get valid token count from " << startLine);
+    return false;
+  }
+  
+  std::string& method = startLineTokens[0];
+  std::string& telUri = startLineTokens[1];
+  std::string& version = startLineTokens[2];
+  std::string sipUri;
+  
+  convert_tel_to_sip_uri(telUri, domain, sipUri);
+  
+    
+  std::ostringstream strm;
+  strm << method << " " << sipUri << " " << version;
+  requestLine = strm.str();
+  
+  return true;
+}
+
+bool SipClient::preprocessRequestLine(SipMessage& msg)
+{
+  if (msg.isResponse())
+    return true;
+
+  //
+  // Check if we have a telephone URI and convert it to sip uri format
+  //
+  std::string firstHeaderLine = msg.getFirstHeaderLine();
+  if (firstHeaderLine.find("tel:") != std::string::npos)
+  {
+    if (mpSipUserAgent->getDomain().empty())
+    {
+      //
+      // If domain is not set, we will drop the request because we do not support the
+      // tel-uri format.  This has been reported to crash the proxy
+      //
+      OS_LOG_WARNING(FAC_SIP, "SipClient::preprocessRequestLine - Unable to process " <<  firstHeaderLine << " because SipUserAgent::getDomain() is not set.");
+      return false;
+    }
+
+    std::string requestLine;
+    if (!convert_start_line_tel_uri(firstHeaderLine, mpSipUserAgent->getDomain(), requestLine))
+    {
+      OS_LOG_WARNING(FAC_SIP, "SipClient::preprocessRequestLine - Unable to convert " <<  firstHeaderLine << " to a SIP URI.");
+      return false;
+    }
+
+    OS_LOG_INFO(FAC_SIP, "SipClient::preprocessRequestLine - Rewrote tel request-line: (was) " <<  firstHeaderLine << " (now) " << requestLine);
+
+    msg.setFirstHeaderLine(requestLine.c_str());
+  }
+
+  return true;
+}
+
+static bool convert_uri_header_tel_uri(SipMessage& msg, const std::string& headerName, const std::string& header, const std::string& domain, std::string& newHeader)
+{
+  //
+  // Check if we have enclosing brackets
+  //
+  bool hasBrackets = header.find("<tel:") != std::string::npos;
+  std::string displayName;
+  std::string headerParams;
+  std::string telUri;
+  std::string sipUri;
+  
+  if (!hasBrackets)
+  {
+    telUri = header;
+  }
+  else
+  {
+    displayName.reserve(header.size());
+    telUri.reserve(header.size());
+    headerParams.reserve(header.size());
+    
+    bool foundLT = false;
+    bool foundGT = false;
+    for (std::string::const_iterator iter = header.begin(); iter != header.end(); iter++)
+    {
+      if (!foundLT)
+      {
+        if (*iter == '<')
+        {
+          foundLT = true;
+        }
+        else
+        {
+          displayName.push_back(*iter);
+        }
+      }
+      else if (!foundGT)
+      {
+        if (*iter == '>')
+        {
+          foundGT = true;
+        }
+        else
+        {
+          telUri.push_back(*iter);
+        }
+      }
+      else
+      {
+        headerParams.push_back(*iter);
+      }
+    }
+  }
+  
+  if (!convert_tel_to_sip_uri(telUri, domain, sipUri))
+    return false;
+  
+  std::ostringstream prop;
+  prop << headerName << "-TEL-URI";
+  msg.setProperty(prop.str(), telUri);
+  
+  std::ostringstream strm;
+  if (!displayName.empty())
+  {
+    strm << displayName;
+  }
+  
+  strm << "<" << sipUri << ">" << headerParams;
+  newHeader = strm.str();
+  return true;
+}
+
+bool SipClient::preprocessUriHeader(SipMessage& msg, const char* headerName)
+{
+  const char* hdr = msg.getHeaderValue(0, headerName);
+  if (!hdr)
+  {
+    return false;
+  }
+ 
+  std::string header = hdr;
+  if (header.find("tel:") != std::string::npos)
+  {
+    if (mpSipUserAgent->getDomain().empty())
+    {
+      //
+      // If domain is not set, we will drop the request because we do not support the
+      // tel-uri format.  This has been reported to crash the proxy
+      //
+      OS_LOG_WARNING(FAC_SIP, "SipClient::preprocessUriHeader - Unable to process " <<  header << " because SipUserAgent::getDomain() is not set.");
+      return false;
+    }
+
+    std::string newHeader;
+    if (!convert_uri_header_tel_uri(msg, headerName, header, mpSipUserAgent->getDomain(), newHeader))
+    {
+      OS_LOG_WARNING(FAC_SIP, "SipClient::preprocessUriHeader - Unable to convert " <<  header << " to a SIP URI.");
+      return false;
+    }
+
+    OS_LOG_INFO(FAC_SIP, "SipClient::preprocessUriHeader - Rewrote tel-uri " << headerName << " : (was) " <<  header << " (now) " << newHeader);
+
+    msg.setHeaderValue(headerName, newHeader.c_str(), 0);
+  }
+  
+  return true;
+}
+
 // Do preliminary processing of message to log it,
 // clean up its data, and extract any needed source address.
 bool SipClient::preprocessMessage(SipMessage& msg,
@@ -985,7 +1221,22 @@ bool SipClient::preprocessMessage(SipMessage& msg,
    {
      return false;
    }
-
+   
+   if (!preprocessRequestLine(msg))
+   {
+     return false;
+   }
+   
+   if (!preprocessUriHeader(msg, SIP_FROM_FIELD))
+   {
+     return false;
+   }
+   
+   if (!preprocessUriHeader(msg, SIP_TO_FIELD))
+   {
+     return false;
+   }
+   
    // Get the send address.
    UtlString fromIpAddress;
    int fromPort;

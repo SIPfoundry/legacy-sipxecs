@@ -518,14 +518,83 @@ SipTransaction::addResponse(SipMessage*& response,
     return(relationship);
 }
 
+static void convert_sip_to_tel_uri_header(const std::string& header, const std::string& telUri, std::string& newHeader)
+{
+  bool foundLT = false;
+  bool foundGT = false;
+  newHeader.reserve(header.size());
+  for (std::string::const_iterator iter = header.begin(); iter != header.end(); iter++)
+  {
+    if (!foundLT)
+    {
+      newHeader.push_back(*iter);
+      if (*iter == '<')
+      {
+        foundLT = true;
+        newHeader += telUri;
+      }
+    }
+    else if (!foundGT)
+    {
+      if (*iter == '>')
+      {
+        foundGT = true;
+        newHeader.push_back(*iter);
+      }
+    }
+    else
+    {
+      newHeader.push_back(*iter);
+    }
+  }
+}
+
+void SipTransaction::handleTelUriHeaderRewrite(SipMessage& msg)
+{
+  static const char* FROM_PROP = SIP_FROM_FIELD "-TEL-URI";
+  static const char* TO_PROP = SIP_TO_FIELD "-TEL-URI";
+  std::string from;
+  std::string to;
+  
+  if (!mpRequest)
+    return;
+   
+  if (mpRequest->getProperty(FROM_PROP, from) && !from.empty())
+  {
+    std::string newHeader;
+    std::string oldHeader = msg.getHeaderValue(0, SIP_FROM_FIELD);
+    convert_sip_to_tel_uri_header(oldHeader, from, newHeader);
+    msg.setHeaderValue(SIP_FROM_FIELD, newHeader.c_str(), 0);
+    OS_LOG_INFO(FAC_SIP, "SipTransaction::handleTelUriHeaderRewrite - Rewriting From URI (was) " << oldHeader << " (now) " << newHeader);
+  }
+  
+  if (mpRequest->getProperty(TO_PROP, to) && !to.empty())
+  {
+    std::string newHeader;
+    std::string oldHeader = msg.getHeaderValue(0, SIP_TO_FIELD);
+    convert_sip_to_tel_uri_header(oldHeader, to, newHeader);
+    msg.setHeaderValue(SIP_TO_FIELD, newHeader.c_str(), 0);
+    OS_LOG_INFO(FAC_SIP, "SipTransaction::handleTelUriHeaderRewrite - Rewriting To URI (was) " << oldHeader << " (now) " << newHeader);
+  }
+}
+
 UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                                           SipUserAgent& userAgent,
                                           SipTransactionList& transactionList,
                                           enum messageRelationship relationship)
 {
     UtlBoolean isResponse = outgoingMessage.isResponse();
+    
+    if (isResponse)
+    {
+      //
+      // rewrite the from or to uri to their previous tel-uri state if required
+      //
+      handleTelUriHeaderRewrite(outgoingMessage);
+    }
+    
     SipMessage* message = &outgoingMessage;
-
+    
     UtlBoolean sendSucceeded = FALSE;
     UtlString method;
     int cSeq;

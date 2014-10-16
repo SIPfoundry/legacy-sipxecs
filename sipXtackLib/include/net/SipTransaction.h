@@ -133,6 +133,8 @@ public:
                               SipUserAgent& userAgent,
                               SipTransactionList& transactionList,
                               enum messageRelationship relationship);
+    
+    void handleTelUriHeaderRewrite(SipMessage& msg);
 
     void handleResendEvent(const SipMessage& outgoingMessage,
                            SipUserAgent& userAgent,

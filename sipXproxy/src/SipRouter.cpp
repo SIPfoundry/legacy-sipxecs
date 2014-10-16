@@ -145,6 +145,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
                     "SIP_DOMAIN_NAME: %s", mDomainName.data());
       mpSipUserAgent->setHostAliases(mDomainName);
+      mpSipUserAgent->setDomain(mDomainName.data());
       SipSrvLookup::setDomainName(mDomainName);
    }
    else
