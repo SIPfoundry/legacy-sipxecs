@@ -85,6 +85,7 @@ RUNTIME_EPEL = \
 	libmcrypt-* \
 	libmongodb-2.4* \
 	libunwind-* \
+	monit-* \
 	mongodb-2.4* \
 	mongodb-server-2.4* \
 	openpgm-5* \
