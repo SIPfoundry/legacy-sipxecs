@@ -29,23 +29,23 @@
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;${statusAddress.stripProtocol()};transport=tcp&gt;</routeTo>
+        <routeTo ruriParams="sipx-noroute=Voicemail">&lt;${statusAddress.stripProtocol()};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
 #end
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>
-        <routeTo>&lt;${regEventAddress.stripProtocol()};transport=tcp&gt;</routeTo>
+        <routeTo ruriParams="sipx-noroute=Voicemail">&lt;${regEventAddress.stripProtocol()};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+      <routeTo ruriParams="sipx-noroute=Voicemail">&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+    <routeTo ruriParams="sipx-noroute=Voicemail">&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
   </route>
 
 #if(${sbc.enabled})

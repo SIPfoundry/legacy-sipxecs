@@ -26,22 +26,22 @@
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;mwi.example.org:9902;transport=tcp&gt;</routeTo>
+        <routeTo ruriParams="sipx-noroute=Voicemail">&lt;mwi.example.org:9902;transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>
-        <routeTo>&lt;regevent.example.org:9903;transport=tcp&gt;</routeTo>
+        <routeTo ruriParams="sipx-noroute=Voicemail">&lt;regevent.example.org:9903;transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;reg.example.org:9904;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+      <routeTo ruriParams="sipx-noroute=Voicemail">&lt;reg.example.org:9904;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;reg.example.org:9904;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+    <routeTo ruriParams="sipx-noroute=Voicemail">&lt;reg.example.org:9904;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
   </route>
 
   <route mappingType="external destinations">
