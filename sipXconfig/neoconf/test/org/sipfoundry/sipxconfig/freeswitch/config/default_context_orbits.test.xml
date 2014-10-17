@@ -19,7 +19,7 @@
     </condition>
   </extension>
   <extension name="UnParkTest">
-    <condition field="destination_number" expression="^\*412345$">
+    <condition field="destination_number" expression="^(\*412345|\*7812345)$">
       <action application="fifo" data="QPark12345 out nowait"/>
     </condition>
   </extension>
@@ -34,7 +34,7 @@
     </condition>
   </extension>
   <extension name="UnParkTransfer">
-    <condition field="destination_number" expression="^\*41111$">
+    <condition field="destination_number" expression="^(\*41111|\*781111)$">
       <action application="fifo" data="QPark1111 out nowait"/>
     </condition>
   </extension>
@@ -47,7 +47,7 @@
     </condition>
   </extension>
   <extension name="UnParkBare">
-    <condition field="destination_number" expression="^\*42222$">
+    <condition field="destination_number" expression="^(\*42222|\*782222)$">
       <action application="fifo" data="QPark2222 out nowait"/>
     </condition>
   </extension>
@@ -63,7 +63,7 @@
     </condition>
   </extension>
   <extension name="UnParkFull">
-    <condition field="destination_number" expression="^\*45555$">
+    <condition field="destination_number" expression="^(\*45555|\*785555)$">
       <action application="fifo" data="QPark5555 out nowait"/>
     </condition>
   </extension>

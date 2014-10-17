@@ -54,10 +54,12 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
         m_description = description;
     }
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -115,15 +117,18 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     }
 
     public String getUnparkExtension() {
-        return getUnparkExtension(true);
+        return getUnparkExtension(m_registrar.getSettings().getCallRetrieveCode(), true);
     }
 
-    private String getUnparkExtension(boolean escape) {
-        String callRetrieveCode = m_registrar.getSettings().getCallRetrieveCode();
+    public String getCallPickupExtension() {
+        return getUnparkExtension(m_registrar.getSettings().getDirectedCallPickupCode(), true);
+    }
+
+    private String getUnparkExtension(String code, boolean escape) {
         if (escape) {
-            return String.format("\\%s%s", callRetrieveCode, m_extension);
+            return String.format("\\%s%s", code, m_extension);
         }
-        return String.format("%s%s", callRetrieveCode, m_extension);
+        return String.format("%s%s", code, m_extension);
     }
 
     @Override
@@ -162,10 +167,17 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
             String sipUriNoQuote = SipUri.format(m_extension, getHost(), fsAddres.getPort(), false);
             AliasMapping nameMapping = new AliasMapping(m_name, sipUriNoQuote, ALIAS_RELATION);
             AliasMapping lineMapping = new AliasMapping(m_extension, sipUri, ALIAS_RELATION);
-            String unparkExtension = getUnparkExtension(false);
+            String unparkExtension = getUnparkExtension(m_registrar.getSettings().getCallRetrieveCode(), false);
             String unparkSipUri = SipUri.format(unparkExtension, getHost(), fsAddres.getPort());
             AliasMapping unparkMapping = new AliasMapping(unparkExtension, unparkSipUri, ALIAS_UNPARK_RELATION);
-            mappings.addAll(Arrays.asList(nameMapping, lineMapping, unparkMapping));
+
+            String callPickupExtension = getUnparkExtension(m_registrar.getSettings().getDirectedCallPickupCode(),
+                    false);
+            String callPickupSipUri = SipUri.format(callPickupExtension, getHost(), fsAddres.getPort());
+            AliasMapping callPickupMapping = new AliasMapping(callPickupExtension, callPickupSipUri,
+                    ALIAS_UNPARK_RELATION);
+            m_registrar.getSettings().getDirectedCallPickupCode();
+            mappings.addAll(Arrays.asList(nameMapping, lineMapping, unparkMapping, callPickupMapping));
         }
         return mappings;
     }

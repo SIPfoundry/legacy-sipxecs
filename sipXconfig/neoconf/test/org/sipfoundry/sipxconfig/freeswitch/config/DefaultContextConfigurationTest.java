@@ -68,6 +68,7 @@ public class DefaultContextConfigurationTest {
 
     private Bridge createBridge() {
         Comparator<Conference> comparator = new Comparator<Conference>() {
+            @Override
             public int compare(Conference o1, Conference o2) {
                 return o1.getId().compareTo(o2.getId());
             }
@@ -275,11 +276,11 @@ public class DefaultContextConfigurationTest {
     }
 
     private static class MockParkOrbit extends ParkOrbit {
-        private boolean m_timeoutEnabled;
-        private int m_timeout;
-        private boolean m_multiple;
-        private boolean m_transferAllowed;
-        private String m_transferKey;
+        private final boolean m_timeoutEnabled;
+        private final int m_timeout;
+        private final boolean m_multiple;
+        private final boolean m_transferAllowed;
+        private final String m_transferKey;
         public MockParkOrbit(boolean timeoutEnabled, int timeout, boolean multiple, boolean transferAllowed,
                 String transferKey) {
             m_timeoutEnabled = timeoutEnabled;
@@ -322,6 +323,11 @@ public class DefaultContextConfigurationTest {
         @Override
         public String getUnparkExtension() {
             return "\\*4" + getExtension();
+        }
+
+        @Override
+        public String getCallPickupExtension() {
+            return "\\*78" + getExtension();
         }
     }
 }

@@ -57,7 +57,7 @@
     </condition>
   </extension>
   <extension name="UnPark${orbit.name}">
-    <condition field="destination_number" expression="^${orbit.unparkExtension}${dollar}">
+    <condition field="destination_number" expression="^(${orbit.unparkExtension}|${orbit.callPickupExtension})${dollar}">
       <action application="fifo" data="QPark${orbit.extension} out nowait"/>
     </condition>
   </extension>
