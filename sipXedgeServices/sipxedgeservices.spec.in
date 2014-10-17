@@ -32,6 +32,7 @@ BuildRequires: sipxtacklib-devel        >= %version
 BuildRequires: sipxresiprocate-devel    >= %version
 BuildRequires: sipxesllib-devel >= %version
 BuildRequires: sipxyard-devel >= %version
+BuildRequires: leveldb-devel
 BuildRequires: libjsonrpccpp-devel
 BuildRequires: cmake
 BuildRequires: libevent2-devel
