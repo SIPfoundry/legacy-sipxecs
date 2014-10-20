@@ -26,6 +26,9 @@ bundle agent sipxopenfire {
       "$(sipx.OPENFIRE_HOME)/conf/openfire.xml"
         comment => "delete openfire configuration file if service not enabled",
         delete => unlink;
+      "$(sipx.OPENFIRE_HOME)/conf/openfire.xml.sipx"
+        comment => "delete generated openfire configuration file if service not enabled",
+        delete => unlink;  
 }
 
 bundle agent sipxopenfire_config {
