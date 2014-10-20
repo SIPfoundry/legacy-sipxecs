@@ -89,7 +89,74 @@ namespace Os
     }
     
 
-    static UtlString unescape(const UtlString& source);
+    static UtlString unescape(const UtlString& source)
+    {
+       UtlString    results ;
+       const char* pStart = source.data() ;
+       const char* pTraverse = pStart ;
+       const char* pLast = pStart ;
+       UtlBoolean   bLastWasEscapeChar = false;
+
+       while (*pTraverse)
+       {
+          if (bLastWasEscapeChar)
+          {
+             switch (*pTraverse)
+             {
+                case '\\':
+                case '"':
+                   if (pLast < pTraverse)
+                   {
+                      results.append(pLast, pTraverse-pLast-1);
+                   }
+                   pLast = pTraverse + 1 ;
+                   results.append(*pTraverse) ;
+                   break ;
+                case 'r':
+                   if (pLast < pTraverse)
+                   {
+                      results.append(pLast, pTraverse-pLast-1);
+                   }
+                   pLast = pTraverse + 1 ;
+                   results.append("\r") ;
+                   break ;
+                case 'n':
+                   if (pLast < pTraverse)
+                   {
+                      results.append(pLast, pTraverse-pLast-1);
+                   }
+                   pLast = pTraverse + 1 ;
+                   results.append("\n") ;
+                   break;
+                default:
+                   // Invalid/Illegal Escape Character
+                   break ;
+             }
+             bLastWasEscapeChar = false ;
+          }
+          else
+          {
+             if (*pTraverse == '\\')
+             {
+                bLastWasEscapeChar = true ;
+             }
+          }
+
+          pTraverse++ ;
+       }
+
+       // if nothing to escape, short-circuit
+       if (pLast == pStart)
+       {
+          return source ;
+       }
+       else if (pLast < pTraverse)
+       {
+          results.append(pLast, (pTraverse-1)-pLast);
+       }
+
+       return results ;
+    }
 
     bool logPreview(int facility, int level, const std::ostringstream& headers, std::string& message)
     {
