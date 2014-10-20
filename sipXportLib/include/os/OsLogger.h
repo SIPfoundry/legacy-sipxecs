@@ -1146,14 +1146,18 @@ namespace Os
   #define OS_LOG_EMERGENCY(facility, data) OS_LOG_PUSH(Os::LogFilter::emergency, facility, data)
 
 
-    #define OS_LOG_AND_ASSERT(condition, facility, data)                 \
-    {                                                                    \
-        if (!(condition))                                                \
-        {                                                                \
-            OS_LOG_PUSH(PRI_CRIT, facility, data);                       \
-            assert(condition);                                           \
-        }                                                                \
-    }
+  #define OS_LOG_AND_ASSERT(condition, facility, data)                 \
+  {                                                                    \
+      if (!(condition))                                                \
+      {                                                                \
+          OS_LOG_PUSH(PRI_CRIT, facility, data);                       \
+          assert(condition);                                           \
+      }                                                                \
+  }
+
+  #define CLASS_INFO() className() << "::" << __FUNCTION__ << "::" << this << " "
+  #define CLASS_INFO_STATIC() className() << "::" << __FUNCTION__ << " "
+  #define CLASS_STATS() "STATS >>>"
 
 } // Utl
 
