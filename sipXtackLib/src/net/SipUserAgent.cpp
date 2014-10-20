@@ -3162,7 +3162,7 @@ void SipUserAgent::garbageCollection()
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
     long bootime = time.seconds();
-    long delay = 1/*(mTransactionStateTimeoutMs / 1000)*/;
+    long delay = (mTransactionStateTimeoutMs / 1000);
     long then = bootime - delay;
     long tcpThen = bootime - mMaxTcpSocketIdleTime;
     long oldTransaction = then - (mTransactionStateTimeoutMs / 1000);
@@ -3175,59 +3175,58 @@ void SipUserAgent::garbageCollection()
         tcpThen = -1;
     }
 
-    if(mLastCleanUpTime < then /*&& getMessageQueue()->isEmpty()*/)      // tx timeout could have happened
-    {
-       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipUserAgent[%s]::garbageCollection reaping terminated transactions. Message Queue size %d",
-                    getName().data(), getMessageQueue()->numMsgs());
 
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                 "SipUserAgent[%s]::garbageCollection reaping terminated transactions. Message Queue size %d",
+                 getName().data(), getMessageQueue()->numMsgs());
+
+    #ifdef LOG_TIME
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent[%s]::garbageCollection"
+                     " bootime: %ld then: %ld tcpThen: %ld"
+                     " oldTransaction: %ld oldInviteTransaction: %ld",
+                     getName().data(),
+                     bootime, then, tcpThen, oldTransaction,
+                     oldInviteTransaction);
+       #endif
+    mSipTransactions.removeOldTransactions(oldTransaction,
+                                           oldInviteTransaction);
+    if (mSipUdpServer)
+    {
        #ifdef LOG_TIME
           Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                        "SipUserAgent[%s]::garbageCollection"
-                        " bootime: %ld then: %ld tcpThen: %ld"
-                        " oldTransaction: %ld oldInviteTransaction: %ld",
-                        getName().data(),
-                        bootime, then, tcpThen, oldTransaction,
-                        oldInviteTransaction);
-          #endif
-       mSipTransactions.removeOldTransactions(oldTransaction,
-                                              oldInviteTransaction);
-       if (mSipUdpServer)
-       {
-          #ifdef LOG_TIME
-             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                           "SipUserAgent[%s]::garbageCollection starting removeOldClients(udp)",
-                           getName().data());
-          #endif
-          mSipUdpServer->removeOldClients(then);
-       }
-       if (mSipTcpServer)
-       {
-          #ifdef LOG_TIME
-             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                           "SipUserAgent[%s]::garbageCollection starting removeOldClients(tcp)",
-                           getName().data());
-          #endif
-          mSipTcpServer->removeOldClients(tcpThen);
-       }
-       #ifdef SIP_TLS
-          if (mSipTlsServer)
-          {
-             #ifdef LOG_TIME
-                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                              "SipUserAgent[%s]::garbageCollection starting removeOldClients(tls)",
-                              getName().data());
-             #endif
-             mSipTlsServer->removeOldClients(tcpThen);
-          }
-       #endif // SIP_TLS
-       #ifdef LOG_TIME
-          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                        "SipUserAgent[%s]::garbageCollection done",
+                        "SipUserAgent[%s]::garbageCollection starting removeOldClients(udp)",
                         getName().data());
        #endif
-       mLastCleanUpTime = bootime;
+       mSipUdpServer->removeOldClients(then);
     }
+    if (mSipTcpServer)
+    {
+       #ifdef LOG_TIME
+          Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                        "SipUserAgent[%s]::garbageCollection starting removeOldClients(tcp)",
+                        getName().data());
+       #endif
+       mSipTcpServer->removeOldClients(tcpThen);
+    }
+    #ifdef SIP_TLS
+       if (mSipTlsServer)
+       {
+          #ifdef LOG_TIME
+             Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                           "SipUserAgent[%s]::garbageCollection starting removeOldClients(tls)",
+                           getName().data());
+          #endif
+          mSipTlsServer->removeOldClients(tcpThen);
+       }
+    #endif // SIP_TLS
+    #ifdef LOG_TIME
+       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent[%s]::garbageCollection done",
+                     getName().data());
+    #endif
+    mLastCleanUpTime = bootime;
+
 }
 
 /* ============================ ACCESSORS ================================= */

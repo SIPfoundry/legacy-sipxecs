@@ -102,19 +102,6 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     UtlString callId;
     SipTransaction::buildHash(message, isOutgoing, callId);
 
-    //
-    // Call garbage collection before we further process existence of a transaction.
-    //
-    if (garbageCollect)
-    {
-    boost::mutex::scoped_lock lock(_garbageCollectionMutex, boost::try_to_lock);
-    if (lock)
-    {
-      mpSipUserAgent->garbageCollection();
-    }
-    //else { // some other thread is already doing garbageCollection, no need to wait here}
-    }
-
     lock();
 
     // See if the message knows its transaction
