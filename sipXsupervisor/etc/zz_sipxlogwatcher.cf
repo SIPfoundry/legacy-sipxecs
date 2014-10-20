@@ -17,7 +17,7 @@
 
 bundle agent zz_sipxlogwatcher {
   methods:
-    sipxlogwatcher::
+    sipxlogwatcher::      
       "any" usebundle => "sipxlogwatcher_config";
     any::
       "any" usebundle => "sipxlogwatcher_running";
@@ -25,20 +25,27 @@ bundle agent zz_sipxlogwatcher {
 }
 
 bundle agent sipxlogwatcher_config {
+  # Generate sipxlogwatcher-rc only once
   files:
     sipxlogwatcher::
+      "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc.tmp"
+        comment => "Config SIPXLOGWATCHER service tmp ",
+        create => "true",
+        perms => m(644),
+        edit_line => sipxlogwatcher_config_contents;
+
       "$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc"
         comment => "Config SIPXLOGWATCHER service",
         create => "true",
         perms => m(644),
-        edit_line => sipxlogwatcher_config_contents,
-        classes => if_repaired("reload_sipxlogwatcher");
+        copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/sipxlogwatcher-rc.tmp"),
+        classes => if_repaired("reload_sipxlogwatcher");        
 }
 
 bundle edit_line sipxlogwatcher_config_contents {
   insert_lines:
     any::
-      "SEC_ARGS=\"--log=$(sipx.SIPX_LOGDIR)/sipxlogwatcher.log --debug=$(sipx.logwatcher_debug) --detach --conf=$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/*.sec --input=$(sipx.SIPX_LOGDIR)/*.log --input=/var/log/messages --input=/var/log/mongodb/mongodb.log --pid=$(sipx.SIPX_RUNDIR)/sipxlogwatcher.pid --quoting\"";
+      "SEC_ARGS=\"--log=$(sipx.SIPX_LOGDIR)/sipxlogwatcher.log --debug=$(sipx.logwatcher_debug) --detach --conf=$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/*.sec --input=/var/log/mongodb/mongodb.log --input=$(sipx.SIPX_LOGDIR)/*-alarms.log --input=$(sipx.SIPX_LOGDIR)/sipxconfig.log --input=$(sipx.SIPX_LOGDIR)/sipxsecurity.log --input=$(sipx.SIPX_LOGDIR)/backup.log --pid=$(sipx.SIPX_RUNDIR)/sipxlogwatcher.pid --quoting\"";
 
   delete_lines:
     any::

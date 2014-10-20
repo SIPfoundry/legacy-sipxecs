@@ -50,12 +50,18 @@ bundle agent sipxbridge_config {
 
 bundle agent sipxbridge_logwatcher {
   files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxbridge.tmp"
+      comment => "sipxbridge log watcher tmp",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxbridge/sipxbridge.sec.erb --out $(this.promiser)";      
+      
     "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxbridge.sec"
       comment => "sipxbridge log watcher",
       create => "true",
       perms => m(644),
-      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/sipxbridge/sipxbridge.sec.erb --out $(this.promiser)",
-      classes => if_repaired("reload_sipxlogwatcher");
+      copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/sipxbridge.tmp"),
+      classes => if_repaired("reload_sipxlogwatcher");      
 }
 
 bundle agent sipxbridge_running {
@@ -98,6 +104,12 @@ bundle edit_line sipxbridge_log4j_properties_contents {
       "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxbridge.log";
       "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
       "log4j.appender.file.layout.facility=sipXbridge";
+      "# ALARMS log";
+      "log4j.logger.alarms=info,alarms";
+	  "log4j.additivity.alarms=false";
+	  "log4j.appender.alarms=org.sipfoundry.commons.log4j.SipFoundryAppender";
+	  "log4j.appender.alarms.File=$(sipx.SIPX_LOGDIR)/sipxbridge-alarms.log";
+	  "log4j.appender.alarms.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";      
   delete_lines:
     any::
       ".*";

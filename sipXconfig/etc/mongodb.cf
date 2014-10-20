@@ -93,12 +93,18 @@ bundle agent mongodb {
 
 bundle agent mongo_logwatcher {
   files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/mongo.tmp"
+      comment => "mongo log watcher",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/mongo/mongo.sec.erb --out $(this.promiser)";      
+      
     "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/mongo.sec"
       comment => "mongo log watcher",
       create => "true",
       perms => m(644),
-      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/mongo/mongo.sec.erb --out $(this.promiser)",
-      classes => if_repaired("reload_sipxlogwatcher");
+      copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/mongo.tmp"),
+      classes => if_repaired("reload_sipxlogwatcher");      
 }
 
 bundle agent mongodb_arbiter_config {

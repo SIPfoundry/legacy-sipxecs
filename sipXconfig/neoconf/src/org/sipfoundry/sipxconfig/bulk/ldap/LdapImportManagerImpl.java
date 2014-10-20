@@ -42,6 +42,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager, AlarmProvider {
     private static final Log LOG = LogFactory.getLog("ldap_logger");
+    private static final Log ALARM_LOG = LogFactory.getLog(LdapImportManagerImpl.class);
     private LdapTemplateFactory m_templateFactory;
     private LdapManager m_ldapManager;
     private LdapRowInserter m_rowInserter;
@@ -65,7 +66,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             int notImportedSize = m_rowInserter.getNotImportedUserNames().size();
             int importedSize = m_rowInserter.getImportedUserNames().size();
             if (notImportedSize > 0) {
-                LOG.info("ALARM_LDAP_IMPORT_FAILED Users imported: " + importedSize + " rejected: " + notImportedSize);
+                ALARM_LOG.error("ALARM_LDAP_IMPORT_FAILED Users imported: " + importedSize + " rejected: " + notImportedSize);
             } else {
                 LOG.info("All LDAP users are successfully imported... " + importedSize);
             }
@@ -73,7 +74,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         } catch (Exception ex) {
             String message = ex.getMessage();
             message = (message == null) ? "No exception message" : message;
-            LOG.error("ALARM_LDAP_IMPORT_FAILED Ldap connectivity issues: " + message);
+            ALARM_LOG.error("ALARM_LDAP_IMPORT_FAILED Ldap connectivity issues: " + message);
         } finally {
             m_rowInserter.afterInserting();
         }

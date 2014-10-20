@@ -41,7 +41,7 @@ rotate 14
 missingok
 
 # Normal C/C++ procs and non-daemon related log files. Uses default which is to rotate w/o copytruncate
-$(sipx.SIPX_LOGDIR)/sipregistrar.log $(sipx.SIPX_LOGDIR)/sipstatus.log $(sipx.SIPX_LOGDIR)/sipxagent.log $(sipx.SIPX_LOGDIR)/sipxhomer.log $(sipx.SIPX_LOGDIR)/sipxlogwatcher.log $(sipx.SIPX_LOGDIR)/sipxpage.log $(sipx.SIPX_LOGDIR)/sipxpark.log $(sipx.SIPX_LOGDIR)/sipXproxy.log $(sipx.SIPX_LOGDIR)/sipxrls.log $(sipx.SIPX_LOGDIR)/sipxsaa.log $(sipx.SIPX_LOGDIR)/sipxsqa.log $(sipx.SIPX_LOGDIR)/snmpd.log $(sipx.SIPX_LOGDIR)/snmptrap-email-handler.log {
+$(sipx.SIPX_LOGDIR)/sipregistrar.log $(sipx.SIPX_LOGDIR)/sipstatus.log $(sipx.SIPX_LOGDIR)/sipxagent.log $(sipx.SIPX_LOGDIR)/sipxhomer.log $(sipx.SIPX_LOGDIR)/sipxlogwatcher.log $(sipx.SIPX_LOGDIR)/sipxpage.log $(sipx.SIPX_LOGDIR)/sipxpark.log $(sipx.SIPX_LOGDIR)/sipXproxy.log $(sipx.SIPX_LOGDIR)/sipxrls.log $(sipx.SIPX_LOGDIR)/sipxsaa.log $(sipx.SIPX_LOGDIR)/sipxsqa.log $(sipx.SIPX_LOGDIR)/snmpd.log $(sipx.SIPX_LOGDIR)/snmptrap-email-handler.log $(sipx.SIPX_LOGDIR)/backup.log $(sipx.SIPX_LOGDIR)/*-alarms.log {
 }
 
 # Java does not reopen log file periodically, make a copy and truncate current log file. May lose some data, but this will be addressed in future release.

@@ -25,12 +25,18 @@ bundle agent security {
 
 bundle agent security_logwatcher {
   files:
+    "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/security.tmp"
+      comment => "security log watcher tmp",
+      create => "true",
+      perms => m(644),
+      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/fail2ban/security.sec.erb --out $(this.promiser)";
+      
     "$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/security.sec"
       comment => "security log watcher",
       create => "true",
       perms => m(644),
-      transformer => "$(sipx.SIPX_LIBEXECDIR)/sipxlogwatcher-maker --in $(sipx.SIPX_CFDATA)/$(sipx.location_id)/alarms.yaml --template $(sipx.SIPX_CONFDIR)/fail2ban/security.sec.erb --out $(this.promiser)",
-      classes => if_repaired("reload_sipxlogwatcher");
+      copy_from => local_cp_by_digest("$(sipx.SIPX_CONFDIR)/sipxlogwatcher.d/security.tmp"),
+      classes => if_repaired("reload_sipxlogwatcher");      
 }
 
 bundle agent security_config {
