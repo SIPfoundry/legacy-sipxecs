@@ -66,7 +66,8 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
             int notImportedSize = m_rowInserter.getNotImportedUserNames().size();
             int importedSize = m_rowInserter.getImportedUserNames().size();
             if (notImportedSize > 0) {
-                ALARM_LOG.error("ALARM_LDAP_IMPORT_FAILED Users imported: " + importedSize + " rejected: " + notImportedSize);
+                ALARM_LOG.error("ALARM_LDAP_IMPORT_FAILED Users imported: "
+                    + importedSize + " rejected: " + notImportedSize);
             } else {
                 LOG.info("All LDAP users are successfully imported... " + importedSize);
             }

@@ -145,6 +145,49 @@ public class BackupConfigTest {
     }
 
     @Test
+    public void clusterBackupOnSecondaryRestoreOnPrimary() throws IOException {
+        BackupConfig config = new BackupConfig();
+
+        BackupSettings settings = new BackupSettings();
+        settings.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        Location l1 = new Location("one", "1.1.1.1");
+        l1.setUniqueId(1);
+        l1.setPrimary(true);
+        Location l2 = new Location("two", "2.2.2.2");
+        l2.setUniqueId(2);
+        Collection<Location> hosts = Arrays.asList(l1, l2);
+
+        //3 possible archive definitions . 'archive' to backup on secondary, restore on primary
+        //others backup/restore on primary
+        ArchiveDefinition d1 = new ArchiveDefinition("archive.tar.gz", "backup", null);
+        ArchiveDefinition d2 = new ArchiveDefinition("archive.tar.gz", null, "restore");
+        ArchiveDefinition d3 = new ArchiveDefinition("archive2.tar.gz", "backup", "restore");
+        ArchiveDefinition d4 = new ArchiveDefinition("archive3.tar.gz", "backup", "restore");
+
+        BackupPlan plan = new BackupPlan(BackupType.local);
+        //select only one definition to backup or restore
+        plan.setDefinitionIds(new TreeSet<String>(Arrays.asList("archive.tar.gz")));
+        plan.setLimitedCount(20);
+
+        BackupManager mgr = createMock(BackupManager.class);
+
+        mgr.getArchiveDefinitions(l1, plan, settings);
+        expectLastCall().andReturn(Arrays.asList(d2, d3, d4)).anyTimes();
+        mgr.getArchiveDefinitions(l2, plan, settings);
+        expectLastCall().andReturn(Arrays.asList(d1, d3, d4)).anyTimes();
+        replay(mgr);
+
+        config.setBackupManager(mgr);
+        StringWriter actual = new StringWriter();
+        config.writeConfig(actual, plan, hosts, settings);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("backup-on-secondary-restore-on-primary.yaml"));
+        assertEquals(expected, actual.toString());
+
+        verify(mgr);
+    }
+
+    @Test
     public void testHexUnicodePassword() {
         String[] password = Util.hexUnicodeEscape("#123");
         String passwToSave = StringUtils.join(password, '.');

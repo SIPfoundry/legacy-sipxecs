@@ -119,15 +119,16 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
                 @Override
                 public boolean evaluate(Object arg0) {
                     ArchiveDefinition def = (ArchiveDefinition) arg0;
+                    boolean selected = selectedDefIds.contains((def).getId());
                     //at least one backup command
-                    if (!execBackupRestore.isBackup() && !StringUtils.isEmpty(def.getBackupCommand())) {
+                    if (!execBackupRestore.isBackup() && !StringUtils.isEmpty(def.getBackupCommand()) && selected) {
                         execBackupRestore.setBackup(true);
                     }
                     //at least one restore command
-                    if (!execBackupRestore.isRestore() && !StringUtils.isEmpty(def.getRestoreCommand())) {
+                    if (!execBackupRestore.isRestore() && !StringUtils.isEmpty(def.getRestoreCommand()) && selected) {
                         execBackupRestore.setRestore(true);
                     }
-                    return selectedDefIds.contains((def).getId());
+                    return selected;
                 }
             });
             //write host definitions if we have:
