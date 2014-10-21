@@ -298,6 +298,13 @@ bool WSRouter::mergeOption(const std::string& option, int& value, int defval)
 
 bool WSRouter::initialize()
 {
+  //
+  // Set the log level early
+  //
+  int logLevel = 0;
+  mergeOption("log-level", logLevel, PRI_NOTICE);
+  Os::Logger::instance().setLogPriority(logLevel);
+  
   OS_LOG_INFO(FAC_SIP, "WSRouter::initialize INVOKED")
   assert(mergeOption("ip-address", _address));
   assert(mergeOption("ws-port", _wsPort));
@@ -425,6 +432,7 @@ bool WSRouter::initialize()
 
   mergeOption("bridge-tcp-udp-port", _bridgePort);
  
+  
   
   return true;
 }
