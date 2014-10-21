@@ -43,10 +43,6 @@ public class MongoSettings extends PersistableSettings {
         return (Integer) getSettingTypedValue("mongod/port");
     }
 
-    public boolean disableUseReadTags() {
-        return (Boolean) getSettingTypedValue("replication/disableUseReadTags");
-    }
-
     @Override
     public String getBeanId() {
         return "mongoSettings";

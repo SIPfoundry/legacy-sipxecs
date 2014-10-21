@@ -24,6 +24,7 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,10 +48,13 @@ public class MongoConfig implements ConfigProvider {
     private static final String GLOBAL_REPLSET = "sipxecs";
     private static final String LOCAL_REPLSET = "sipxlocal";
 
-    // Cluster id is always 1, there is no other value, this simply
-    // allows searches to prefer by shardId, then cluster
-    private static final String CLUSTER_ID = "1";
-
+    //clusterId and shardId are mongo readPreference tags that forces the mongo read to go locally (clusterId tag key)
+    //if local read not available (mongo down or corrupted)
+    //we will redirect read on other node in region (shardId tag key)
+    //if no region is configured, shardId is always 0,
+    //meaning that we will redirect the read to 'nearest' node in cluster
+    //order matters on how the read tags are added in mongo query: first the clusterId, then shardId
+    private static final String CLUSTER_ID = "clusterId";
     private static final String SHARD_ID = "shardId";
     private MongoManager m_mongoManager;
     private RegionManager m_regionManager;
@@ -71,25 +75,26 @@ public class MongoConfig implements ConfigProvider {
         List<Location> localArbiters = fm.getLocationsForEnabledFeature(MongoManager.LOCAL_ARBITER_FEATURE);
         List<Region> regions = m_regionManager.getRegions();
         Map<Integer, String> localModelsByRegion = getLocalModelsByRegion(regions, localServers, localArbiters);
-        Map<Integer, String> localInisByRegion = getLocalIniByRegion(regions, localServers);
+        Map<Integer, String> localInisByRegionAndLocation = getLocalIniByRegionAndLocation(regions, localServers);
 
         // Read tags instruct mongo client drivers connected to GLOBAL database to prefer
         // a server that's located in their region first. This requires special readPreference tags
         // to be set in replicaset meta data which should there is mongo management tools
-        // have done their job.  If not, all queries will fail.  This is why I provided a "backdoor"
-        // thru setting disableUseReadTags to override using these tags should an admin need to
-        // do so.  XX-10668
-        boolean useReadTags = localModelsByRegion.size() > 0 && !settings.disableUseReadTags();
+        // have done their job.  If not, all queries will fail. XX-10668
+        // XX-11378 -always use readTags; also when no regions configured
 
         for (Location location : all) {
             // CLIENT
             File dir = manager.getLocationDataDirectory(location);
             FileWriter client = new FileWriter(new File(dir, "mongo-client.ini"));
+
+            Integer regionId = location.getRegionId();
+            int shardId = (regionId != null ? regionId : 0);
+            int clusterId = location.getId();
             String connStr = getConnectionString(dbs, GLOBAL_REPLSET, settings.getPort());
-            //the global database has shard id 0
-            String connUrl = getConnectionUrl(dbs, 0, useReadTags, settings.getPort());
+            String connUrl = getConnectionUrl(dbs, clusterId, shardId, settings.getPort());
             try {
-                writeClientConfig(client, connStr, connUrl, 0, useReadTags);
+                writeClientConfig(client, connStr, connUrl, clusterId, shardId);
             } finally {
                 IOUtils.closeQuietly(client);
             }
@@ -116,9 +121,10 @@ public class MongoConfig implements ConfigProvider {
             String model = null;
             String ini = null;
             Integer regionId = location.getRegionId();
+            Integer locationId = location.getId();
             if (regionId != null) {
                 model = localModelsByRegion.get(regionId);
-                ini = localInisByRegion.get(regionId);
+                ini = localInisByRegionAndLocation.get(locationId);
             }
 
             File modelFile = new File(dir, "mongo-local.json");
@@ -178,16 +184,18 @@ public class MongoConfig implements ConfigProvider {
         return new File(dir, fname);
     }
 
-    Map<Integer, String> getLocalIniByRegion(Collection<Region> regions, Collection<Location> localServers)
+    Map<Integer, String> getLocalIniByRegionAndLocation(Collection<Region> regions, Collection<Location> localServers)
         throws IOException {
         Map<Integer, String> inis = new HashMap<Integer, String>();
         Map<Integer, List<Location>> localServersByRegion = Region.locationsByRegion(localServers);
         for (Region region : regions) {
-            StringWriter ini = new StringWriter();
             List<Location> ldbs = localServersByRegion.get(region.getId());
             if (ldbs != null) {
-                writeLocalClientConfig(ini, ldbs, region.getId(), MongoSettings.LOCAL_PORT);
-                inis.put(region.getId(), ini.toString());
+                for (Location ldb : ldbs) {
+                    StringWriter ini = new StringWriter();
+                    writeLocalClientConfig(ini, ldbs, ldb.getId(), region.getId(), MongoSettings.LOCAL_PORT);
+                    inis.put(ldb.getId(), ini.toString());
+                }
             }
         }
         return inis;
@@ -214,7 +222,8 @@ public class MongoConfig implements ConfigProvider {
     void modelFile(Writer sb, List<Location> servers, List<Location> arbiters, String replSet, boolean isLocal,
             int dbPort, int arbPort) throws IOException {
         Map<String, Object> model = new HashMap<String, Object>();
-        model.put("servers", serverIdMap(servers, !isLocal, dbPort));
+        //XX-11378: include "read tags" always - also for regional databases
+        model.put("servers", serverIdMap(servers, true, dbPort));
         model.put("arbiters", serverIdMap(arbiters, false, arbPort));
         model.put("replSet", replSet);
         model.put("local", isLocal);
@@ -232,10 +241,10 @@ public class MongoConfig implements ConfigProvider {
             String id = l.getFqdn() + ':' + port;
             Map<String, Object> server = new HashMap<String, Object>();
             if (includeTags) {
-                Map<String, String> tags = new HashMap<String, String>();
+                Map<String, String> tags = new LinkedHashMap<String, String>();
                 String shardId = l.getRegionId() == null ? "0" : l.getRegionId().toString();
+                tags.put(CLUSTER_ID, String.valueOf(l.getId()));
                 tags.put(SHARD_ID, shardId);
-                tags.put("clusterId", CLUSTER_ID);
                 server.put("tags", tags);
             }
             meta.put(id, server);
@@ -258,19 +267,21 @@ public class MongoConfig implements ConfigProvider {
         config.writeClass("mongo_local_arbiter", localArbiter);
     }
 
-    void writeClientConfig(Writer w, String connStr, String connUrl, int shardId, boolean useReadTags)
+    void writeClientConfig(Writer w, String connStr, String connUrl, int clusterId, int shardId)
         throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
         config.write("connectionUrl", connUrl);
         config.write("connectionString", connStr);
+        config.write(CLUSTER_ID, clusterId);
         config.write(SHARD_ID, shardId);
-        config.write("useReadTags", useReadTags);
+        config.write("useReadTags", true);
     }
 
-    void writeLocalClientConfig(Writer w, List<Location> servers, int shardId, int port) throws IOException {
+    void writeLocalClientConfig(Writer w, List<Location> servers, int clusterId, int shardId, int port)
+        throws IOException {
         String lconnStr = getConnectionString(servers, LOCAL_REPLSET, port);
-        String lconnUrl = getConnectionUrl(servers, shardId, false, port);
-        writeClientConfig(w, lconnStr, lconnUrl, shardId, false);
+        String lconnUrl = getConnectionUrl(servers, clusterId, shardId, port);
+        writeClientConfig(w, lconnStr, lconnUrl, clusterId, shardId);
     }
 
     // C++ driver/projects use connection string format
@@ -287,7 +298,8 @@ public class MongoConfig implements ConfigProvider {
     }
 
     // java driver/projects use URL format
-    String getConnectionUrl(List<Location> servers, int shardId, boolean useReadTags, int port) {
+    // XX-11378: always use "read tags"
+    String getConnectionUrl(List<Location> servers, int clusterId, int shardId, int port) {
         StringBuilder r = new StringBuilder("mongodb://");
         for (int i = 0; i < servers.size(); i++) {
             Location server = servers.get(i);
@@ -297,14 +309,12 @@ public class MongoConfig implements ConfigProvider {
             r.append(server.getFqdn() + ':' + port);
         }
         r.append("/?readPreference=nearest");
-        if (useReadTags) {
-            // Format from
-            //   http://api.mongodb.org/java/current/com/mongodb/MongoURI.html
-            // doc is unclear if ';' usage here is deprecated in favor of '&' for this param
-            r.append("&readPreferenceTags=shardId:").append(shardId);
-            r.append(";readPreferenceTags=clusterId:1");
-            r.append(";readPreferenceTags="); // all else, use any server
-        }
+        // Format from
+        //   http://api.mongodb.org/java/current/com/mongodb/MongoURI.html
+        // doc is unclear if ';' usage here is deprecated in favor of '&' for this param
+        r.append("&readPreferenceTags=clusterId:").append(clusterId);
+        r.append(";readPreferenceTags=shardId:").append(shardId);
+        r.append(";readPreferenceTags="); // all else, use any server
         return r.toString();
     }
 
