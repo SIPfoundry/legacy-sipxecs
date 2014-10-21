@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -24,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.hibernate3.HibernateCallback;
 
 /**
  * Use hibernate to perform database operations
@@ -124,13 +127,24 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     }
 
     @Override
-    public void moveGroups(List<Group> groups, Collection<Integer> groupIds, int step) {
+    public void moveGroups(final List<Group> groups, Collection<Integer> groupIds, int step) {
         DataCollectionUtil.moveByPrimaryKey(groups, groupIds.toArray(), step);
         for (int i = 0; i < groups.size(); i++) {
             // weight is position + 1 - for compatibility with old code
             groups.get(i).setWeight(i + 1);
         }
-        getHibernateTemplate().saveOrUpdateAll(groups);
+        getHibernateTemplate().executeWithNativeSession(new HibernateCallback<Object>() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                for (Group group : groups) {
+                    if (group.isNew()) {
+                        session.save(group);
+                    } else {
+                        session.merge(group);
+                    }
+                }
+                return null;
+            }
+        });
         getDaoEventPublisher().publishSave(groups);
     }
 
