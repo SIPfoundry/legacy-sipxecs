@@ -2,6 +2,28 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>7</value>
+      </option>
+      <option>
+        <value>6</value>
+      </option>
+      <option>
+        <value>5</value>
+      </option>
+      <option>
+        <value>4</value>
+      </option>
+      <option>
+        <value>3</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+    </enum>
+  </type>  
   <type id="true-false">
     <boolean>
       <true><value>true</value></true>
@@ -23,5 +45,25 @@
     <setting name="replSet" hidden="yes">
       <value>sipxecs</value>
     </setting>
+    <setting name="enable-driver-logging">
+      <type refid="true-false"/>
+      <value>true</value>
+    </setting>    
+    <setting name="driver-log-level">
+      <type refid="loglevel" />
+      <value>5</value>
+    </setting>    
+    <setting name="read-query-timeout-ms">
+      <type>
+        <integer required="yes"/>
+      </type>    
+      <value>100</value>
+    </setting>
+    <setting name="write-query-timeout-ms">
+      <type>
+        <integer required="yes"/>
+      </type>    
+      <value>400</value>
+    </setting>     
   </group>
 </model>

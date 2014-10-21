@@ -1,0 +1,10 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+   <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:settings.settings" />
+    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+        listener="listener:apply"/>
+  </form>
+</div>

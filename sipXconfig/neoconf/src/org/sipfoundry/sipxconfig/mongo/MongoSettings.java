@@ -16,10 +16,15 @@
  */
 package org.sipfoundry.sipxconfig.mongo;
 
+import java.util.Collection;
+import java.util.Collections;
+
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class MongoSettings extends PersistableSettings {
+public class MongoSettings extends PersistableSettings implements DeployConfigOnEdit {
 
     // difficult to make configurable because system uses this port on initialization
     // and changing would be rebuilding mongo data base
@@ -46,5 +51,10 @@ public class MongoSettings extends PersistableSettings {
     @Override
     public String getBeanId() {
         return "mongoSettings";
+    }
+
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        return Collections.singleton((Feature) MongoManager.FEATURE_ID);
     }
 }
