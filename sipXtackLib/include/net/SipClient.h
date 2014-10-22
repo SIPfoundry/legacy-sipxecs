@@ -97,6 +97,10 @@ public:
 /* ============================ INQUIRY =================================== */
 
     UtlBoolean isOk(void);
+    
+    bool isWritable();
+    // This function will send keep-alive CRLF/CRLF to check if socket is writable
+    //
 
    // Used to identify if the socket associated with SIP Client is bound to the specified
    // local IP and suitable for sending to the supplied destination host and port.

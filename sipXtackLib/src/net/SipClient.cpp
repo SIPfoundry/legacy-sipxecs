@@ -435,7 +435,38 @@ long SipClient::getLastTouchedTime() const
 
 UtlBoolean SipClient::isOk()
 {
+  
+    
    return OsServerTaskWaitable::isOk() && mClientSocket->isOk() && isNotShut();
+}
+
+bool SipClient::isWritable()
+{
+  static const char * KEEP_ALIVE = "\r\n\r\n";
+  static const int KEEP_ALIVE_SIZE = strlen(KEEP_ALIVE);
+  static const int KEEP_ALIVE_WAIT_TIME = 10; // milliseconds
+  
+  if (isOk())
+  {
+    //
+    // Send CRLF/CRLF with maximum wait time of 10 milliseconds
+    //
+    if (OsSocket::isFramed(mClientSocket->getIpProtocol()))
+    {
+      //
+      // UDP sockets are shared sockets.  This is only applicable for TCP/TLS clients
+      //
+      return true;
+    }
+    else
+    {
+      //
+      // TCP and TLS.  Make sure sockets are writable
+      //
+      return mClientSocket->write(KEEP_ALIVE, KEEP_ALIVE_SIZE, KEEP_ALIVE_WAIT_TIME) > 0;
+    }
+  }
+  return false;
 }
 
 UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int hostPort, const UtlString& localIp )
@@ -495,7 +526,7 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
    }
 
    // Make sure client is okay before declaring it acceptable
-   if( isAcceptable && !isOk() )
+   if( isAcceptable && !isWritable() )
    {
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                     "SipClient[%s]::isAcceptableForDestination('%s', %d, '%s')"
