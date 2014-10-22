@@ -414,6 +414,10 @@ server_t* SipSrvLookup::servers(const char* domain,
       // produce any addresses.  This includes if an explicit port was given.)
       if (*(srvLookupArgs.list_length_used) < 1)
       {
+         // XX-11366: DNS_LOOKUP_FAILED alarm is thrown by the proxy when looking for VM records on udp (false negative)
+         // Raise an alarm if no DNS/SRV records are found for the specified domain
+         raiseDnsQueryAlarm(domain, T_SRV);
+
          // No SRV query results. Discard the SRV Lookup lists, continue with
          // and  return the A Record list back to the caller.
          delete[] srvLookupArgs.list;
@@ -854,7 +858,7 @@ void SipSrvLookup::setDomainName(const char* domainName)
   mDomainName = domainName;
 }
 
-void SipSrvLookup::raiseDnsQueryAlarm(const char* queryName,
+void SipSrvLookup::raiseDnsQueryAlarm(const char* domain,
                                       int queryType)
 {
   // for A record type we get false positives so we don't raise alarms
@@ -875,7 +879,7 @@ void SipSrvLookup::raiseDnsQueryAlarm(const char* queryName,
                 "SipSrvLookup::raiseDnsQueryAlarm domain name: %s", mDomainName.data());
 
   // don't raise alarms for queries that don't have local domain name string in them
-  const char* pos = strstr(queryName, mDomainName.data());
+  const char* pos = strstr(domain, mDomainName.data());
   if (NULL == pos)
   {
     return;
@@ -889,8 +893,8 @@ void SipSrvLookup::raiseDnsQueryAlarm(const char* queryName,
 
   Os::Logger::instance().log(FAC_SIP, PRI_ERR,
                 "ALARM_DNS_LOOKUP_FAILED "
-                "DNS query failed for '%s'. No valid '%s' records found",
-                queryName,
+                "DNS lookup failed for '%s'. No valid '%s' records found",
+                domain,
                 getRecordTypeStr(queryType));
 }
 
@@ -1048,11 +1052,6 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::res_query_and_parse out_name = '%s', out_response = %p",
                  out_name, out_response);
-
-   if (NULL == response)
-   {
-     raiseDnsQueryAlarm(name, type);
-   }
 }
 
 /// Set the nameserver address to a specific nameserver.
