@@ -197,10 +197,13 @@ StatusServer::operator=(const StatusServer& rhs)
 UtlBoolean
 StatusServer::handleMessage( OsMsg& eventMessage )
 {
+  std::string errorString;
+  int msgType = eventMessage.getMsgType();
+  int msgSubType = eventMessage.getMsgSubType();
+  
+  try
+  {
     syslog(FAC_SIP, PRI_DEBUG, "StatusServer::handleMessage() :: Start processing SIP message") ;
-
-    int msgType = eventMessage.getMsgType();
-    int msgSubType = eventMessage.getMsgSubType();
 
     if ( msgType == OsMsg::PHONE_APP && msgSubType == SipMessage::NET_SIP_MESSAGE )
     {
@@ -238,7 +241,48 @@ StatusServer::handleMessage( OsMsg& eventMessage )
         }
         return(TRUE);
     }
-    return(FALSE);
+  }
+#ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    errorString = "Proxy - Mongo DB Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << e.what() );
+  }
+#endif
+  catch (boost::exception& e)
+  {
+    errorString = "Proxy - Boost Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << boost::diagnostic_information(e));
+  }
+  catch (std::exception& e)
+  {
+    errorString = "Proxy - Standard Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << e.what() );
+  }
+  catch (...)
+  {
+    errorString = "Proxy - Unknown Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: Unknown Exception");
+  }
+  
+  //
+  // If it ever get here, that means we caught an exception
+  //
+  if (!errorString.empty() && msgType == OsMsg::PHONE_APP)
+  {
+    const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
+    if (!message.isResponse())
+    {
+      SipMessage finalResponse;
+      finalResponse.setResponseData(&message, SIP_5XX_CLASS_CODE, errorString.c_str());
+      mpSipUserAgent->send(finalResponse);
+    }
+  }
+  
+  return(FALSE);
 }
 
 StatusServer*

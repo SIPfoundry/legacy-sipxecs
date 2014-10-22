@@ -82,6 +82,9 @@ MwiPlugin::handleNotifyResponse (
 
 void MwiPlugin::handleMwiData(MwiPluginQueue::MwiData& mwiData)
 {
+  std::string errorString;
+  try
+  {
     if (!mwiData.subscribe)
     {
       if (mwiData.mailBoxData.empty())
@@ -295,6 +298,32 @@ void MwiPlugin::handleMwiData(MwiPluginQueue::MwiData& mwiData)
                       ,httpStatus
                       );
       }
+  }
+#ifdef MONGO_assert
+  catch (mongo::DBException& e)
+  {
+    errorString = "Proxy - Mongo DB Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << e.what() );
+  }
+#endif
+  catch (boost::exception& e)
+  {
+    errorString = "Proxy - Boost Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << boost::diagnostic_information(e));
+  }
+  catch (std::exception& e)
+  {
+    errorString = "Proxy - Standard Library Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: "
+             << e.what() );
+  }
+  catch (...)
+  {
+    errorString = "Proxy - Unknown Exception";
+    OS_LOG_ERROR( FAC_SIP, "SipRouter::handleMessage() Exception: Unknown Exception");
+  }
 }
 
 OsStatus
