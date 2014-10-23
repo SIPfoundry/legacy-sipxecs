@@ -125,10 +125,12 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit, S
         m_addressTransport = addressTransport;
     }
 
+    @Override
     public String getName() {
         return m_name;
     }
 
+    @Override
     public void setName(String name) {
         m_name = name;
     }
@@ -371,7 +373,9 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit, S
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) DialPlanContext.FEATURE);
+        List<Feature> features = new ArrayList<Feature>();
+        features.add(DialPlanContext.FEATURE);
+        return features;
     }
 
     @Override

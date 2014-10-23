@@ -62,11 +62,20 @@ public class YardManagerImpl implements YardManager, FirewallProvider, AddressPr
             return null;
         }
         if (type.equals(FS_RTP_RTCP_ADDRESS)) {
-            Address fs = new Address(FS_RTP_RTCP_ADDRESS);
+            Address fs;
+            if (requester == null) {
+                fs = new Address(FS_RTP_RTCP_ADDRESS);
+            } else {
+                fs = new Address(FS_RTP_RTCP_ADDRESS, requester.getAddress());
+            }
             fs.setEndPort(32768);
             addresses.add(fs);
         } else {
-            addresses.add(new Address(type));
+            if (requester == null) {
+                addresses.add(new Address(type));
+            } else {
+                addresses.add(new Address(type, requester.getAddress()));
+            }
         }
 
         return addresses;
