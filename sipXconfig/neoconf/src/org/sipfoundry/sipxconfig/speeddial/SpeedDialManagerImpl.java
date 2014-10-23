@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
@@ -39,12 +41,14 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> implements SpeedDialManager,
         DaoEventListenerAdvanced {
+    private static final Log LOG = LogFactory.getLog(SpeedDialManagerImpl.class);
     private static final int MAX_BUTTONS = 136;
     private CoreContext m_coreContext;
     private FeatureManager m_featureManager;
@@ -268,8 +272,14 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
 
     @Override
     public void onDelete(Object entity) {
-        // TODO: on group deletion publish delete is called after the delete (unlike for users)
-        replicateXmppSpecialUser(entity);
+        // TODO: on group deletion publishDelete is called after the delete (unlike for users)
+        // most probably publishAfterDelete should have been called.
+        if (entity instanceof Group) {
+            replicateXmppSpecialUser(entity);
+        }
+        if (entity instanceof User) {
+            removeBlfFromUsers(((User) entity).getUserName());
+        }
     }
 
     @Override
@@ -280,6 +290,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
     private void replicateXmppSpecialUser(Object entity) {
         if (entity instanceof User
                 || (entity instanceof Group && ((Group) entity).getResource().equals(User.GROUP_RESOURCE_ID))) {
+            LOG.debug("rebuilding ~~id~xmpprlsclient entity..." + entity.getClass());
             getHibernateTemplate().flush();
             SpecialUser su = m_coreContext.getSpecialUserAsSpecialUser(SpecialUserType.XMPP_SERVER);
             if (su != null) {
@@ -290,11 +301,15 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
     }
 
     private void removeBlfFromUsers(String userName) {
+        LOG.debug("removing user from ~~id~xmpprlsclient entity: " + userName);
         DBCollection entity = m_imdbTemplate.getCollection("entity");
         String uri = SipUri.format(userName, m_coreContext.getDomainName(), false);
 
         DBObject findCommand = new BasicDBObject();
-        findCommand.put(MongoConstants.ENTITY_NAME, "user");
+        BasicDBList list = new BasicDBList();
+        list.add(new BasicDBObject(MongoConstants.ENTITY_NAME, "specialuser"));
+        list.add(new BasicDBObject(MongoConstants.ENTITY_NAME, "user"));
+        findCommand.put("$or", list);
         findCommand
                 .put(String.format("%s.%s.%s", MongoConstants.SPEEDDIAL, MongoConstants.BUTTONS, MongoConstants.URI),
                         uri);
@@ -315,10 +330,6 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
 
     @Override
     public void onAfterDelete(Object entity) {
-        replicateXmppSpecialUser(entity);
-        if (entity instanceof User) {
-            removeBlfFromUsers(((User) entity).getUserName());
-        }
     }
 
     public void setImdbTemplate(MongoTemplate imdbTemplate) {

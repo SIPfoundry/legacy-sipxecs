@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.test.ImdbTestCase;
 import org.sipfoundry.sipxconfig.test.TestHelper;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
@@ -306,7 +307,13 @@ public class SpeedDialManagerTestIntegration extends ImdbTestCase {
         speeddial.append("btn", btns);
         user.put("spdl", speeddial);
 
-        MongoTestCaseHelper.assertObjectPresent(getEntityCollection(), user);
+        DBObject o = new BasicDBObject();
+        o.put("_id", "~~id~xmpprlsclient");
+        BasicDBList XXX = new BasicDBList();
+        XXX.add(new BasicDBObject("uri","sip:user3@example.org").append("name", "user3"));
+        o.put("spdl.btn", XXX);
+
+        assertTrue(getEntityCollection().find(o).count() > 0);
         group.setSettingValue("im/im-account", "0");
         m_settingDao.saveGroup(group);
 
