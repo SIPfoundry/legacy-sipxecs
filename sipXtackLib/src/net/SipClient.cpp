@@ -826,12 +826,7 @@ int SipClient::run(void* runArg)
              // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
              UtlString fromIpAddress;
              int fromPort;
-             UtlString buffer;
-             int bufferLen;
-
-             // send one CRLF set in the reply
-             buffer.append("\r\n");
-             bufferLen = buffer.length();
+             
 
              // Get the send address for response.
              msg->getSendAddress(&fromIpAddress, &fromPort);
@@ -872,34 +867,47 @@ int SipClient::run(void* runArg)
                Os::Logger::instance().log(FAC_SIP_INCOMING, PRI_DEBUG, "%s", logMessage.data());
             }
 
-            // send the CR-LF response message
-            switch (mSocketType)
+            //
+            // Only send a PONG (CRLF) for PING (CRLF/CRLF)
+            // 
+            if (res == 2)
             {
-            case OsSocket::TCP:
-            {
-               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                             "SipClient[%s]::run send TCP keep-alive CR-LF response, ",
-                             mName.data());
-               SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
-                                        SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE,
-                                        fromIpAddress,
-                                        fromPort);
-                handleMessage(sendMsg);     // add newly created keep-alive to write buffer
-            }
-               break;
-            case OsSocket::UDP:
-            {
-                Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                              "SipClient[%s]::run send UDP keep-alive CR-LF response, ",
-                              mName.data());
-               (dynamic_cast <OsDatagramSocket*> (mClientSocket))->write(buffer.data(),
-                                                                         bufferLen,
-                                                                         fromIpAddress,
-                                                                         fromPort);
-            }
-               break;
-            default:
-               break;
+              UtlString buffer;
+              int bufferLen;
+
+              // send one (PONG) CRLF set in the reply
+              buffer.append("\r\n");
+              bufferLen = buffer.length();
+             
+              // send the CR-LF response message
+              switch (mSocketType)
+              {
+              case OsSocket::TCP:
+              {
+                 Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                               "SipClient[%s]::run send TCP keep-alive CR-LF response, ",
+                               mName.data());
+                 SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
+                                          SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE,
+                                          fromIpAddress,
+                                          fromPort);
+                  handleMessage(sendMsg);     // add newly created keep-alive to write buffer
+              }
+                 break;
+              case OsSocket::UDP:
+              {
+                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                                "SipClient[%s]::run send UDP keep-alive CR-LF response, ",
+                                mName.data());
+                 (dynamic_cast <OsDatagramSocket*> (mClientSocket))->write(buffer.data(),
+                                                                           bufferLen,
+                                                                           fromIpAddress,
+                                                                           fromPort);
+              }
+                 break;
+              default:
+                 break;
+              }
             }
 
             // Delete the SipMessage allocated above, which is no longer needed.
