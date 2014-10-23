@@ -652,7 +652,7 @@ protected:
   Type _type;
   boost::asio::io_service _ioService;
   boost::thread* _pIoServiceThread;
-  boost::thread* _pKeepAliveThread;
+  boost::scoped_ptr<boost::thread> _pKeepAliveThread;
   int _sleepCount;
   std::size_t _poolSize;
   std::string _serviceAddress;
@@ -738,7 +738,9 @@ public:
         _clientPool.enqueue(client);
       }
 
-      _pKeepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveThreadRun, this));
+      _pKeepAliveThread.reset(
+          new boost::thread(
+              boost::bind(&StateQueueClient::keepAliveThreadRun, this)));
       _pIoServiceThread = new boost::thread(boost::bind(&boost::asio::io_service::run, &_ioService));
 
       if (_type == Watcher)
@@ -812,7 +814,9 @@ public:
 
       setServiceAddressAndPort();
 
-      _pKeepAliveThread = new boost::thread(boost::bind(&StateQueueClient::keepAliveThreadRun, this));
+      _pKeepAliveThread.reset(
+          new boost::thread(
+              boost::bind(&StateQueueClient::keepAliveThreadRun, this)));
       _pIoServiceThread = new boost::thread(boost::bind(&boost::asio::io_service::run, &_ioService));
 
       if (_type == Watcher)
@@ -937,8 +941,6 @@ public:
     if (_pKeepAliveThread)
     {
       _pKeepAliveThread->join();
-      delete _pKeepAliveThread;
-      _pKeepAliveThread = 0;
     }
 
     OS_LOG_INFO(FAC_NET, CLASS_INFO() "Ok");

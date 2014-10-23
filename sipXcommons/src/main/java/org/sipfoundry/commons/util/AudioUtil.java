@@ -24,6 +24,7 @@ import javax.sound.sampled.AudioSystem;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 
 public class AudioUtil {
     public static long extractWavDuration(File audioFile) {
@@ -43,6 +44,8 @@ public class AudioUtil {
         try {
             AudioFile mp3File = AudioFileIO.read(audioFile);
             return mp3File.getAudioHeader().getTrackLength();
+        } catch (InvalidAudioFrameException iex) {
+            return 0;
         } catch (Exception e) {
             String trouble = "Message::getDuration Problem determining duration of " + audioFile.getAbsolutePath();
             throw new RuntimeException(trouble, e);

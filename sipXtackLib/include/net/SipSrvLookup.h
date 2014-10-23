@@ -224,7 +224,7 @@ public:
 
     static const char* getRecordTypeStr(int type);
 
-    static void raiseDnsQueryAlarm(const char* queryName,
+    static void raiseDnsQueryAlarm(const char* domain,
                             int queryType);
 
     static void setDomainName(const char* domainName);
