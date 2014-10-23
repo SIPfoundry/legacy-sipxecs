@@ -83,6 +83,31 @@ bundle agent sipxsqa_running {
       "$(sipx.SIPX_SERVICEDIR)/sipxsqa"
         comment => "restart sipxsqa",
         args => "asyncrestart";
+        
+    sipxproxy.sipxsqa.restart_sipxsqa::
+      "$(sipx.SIPX_SERVICEDIR)/sipxproxy"
+        comment => "restart sipxproxy",
+        args => "restart";
+    
+    sipxopenfire.sipxsqa.restart_sipxsqa::
+      "/etc/init.d/openfire"
+        comment => "restart openfire",
+        args => "restart";
+        
+    (homer_capture|homer_web).sipxsqa.restart_sipxsqa::  
+      "$(sipx.SIPX_SERVICEDIR)/sipxhomer"
+        comment => "restart sipxhomer",
+        args => "restart";
+        
+    sipxsss.sipxsqa.restart_sipxsqa::
+      "$(sipx.SIPX_SERVICEDIR)/sipxsss"
+        comment => "restart sipxsss",
+        args => "restart";
+        
+    sipxrls.sipxsqa.restart_sipxsqa::
+      "$(sipx.SIPX_SERVICEDIR)/sipxrls"
+        comment => "restart sipxrls",
+        args => "restart";
                 
     sipxsqa.sipxsqa_running.refresh_sipxsqa::
       "/usr/bin/killall"
