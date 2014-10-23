@@ -547,6 +547,8 @@ const UtlString& SipClient::getLocalIp()
 // Thread execution code.
 int SipClient::run(void* runArg)
 {
+  static const int SIZE_OF_PING = strlen("\r\n\r\n");
+  
    OsMsg*    pMsg = NULL;
    OsStatus  res;
    // Buffer to hold data read from the socket but not yet parsed
@@ -870,7 +872,7 @@ int SipClient::run(void* runArg)
             //
             // Only send a PONG (CRLF) for PING (CRLF/CRLF)
             // 
-            if (res == 2)
+            if (crlfCount == SIZE_OF_PING)
             {
               UtlString buffer;
               int bufferLen;
