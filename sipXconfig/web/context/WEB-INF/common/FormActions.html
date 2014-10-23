@@ -4,6 +4,9 @@
   </li>
   <li jwcid="@If" condition="ognl:includeApplyButton">
     <input jwcid="apply" id="form:apply" type="button"/>
+    <span jwcid="@If" condition="ognl:confirmApply">
+      <span jwcid="@common/Confirm" component="component:apply" prompt="ognl:applyConfirmMessage"/>
+    </span>
   </li>
   <li jwcid="@If" condition="ognl:includeRefreshButton">
     <input jwcid="refresh" id="form:refesh" type="button"/>

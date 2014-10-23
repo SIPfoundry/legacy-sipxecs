@@ -15,6 +15,7 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.listener.ListenerInvoker;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -35,6 +36,9 @@ public abstract class FormActions extends BaseComponent {
 
     @InjectObject(value = "infrastructure:listenerInvoker")
     public abstract ListenerInvoker getListenerInvoker();
+
+    @Parameter(required = false, defaultValue="")
+    public abstract String getApplyConfirmMessage();
 
     public void onOk(IRequestCycle cycle) {
         apply(cycle);
@@ -75,5 +79,9 @@ public abstract class FormActions extends BaseComponent {
             validator = (SipxValidationDelegate) TapestryUtils.getValidator(getPage());
         }
         return validator;
+    }
+
+    public boolean isConfirmApply() {
+        return !StringUtils.isEmpty(getApplyConfirmMessage());
     }
 }
