@@ -100,6 +100,7 @@ namespace Os
           std::ostringstream log;
           log << headers.str() << "\"" << message << "\"" << std::endl;
           _alarmLog.write(log.str().c_str(), log.str().size());
+          _alarmLog.flush();
         }
         //
         // We dump emergency level to syslog as well
