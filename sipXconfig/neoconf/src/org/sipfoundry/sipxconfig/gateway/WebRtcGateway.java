@@ -17,6 +17,6 @@
 package org.sipfoundry.sipxconfig.gateway;
 
 public interface WebRtcGateway {
-    public String getWsPort();
+    public Integer getWsPort();
     public String getAddress();
 }

@@ -14,8 +14,6 @@
  */
 package org.sipfoundry.sipxconfig.sipxedgerpc;
 
-import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface SipxedgerpcManager extends Sipxedgerpc {
     public SipxedgerpcManagerSettings getSettings();

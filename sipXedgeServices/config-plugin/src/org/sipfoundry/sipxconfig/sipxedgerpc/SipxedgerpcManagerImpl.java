@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +35,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
-import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.feature.Bundle;
 import org.sipfoundry.sipxconfig.feature.FeatureChangeRequest;
@@ -52,9 +52,11 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvider,
-    FeatureProvider, FirewallProvider, ProcessProvider, AddressProvider {
-    
+public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvider, FeatureProvider,
+        FirewallProvider, ProcessProvider, AddressProvider {
+    private static final Collection<AddressType> ADDRESSES = Arrays.asList(new AddressType[] {
+        HTTP_ADDRESS, MONIT_HTTP_ADDRESS
+    });
     private BeanWithSettingsDao<SipxedgerpcManagerSettings> m_settingsDao;
 
     @Override
@@ -100,14 +102,18 @@ public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvide
 
     @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
-        if (!type.equals(HTTP_ADDRESS)) {
+        if (!ADDRESSES.contains(type)) {
             return null;
         }
-
+        List<Address> addresses = new ArrayList<Address>();
         List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(FEATURE);
         SipxedgerpcManagerSettings settings = getSettings();
-        int port = settings.getHttpPort();
-        return Location.toAddresses(type, locations, port);
+        if (type.equals(HTTP_ADDRESS)) {
+            addresses.addAll(Location.toAddresses(type, locations, settings.getHttpPort()));
+        } else if (type.equals(MONIT_HTTP_ADDRESS)) {
+            addresses.addAll(Location.toAddresses(type, locations, settings.getMonitHttpPort()));
+        }
+        return addresses;
     }
 
     @Override
@@ -138,7 +144,8 @@ public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvide
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS), FirewallRule.SystemId.CLUSTER);
+        return DefaultFirewallRule.rules(Arrays.asList(HTTP_ADDRESS, MONIT_HTTP_ADDRESS),
+                FirewallRule.SystemId.PUBLIC);
     }
 
     public void setSettingsDao(BeanWithSettingsDao<SipxedgerpcManagerSettings> settingsDao) {
@@ -155,8 +162,9 @@ public class SipxedgerpcManagerImpl implements SipxedgerpcManager, ConfigProvide
         ProcessDefinition def = ProcessDefinition.sipx(FEATURE.getId());
         return Collections.singleton(def);
     }
-    
-    public void method(){
-        
+
+    @Override
+    public void method() {
+
     }
 }

@@ -40,6 +40,9 @@
 		</false>
 	</boolean>
   </type>
+  <type id="port">
+    <integer min="1025" max="65535" />
+  </type>
   <group name="auth">
     <setting name="username"/>
     <setting name="password">
@@ -54,34 +57,29 @@
       <value>5</value>
     </setting>    
 	<setting name="ws-port">
-	  <type>
-        <integer/>
-      </type>
+	  <type refid="port" />
+	  <value>5064</value>
+	</setting>
+    <setting name="bridge-esl-port" hidden="true">		
+	  <type refid="port" />
+	  <value>11020</value>
+	</setting>
+	<setting name="switch-esl-port" hidden="true">
+	  <type refid="port" />
+	  <value>11000</value>
 	</setting>
 	<setting name="tcp-udp-port" hidden="true">
-	  <type>
-        <integer/>
-      </type>
+	  <type refid="port" />
+	  <value>35080</value>
 	</setting>
 	<setting name="bridge-tcp-udp-port" hidden="true">
-	  <type>
-        <integer/>
-      </type>
+	  <type refid="port" />
+	  <value>35082</value>
 	</setting>
 	<setting name="enable-library-logging" hidden="true">
 	  <type refid="true-false"/>				  
 	</setting>
 	<setting name="user-cache"/>
 	<setting name="db-path" hidden="true"/>
-	<setting name="bridge-esl-port" hidden="true">	
-	  <type>
-        <integer/>
-      </type>
-	</setting>
-	<setting name="switch-esl-port" hidden="true">
-	  <type>
-        <integer/>
-      </type>
-	</setting>
   </group>
 </model>

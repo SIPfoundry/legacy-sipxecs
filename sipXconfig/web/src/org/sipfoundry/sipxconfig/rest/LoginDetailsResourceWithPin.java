@@ -76,7 +76,7 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         List<? extends WebRtcGateway> webrtcGateways = m_gatewayContext.getGatewayByType(WebRtcGateway.class);
         List<WebRtcRepresentable> wrtcList = new ArrayList<WebRtcRepresentable>();
         for (WebRtcGateway wrtcGateway : webrtcGateways) {
-            wrtcList.add(new WebRtcRepresentable(wrtcGateway.getAddress(), Integer.parseInt(wrtcGateway.getWsPort())));
+            wrtcList.add(new WebRtcRepresentable(wrtcGateway.getAddress(), wrtcGateway.getWsPort()));
         }
         RepresentableWithPin representableWithPin = new RepresentableWithPin(representable.getUserName(),
             representable.getImId(), representable.isLdapImAuth(), representable.getSipPassword(), password,
@@ -150,7 +150,7 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
 
     private static class LocationRepresentable implements Serializable {
         private static final long serialVersionUID = 1L;
-        private String m_fqdn;
+        private final String m_fqdn;
 
         public LocationRepresentable(String fqdn) {
             m_fqdn = fqdn;
@@ -164,8 +164,8 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
 
     private static class WebRtcRepresentable implements Serializable {
         private static final long serialVersionUID = 1L;
-        private String m_fqdn;
-        private int m_port;
+        private final String m_fqdn;
+        private final int m_port;
 
         public WebRtcRepresentable(String fqdn, int port) {
             m_fqdn = fqdn;

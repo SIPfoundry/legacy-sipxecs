@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.gateway.yard;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -43,10 +44,14 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.feature.Feature;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
+import org.sipfoundry.sipxconfig.firewall.FirewallConfig;
+import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.WebRtcGateway;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -67,7 +72,7 @@ public class YardGateway extends Gateway implements WebRtcGateway {
     private static final String WEBRTC_SWITCH_ESL_PORT = "webrtc/switch-esl-port";
 
     private static final int DEFAULT_ADDRESS_PORT = 8020;
-    private ExecutorService m_service = Executors.newSingleThreadExecutor();
+    private final ExecutorService m_service = Executors.newSingleThreadExecutor();
     private WebRtcBean m_bean;
     private AddressManager m_addressManager;
     private DomainManager m_domainManager;
@@ -99,7 +104,7 @@ public class YardGateway extends Gateway implements WebRtcGateway {
         executePost("ip-address", getAddress());
         executePost("realm", m_domainManager.getDomain().getSipRealm());
         executePost("domain", m_domainManager.getDomain().getName());
-        executePost("ws-port", getWsPort());
+        executePost("ws-port", getWsPort().toString());
         executePost("proxy-address", m_domainManager.getDomain().getName());
         executePost("rpc-url", getEdgeRpcUris());
         executePost("user-cache", getSettings().getSetting(WEBRTC_USER_CACHE).getValue());
@@ -228,6 +233,12 @@ public class YardGateway extends Gateway implements WebRtcGateway {
         return StringUtils.join(addressesArray, ",");
     }
 
+    @Override
+    public Collection<Feature> getAffectedFeaturesOnChange() {
+        Collection<Feature> affectedFeatures = super.getAffectedFeaturesOnChange();
+        affectedFeatures.add(FirewallManager.FEATURE);
+        return affectedFeatures;
+    }
 
     @Required
     public void setAddressManager(AddressManager addressManager) {
@@ -297,8 +308,9 @@ public class YardGateway extends Gateway implements WebRtcGateway {
     }
 
     @Override
-    public String getWsPort() {
-        return getYardValue(WEBRTC_WS_PORT);
+    public Integer getWsPort() {
+        Integer port = Integer.valueOf(getYardValue(WEBRTC_WS_PORT));
+        return port;
     }
 
     private String getYardValue(String key) {

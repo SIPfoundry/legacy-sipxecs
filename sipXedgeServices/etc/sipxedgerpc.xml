@@ -39,9 +39,13 @@
       <type refid="loglevel" />
       <value>5</value>
     </setting>
-    <setting name="rpc-http-port">
+    <setting name="rpc-http-port" hidden="yes">
       <type refid="port" />
       <value>8376</value>
     </setting>
-  </group>
+    <setting name="monit-http-port" hidden="yes">
+      <type refid="port" />
+      <value>38000</value>
+    </setting>
+    </group>
 </model>

@@ -43,6 +43,10 @@ public class SipxedgerpcManagerSettings extends PersistableSettings implements D
         return (Integer) getSettingTypedValue("rpc-config/rpc-http-port");
     }
 
+    public int getMonitHttpPort() {
+        return (Integer) getSettingTypedValue("rpc-config/monit-http-port");
+    }
+
     public int getLogLevel() {
         return (Integer) getSettingTypedValue("rpc-config/log-level");
     }

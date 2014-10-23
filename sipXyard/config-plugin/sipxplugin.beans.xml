@@ -21,4 +21,14 @@
     <property name="featureManager" ref="featureManager"/>
     <property name="locationManager" ref="locationsManager"/>
   </bean>
+  
+  <bean id="yardManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+      <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.gateway.yard.YardManager"/>
+      <property name="target" ref="yardManagerImpl"/>
+  </bean>
+  
+  <bean id="yardManagerImpl" class="org.sipfoundry.sipxconfig.gateway.yard.YardManagerImpl">
+      <property name="gatewayContext" ref="gatewayContext" />
+      <property name="locationsManager" ref="locationsManager" />
+  </bean>
 </beans>
