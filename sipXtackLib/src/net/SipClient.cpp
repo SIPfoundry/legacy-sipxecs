@@ -446,6 +446,8 @@ bool SipClient::isWritable()
   static const int KEEP_ALIVE_SIZE = strlen(KEEP_ALIVE);
   static const int KEEP_ALIVE_WAIT_TIME = 10; // milliseconds
   
+  bool writable = false;
+  
   if (isOk())
   {
     //
@@ -456,17 +458,28 @@ bool SipClient::isWritable()
       //
       // UDP sockets are shared sockets.  This is only applicable for TCP/TLS clients
       //
-      return true;
+      writable = true;
     }
     else
     {
       //
       // TCP and TLS.  Make sure sockets are writable
       //
-      return mClientSocket->write(KEEP_ALIVE, KEEP_ALIVE_SIZE, KEEP_ALIVE_WAIT_TIME) > 0;
+      writable = mClientSocket->write(KEEP_ALIVE, KEEP_ALIVE_SIZE, KEEP_ALIVE_WAIT_TIME) > 0;
+      
+      if (!writable)
+      {
+        //
+        // Close this socket.  The other end closed the connection.
+        // This also assures that garbage collector collects this client 
+        // in the next iteration because isOk() would now return false.
+        //
+        mClientSocket->close();
+      }
     }
   }
-  return false;
+  
+  return writable;
 }
 
 UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int hostPort, const UtlString& localIp )
