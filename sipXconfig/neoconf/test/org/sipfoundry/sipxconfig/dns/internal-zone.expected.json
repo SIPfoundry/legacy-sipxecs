@@ -4,37 +4,7 @@
   "internal" : true,
   "leftHandSide" : "_y.test",
   "port" : 1,
-  "priority" : 20,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l1",
-  "host" : "l1",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l1",
-  "port" : 1,
   "priority" : 10,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l2",
-  "host" : "l1",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l1",
-  "port" : 2,
-  "priority" : 20,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l3",
-  "host" : "l1",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l1",
-  "port" : 3,
-  "priority" : 30,
   "protocol" : "_y",
   "resource" : "test",
   "weight" : 10
@@ -44,37 +14,7 @@
   "internal" : true,
   "leftHandSide" : "_y.test",
   "port" : 2,
-  "priority" : 20,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l1",
-  "host" : "l2",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l2",
-  "port" : 1,
-  "priority" : 20,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l2",
-  "host" : "l2",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l2",
-  "port" : 2,
   "priority" : 10,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l3",
-  "host" : "l2",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l2",
-  "port" : 3,
-  "priority" : 30,
   "protocol" : "_y",
   "resource" : "test",
   "weight" : 10
@@ -83,36 +23,6 @@
   "host" : "",
   "internal" : true,
   "leftHandSide" : "_y.test",
-  "port" : 3,
-  "priority" : 30,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l1",
-  "host" : "l3",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l3",
-  "port" : 1,
-  "priority" : 20,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l2",
-  "host" : "l3",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l3",
-  "port" : 2,
-  "priority" : 20,
-  "protocol" : "_y",
-  "resource" : "test",
-  "weight" : 10
-}, {
-  "destination" : "l3",
-  "host" : "l3",
-  "internal" : true,
-  "leftHandSide" : "_y.test.l3",
   "port" : 3,
   "priority" : 10,
   "protocol" : "_y",
