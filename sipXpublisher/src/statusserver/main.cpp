@@ -65,6 +65,7 @@ main(int argc, char* argv[] )
       "",
       CONFIG_SETTING_PREFIX,
       true, // check mongo connection
+      true, // enable mongo driver logging
       true, // increase application file descriptor limits
       true, // block signals on main thread (and all other threads created by main)
             // and process them only on a dedicated thread

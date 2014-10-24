@@ -79,19 +79,32 @@ class ConnectionInfo
 {
 public:
 	ConnectionInfo(const ConnectionInfo& rhs) :
-                 _connectionString(rhs._connectionString), _shard(rhs._shard), _useReadTags(rhs._useReadTags)
+                 _connectionString(rhs._connectionString),
+                 _shard(rhs._shard),
+                 _useReadTags(rhs._useReadTags),
+                 _clusterId(rhs._clusterId),
+                 _readQueryTimeoutMs(rhs._readQueryTimeoutMs),
+                 _writeQueryTimeoutMs(rhs._writeQueryTimeoutMs)
 	{
 	}
 	;
 
 	ConnectionInfo(const mongo::ConnectionString& connectionString) :
-		 _connectionString(connectionString), _shard(0), _useReadTags(false)
+                 _connectionString(connectionString),
+                 _shard(0),
+                 _useReadTags(false),
+                 _readQueryTimeoutMs(0),
+                 _writeQueryTimeoutMs(0)
 	{
 	}
 	;
 
 	ConnectionInfo(const mongo::ConnectionString& connectionString, const int shard) :
-		 _connectionString(connectionString), _shard(shard), _useReadTags(false)
+		             _connectionString(connectionString),
+		             _shard(shard),
+		             _useReadTags(false),
+                 _readQueryTimeoutMs(0),
+                 _writeQueryTimeoutMs(0)
 	{
 	}
 	;
@@ -158,15 +171,46 @@ public:
     return _clusterId;
   }
 
+  const unsigned int getReadQueryTimeoutMs() const
+  {
+    return _readQueryTimeoutMs;
+  }
+
+  const unsigned int getWriteQueryTimeoutMs() const
+  {
+    return _writeQueryTimeoutMs;
+  }
+
+  const double getReadQueryTimeout() const
+  {
+    double readQueryTimeout = _readQueryTimeoutMs;
+    return readQueryTimeout/1000;
+  }
+
+  const double getWriteQueryTimeout() const
+  {
+    double writeQueryTimeout = _writeQueryTimeoutMs;
+    return writeQueryTimeout/1000;
+  }
+
+
 private:
 
- ConnectionInfo() : _connectionString(), _shard(0), _useReadTags(false) {
+ ConnectionInfo() :
+     _connectionString(),
+     _shard(0),
+     _useReadTags(false),
+     _readQueryTimeoutMs(0),
+     _writeQueryTimeoutMs(0)
+  {
 	}
 
-	mongo::ConnectionString _connectionString;
-	int _shard;
+  mongo::ConnectionString _connectionString;
+  int _shard;
   bool _useReadTags; 
   std::string _clusterId;
+  unsigned int _readQueryTimeoutMs;
+  unsigned int _writeQueryTimeoutMs;
 };
 
 class UpdateTimer;
@@ -228,6 +272,10 @@ public:
   
   Int64 getLastReadSpeed() const;
   
+  const double getReadQueryTimeout() const { double readQueryTimeout = _info.getReadQueryTimeoutMs(); return readQueryTimeout/1000; }
+
+  const double getWriteQueryTimeout() const { double writeQueryTimeout = _info.getWriteQueryTimeoutMs(); return writeQueryTimeout/1000; }
+
 protected:
   std::string _ns;
 	mutable ConnectionInfo _info;

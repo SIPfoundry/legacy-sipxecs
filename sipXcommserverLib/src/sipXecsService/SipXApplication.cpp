@@ -8,6 +8,7 @@
 #include <os/OsExceptionHandler.h>
 
 #include <sipdb/MongoDB.h>
+#include <mongo/util/log.h>
 
 static bool gHasDaemonized = false;
 
@@ -187,6 +188,11 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
      mongo::dbexit(mongo::EXIT_CLEAN);
      exit(1);
    }
+  }
+
+  if (_appData._enableMongoDriverLogging)
+  {
+    enableMongoDriverLogging();
   }
 
   Os::Logger::instance().log(FAC_SIP, PRI_NOTICE, "%s initialized", _appData._appName.c_str());
@@ -508,4 +514,54 @@ void SipXApplication::waitForTerminationRequest(int seconds)
   }
 
   std::cout << "Termination Signal RECEIVED" << std::endl;
+}
+
+static int convertToMongoLogLevel(int level)
+{
+  OsSysLogPriority logLevel = (OsSysLogPriority)SipXApplication::normalizeLogLevel(level);
+
+  switch (logLevel)
+  {
+  case PRI_DEBUG:
+    return 5;
+  case PRI_INFO:
+    return 4;
+  case PRI_NOTICE:
+    return 3;
+  case PRI_WARNING:
+    return 2;
+  case PRI_ERR:
+  default:
+      return 1;
+  }
+}
+
+void SipXApplication::enableMongoDriverLogging() const
+{
+  std::string mongoClientIniFilePath = SIPX_CONFDIR "/mongo-client.ini";
+  OsServiceOptions mongoClientConfig(mongoClientIniFilePath);
+
+  mongoClientConfig.addOptionString(0, "enable-driver-logging", "", OsServiceOptions::ConfigOption, false);
+  mongoClientConfig.addOption<int>(0, "driver-log-level","", OsServiceOptions::ConfigOption, false);
+
+  if (mongoClientConfig.parseOptions())
+  {
+    bool enableDriverLogging = true;
+    mongoClientConfig.getOption("enable-driver-logging", enableDriverLogging);
+    OS_LOG_INFO(FAC_SIP, "SipXApplication::enableMongoDriverLogging Enable mongo driver logging = " << enableDriverLogging);
+
+    if (enableDriverLogging)
+    {
+      int driverLogLevel = 0;
+      mongoClientConfig.getOption<int>("driver-log-level", driverLogLevel);
+      OS_LOG_INFO(FAC_SIP, "SipXApplication::enableMongoDriverLogging Mongo driver log level = " << driverLogLevel);
+
+      mongo::logLevel = convertToMongoLogLevel(driverLogLevel);
+      mongo::Logstream::useSyslog(_appData._appName.c_str());
+    }
+  }
+  else
+  {
+    OS_LOG_ERROR(FAC_SIP, "SipXApplication::enableMongoDriverLogging Failed parsing mongo client init file: " << mongoClientIniFilePath);
+  }
 }

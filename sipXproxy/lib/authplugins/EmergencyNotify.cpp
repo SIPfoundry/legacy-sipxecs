@@ -110,10 +110,10 @@ bool DB::findE911LineIdentifier(
     std::string& location)
 {
   mongo::BSONObj query = BSON(EntityRecord::identity_fld() << userId);
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
-	std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
-	if (pCursor.get() && pCursor->more())
-	{
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
+  std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
+  if (pCursor.get() && pCursor->more())
+  {
     mongo::BSONObj obj = pCursor->next();
 
     if (obj.hasField("elin"))
@@ -133,9 +133,9 @@ bool DB::findE911LineIdentifier(
       conn->done();
       return true;
     }
-	}
+  }
   conn->done();
-	return false;
+  return false;
 }
 
 AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlString& id,

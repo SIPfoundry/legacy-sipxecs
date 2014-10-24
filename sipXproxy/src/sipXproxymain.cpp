@@ -604,6 +604,7 @@ int main(int argc, char* argv[]) {
       "",
       PROXY_CONFIG_PREFIX,
       false, // do not check mongo connection
+      true,
       true, // increase application file descriptor limits
       true, // block signals on main thread (and all other threads created by main)
             // and process them only on a dedicated thread

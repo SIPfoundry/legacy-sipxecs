@@ -43,7 +43,7 @@ namespace MongoDB
 
       try
       {
-          MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(connectionString.toString(), 5));
+          MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(connectionString.toString()));
           ret = conn->ok();
           conn->done();
       }
@@ -77,7 +77,11 @@ namespace MongoDB
       return ConnectionInfo(file);
   }
   
-  ConnectionInfo::ConnectionInfo(ifstream& file) : _shard(0), _useReadTags(false)
+  ConnectionInfo::ConnectionInfo(ifstream& file) :
+      _shard(0),
+      _useReadTags(false),
+      _readQueryTimeoutMs(0),
+      _writeQueryTimeoutMs(0)
   {
     set<string> options;
     options.insert("*");
@@ -105,8 +109,26 @@ namespace MongoDB
           _useReadTags = true;
         }
       }
+
+      if (i->string_key == "read-query-timeout-ms")
+      {
+        _readQueryTimeoutMs = atoi(i->value[0].c_str());
+      }
+
+      if (i->string_key == "write-query-timeout-ms")
+      {
+        _writeQueryTimeoutMs = atoi(i->value[0].c_str());
+      }
     }
     
+    OS_LOG_INFO(FAC_SIP, "ConnectionInfo::ConnectionInfo "
+        << "connectionString: " << connectionString
+        << ", shardId: " << _shard
+        << ", clusterId: " << _clusterId
+        << ", useReadTags: " << _useReadTags
+        << ", readQueryTimeoutMs: " << _readQueryTimeoutMs
+        << ", writeQueryTimeoutMs: " << _writeQueryTimeoutMs);
+
     file.close();
     if (connectionString.size() == 0)
     {
@@ -121,22 +143,27 @@ namespace MongoDB
     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", connectionString.c_str());
   }
   
-  void  BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const 
+  void BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const
   {
-    if (_info.useReadTags()) 
+    if (_info.useReadTags())
     {
       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "Using read preferences tags for ");
       std::string shardIdStr = boost::to_string(getShardId());
       std::string clusterId = getClusterId();
+
       if (clusterId.empty())
+      {
         clusterId = "1"; // for backward compatibility with old behavior
-      mongo::BSONArray tags = BSON_ARRAY(BSON("shardId" << shardIdStr) << BSON("clusterId" << clusterId));
+      }
+
+      mongo::BSONArray tags = BSON_ARRAY(BSON("clusterId" << clusterId) << BSON("shardId" << shardIdStr));
       builder.append("$readPreference", BSON("mode" << readPreferrence << "tags" << tags));
-    } 
-    else 
+    }
+    else
     {
       builder.append("$readPreference", BSON("mode" << readPreferrence));
     }
+
     builder.append("query", query);
   }
  
@@ -153,7 +180,7 @@ namespace MongoDB
 
   void BaseDB::forEach(mongo::BSONObj& query, const std::string& ns, boost::function<void(mongo::BSONObj)> doSomething)
   {
-      MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+      MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
       auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns, query, 0, 0, 0, mongo::QueryOption_SlaveOk);
       if (pCursor.get() && pCursor->more())
       {

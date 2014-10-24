@@ -110,7 +110,7 @@ void RegDB::updateBinding(RegBinding& binding)
           "instrument" << binding.getInstrument() <<
           "expired" << isExpired );
 
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
     mongo::DBClientBase* client = conn->get();
 
     client->remove(_ns, query);
@@ -130,7 +130,7 @@ void RegDB::updateBinding(RegBinding& binding)
 
 void RegDB::expireOldBindings(const string& identity, const string& callId, unsigned int cseq,
 		unsigned long timeNow)
-{ 
+{
 	if (_local != NULL) {
 		_local->expireOldBindings(identity, callId, cseq, timeNow);
 		return;
@@ -143,7 +143,7 @@ void RegDB::expireOldBindings(const string& identity, const string& callId, unsi
 			"cseq" << BSON_LESS_THAN(cseq) <<
                         "shardId" << getShardId());
 
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
     mongo::DBClientBase* client = conn->get();
 
 	client->remove(_ns, query);
@@ -166,7 +166,7 @@ void RegDB::expireAllBindings(const string& identity, const string& callId, unsi
                         "shardId" << getShardId() <<
 			"identity" << identity);
 
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
     mongo::DBClientBase* client = conn->get();
 
     client->remove(_ns, query);
@@ -193,8 +193,8 @@ void RegDB::removeAllExpired()
             "shardId" << getShardId() <<
             "expirationTime" << BSON_LESS_THAN_EQUAL((long long)timeNow));
 
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
-    mongo::DBClientBase* client = conn->get();
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
+  mongo::DBClientBase* client = conn->get();
 
   client->remove(_ns, query);
   client->ensureIndex("node.registrar",  BSON( "identity" << 1 ));
@@ -241,7 +241,7 @@ bool RegDB::isRegisteredBinding(const Url& curl, bool preferPrimary)
 	else
 	  BaseDB::primaryPreferred(builder, query.obj());
 
-	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	isRegistered = pCursor.get() && pCursor->more();
 	conn->done();
@@ -285,7 +285,7 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
 	else
 	  BaseDB::primaryPreferred(builder, query.obj());
 
-	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
@@ -342,7 +342,7 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsi
 	else
 	  BaseDB::primaryPreferred(builder, query.obj());
 
-	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
@@ -384,7 +384,7 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 	else
 	  BaseDB::primaryPreferred(builder, query.obj());
 
-	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
@@ -422,7 +422,7 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, unsigned lo
 	else
 	  BaseDB::primaryPreferred(builder, query.obj());
 
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
@@ -447,7 +447,7 @@ void RegDB::cleanAndPersist(int currentExpireTime)
    MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
     mongo::BSONObj query = BSON(
         "expirationTime" << BSON_LESS_THAN(currentExpireTime));
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
     conn->get()->remove(_ns, query);
 	conn->done();
 }
@@ -462,7 +462,7 @@ void RegDB::clearAllBindings()
   MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
   
 	mongo::BSONObj all;
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
     conn->get()->remove(_ns, all);
 	conn->done();
 }

@@ -76,9 +76,9 @@ bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
     return true;
   }
 
-	mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
+  mongo::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
 
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query);
@@ -117,11 +117,11 @@ bool EntityDB::findByUserId(const string& uid, EntityRecord& entity) const
     return true;
   }
 
-	mongo::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
-    mongo::BSONObjBuilder builder;
-    BaseDB::nearest(builder, query);
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
-    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+  mongo::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
+  mongo::BSONObjBuilder builder;
+  BaseDB::nearest(builder, query);
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
+  auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 
 	if (pCursor.get() && pCursor->more())
 	{
@@ -135,7 +135,7 @@ bool EntityDB::findByUserId(const string& uid, EntityRecord& entity) const
 		return true;
 	}
 	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
-    conn->done();
+  conn->done();
 	return false;
 }
 
@@ -174,13 +174,13 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
     return true;
   }
 
-	mongo::BSONObj query = BSON( EntityRecord::aliases_fld() <<
-			BSON_ELEM_MATCH( BSON(EntityRecord::aliasesId_fld() << alias) ) );
+  mongo::BSONObj query = BSON( EntityRecord::aliases_fld() <<
+  BSON_ELEM_MATCH( BSON(EntityRecord::aliasesId_fld() << alias) ) );
 
-    mongo::BSONObjBuilder builder;
-    BaseDB::nearest(builder, query);
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
-    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+  mongo::BSONObjBuilder builder;
+  BaseDB::nearest(builder, query);
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
+  auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 
 	if (pCursor.get() && pCursor->more())
 	{
@@ -289,7 +289,7 @@ bool  EntityDB::tail(std::vector<std::string>& opLogs) {
   MongoDB::ReadTimer readTimer(const_cast<EntityDB&>(*this));
   
   static bool hasLastTailId = false;
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString()));
   if (!hasLastTailId)
   {
     mongo::Query query = QUERY( "_id" << mongo::GT << _lastTailId

@@ -143,6 +143,7 @@ bool AppConfig::parseOptions()
       "",
 
       false, // do not check mongo connection
+      false, // do not enable mongo driver logging
       false, // increase application file descriptor limits
       true, // block signals on main thread (and all other threads created by main)
             // and process them only on a dedicated thread

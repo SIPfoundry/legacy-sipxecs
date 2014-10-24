@@ -153,24 +153,24 @@ bool DB::findE911LineIdentifier(
     std::string& location)
 {
   mongo::BSONObj query = BSON(EntityRecord::identity_fld() << userId);
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
     mongo::BSONObjBuilder builder;
     BaseDB::nearest(builder, query);
     std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	if (pCursor.get() && pCursor->more())
-	{
-	  mongo::BSONObj obj = pCursor->next();
-	  if (obj.hasField("elin"))
-	  {
-	    e911 = obj.getStringField("elin");
+  if (pCursor.get() && pCursor->more())
+  {
+    mongo::BSONObj obj = pCursor->next();
+    if (obj.hasField("elin"))
+    {
+      e911 = obj.getStringField("elin");
       if (!e911.empty())
         findE911Location(conn, e911, address, location);
-	    conn->done();
-	    return !e911.empty();
-	  }
-	}
+      conn->done();
+      return !e911.empty();
+    }
+  }
   conn->done();
-	return false;
+  return false;
 }
 
 bool DB::findE911InstrumentIdentifier(
@@ -183,28 +183,28 @@ bool DB::findE911InstrumentIdentifier(
   OS_LOG_INFO(FAC_SIP, "");
   mongo::BSONObj query = BSON("mac" << instrument);
 
-  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), 5));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query);
   std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 
   if (pCursor.get() && pCursor->more())
-	{
-	  mongo::BSONObj obj = pCursor->next();
+  {
+    mongo::BSONObj obj = pCursor->next();
 
-	  if (obj.hasField("elin"))
-	  {
-	    e911 = obj.getStringField("elin");
+    if (obj.hasField("elin"))
+    {
+      e911 = obj.getStringField("elin");
 
       if (!e911.empty())
         findE911Location(conn, e911, address, location);
-	    conn->done();
-	    return !e911.empty();
-	  }
-	}
+      conn->done();
+      return !e911.empty();
+    }
+  }
   conn->done();
-	return false;
+  return false;
 }
 
 AuthPlugin::AuthResult EmergencyLineIdentifier::authorizeAndModify(const UtlString& id,
