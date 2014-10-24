@@ -100,7 +100,7 @@ public class SpeedDials extends AbstractDataSetGenerator {
                     @Override
                     public void processRow(ResultSet rs) throws SQLException {
                         if (StringUtils.isNotBlank(rs.getString(IM_ENABLED))
-                                && rs.getString(IM_ENABLED).equals("1") || rs.getInt("group_im_enabled") == 1) {
+                                && rs.getString(IM_ENABLED).equals("1") || rs.getInt("group_im_enabled") >= 1) {
                             String userName = rs.getString("user_name");
                             DBObject buttonDBO = new BasicDBObject();
                             buttonDBO.put(URI, buildUri(userName, getSipDomain()));
