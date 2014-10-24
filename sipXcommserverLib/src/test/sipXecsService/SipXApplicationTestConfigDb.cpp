@@ -155,6 +155,7 @@ public:
       "",
       "SIPX_PREFIX",
       false, // do not check mongo connection
+      false, // disable mongo logs
       false, // do not increase application file descriptor limits
       true, // block signals on main thread (and all other threads created by main)
             // and process them only on a dedicated thread
