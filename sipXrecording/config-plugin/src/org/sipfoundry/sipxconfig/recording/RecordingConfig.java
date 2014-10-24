@@ -16,11 +16,14 @@
  */
 package org.sipfoundry.sipxconfig.recording;
 
+import static org.sipfoundry.sipxconfig.recording.Recording.FEATURE;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
@@ -30,7 +33,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -40,17 +42,17 @@ public class RecordingConfig implements ConfigProvider {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Recording.FEATURE, Ivr.FEATURE)) {
+        if (!request.applies(FEATURE, Ivr.FEATURE)) {
             return;
         }
-        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(
-                ConferenceBridgeContext.FEATURE);
+
+        Set<Location> locations = request.locations(manager);
         if (locations.isEmpty()) {
             return;
         }
         List<Address> ivrAddresses = manager.getAddressManager().getAddresses(Ivr.REST_API);
         for (Location location : locations) {
-            boolean enabled = manager.getFeatureManager().isFeatureEnabled(Recording.FEATURE, location);
+            boolean enabled = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
             File dir = manager.getLocationDataDirectory(location);
             ConfigUtils.enableCfengineClass(dir, "sipxrecording.cfdat", enabled, "sipxrecording");
             if (!enabled) {
