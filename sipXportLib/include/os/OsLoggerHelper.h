@@ -72,6 +72,7 @@ namespace Os
       std::ostringstream path;
       path << alarmLog;
       _alarmLog.open(path.str().c_str());
+      _alarmLogRotate.start(&_alarmLog);
     }
 
     bool initialize(int priorityLevel, const char* path, const char* alarmLog = 0)
@@ -165,11 +166,14 @@ namespace Os
       //
       if (level >= PRI_CRIT)
       {
+        _alarmLogRotate.wakeup();
+        
         if (_alarmLog.is_open())
         {
           std::ostringstream log;
           log << headers.str() << "\"" << message << "\"" << std::endl;
           _alarmLog.write(log.str().c_str(), log.str().size());
+          _alarmLog.flush();
         }
         //
         // We dump emergency level to syslog as well
@@ -294,6 +298,7 @@ namespace Os
     
   protected:
     LogFileChannel _alarmLog;
+    LogRotateStrategy<LogFileChannel> _alarmLogRotate;
   };
 }
 
