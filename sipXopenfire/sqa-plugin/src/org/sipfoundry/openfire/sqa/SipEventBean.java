@@ -43,6 +43,7 @@ public class SipEventBean {
 		for (Dialog dialog : dialogs) {
 			State state = dialog.getState();
 			String direction = dialog.getDirection();
+			String id = dialog.getId();
 			DialogDirection dialogDirection = direction != null ? DialogDirection.getEnum(direction) : null;
 			if (m_direction == null && dialogDirection != null) {
 			    m_direction = dialogDirection;
@@ -50,7 +51,7 @@ public class SipEventBean {
 			DialogState dialogState = state != null ? DialogState.getEnum(state.getValue()) : null;
 			DialogStateEvent dialogEvent = state != null ? DialogStateEvent.getEnum(state.getEvent()) : null;
 
-			element = new DialogElement(dialogDirection, dialogState, dialogEvent);
+			element = new DialogElement(id, dialogDirection, dialogState, dialogEvent);
 
 			Participant participant = dialog.getRemote();
 			if (m_remoteId == null) {
@@ -98,6 +99,23 @@ public class SipEventBean {
             }
         }
         return false;
+	}
+
+	private String getDialogIdWithState(DialogState state) {
+        for (DialogElement element : m_dialogElements) {
+            if(element.getDialogState().equals(state)) {
+                return element.getId();
+            }
+        }
+        return null;
+	}
+
+	public String getConfirmedDialogId() {
+	    return getDialogIdWithState(DialogState.confirmed);
+	}
+
+	public String getTerminatedDialogId() {
+	    return getDialogIdWithState(DialogState.terminated);
 	}
 
 	public String getObserverId() {
@@ -149,14 +167,16 @@ public class SipEventBean {
     }
 
 	public static final class DialogElement {
+	    private String m_id;
 		private DialogDirection m_dialogDirection;
 		private DialogState m_dialogState;
 		private DialogStateEvent m_dialogStateEvent;
-		public DialogElement(DialogDirection dialogDirection,
+		public DialogElement(String id, DialogDirection dialogDirection,
 				DialogState dialogState, DialogStateEvent dialogStateEvent) {
 			m_dialogDirection = dialogDirection;
 			m_dialogState = dialogState;
 			m_dialogStateEvent = dialogStateEvent;
+			m_id = id;
 		}
 		public DialogDirection getDialogDirection() {
 			return m_dialogDirection;
@@ -166,6 +186,9 @@ public class SipEventBean {
 		}
 		public DialogStateEvent getDialogStateEvent() {
 			return m_dialogStateEvent;
+		}
+		public String getId() {
+		    return m_id;
 		}
 	}
 }

@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqaPlugin implements Plugin {
     Map<String, SipPresenceBean> m_presenceCache = new HashMap<String, SipPresenceBean>();
+    Map<String, List<String>> m_callMap = new HashMap<String, List<String>>();
 
     private static final String INITALIZATION_EXCEPTION = "SqaPlugin initialization exception";
     private static final Logger logger = LoggerFactory.getLogger(SqaPlugin.class);
@@ -73,7 +75,7 @@ public class SqaPlugin implements Plugin {
 
                     JAXBContext context = JAXBContext.newInstance(DialogInfo.class);
 
-                    new SqaSubscriberThread(watcher, context, m_presenceCache).start();
+                    new SqaSubscriberThread(watcher, context, m_presenceCache, m_callMap).start();
 
                     PresenceEventDispatcher.addListener(new PresenceEventListenerImpl(m_presenceCache));
 
@@ -104,11 +106,13 @@ public class SqaPlugin implements Plugin {
         SQAWatcher m_watcher;
         JAXBContext m_context;
         Map<String, SipPresenceBean> m_presenceCache = null;
+        Map<String, List<String>> m_callMap;
 
-        public SqaSubscriberThread(SQAWatcher watcher, JAXBContext context, Map<String, SipPresenceBean> presenceCache) {
+        public SqaSubscriberThread(SQAWatcher watcher, JAXBContext context, Map<String, SipPresenceBean> presenceCache, Map<String, List<String>> callMap) {
             m_watcher = watcher;
             m_context = context;
             m_presenceCache = presenceCache;
+            m_callMap = callMap;
         }
         @Override
         public void run() {
@@ -117,7 +121,7 @@ public class SqaPlugin implements Plugin {
             while (true) {
                 SQAEvent event = m_watcher.watch();
                 logger.debug("Execute event handler "+event.getId());
-                executor.execute(new SqaEventHandler(event, m_context, m_presenceCache));
+                executor.execute(new SqaEventHandler(event, m_context, m_presenceCache, m_callMap));
             }
         }
     }

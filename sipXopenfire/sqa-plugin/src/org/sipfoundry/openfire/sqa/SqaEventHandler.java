@@ -20,6 +20,8 @@ import static org.apache.commons.lang.StringUtils.substringBefore;
 import ietf.params.xml.ns.dialog_info.DialogInfo;
 
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
@@ -34,7 +36,6 @@ import org.sipfoundry.sqaclient.SQAEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmpp.packet.JID;
-import org.xmpp.packet.Message;
 import org.xmpp.packet.Presence;
 
 
@@ -45,11 +46,13 @@ public class SqaEventHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(SqaEventHandler.class);
     ValidUsers m_users = UnfortunateLackOfSpringSupportFactory.getValidUsers();
     Map<String, SipPresenceBean> m_presenceCache;
+    Map<String, List<String>> m_callMap;
 
-    public SqaEventHandler(SQAEvent event, JAXBContext context, Map<String, SipPresenceBean> presenceCache) {
+    public SqaEventHandler(SQAEvent event, JAXBContext context, Map<String, SipPresenceBean> presenceCache, Map<String, List<String>> callMap) {
         m_event = event;
         m_context = context;
         m_presenceCache = presenceCache;
+        m_callMap = callMap;
     }
 
     @Override
@@ -108,6 +111,8 @@ public class SqaEventHandler implements Runnable {
                 return;
             }
             if (confirmed) {
+                String confirmedDialogId = bean.getConfirmedDialogId();
+                logger.debug("Received confirmed state for dialogId: " + confirmedDialogId);
                 SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
                 //if cache is not cleared, than this is a new incomming call, do not broadcast on the call status again
                 if (previousPresenceBean == null) {
@@ -118,14 +123,19 @@ public class SqaEventHandler implements Runnable {
                         //save current presence and broadcast -on the phone- to roster
                         m_presenceCache.put(observerJID.getNode(), new SipPresenceBean(presence.getStatus(), observerPartyId));
                         presence.setStatus(presenceMessage);
+                        addDialogCall(confirmedDialogId);
+                        logger.debug("Broadcast 'On The Phone' presence for confirmed dialogId: " + confirmedDialogId);
                         ofObserverUser.getRoster().broadcastPresence(presence);
                     }
                 }
             } else if (terminated) {
+                String terminatedDialogId = bean.getTerminatedDialogId();
+                logger.debug("Received terminated state for dialogId: " + terminatedDialogId);
                 SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
-                if(previousPresenceBean != null) {
+                if(previousPresenceBean != null && removeDialogCall(terminatedDialogId)) {
                     //if on the phone and call terminated, broadcast previous presence, clear cache
                     presence.setStatus(previousPresenceBean.getStatusMessage());
+                    logger.debug("Broadcast REMOVE 'On The Phone' presence for terminated dialogId: " + terminatedDialogId);
                     ofObserverUser.getRoster().broadcastPresence(presence);
                     m_presenceCache.remove(observerJID.getNode());
                 }
@@ -135,6 +145,33 @@ public class SqaEventHandler implements Runnable {
         } finally {
             IOUtils.closeQuietly(reader);
         }
+    }
+
+    private void addDialogCall(String dialogId) {
+        List<String> queue = m_callMap.get(dialogId);
+        logger.debug("Add in queue for dialogId: " + dialogId + " queue: " +queue);
+        if (queue == null) {
+            queue = new ArrayList<String>();
+            m_callMap.put(dialogId, queue);
+        }
+        queue.add("confirmed");
+    }
+
+    // returns true if there is no confirmed state present in the queue
+    private boolean removeDialogCall(String dialogId) {
+        List<String> queue = m_callMap.get(dialogId);
+        logger.debug("Remove from queue for dialogId: " + dialogId + " queue: " + queue);
+        //pair is true if the terminated state has a previous confirmed state pair for the saim dialog id
+        boolean pair = false;
+        if (queue != null && !queue.isEmpty()) {
+            queue.remove(queue.size() - 1);
+            pair = true;
+        }
+        if (queue == null || queue.isEmpty()) {
+            m_callMap.remove(dialogId);
+            return pair;
+        }
+        return false;
     }
 }
 
