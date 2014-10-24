@@ -14,8 +14,6 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +29,8 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 @JsonPropertyOrder(alphabetic = true)
 public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployConfigOnEdit {
     /**
-     * When you want the default fail-over plan, i.e. want to call DnsManagerImpl.createFairlyTypicalDnsFailoverPlan()
+     * When you want the default fail-over plan, i.e. want to call
+     * DnsManagerImpl.createFairlyTypicalDnsFailoverPlan()
      */
     public static final Integer FALLBACK = 0;
     private String m_name;
@@ -78,48 +77,78 @@ public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployCo
     }
 
     Collection<DnsSrvRecord> getDnsSrvRecords(DnsView view, ResourceRecord rr, ResourceRecords rrs) {
-        DnsRecordNumerics prioAndPct = getRecordNumerics(view, rr.getRegionId(), rr.getAddress());
         List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
-        if (rrs.isInternal()) {
-            if (prioAndPct != null) {
-                DnsSrvRecord srv = DnsSrvRecord.domainLevel(rrs.getProto(), rrs.getResource(), rr.getPort(),
-                        rr.getAddress());
-                srv.setWeight(prioAndPct.getWeight());
-                srv.setPriority(prioAndPct.getPriority());
-                srv.setInternal(true);
-                srvs.add(srv);
-            }
-            for (ResourceRecord other : rrs.getRecords()) {
-                DnsSrvRecord rrSrv = DnsSrvRecord.hostLevel(rrs.getProto(), rrs.getResource(), rr.getAddress(),
-                        other.getPort(), other.getAddress());
-                rrSrv.setInternal(true);
-                if (other == rr) {
-                    // SRV records that points local services to other local services
-                    rrSrv.setPriority(DnsRecordNumerics.HIGHEST_PRIORITY);
-                    // weight is irrelevant when only 1 record to consider
-                    rrSrv.setWeight(DnsRecordNumerics.INCONSEQUENTIAL_PERCENTAGE);
-                    srvs.add(rrSrv);
-                } else {
-                    DnsRecordNumerics otherPrioAndPct = getRecordNumerics(view, other.getRegionId(),
-                            other.getAddress());
-                    if (otherPrioAndPct != null) {
-                        rrSrv.setPriority(otherPrioAndPct.getPriority());
-                        rrSrv.setWeight(otherPrioAndPct.getWeight());
-                        srvs.add(rrSrv);
-                    }
-                }
-            }
+        if (!rrs.isInternal()) {
+            addExternal(view, rr, rrs, srvs);
         } else {
-            if (prioAndPct != null) {
-                DnsSrvRecord record = DnsSrvRecord.domainLevel(rrs.getProto(), rrs.getResource(), rr.getPort(),
-                        rr.getAddress());
-                record.setWeight(prioAndPct.getWeight());
-                record.setPriority(prioAndPct.getPriority());
-                record.setInternal(false);
-                srvs.add(record);
-            }
+            addInternal(rr, rrs, srvs);
         }
         return srvs;
+    }
+
+    private void addExternal(DnsView view, ResourceRecord rr, ResourceRecords rrs, List<DnsSrvRecord> srvs) {
+        DnsRecordNumerics prioAndPct = getRecordNumerics(view, rr.getRegionId(), rr.getAddress());
+        if (prioAndPct != null) {
+            DnsSrvRecord srv = DnsSrvRecord.domainLevel(rrs.getProto(), rrs.getResource(), rr.getPort(),
+                    rr.getAddress());
+            srv.setWeight(prioAndPct.getWeight());
+            srv.setPriority(prioAndPct.getPriority());
+            srv.setInternal(false);
+            srvs.add(srv);
+        }
+        for (ResourceRecord other : rrs.getRecords()) {
+            DnsSrvRecord rrSrv = DnsSrvRecord.hostLevel(rrs.getProto(), rrs.getResource(), rr.getAddress(),
+                    other.getPort(), other.getAddress());
+            rrSrv.setInternal(false);
+            if (other == rr) {
+                setHighestPrioAndWeight(rrSrv, srvs);
+            } else {
+                setPrioAndWeight(view, other, rrSrv, srvs);
+            }
+        }
+    }
+
+    private void addInternal(ResourceRecord rr, ResourceRecords rrs, List<DnsSrvRecord> srvs) {
+        DnsSrvRecord record = DnsSrvRecord.domainLevel(rrs.getProto(), rrs.getResource(), rr.getPort(),
+                rr.getAddress());
+        record.setWeight(DnsRecordNumerics.INCONSEQUENTIAL_PERCENTAGE);
+        record.setPriority(DnsRecordNumerics.HIGHEST_PRIORITY);
+        record.setInternal(true);
+        srvs.add(record);
+        for (ResourceRecord other : rrs.getRecords()) {
+            DnsSrvRecord rrSrv = DnsSrvRecord.hostLevel(rrs.getProto(), rrs.getResource(), rr.getAddress(),
+                    other.getPort(), other.getAddress());
+            rrSrv.setInternal(true);
+            if (other == rr) {
+                setHighestPrioAndWeight(rrSrv, srvs);
+            } else {
+                // For internal records the numerics should be as in the default zone
+                // We create a view
+                // TODO: find out why the numerics are 20 100 but in default view 30 10
+                DnsView defaultViewMockup = new DnsView();
+                defaultViewMockup.setPlanId(FALLBACK);
+                defaultViewMockup.setName("default_");
+                defaultViewMockup.setRegionId(null);
+                setPrioAndWeight(defaultViewMockup, other, rrSrv, srvs);
+            }
+        }
+    }
+
+    private static void setHighestPrioAndWeight(DnsSrvRecord rrSrv, List<DnsSrvRecord> srvs) {
+        // SRV records that points local services to other local services
+        rrSrv.setPriority(DnsRecordNumerics.HIGHEST_PRIORITY);
+        // weight is irrelevant when only 1 record to consider
+        rrSrv.setWeight(DnsRecordNumerics.INCONSEQUENTIAL_PERCENTAGE);
+        srvs.add(rrSrv);
+    }
+
+    private void setPrioAndWeight(DnsView view, ResourceRecord other, DnsSrvRecord rrSrv, List<DnsSrvRecord> srvs) {
+        DnsRecordNumerics otherPrioAndPct = getRecordNumerics(view, other.getRegionId(), other.getAddress());
+        if (otherPrioAndPct != null) {
+            rrSrv.setPriority(otherPrioAndPct.getPriority());
+            rrSrv.setWeight(otherPrioAndPct.getWeight());
+            srvs.add(rrSrv);
+        }
     }
 
     @Override
@@ -128,4 +157,3 @@ public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployCo
         return Arrays.asList((Feature) DnsManager.FEATURE);
     }
 }
-
