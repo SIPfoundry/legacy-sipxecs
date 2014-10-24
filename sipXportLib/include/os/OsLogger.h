@@ -2,6 +2,7 @@
 #define	LOGGER_H
 
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <stdarg.h>
 #include <time.h>
 #include <stdlib.h>
@@ -815,9 +816,16 @@ namespace Os
 
       if (now >= _now + 5)
       {
-        _now = now;
-        _pChannel->close();
-        _pChannel->open(_pChannel->path());
+        //
+        // If channel is not open or is non-existent, reopen channel
+        //
+        struct stat fileStat;
+        if (stat(_pChannel->path().c_str(), &fileStat) == -1 || !_pChannel->is_open())
+        {
+          _now = now;
+          _pChannel->close();
+          _pChannel->open(_pChannel->path());
+        }
       }
     }
 
