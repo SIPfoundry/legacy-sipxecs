@@ -130,5 +130,5 @@ rm -rf $RPM_BUILD_ROOT
 %files config
 %dir %attr(0750,-,-) %{_sysconfdir}/sipxpbx/edge/.config
 %{_sysconfdir}/sipxpbx/edge/.config/*
-%attr(755,root,root) %{buildroot}/%{_bindir}/sipxedge-setup
+%attr(755,root,root) %{_bindir}/sipxedge-setup
 
