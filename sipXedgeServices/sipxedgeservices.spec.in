@@ -104,7 +104,8 @@ rm -rf %{buildroot}/usr/opt/sipxpbx/edge/include
 mkdir -p %{buildroot}/etc/sipxpbx/edge
 chmod 755 %{buildroot}/etc/sipxpbx/edge
 cp -rpP applications/config %{buildroot}/%{_sysconfdir}/sipxpbx/edge/.config
-
+cp -f %{buildroot}/%{_sysconfdir}/sipxpbx/edge/.config/sipxedge-setup %{buildroot}/%{_bindir}/
+chmod +x %{buildroot}/%{_bindir}/sipxedge-setup
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -129,5 +130,5 @@ rm -rf $RPM_BUILD_ROOT
 %files config
 %dir %attr(0750,-,-) %{_sysconfdir}/sipxpbx/edge/.config
 %{_sysconfdir}/sipxpbx/edge/.config/*
-
+%attr(755,root,root) %{buildroot}/%{_bindir}/sipxedge-setup
 

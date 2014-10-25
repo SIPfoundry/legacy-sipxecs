@@ -170,12 +170,6 @@ edge_setup()
         chmod +x /usr/bin/sipxyard_edged
 
         #
-        # Move the setup-script
-        #
-        mv ./sipxedge-setup /usr/bin
-        chmod +x /usr/bin/sipxedge-setup
-
-        #
         # Create monit softlink
         #
         mkdir -p  /opt/sipxecs/edge/monit/bin
