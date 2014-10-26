@@ -137,11 +137,6 @@ edge_setup()
         sed -i "s:%SIPXEDGE_YARD_PORT%:${SIPXEDGE_YARD_PORT}:g" ./sipxyard_edged
 
         #
-        # Configure sems
-        #
-        sed -i "s:%SIPXEDGE_HOST_IP%:${SIPXEDGE_HOST_IP}:g" /etc/sipxpbx/edge/sems/etc/sems/sems.conf
-
-        #
         # Set file permissions
         #
         chmod 0700 ./monitrc
