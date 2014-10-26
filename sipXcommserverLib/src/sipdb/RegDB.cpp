@@ -251,6 +251,46 @@ bool RegDB::isRegisteredBinding(const Url& curl, bool preferPrimary)
 	return isRegistered;
 }
 
+
+static void push_or_replace_binding(RegDB::Bindings& bindings, RegBinding& binding)
+{
+  //
+  // Check if the call-id or contact of this binding has been previously pushed
+  //
+  for (RegDB::Bindings::iterator iter = bindings.begin(); iter != bindings.end(); iter++)
+  {
+    if (iter->getCallId() == binding.getCallId() || iter->getContact() == binding.getContact())
+    {
+      //
+      // This is already inserted previously most probably by local shard.
+      // Check which one of them has the larger timestamp, and therefore
+      // the most up-to-date
+      //
+
+      if (binding.getTimestamp() > iter->getTimestamp())
+      {
+        //
+        // The new binding has a more recent timestamp value.  replace the old one
+        //
+        OS_LOG_INFO(FAC_SIP, "RegDB::findAndReplaceOlderBindings - replacing duplicate binding for " << binding.getUri());
+        *iter = binding;
+      }
+      else
+      {
+        //
+        // Simply ignore this binding.  It is older (or equal) than what was previously pushed
+        //
+        OS_LOG_INFO(FAC_SIP, "RegDB::findAndReplaceOlderBindings - dropping older binding for " << binding.getUri());
+      }
+      return;
+    }
+  }
+  //
+  // We haven't found any older duplicate
+  //
+  bindings.push_back(binding);
+}
+
 bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeNow, Bindings& bindings, bool preferPrimary) const
 {
 	static string gruuPrefix = GRUU_PREFIX;
@@ -299,35 +339,8 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
         << " Identity: " << identity
         << " Contact: " << binding.getContact()
         << " Expires: " << binding.getExpirationTime() - timeNow << " sec");
-        
-        //
-        // Check if the call-id or contact of this binding has been previously pushed
-        //
-        for (Bindings::iterator iter = bindings.begin(); iter != bindings.end(); iter++)
-        {
-          if (iter->getCallId() == binding.getCallId() || iter->getContact() == binding.getContact())
-          {
-            //
-            // This is already inserted previously most probably by local shard.
-            // Check which one of them has the larger timestamp, and therefore
-            // the most up-to-date
-            //
-            
-            if (binding.getTimestamp() > iter->getTimestamp())
-            {
-              //
-              // The new binding has a more recent timestamp value.  replace the old one
-              //
-              OS_LOG_INFO(FAC_SIP, "RegDB::getUnexpiredContactsUser - duplicate binding for binding " << binding.getUri());
-              *iter = binding;
-              continue;
-            }
-          }
-        }
-        //
-        // This seems to be a unique record.  Push it.
-        //
-        bindings.push_back(binding);
+ 
+        push_or_replace_binding(bindings, binding);
       }
       else
       {
@@ -382,34 +395,7 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsi
         continue;
       }
 			
-      //
-      // Check if the call-id or contact of this binding has been previously pushed
-      //
-      for (Bindings::iterator iter = bindings.begin(); iter != bindings.end(); iter++)
-      {
-        if (iter->getCallId() == binding.getCallId() || iter->getContact() == binding.getContact())
-        {
-          //
-          // This is already inserted previously most probably by local shard.
-          // Check which one of them has the larger timestamp, and therefore
-          // the most up-to-date
-          //
-
-          if (binding.getTimestamp() > iter->getTimestamp())
-          {
-            //
-            // The new binding has a more recent timestamp value.  replace the old one
-            //
-            OS_LOG_INFO(FAC_SIP, "RegDB::getUnexpiredContactsUserContaining - duplicate binding for binding " << binding.getUri());
-            *iter = binding;
-            continue;
-          }
-        }
-      }
-      //
-      // This seems to be a unique record.  Push it.
-      //
-      bindings.push_back(binding);
+      push_or_replace_binding(bindings, binding);
 		}
 		conn->done();
 		return bindings.size() > 0;
@@ -450,34 +436,7 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 		while (pCursor->more())
 		{
       RegBinding binding(pCursor->next());
-			//
-      // Check if the call-id or contact of this binding has been previously pushed
-      //
-      for (Bindings::iterator iter = bindings.begin(); iter != bindings.end(); iter++)
-      {
-        if (iter->getCallId() == binding.getCallId() || iter->getContact() == binding.getContact())
-        {
-          //
-          // This is already inserted previously most probably by local shard.
-          // Check which one of them has the larger timestamp, and therefore
-          // the most up-to-date
-          //
-
-          if (binding.getTimestamp() > iter->getTimestamp())
-          {
-            //
-            // The new binding has a more recent timestamp value.  replace the old one
-            //
-            OS_LOG_INFO(FAC_SIP, "RegDB::getUnexpiredContactsUserInstrument - duplicate binding for binding " << binding.getUri());
-            *iter = binding;
-            continue;
-          }
-        }
-      }
-      //
-      // This seems to be a unique record.  Push it.
-      //
-      bindings.push_back(binding);
+			push_or_replace_binding(bindings, binding);
 		}
 		conn->done();
 		return true;
@@ -516,34 +475,7 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, unsigned lo
 		while (pCursor->more()) 
     {
 			RegBinding binding(pCursor->next());
-			//
-      // Check if the call-id or contact of this binding has been previously pushed
-      //
-      for (Bindings::iterator iter = bindings.begin(); iter != bindings.end(); iter++)
-      {
-        if (iter->getCallId() == binding.getCallId() || iter->getContact() == binding.getContact())
-        {
-          //
-          // This is already inserted previously most probably by local shard.
-          // Check which one of them has the larger timestamp, and therefore
-          // the most up-to-date
-          //
-
-          if (binding.getTimestamp() > iter->getTimestamp())
-          {
-            //
-            // The new binding has a more recent timestamp value.  replace the old one
-            //
-            OS_LOG_INFO(FAC_SIP, "RegDB::getUnexpiredContactsInstrument - duplicate binding for binding " << binding.getUri());
-            *iter = binding;
-            continue;
-          }
-        }
-      }
-      //
-      // This seems to be a unique record.  Push it.
-      //
-      bindings.push_back(binding);
+			push_or_replace_binding(bindings, binding);
 		}
 		conn->done();
 		return true;
