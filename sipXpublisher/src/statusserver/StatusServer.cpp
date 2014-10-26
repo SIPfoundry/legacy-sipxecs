@@ -203,7 +203,7 @@ StatusServer::handleMessage( OsMsg& eventMessage )
   
   try
   {
-    syslog(FAC_SIP, PRI_DEBUG, "StatusServer::handleMessage() :: Start processing SIP message") ;
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "StatusServer::handleMessage() :: Start processing SIP message") ;
 
     if ( msgType == OsMsg::PHONE_APP && msgSubType == SipMessage::NET_SIP_MESSAGE )
     {
