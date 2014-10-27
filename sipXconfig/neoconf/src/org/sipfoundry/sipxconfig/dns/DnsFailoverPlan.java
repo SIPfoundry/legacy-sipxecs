@@ -14,6 +14,8 @@
  */
 package org.sipfoundry.sipxconfig.dns;
 
+
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,8 +31,7 @@ import org.sipfoundry.sipxconfig.feature.Feature;
 @JsonPropertyOrder(alphabetic = true)
 public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployConfigOnEdit {
     /**
-     * When you want the default fail-over plan, i.e. want to call
-     * DnsManagerImpl.createFairlyTypicalDnsFailoverPlan()
+     * When you want the default fail-over plan, i.e. want to call DnsManagerImpl.createFairlyTypicalDnsFailoverPlan()
      */
     public static final Integer FALLBACK = 0;
     private String m_name;
@@ -79,19 +80,19 @@ public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployCo
     Collection<DnsSrvRecord> getDnsSrvRecords(DnsView view, ResourceRecord rr, ResourceRecords rrs) {
         DnsRecordNumerics prioAndPct = getRecordNumerics(view, rr.getRegionId(), rr.getAddress());
         List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
-        if (!rrs.isInternal()) {
+        if (rrs.isInternal()) {
             if (prioAndPct != null) {
                 DnsSrvRecord srv = DnsSrvRecord.domainLevel(rrs.getProto(), rrs.getResource(), rr.getPort(),
                         rr.getAddress());
                 srv.setWeight(prioAndPct.getWeight());
                 srv.setPriority(prioAndPct.getPriority());
-                srv.setInternal(false);
+                srv.setInternal(true);
                 srvs.add(srv);
             }
             for (ResourceRecord other : rrs.getRecords()) {
                 DnsSrvRecord rrSrv = DnsSrvRecord.hostLevel(rrs.getProto(), rrs.getResource(), rr.getAddress(),
                         other.getPort(), other.getAddress());
-                rrSrv.setInternal(false);
+                rrSrv.setInternal(true);
                 if (other == rr) {
                     // SRV records that points local services to other local services
                     rrSrv.setPriority(DnsRecordNumerics.HIGHEST_PRIORITY);
@@ -107,15 +108,16 @@ public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployCo
                         srvs.add(rrSrv);
                     }
                 }
-
             }
         } else {
-            DnsSrvRecord record = DnsSrvRecord.domainLevel(rrs.getProto(), rrs.getResource(), rr.getPort(),
-                    rr.getAddress());
-            record.setWeight(DnsRecordNumerics.INCONSEQUENTIAL_PERCENTAGE);
-            record.setPriority(DnsRecordNumerics.HIGHEST_PRIORITY);
-            record.setInternal(true);
-            srvs.add(record);
+            if (prioAndPct != null) {
+                DnsSrvRecord record = DnsSrvRecord.domainLevel(rrs.getProto(), rrs.getResource(), rr.getPort(),
+                        rr.getAddress());
+                record.setWeight(prioAndPct.getWeight());
+                record.setPriority(prioAndPct.getPriority());
+                record.setInternal(false);
+                srvs.add(record);
+            }
         }
         return srvs;
     }
@@ -126,3 +128,4 @@ public class DnsFailoverPlan extends BeanWithId implements NamedObject, DeployCo
         return Arrays.asList((Feature) DnsManager.FEATURE);
     }
 }
+
