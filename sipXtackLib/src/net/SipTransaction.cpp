@@ -2813,104 +2813,125 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
             mpRequest->setTransaction(this);
 
-            // Set the transaction expires timeout(s) for the DNS parent (this transaction)
-
-            // We will set one timer (with TRANSACTION_EXPIRATION
-            // event) for the ordinary "transaction expiration" timer.
-            // If this is an INVITE, we will set another timer (with
-            // TRANSACTION_EXPIRATION_TIMER_C event) for the "Timer C"
-            // timer.  Since "Timer C" can be extended by receiving
-            // 101-199 responses, we need to handle its events separately.
-
-            bool isInvite = mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0;
-
-            // If request is INVITE, start Timer C.
-            if (isInvite)
+            if(mpDnsDestinations && mpDnsDestinations[0].isValidServerT())
             {
-               // Make copy of the request for the timer event.
-               SipMessageEvent* expiresEvent =
-                  new SipMessageEvent(new SipMessage(*mpRequest),
-                                      SipMessageEvent::TRANSACTION_EXPIRATION_TIMER_C);
-               OsMsgQ* incomingQ = userAgent.getMessageQueue();
-               OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
-               mTimers.append(expiresTimer);
+              // Set the transaction expires timeout(s) for the DNS parent (this transaction)
 
-               // Timer C is always userAgent.getDefaultExpiresSeconds().
-               int expireSeconds = userAgent.getDefaultExpiresSeconds();
-               OsTime expiresTime(expireSeconds, 0);
+              // We will set one timer (with TRANSACTION_EXPIRATION
+              // event) for the ordinary "transaction expiration" timer.
+              // If this is an INVITE, we will set another timer (with
+              // TRANSACTION_EXPIRATION_TIMER_C event) for the "Timer C"
+              // timer.  Since "Timer C" can be extended by receiving
+              // 101-199 responses, we need to handle its events separately.
 
-               // Get everything set up before starting the timer.
-               expiresTimer->oneshotAfter(expiresTime);
 
-#ifdef TEST_PRINT
-               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                             "SipTransaction::recurseDnsSrvChildren "
-                             "added Timer C timer %p to timer list, expire time = %d secs",
-                             expiresTimer, expireSeconds);
-#endif
+              bool isInvite = mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0;
 
-               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, 
-                             "SipTransaction::recurseDnsSrvChildren"
-                             "Timer C transaction %p setting timeout %d secs.",
-                             this, expireSeconds
-               );
+              // If request is INVITE, start Timer C.
+              if (isInvite)
+              {
+                 // Make copy of the request for the timer event.
+                 SipMessageEvent* expiresEvent =
+                    new SipMessageEvent(new SipMessage(*mpRequest),
+                                        SipMessageEvent::TRANSACTION_EXPIRATION_TIMER_C);
+                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
+                 OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
+                 mTimers.append(expiresTimer);
+
+                 // Timer C is always userAgent.getDefaultExpiresSeconds().
+                 int expireSeconds = userAgent.getDefaultExpiresSeconds();
+                 OsTime expiresTime(expireSeconds, 0);
+
+                 // Get everything set up before starting the timer.
+                 expiresTimer->oneshotAfter(expiresTime);
+
+  #ifdef TEST_PRINT
+                 Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                               "SipTransaction::recurseDnsSrvChildren "
+                               "added Timer C timer %p to timer list, expire time = %d secs",
+                               expiresTimer, expireSeconds);
+  #endif
+
+                 Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, 
+                               "SipTransaction::recurseDnsSrvChildren"
+                               "Timer C transaction %p setting timeout %d secs.",
+                               this, expireSeconds
+                 );
+              }
+
+              // All requests may have a expiration timer.
+
+              // Basic expiration time is provided by the Expires header, if any.
+              // Note that "Expires: 0" is legitimate and causes the transaction
+              // to time out immediately.
+              int expireSeconds = mExpires;
+              // If no Expires, and this is a serial child, use
+              // userAgent.getDefaultSerialExpiresSeconds().
+              if (   expireSeconds < 0
+                  && mpParentTransaction
+                  && mpParentTransaction->isChildSerial())
+              {
+                 expireSeconds = userAgent.getDefaultSerialExpiresSeconds();
+              }
+              // If not an INVITE transaction (and so does not have Timer C),
+              // limit the expiration to userAgent.getSipStateTransactionTimeout()/1000.
+              if (!isInvite)
+              {
+                 int maxExpires = userAgent.getSipStateTransactionTimeout()/1000;
+                 if (expireSeconds < 0 || expireSeconds > maxExpires)
+                 {
+                    expireSeconds = maxExpires;
+                 }
+              }
+
+              // If this results in an expiration time to be enforced, start
+              // a timer.
+              if (expireSeconds >= 0)
+              {
+                 // Make copy of the request for the timer event.
+                 SipMessageEvent* expiresEvent =
+                    new SipMessageEvent(new SipMessage(*mpRequest),
+                                        SipMessageEvent::TRANSACTION_EXPIRATION);
+                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
+                 OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
+                 mTimers.append(expiresTimer);
+                 OsTime expiresTime(expireSeconds, 0);
+
+                 // Get everything set up before starting the timer.
+                 expiresTimer->oneshotAfter(expiresTime);
+
+  #ifdef TEST_PRINT
+                 Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                               "SipTransaction::recurseDnsSrvChildren "
+                               "added Expire timer %p to timer list, expire time = %d secs",
+                               expiresTimer, expireSeconds);
+  #endif
+
+                 Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, 
+                               "SipTransaction::recurseDnsSrvChildren"
+                               "Expire transaction %p setting timeout %d secs.",
+                               this, expireSeconds
+                 );
+              }
             }
-
-            // All requests may have a expiration timer.
-
-            // Basic expiration time is provided by the Expires header, if any.
-            // Note that "Expires: 0" is legitimate and causes the transaction
-            // to time out immediately.
-            int expireSeconds = mExpires;
-            // If no Expires, and this is a serial child, use
-            // userAgent.getDefaultSerialExpiresSeconds().
-            if (   expireSeconds < 0
-                && mpParentTransaction
-                && mpParentTransaction->isChildSerial())
+            else
             {
-               expireSeconds = userAgent.getDefaultSerialExpiresSeconds();
+              //
+              // We did not get any DNS records.  Expire this transaction immediately
+              //
+              // Make copy of the request for the timer event.
+              SipMessageEvent* expiresEvent =
+                 new SipMessageEvent(new SipMessage(*mpRequest),
+                                     SipMessageEvent::TRANSACTION_EXPIRATION);
+              OsMsgQ* incomingQ = userAgent.getMessageQueue();
+              OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
+              mTimers.append(expiresTimer);
+              OsTime expiresTime(10); // will fire after 10 ms
+
+              // Get everything set up before starting the timer.
+              expiresTimer->oneshotAfter(expiresTime);
             }
-            // If not an INVITE transaction (and so does not have Timer C),
-            // limit the expiration to userAgent.getSipStateTransactionTimeout()/1000.
-            if (!isInvite)
-            {
-               int maxExpires = userAgent.getSipStateTransactionTimeout()/1000;
-               if (expireSeconds < 0 || expireSeconds > maxExpires)
-               {
-                  expireSeconds = maxExpires;
-               }
-            }
-
-            // If this results in an expiration time to be enforced, start
-            // a timer.
-            if (expireSeconds >= 0)
-            {
-               // Make copy of the request for the timer event.
-               SipMessageEvent* expiresEvent =
-                  new SipMessageEvent(new SipMessage(*mpRequest),
-                                      SipMessageEvent::TRANSACTION_EXPIRATION);
-               OsMsgQ* incomingQ = userAgent.getMessageQueue();
-               OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
-               mTimers.append(expiresTimer);
-               OsTime expiresTime(expireSeconds, 0);
-
-               // Get everything set up before starting the timer.
-               expiresTimer->oneshotAfter(expiresTime);
-
-#ifdef TEST_PRINT
-               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                             "SipTransaction::recurseDnsSrvChildren "
-                             "added Expire timer %p to timer list, expire time = %d secs",
-                             expiresTimer, expireSeconds);
-#endif
-
-               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, 
-                             "SipTransaction::recurseDnsSrvChildren"
-                             "Expire transaction %p setting timeout %d secs.",
-                             this, expireSeconds
-               );
-            }
-
+            
             if(mpDnsDestinations && mpDnsDestinations[0].isValidServerT())   // leave redundant check at least for now
             {
                 int numSrvRecords = 0;
