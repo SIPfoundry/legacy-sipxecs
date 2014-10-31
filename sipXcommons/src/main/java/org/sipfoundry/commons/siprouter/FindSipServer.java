@@ -75,7 +75,8 @@ public class FindSipServer {
 			InetAddress addr = Address.getByName(name);
 			return addr;
 		} catch (UnknownHostException e) {
-		    alarm_logger.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer: getByName Cannot resolve A record for "
+		    //we need to log the process name that propagated DNS LOOKUP alarm. We retrieve it from the generic logger passed
+		    alarm_logger.error(LOG.getName() + "_" + String.format(ALARM_DNS_LOOKUP, "FindSipServer: getByName Cannot resolve A record for "
 					+ name));
 			return null;
 		}
@@ -94,7 +95,7 @@ public class FindSipServer {
 			records = new Lookup(name, Type.NAPTR).run();
 		} catch (TextParseException e) {
 		    alarm_logger
-					.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer: getNaptrRecords Error parsing NAPTR record for "
+					.error(LOG.getName() + "_" + String.format(ALARM_DNS_LOOKUP, "FindSipServer: getNaptrRecords Error parsing NAPTR record for "
 							+ name));
 			return null;
 		}
@@ -114,7 +115,7 @@ public class FindSipServer {
 			records = new Lookup(name, Type.SRV).run();
 		} catch (TextParseException e) {
 		    alarm_logger
-					.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer: getSrvRecords Error parsing SRV record for "
+					.error(LOG.getName() + "_" + String.format(ALARM_DNS_LOOKUP, "FindSipServer: getSrvRecords Error parsing SRV record for "
 							+ name));
 			return null;
 		}
