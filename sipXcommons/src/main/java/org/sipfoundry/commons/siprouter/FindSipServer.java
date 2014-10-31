@@ -54,9 +54,13 @@ public class FindSipServer {
 	}
 
 	Logger LOG;
+	private Logger alarm_logger;
 
 	public FindSipServer(Logger log) {
 		LOG = log;
+		alarm_logger = Logger.getLogger("alarms");
+		//if a sip component does not have an alarm logger defined, still log alarms in the component main logger
+		alarm_logger = alarm_logger != null ? alarm_logger : LOG;
 	}
 
 	/**
@@ -71,7 +75,7 @@ public class FindSipServer {
 			InetAddress addr = Address.getByName(name);
 			return addr;
 		} catch (UnknownHostException e) {
-			LOG.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer: getByName Cannot resolve A record for "
+		    alarm_logger.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer: getByName Cannot resolve A record for "
 					+ name));
 			return null;
 		}
@@ -89,7 +93,7 @@ public class FindSipServer {
 		try {
 			records = new Lookup(name, Type.NAPTR).run();
 		} catch (TextParseException e) {
-			LOG
+		    alarm_logger
 					.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer: getNaptrRecords Error parsing NAPTR record for "
 							+ name));
 			return null;
@@ -109,7 +113,7 @@ public class FindSipServer {
 		try {
 			records = new Lookup(name, Type.SRV).run();
 		} catch (TextParseException e) {
-			LOG
+		    alarm_logger
 					.error(String.format(ALARM_DNS_LOOKUP, "FindSipServer: getSrvRecords Error parsing SRV record for "
 							+ name));
 			return null;
