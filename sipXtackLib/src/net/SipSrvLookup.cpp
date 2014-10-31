@@ -869,7 +869,7 @@ void SipSrvLookup::raiseDnsQueryAlarm(const char* domain,
 
   if (mDomainName.isNull())
   {
-    Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+    Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                   "ALARM_DNS_DOMAIN_NAME_NOT_SET "
                   "SipSrvLookup::raiseDnsQueryAlarm domain name was not set");
     return;
@@ -891,7 +891,7 @@ void SipSrvLookup::raiseDnsQueryAlarm(const char* domain,
     return;
   }
 
-  Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+  Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
                 "ALARM_DNS_LOOKUP_FAILED "
                 "DNS lookup failed for '%s'. No valid '%s' records found",
                 domain,
