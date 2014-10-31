@@ -72,6 +72,12 @@ bundle edit_line sipxpage_log4j_properties_contents {
       "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxpage.log";
       "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
       "log4j.appender.file.layout.facility=sipXpage";
+      "# ALARMS log";
+      "log4j.logger.alarms=info,alarms";
+	  "log4j.additivity.alarms=false";
+	  "log4j.appender.alarms=org.sipfoundry.commons.log4j.SipFoundryAppender";
+	  "log4j.appender.alarms.File=$(sipx.SIPX_LOGDIR)/sipxpage-alarms.log";
+	  "log4j.appender.alarms.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";      
   delete_lines:
     any::
       ".*";

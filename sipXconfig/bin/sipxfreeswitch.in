@@ -98,6 +98,7 @@ do_start() {
     RETVAL=$?
     [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
     [ $RETVAL -eq 0 ] && { echo_success; echo; }
+    renice -n 0 -p $(pidof $NAME)
   else
     [ $RETVAL -eq 0 ] && { echo_success; echo; }
     [ $RETVAL -eq 0 ] || { echo_failure; echo; }
