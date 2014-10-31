@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(sipXyealink, 14.10, info@siplabs.ru)
+AC_INIT(sipXyealink, 15.04, info@siplabs.ru)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])

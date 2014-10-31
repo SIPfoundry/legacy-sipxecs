@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(sipXcallLib, 14.10, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXcallLib, 15.04, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
