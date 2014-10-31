@@ -254,7 +254,7 @@ public class DefaultContextConfigurationTest {
         orbit1.setExtension("6789");
         orbit1.setName("Disabled");
         orbits.add(orbit1);
-        MockParkOrbit orbit2 = new MockParkOrbit(false, 120, true, true, "0");
+        MockParkOrbit orbit2 = new MockParkOrbit(true, 120, true, true, "0");
         orbit2.setEnabled(true);
         orbit2.setExtension("1111");
         orbit2.setName("Transfer");
@@ -297,7 +297,10 @@ public class DefaultContextConfigurationTest {
 
         @Override
         public int getParkTimeout() {
-            return m_timeout;
+            if (m_timeoutEnabled) {
+                return m_timeout;
+            }
+            return 86400;
         }
 
         @Override

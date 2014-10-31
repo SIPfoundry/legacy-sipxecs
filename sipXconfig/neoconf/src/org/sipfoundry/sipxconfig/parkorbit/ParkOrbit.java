@@ -89,7 +89,11 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject, DeployCon
     }
 
     public int getParkTimeout() {
-        return (Integer) getSettingTypedValue("general/parkTimeout");
+        if (isParkTimeoutEnabled()) {
+            return (Integer) getSettingTypedValue("general/parkTimeout");
+        }
+        // if timeout not enabled set timeout to one day for parked call
+        return 86400;
     }
 
     public boolean isMultipleCalls() {
