@@ -45,8 +45,7 @@
     <condition field="${slot_count}" expression="^\:0$|no" break="always">
 #end
       <action application="set" data="fifo_music=${orbit.audioDirectory}${orbit.music}"/>
-#if(${orbit.isParkTimeoutEnabled()})      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}:${orbit.parkTimeout}"/>
-#end
+      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}:${orbit.parkTimeout}"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
 #if(${orbit.isTransferAllowed()})
       <action application="set" data="fifo_caller_exit_key=${orbit.transferKey}"/>
