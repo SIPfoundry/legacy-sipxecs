@@ -44,6 +44,11 @@
 
     </methodMatch>
 
+    <methodMatch>
+      <methodPattern>INVITE</methodPattern>
+      <routeTo>&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+    </methodMatch>
+
     <!-- All other requests go to the SIP registry service -->
     <routeTo ruriParams="sipx-noroute=Voicemail">&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
   </route>
