@@ -218,9 +218,9 @@ public class OpenfireImpl implements ImManager, FeatureProvider, AddressProvider
         String serverProto = "_xmpp-server._tcp";
         String clientProto = "_xmpp-client._tcp";
         ResourceRecords[] records = new ResourceRecords[] {
-            new ResourceRecords(serverProto, root, false),
+            new ResourceRecords(serverProto, root, true),
             new ResourceRecords(clientProto, root, false),
-            new ResourceRecords(serverProto, conference, false),
+            new ResourceRecords(serverProto, conference, true),
             new ResourceRecords(clientProto, conference, false)
         };
         OpenfireSettings settings = getSettings();
