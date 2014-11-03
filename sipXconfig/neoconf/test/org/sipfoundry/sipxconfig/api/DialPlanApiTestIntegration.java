@@ -203,7 +203,7 @@ public class DialPlanApiTestIntegration extends RestApiIntegrationTestCase {
         //query rules
         List<DialingRule> rules = m_dialPlanContext.getRules();
         String rulesXml = getAsXml(String.format("rules"));
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS+03:00");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         assertEquals(
             String.format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
                 + "<Rules>"
