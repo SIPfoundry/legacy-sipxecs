@@ -28,7 +28,7 @@ public class ParkOrbitTest extends TestCase {
         orbit.setModelFilesContext(TestHelper.getModelFilesContext());
 
         assertFalse(orbit.isParkTimeoutEnabled());
-        assertEquals(120, orbit.getParkTimeout());
+        assertEquals(86400, orbit.getParkTimeout());
 
         assertFalse(orbit.isMultipleCalls());
 
