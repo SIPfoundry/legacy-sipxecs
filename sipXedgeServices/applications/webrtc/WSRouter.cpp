@@ -302,9 +302,10 @@ bool WSRouter::initialize()
   // Set the log level early
   //
   int logLevel = 0;
-  mergeOption("log-level", logLevel, PRI_NOTICE);
+  mergeOption("log-level", logLevel, 5 /*PRI_NOTICE*/);
+  logLevel = SYSLOG_NUM_PRIORITIES - logLevel - 1;
   Os::Logger::instance().setLogPriority(logLevel);
-  
+
   OS_LOG_INFO(FAC_SIP, "WSRouter::initialize INVOKED")
   assert(mergeOption("ip-address", _address));
   assert(mergeOption("ws-port", _wsPort));
