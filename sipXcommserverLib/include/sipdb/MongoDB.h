@@ -78,43 +78,21 @@ public:
 class ConnectionInfo
 {
 public:
-	ConnectionInfo(const ConnectionInfo& rhs) :
-                 _connectionString(rhs._connectionString),
-                 _shard(rhs._shard),
-                 _useReadTags(rhs._useReadTags),
-                 _clusterId(rhs._clusterId),
-                 _readQueryTimeoutMs(rhs._readQueryTimeoutMs),
-                 _writeQueryTimeoutMs(rhs._writeQueryTimeoutMs)
-	{
-	}
-	;
-
-	ConnectionInfo(const mongo::ConnectionString& connectionString) :
-                 _connectionString(connectionString),
-                 _shard(0),
-                 _useReadTags(false),
-                 _readQueryTimeoutMs(0),
-                 _writeQueryTimeoutMs(0)
-	{
-	}
-	;
-
-	ConnectionInfo(const mongo::ConnectionString& connectionString, const int shard) :
-		             _connectionString(connectionString),
-		             _shard(shard),
-		             _useReadTags(false),
-                 _readQueryTimeoutMs(0),
-                 _writeQueryTimeoutMs(0)
-	{
-	}
-	;
+  ConnectionInfo();
+  
+	ConnectionInfo(const ConnectionInfo& rhs);
+  
+  ConnectionInfo(const mongo::ConnectionString& connectionString);
 
 	ConnectionInfo(std::ifstream& configFile);
 
-	virtual ~ConnectionInfo()
+	~ConnectionInfo()
 	{
 	}
-	;
+	
+  ConnectionInfo& operator=(const ConnectionInfo& conn);
+  
+
 
 	/**
 	 * Read just the connection string from a file.
@@ -132,8 +110,8 @@ public:
 	 * sipxecs/localhost:27017,localhost:27018
 	 * ======================
 	 */
-	static const ConnectionInfo globalInfo();
-	static const ConnectionInfo localInfo();
+	static ConnectionInfo globalInfo();
+	static ConnectionInfo localInfo();
 
 	static bool	testConnection(const mongo::ConnectionString &connectionString, std::string& errmsg);
 
@@ -196,21 +174,13 @@ public:
 
 private:
 
- ConnectionInfo() :
-     _connectionString(),
-     _shard(0),
-     _useReadTags(false),
-     _readQueryTimeoutMs(0),
-     _writeQueryTimeoutMs(0)
-  {
-	}
-
   mongo::ConnectionString _connectionString;
   int _shard;
   bool _useReadTags; 
   std::string _clusterId;
   unsigned int _readQueryTimeoutMs;
   unsigned int _writeQueryTimeoutMs;
+  std::string _rawConnectionString;
 };
 
 class UpdateTimer;

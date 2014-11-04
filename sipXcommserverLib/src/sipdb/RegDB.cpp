@@ -252,7 +252,7 @@ bool RegDB::isRegisteredBinding(const Url& curl, bool preferPrimary)
 }
 
 
-static void push_or_replace_binding(RegDB::Bindings& bindings, RegBinding& binding)
+static void push_or_replace_binding(RegDB::Bindings& bindings, const RegBinding& binding)
 {
   //
   // Check if the call-id or contact of this binding has been previously pushed
