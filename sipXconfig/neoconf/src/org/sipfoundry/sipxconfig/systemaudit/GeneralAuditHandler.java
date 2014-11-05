@@ -305,7 +305,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
         if (iterator.hasNext()) {
             Object element = iterator.next();
             String elementName = getObjectName(element);
-            if (!elementName.isEmpty()) {
+            if (elementName != null && !elementName.isEmpty()) {
                 stringBuilder.append(getObjectName(element)).append(PROPERTY_DELIMITATOR);
             }
             String[] roleArray = collection.getRole().split("\\.");
