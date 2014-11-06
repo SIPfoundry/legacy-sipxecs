@@ -96,9 +96,19 @@ public class AbstractCertificateCommon {
         m_dnsDomain = dnsDomain;
     }
 
+    private String escapeComma(String value) {
+        return value.replace(",", "\\,");
+    }
+
     public String getSubject() {
-        return format("C=%s, ST=%s, L=%s, O=%s, OU=%s, CN=%s, EMAILADDRESS=%s", m_country, m_state, m_locality,
-                m_dnsDomain, m_organizationUnit, m_commonName, m_email);
+        return format("C=%s, ST=%s, L=%s, O=%s, OU=%s, CN=%s, EMAILADDRESS=%s",
+            escapeComma(m_country),
+            escapeComma(m_state),
+            escapeComma(m_locality),
+            escapeComma(m_dnsDomain),
+            escapeComma(m_organizationUnit),
+            escapeComma(m_commonName),
+            escapeComma(m_email));
     }
 
     public String getAlgorithm() {
