@@ -26,7 +26,6 @@ import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -132,6 +131,13 @@ public class JobFactory extends AbstractJobFactory {
         }
 
         List<String> groupNames = getGroupNames(dbObj);
+        if (groupNames == null) {
+            List<String> names = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroupnamesForUser(userImName);
+            logger.debug("loadded group names from mongo: " + names);
+            if (names != null && !names.isEmpty()) {
+                groupNames = names;
+            }
+        }
         if (!StringUtils.isBlank(userImName)) {
             switch (op) {
             case INSERT:
