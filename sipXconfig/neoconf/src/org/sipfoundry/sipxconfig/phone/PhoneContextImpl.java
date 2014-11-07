@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.DetachedCriteria;
@@ -37,10 +38,11 @@ import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.intercom.Intercom;
 import org.sipfoundry.sipxconfig.intercom.IntercomManager;
@@ -67,6 +69,9 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  */
 public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, PhoneContext,
         ApplicationListener, AlarmProvider, DaoEventListener {
+    private static final String SERIAL_NUMBER = "serial_number";
+    private static final String MODEL_ID = "model_id";
+    private static final String PHONE_ID = "phone_id";
     private static final Log LOG = LogFactory.getLog(PhoneContextImpl.class);
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
     private static final String QUERY_PHONE_BY_SERIAL_NUMBER = "phoneWithSerialNumber";
@@ -77,7 +82,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private static final String USER_ID = "userId";
     private static final String VALUE = "value";
     private static final String SQL_SELECT_GROUP = "select p.phone_id,p.serial_number "
-            + "from phone p join phone_group pg on pg.phone_id = p.phone_id " + "where pg.group_id=%d";
+            + "from phone p join phone_group pg on pg.phone_id = p.phone_id where pg.group_id=%d";
+    private static final String SQL_SELECT_GROUP_RESTRICT_BY_BEAN_ID = "select p.phone_id,p.model_id,p.serial_number "
+            + "from phone p join phone_group pg on pg.phone_id = p.phone_id "
+            + "where p.bean_id = '%s' and pg.group_id=%d and p.device_version_id != '%s'";
+    private static final String SQL_UPDATE = "update phone set device_version_id='%s' where phone_id=%d";
     private CoreContext m_coreContext;
 
     private SettingDao m_settingDao;
@@ -360,7 +369,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
             @Override
             public void processRow(ResultSet rs) throws SQLException {
-                LOG.error(String.format(ALARM_PHONE_CHANGED, rs.getInt("phone_id"), rs.getString("serial_number")));
+                LOG.error(String.format(ALARM_PHONE_CHANGED, rs.getInt(PHONE_ID), rs.getString(SERIAL_NUMBER)));
             }
         });
     }
@@ -375,6 +384,42 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
             if (g.getResource().equals(Phone.GROUP_RESOURCE_ID)) {
                 raiseGroupAlarm(g.getId());
             }
+        }
+    }
+
+    @Override
+    public void applyGroupFirmwareVersion(Group group, DeviceVersion v) {
+        LOG.debug(String.format("Attempting to apply firmware version %s to group %s... ", v.getVersionId(),
+                group.getName()));
+        String versionId = v.toString();
+        final List<Integer> ids = new LinkedList<Integer>();
+        final List<String> models = new LinkedList<String>();
+        final List<String> serials = new LinkedList<String>();
+        m_jdbcTemplate.query(
+                String.format(SQL_SELECT_GROUP_RESTRICT_BY_BEAN_ID, v.getVendorId(), group.getId(), versionId),
+                new RowCallbackHandler() {
+
+                    @Override
+                    public void processRow(ResultSet rs) throws SQLException {
+                        ids.add(rs.getInt(PHONE_ID));
+                        models.add(rs.getString(MODEL_ID));
+                        serials.add(rs.getString(SERIAL_NUMBER));
+                    }
+                });
+        List<String> updates = new ArrayList<String>();
+        for (int i = 0; i < ids.size(); i++) {
+            PhoneModel model = m_beanFactory.getBean(models.get(i), PhoneModel.class);
+            int id = ids.get(i);
+            String serial = serials.get(i);
+            if (ArrayUtils.contains(model.getVersions(), v)) {
+                LOG.info("Updating " + serial + " to " + versionId);
+                updates.add(String.format(SQL_UPDATE, versionId, id));
+            } else {
+                LOG.debug("Skipping " + serial + " as it doesn't support " + versionId);
+            }
+        }
+        if (updates.size() > 0) {
+            m_jdbcTemplate.batchUpdate(updates.toArray(new String[] {}));
         }
     }
 
@@ -464,6 +509,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_jdbcTemplate.query("SELECT u.user_id from users u inner join user_group g "
                 + "on u.user_id = g.user_id WHERE group_id=" + groupId + " AND u.user_type='C' "
                 + "ORDER BY u.user_id;", new RowCallbackHandler() {
+                    //keep this indentation, otherwise checkstyle will fail
                     @Override
                     public void processRow(ResultSet rs) throws SQLException {
                         userIds.add(rs.getInt("user_id"));

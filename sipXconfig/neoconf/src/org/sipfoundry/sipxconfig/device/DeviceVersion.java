@@ -49,6 +49,7 @@ public final class DeviceVersion extends Enum implements FeatureProvider {
         m_supportedFeatures.add(feature);
     }
 
+    @Override
     public boolean isSupported(String feature) {
         return m_supportedFeatures.contains(feature);
     }
@@ -66,5 +67,10 @@ public final class DeviceVersion extends Enum implements FeatureProvider {
     public static DeviceVersion getDeviceVersion(String name) {
         DeviceVersion version = (DeviceVersion) Enum.getEnum(DeviceVersion.class, name);
         return version;
+    }
+
+    @Override
+    public String toString() {
+        return m_vendorId + m_versionId;
     }
 }

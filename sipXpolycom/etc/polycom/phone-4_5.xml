@@ -5131,7 +5131,7 @@
         </setting>        
       </group>
     </group>
-    <group name="group.version">
+    <group name="group.version" hidden="true">
       <setting name="firmware.version">
         <type refid="fwver"/>
         <value></value>

@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.intercom.Intercom;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -145,4 +146,6 @@ public interface PhoneContext extends DataObjectSource {
 
     Phone getPhoneBySerialNumber(String serialNumber);
     List<Phone> loadPhonesByPage(int firstRow, int pageSize);
+
+    void applyGroupFirmwareVersion(Group group, DeviceVersion v);
 }
