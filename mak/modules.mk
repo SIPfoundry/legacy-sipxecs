@@ -95,8 +95,8 @@ sipx_lang = \
 
 sipx_all = \
   $(sipx_core) \
-  $(sipx_config) \
   $(sipx_extra) \
+  $(sipx_config) \
   $(sipx_lang)
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i
