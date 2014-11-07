@@ -33,7 +33,6 @@ sipx_core = \
   sipXrls \
   sipXsaa \
   sipXyard \
-  sipXedgeServices \
   sipXrelease \
   sipXecs
 
