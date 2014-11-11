@@ -82,9 +82,13 @@ public class VcardUpdateJob implements Job {
         String aor = username + "@" + info.getXMPPDomain();
         String itemId = getItemId(avatarStr.getBytes());
         Presence presenceAvatar = createPresenceAvatar(aor, itemId);
-        PresenceUpdateHandler puh = server.getPresenceUpdateHandler();
-        logger.debug("processing " + presenceAvatar.toXML());
-        puh.process(presenceAvatar);
+        if (presenceAvatar != null) {
+            PresenceUpdateHandler puh = server.getPresenceUpdateHandler();
+            logger.debug("processing " + presenceAvatar.toXML());
+            puh.process(presenceAvatar);
+        } else {
+            logger.debug("no presence avatar to process, was null");
+        }
     }
 
     private static String getItemId(byte[] avatarBytes) throws Exception {
@@ -127,6 +131,9 @@ public class VcardUpdateJob implements Job {
 
         PresenceManager pm = XMPPServer.getInstance().getPresenceManager();
         Presence mypresence = pm.getPresence(me);
+        if (mypresence == null) {
+            return null;
+        }
 
         avatar.setType(mypresence.getType());
         avatar.setShow(mypresence.getShow());
