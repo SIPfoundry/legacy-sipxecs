@@ -46,13 +46,16 @@ public class YardManagerImpl implements YardManager, FirewallProvider, AddressPr
             locationsAddresses.add(l.getAddress());
             locationsAddresses.add(l.getFqdn());
         }
+        AddressType wsAddressType = null;
+        AddressType httpAddressType = null;
         for (YardGateway yard : yardGws) {
             if (locationsAddresses.contains(yard.getAddress())) {
-                rules.add(new DefaultFirewallRule(new AddressType("yardWsPort." + yard.getName(), yard.getWsPort()),
-                        FirewallRule.SystemId.PUBLIC));
-                rules.add(new DefaultFirewallRule(
-                        new AddressType("yardHttpPort." + yard.getName(), yard.getAddressPort()),
-                        FirewallRule.SystemId.PUBLIC));
+                wsAddressType = new AddressType("yardWsPort", yard.getWsPort());
+                wsAddressType.setLabel(yard.getName());
+                httpAddressType = new AddressType("yardHttpPort", yard.getAddressPort());
+                httpAddressType.setLabel(yard.getName());
+                rules.add(new DefaultFirewallRule(wsAddressType, FirewallRule.SystemId.PUBLIC));
+                rules.add(new DefaultFirewallRule(httpAddressType, FirewallRule.SystemId.PUBLIC));
             }
         }
         rules.add(new DefaultFirewallRule(WS_SIP_ADDRESS, FirewallRule.SystemId.PUBLIC));
@@ -61,6 +64,7 @@ public class YardManagerImpl implements YardManager, FirewallProvider, AddressPr
         rules.add(new DefaultFirewallRule(TCP_UDP_ADDRESS, FirewallRule.SystemId.PUBLIC));
         rules.add(new DefaultFirewallRule(BRIDGE_TCP_UDP_PORT, FirewallRule.SystemId.PUBLIC));
         rules.add(new DefaultFirewallRule(FS_RTP_RTCP_ADDRESS, FirewallRule.SystemId.PUBLIC));
+        rules.add(new DefaultFirewallRule(MONIT_ADDRESS, FirewallRule.SystemId.PUBLIC));
 
         return rules;
     }
@@ -73,7 +77,7 @@ public class YardManagerImpl implements YardManager, FirewallProvider, AddressPr
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         Collection<Address> addresses = new ArrayList<Address>();
         if (!type.equalsAnyOf(FS_RTP_RTCP_ADDRESS, WS_SIP_ADDRESS, BRIDGE_ESL_ADDRESS, SWITCH_ESL_ADDRESS,
-                TCP_UDP_ADDRESS, BRIDGE_TCP_UDP_PORT, FS_RTP_RTCP_ADDRESS)
+                TCP_UDP_ADDRESS, BRIDGE_TCP_UDP_PORT, FS_RTP_RTCP_ADDRESS, MONIT_ADDRESS)
                 && !type.getId().contains("yardWsPort") && !type.getId().contains("yardHttpPort")) {
             return null;
         }

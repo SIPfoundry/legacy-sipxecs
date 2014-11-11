@@ -19,6 +19,7 @@ package org.sipfoundry.sipxconfig.address;
 public class AddressType {
     private static final String SIP_FORMAT = "sip:%s:%d";
     private final String m_id;
+    private String m_label;
     private String m_format;
     private Protocol m_protocol = Protocol.tcp;
     private int m_canonicalPort;
@@ -32,7 +33,7 @@ public class AddressType {
      * ones will break firewall support.
      */
     public enum Protocol {
-        tcp, udp, tlsp, icmp
+        tcp, udp, tlsp, icmp, tcp_udp
     }
 
     public AddressType(String uniqueId) {
@@ -175,6 +176,14 @@ public class AddressType {
 
     public void setProtocol(Protocol protocol) {
         m_protocol = protocol;
+    }
+
+    public String getLabel() {
+        return m_label;
+    }
+
+    public void setLabel(String label) {
+        m_label = label;
     }
 
     @Override

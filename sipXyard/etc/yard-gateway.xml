@@ -57,8 +57,7 @@
       <value>5</value>
     </setting>    
 	<setting name="ws-port">
-	  <type refid="port" />
-	  <value>5064</value>
+	  <type refid="port" />	  
 	</setting>
     <setting name="bridge-esl-port" hidden="true">		
 	  <type refid="port" />

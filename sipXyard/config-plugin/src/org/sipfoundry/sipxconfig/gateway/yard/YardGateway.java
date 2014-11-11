@@ -266,7 +266,7 @@ public class YardGateway extends Gateway implements WebRtcGateway {
 
         @SettingEntry(path = WEBRTC_WS_PORT)
         public String getWsPort() {
-            return m_bean != null ? m_bean.getWebRtc().getWsPort() : "N/A";
+            return m_bean != null ? m_bean.getWebRtc().getWsPort() : "5064";
         }
 
         @SettingEntry(path = WEBRTC_TCP_UDP_PORT)
