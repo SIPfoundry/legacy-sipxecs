@@ -3,7 +3,6 @@ AC_INIT(sipXyard, 14.10, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
-m4_include([config/java2.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
 AC_DISABLE_STATIC
@@ -20,15 +19,9 @@ SFAC_INIT_FLAGS
 SFAC_LIB_COMMSERVER
 SFAC_LIB_YARD
 
-AC_PROG_JAVA_CC([javac])
-AC_PROG_JAVA([java])
-PROG_JAVA_DEP
-
 AC_CONFIG_FILES([
   Makefile
   include/Makefile
   src/Makefile
-  etc/Makefile
-  config-plugin/Makefile
 ])
 AC_OUTPUT
