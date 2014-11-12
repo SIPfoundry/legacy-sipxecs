@@ -159,7 +159,7 @@
       end
     end
     if restrictive
-      if (rule[:protocol] == tcp_udp)
+      if (rule[:protocol] == "tcp_udp")
 %>-A INPUT -i $(sipx.iface) -p tcp <%= dports(rule) %> -m state <%= state("tcp") %> -m comment --comment "<%= rule[:service] %>" -j <%= rule[:chain] %>
 <%
 %>-A INPUT -i $(sipx.iface) -p udp <%= dports(rule) %> -m state <%= state("udp") %> -m comment --comment "<%= rule[:service] %>" -j <%= rule[:chain] %>
