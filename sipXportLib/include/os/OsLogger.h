@@ -817,15 +817,11 @@ namespace Os
       if (now >= _now + 5)
       {
         //
-        // If channel is not open or is non-existent, reopen channel
+        // Recreate the channel every 5 seconds
         //
-        struct stat fileStat;
-        if (stat(_pChannel->path().c_str(), &fileStat) == -1 || !_pChannel->is_open())
-        {
-          _now = now;
-          _pChannel->close();
-          _pChannel->open(_pChannel->path());
-        }
+        _now = now;
+        _pChannel->close();
+        _pChannel->open(_pChannel->path());
       }
     }
 
