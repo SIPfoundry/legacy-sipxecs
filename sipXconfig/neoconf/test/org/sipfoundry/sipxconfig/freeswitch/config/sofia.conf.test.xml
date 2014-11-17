@@ -25,6 +25,7 @@
     <!-- This could be set to "passive" -->
     <param name="local-network-acl" value="localnet.auto"/>
     <param name="manage-presence" value="false"/>
+    <param name="send-display-update" value="false"/>
 
     <!-- used to share presence info across sofia profiles 
 	 manage-presence needs to be set to passive on this profile
