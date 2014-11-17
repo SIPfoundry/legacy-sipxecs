@@ -74,7 +74,9 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
     public String getAddressLabel() {
         AddressType type = getRule().getAddressType();
         String key = ADDRESS + type.getId();
-        return StringUtils.join(new String[] {TapestryUtils.getDefaultMessage(getMessages(), key, key), type.getLabel()}, SEPARATOR);
+        return StringUtils.join(new String[] {
+            TapestryUtils.getDefaultMessage(getMessages(), key, key), type.getLabel()
+        }, SEPARATOR);
     }
 
     public String getPortDetails() {
