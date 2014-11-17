@@ -570,7 +570,9 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public DnsView getDefaultView() {
         String filter = "where name = '" + DEFAULT_VIEW_NAME + "'";
         Collection<DnsView> views = loadViews(filter);
-        return DaoUtils.requireOneOrZero(views, filter);
+        DnsView view = DaoUtils.requireOneOrZero(views, filter);
+        view.setPlanId(FALLBACK);
+        return view;
     }
 
     List<DnsView> loadViews(String filter) {
