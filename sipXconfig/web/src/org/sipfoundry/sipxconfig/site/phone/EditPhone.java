@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -24,6 +25,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 /**
@@ -72,6 +74,7 @@ public abstract class EditPhone extends PhoneBasePage implements PageBeginRender
         if (valid) {
             PhoneContext dao = getPhoneContext();
             Phone phone = getPhone();
+            saveGroups(getSettingDao(), phone.getGroups());
             dao.storePhone(phone);
         }
 
@@ -92,5 +95,14 @@ public abstract class EditPhone extends PhoneBasePage implements PageBeginRender
         // Load the phone with the ID that was passed in
         PhoneContext context = getPhoneContext();
         setPhone(context.loadPhone(getPhoneId()));
+    }
+
+    public static void saveGroups(SettingDao dao, Set<Group> groups) {
+        for (Group group : groups) {
+            if (group.isNew()) {
+                group.setResource(PhoneContext.GROUP_RESOURCE_ID);
+                dao.saveGroup(group);
+            }
+        }
     }
 }
