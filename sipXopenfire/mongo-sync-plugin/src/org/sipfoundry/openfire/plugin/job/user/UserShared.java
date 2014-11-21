@@ -34,27 +34,23 @@ public class UserShared {
     private static Logger logger = Logger.getLogger(UserShared.class);
 
     public static void removeUser(String userImName) {
-        try {
-            String jidAsString = appendDomain(userImName);
-            JID jid = new JID(jidAsString);
-            Collection<Group> groups = GroupManager.getInstance().getGroups();
-            for (Group group : groups) {
-                group.getMembers().remove(jid);
-                group.getAdmins().remove(jid);
-            }
-            User user = UserManager.getInstance().getUser(jid.getNode());
-            if (user != null) {
-                UserManager.getInstance().deleteUser(user);
-                final StreamError error = new StreamError(StreamError.Condition.not_authorized);
-                for (ClientSession sess : SessionManager.getInstance().getSessions(user.getUsername())) {
-                    sess.deliverRawText(error.toXML());
-                    sess.close();
-                }
-                logger.debug("deleting user: " + user.getName());
-                GroupManager.getInstance().deleteUser(user);
-            }
-        } catch (UserNotFoundException ex) {
-            logger.error(String.format("Delete user: user %s not found", userImName));
+        logger.debug("Delete user: " + userImName);
+        User ofUser = new User(userImName, null, null, null, null);
+        UserManager.getInstance().deleteUser(ofUser);
+        
+        logger.debug("Clear user groups members and admins");
+        String jidAsString = appendDomain(userImName);
+        JID jid = new JID(jidAsString);
+        Collection<Group> groups = GroupManager.getInstance().getGroups();
+        for (Group group : groups) {
+            group.getMembers().remove(jid);
+            group.getAdmins().remove(jid);
+        }
+        logger.debug("Close deleted user xmpp session");
+        final StreamError error = new StreamError(StreamError.Condition.not_authorized);
+        for (ClientSession sess : SessionManager.getInstance().getSessions(userImName)) {
+            sess.deliverRawText(error.toXML());
+            sess.close();
         }
     }
 
