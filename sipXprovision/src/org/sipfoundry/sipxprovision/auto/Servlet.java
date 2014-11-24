@@ -54,7 +54,7 @@ import org.sipfoundry.commons.util.ShortHash;
 
 /**
  * A Jetty servlet that auto-provisions phones based on their HTTP requests.
- * 
+ *
  * @author Paul Mossman
  */
 @SuppressWarnings("serial")
@@ -70,7 +70,7 @@ public class Servlet extends HttpServlet {
 
     /**
      * Returns a simple unique-ish ID string (hash) generated from the specified seed.
-     * 
+     *
      * @see org.sipfoundry.commons.util.ShortHash
      */
     protected static String getUniqueId(String seed_string) {
@@ -158,7 +158,7 @@ public class Servlet extends HttpServlet {
     /**
      * Extracts the MAC from the specified path, starting immediately after the first occurrence
      * of the specified prefix.
-     * 
+     *
      * @return the MAC, or null on failure.
      */
     protected static String extractMac(String path, String prefix) {
@@ -224,7 +224,7 @@ public class Servlet extends HttpServlet {
 
             ((SSLServerSocket) sslListener.getServerSocket()).setEnabledCipherSuites(cypherSuites);
 
-            String[] protocols = ((SSLServerSocket) sslListener.getServerSocket()).getSupportedProtocols();
+            String[] protocols = new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"};
 
             ((SSLServerSocket) sslListener.getServerSocket()).setEnabledProtocols(protocols);
             sslListener.setMaxIdleTimeMs(60000);
@@ -281,7 +281,7 @@ public class Servlet extends HttpServlet {
     /**
      * This content is static only while the servlet is running. A configuration change of the
      * servlet port will change the content, but this will be done during the servlet re-start.
-     * 
+     *
      * @throws Exception
      * @throws ParseErrorException
      * @throws ResourceNotFoundException
@@ -324,6 +324,7 @@ public class Servlet extends HttpServlet {
         try {
 
             FilenameFilter cfg_filter = new FilenameFilter() {
+                @Override
                 public boolean accept(File dir, String name) {
                     return name.startsWith("polycom_") && name.endsWith(".cfg");
                 }
@@ -456,7 +457,7 @@ public class Servlet extends HttpServlet {
 
     /**
      * Creates a (single-use) HTTPS connection to the sipXconfig REST Phones resource server.
-     * 
+     *
      * @return the HTTPS connection, or null upon failure.
      */
     protected HttpURLConnection createRestConnection(String method, String string_url) {
@@ -483,7 +484,7 @@ public class Servlet extends HttpServlet {
 
     /**
      * Create a Description text for the specified phone.
-     * 
+     *
      * @see provisionPhones
      * @return the string description.
      */
@@ -501,7 +502,7 @@ public class Servlet extends HttpServlet {
 
     /**
      * Format the Polycom version as defined in PolycomModel bean
-     * 
+     *
      * @param version
      * @return
      */
