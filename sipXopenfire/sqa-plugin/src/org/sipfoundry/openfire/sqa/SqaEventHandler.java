@@ -114,6 +114,7 @@ public class SqaEventHandler implements Runnable {
                 String confirmedDialogId = bean.getConfirmedDialogId();
                 logger.debug("Received confirmed state for dialogId: " + confirmedDialogId);
                 SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
+                logger.debug("Previous confirmed presence bean with key: " + observerJID.getNode() + " is: " + previousPresenceBean);
                 //if cache is not cleared, than this is a new incomming call, do not broadcast on the call status again
                 if (previousPresenceBean == null) {
                     logger.debug("ObserverPartyUser " + observerPartyUser + " observer party id " + observerPartyId);
@@ -132,6 +133,7 @@ public class SqaEventHandler implements Runnable {
                 String terminatedDialogId = bean.getTerminatedDialogId();
                 logger.debug("Received terminated state for dialogId: " + terminatedDialogId);
                 SipPresenceBean previousPresenceBean = m_presenceCache.get(observerJID.getNode());
+                logger.debug("Previous terminated presence bean with key: " + observerJID.getNode() + " is: " + previousPresenceBean);
                 if(previousPresenceBean != null && removeDialogCall(terminatedDialogId)) {
                     //if on the phone and call terminated, broadcast previous presence, clear cache
                     presence.setStatus(previousPresenceBean.getStatusMessage());
@@ -161,7 +163,7 @@ public class SqaEventHandler implements Runnable {
     private boolean removeDialogCall(String dialogId) {
         List<String> queue = m_callMap.get(dialogId);
         logger.debug("Remove from queue for dialogId: " + dialogId + " queue: " + queue);
-        //pair is true if the terminated state has a previous confirmed state pair for the saim dialog id
+        //pair is true if the terminated state has a previous confirmed state pair for the same dialog id
         boolean pair = false;
         if (queue != null && !queue.isEmpty()) {
             queue.remove(queue.size() - 1);
