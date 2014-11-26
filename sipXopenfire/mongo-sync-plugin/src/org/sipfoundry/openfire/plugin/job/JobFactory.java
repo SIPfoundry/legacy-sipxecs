@@ -129,7 +129,7 @@ public class JobFactory extends AbstractJobFactory {
         if (userImName == null) {
             userImName = lookupImId(id);
         }
-
+        
         List<String> groupNames = getGroupNames(dbObj);
         if (groupNames == null) {
             List<String> names = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroupnamesForUser(userImName);
@@ -156,7 +156,7 @@ public class JobFactory extends AbstractJobFactory {
                 String displayName = (String) dbObj.get(IM_DISPLAY_NAME);
                 String email = (String) dbObj.get(EMAIL);
                 String uid = (String) dbObj.get(UID);
-                userJob = new UserUpdateJob(userImName, oldImName, imUser, displayName, email, uid, groupNames);
+                userJob = new UserUpdateJob(id, userImName, oldImName, imUser, displayName, email, uid, groupNames == null ? new ArrayList<String>() : groupNames);
                 break;
             case DELETE:
                 userJob = new UserDeleteJob(userImName);
@@ -179,7 +179,8 @@ public class JobFactory extends AbstractJobFactory {
         Job groupJob = null;
         String groupName = (String) dbObj.get(UID);
         String imGroupProperty = (String) dbObj.get(IM_GROUP);
-        String oldGroupName = CacheHolder.getGroupName(id);;
+        String oldGroupName = CacheHolder.getGroupName(id);        
+
         String description = (String) dbObj.get(DESCR);
 
         String xmppDomain = XMPPServer.getInstance().getServerInfo().getXMPPDomain();
@@ -201,7 +202,7 @@ public class JobFactory extends AbstractJobFactory {
                     isImGroup = true;
                     isMyBuddyEnabled = group.isImbotEnabled();
                 }
-                groupJob = new GroupUpdateJob(groupName, oldGroupName, isImGroup, description, isMyBuddyEnabled, imBotJid, null);
+                groupJob = new GroupUpdateJob(id, groupName, oldGroupName, isImGroup, description, isMyBuddyEnabled, imBotJid);
             } else {
                 // not a known group
                 if (imGroupProperty != null) {
@@ -211,8 +212,8 @@ public class JobFactory extends AbstractJobFactory {
                         UserGroup group = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroup(groupName);
                         if (group != null) {
                             logger.debug("Add all users in group " + groupName);
-                            groupJob = new GroupUpdateJob(groupName, groupName, true, group.getDescription(),
-                                    group.isImbotEnabled(), imBotJid, getGroupMembers(groupName));
+                            groupJob = new GroupUpdateJob(id, groupName, groupName, true, group.getDescription(),
+                                    group.isImbotEnabled(), imBotJid);
                         }
                     }
                 }
@@ -221,7 +222,7 @@ public class JobFactory extends AbstractJobFactory {
         case DELETE:
             if (StringUtils.isNotBlank(oldGroupName)) {
                 // an IM group was deleted
-                groupJob = new GroupDeleteJob(groupName);
+                groupJob = new GroupDeleteJob(oldGroupName);
                 break;
             }
         default:
@@ -265,22 +266,6 @@ public class JobFactory extends AbstractJobFactory {
             return null;
         }
         return (String) user.get("uid");
-    }
-
-    private static List<JID> getGroupMembers(String groupName) {
-        List<JID> members = new ArrayList<JID>();
-        DBCollection usersCollection = getCollection();
-
-        DBObject query = new BasicDBObject();
-        query.put("ent", "user");
-        query.put("gr", groupName);
-        String domain = XMPPServer.getInstance().getServerInfo().getXMPPDomain();
-
-        for (DBObject userObj : usersCollection.find(query)) {
-            members.add(new JID((String) userObj.get(IM_ID) + "@" + domain));
-        }
-
-        return members;
     }
 
     private static DBCollection getCollection() {

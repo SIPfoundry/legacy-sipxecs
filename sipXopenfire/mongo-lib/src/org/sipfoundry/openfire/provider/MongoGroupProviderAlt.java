@@ -88,11 +88,14 @@ public class MongoGroupProviderAlt extends AbstractGroupProvider {
             throw new GroupNotFoundException(name);
         }
         log.debug("Found group: " + groupObj);
+        
 
         String id = (String) groupObj.get("_id");
-
-        CacheHolder.putGroup(id, name);
-
+        //initialize cache with the actual value of group - this method is called when openfire starts
+        if (CacheHolder.getGroupName(id) == null) {
+            CacheHolder.putGroup(id, name);
+        }
+        
         return fromDBObject(groupObj);
     }
 

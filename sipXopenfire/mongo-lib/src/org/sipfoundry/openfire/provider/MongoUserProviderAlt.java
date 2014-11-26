@@ -83,10 +83,11 @@ public class MongoUserProviderAlt implements UserProvider {
                 throw new UserNotFoundException(username);
             }
         }
-
         String id = (String) userObj.get("_id");
-        CacheHolder.putUser(id, actualUsername);
-
+        //initialize cache with usernames found in db - this method is called when openfire starts
+        if (CacheHolder.getUserName(id) != null) {
+            CacheHolder.putUser(id, actualUsername);
+        }
         return fromDBObject(userObj);
     }
 
