@@ -70,6 +70,10 @@ public class UserUpdateJob implements Job {
         // not imuser and in cache: delete it
         if (!isImUser && !StringUtils.isBlank(userImName)) {
             UserShared.removeUser(userImName);
+            //refresh user group cache
+            //clear cache
+            CacheHolder.removeUser(id);
+            CacheHolder.removeUserGroups(id);
             return;
         }
                 
@@ -112,8 +116,7 @@ public class UserUpdateJob implements Job {
             //put actual user name in cache
             CacheHolder.putUser(id, userImName);
           
-            updateGroups(groups, userImName);
-
+            updateGroups(id, groups, userImName);
 
             // update display name & email if changed
             boolean dnChanged = displayName != null && !StringUtils.equals(user.getName(), displayName);
@@ -136,13 +139,28 @@ public class UserUpdateJob implements Job {
         logger.debug("end processing " + toString());
     }
 
-    private static void updateGroups(List<String> actualGroups, String imName) {
+    private void updateGroups(String id, List<String> actualGroups, String imName) {
         // rebuild groups in openfire
         JID jid = new JID(UserShared.appendDomain(imName));
+        Collection<String> oldGroups = CacheHolder.getUserGroups(id);
+        oldGroups = (oldGroups == null ? new ArrayList<String>() : oldGroups);
+        actualGroups = (actualGroups == null ? new ArrayList<String>() : actualGroups);
         
-        for (String groupName : actualGroups) {
+        @SuppressWarnings("unchecked")
+        Collection<String> groupsDeleted = CollectionUtils.subtract(oldGroups, actualGroups);
+        for (String groupName : groupsDeleted) {
+            removeUserFromGroup(groupName, jid);
+        }
+        
+        @SuppressWarnings("unchecked")
+        Collection<String> groupsAdded = CollectionUtils.subtract(actualGroups, oldGroups);
+        for (String groupName : groupsAdded) {
             addUserToGroup(groupName, jid);
-        }                
+        }
+
+        //refresh cache        
+        CacheHolder.putUserGroups(id, actualGroups);
+
     }
 
     public static void addUserToGroup(String groupName, JID jid) {
@@ -159,6 +177,20 @@ public class UserUpdateJob implements Job {
             logger.error(String.format("Add user %s to group %s: Group not found", jid.toString(), groupName));
         }
     }
+    
+    public static void removeUserFromGroup(String groupName, JID jid) {
+        logger.debug(String.format("remove user %s from group %s", jid.toString(), groupName));
+        try {
+            if (StringUtils.isNotBlank(groupName)) {
+                Group group = GroupManager.getInstance().getGroup(groupName);
+                group.getMembers().remove(jid);
+                // it's not supposed to be an admin, but just in case
+                group.getAdmins().remove(jid);
+            }
+        } catch (GroupNotFoundException ex) {
+            logger.error(String.format("Remove user %s from group %s: Group not found", jid.toString(), groupName));
+        }
+    }   
 
     @Override
     public String toString() {

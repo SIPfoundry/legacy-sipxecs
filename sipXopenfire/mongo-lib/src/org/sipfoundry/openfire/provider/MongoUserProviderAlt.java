@@ -34,6 +34,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.openfire.XMPPServer;
+import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.provider.UserProvider;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserNotFoundException;
@@ -83,10 +84,12 @@ public class MongoUserProviderAlt implements UserProvider {
                 throw new UserNotFoundException(username);
             }
         }
-        String id = (String) userObj.get("_id");
+        String id = (String) userObj.get("_id");       
         //initialize cache with usernames found in db - this method is called when openfire starts
         if (CacheHolder.getUserName(id) != null) {
             CacheHolder.putUser(id, actualUsername);
+            CacheHolder.putUserGroups(id, 
+                GroupManager.getInstance().getProvider().getGroupNames(new JID(username, null, null)));
         }
         return fromDBObject(userObj);
     }

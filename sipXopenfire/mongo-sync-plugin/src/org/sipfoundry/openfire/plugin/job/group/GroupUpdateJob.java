@@ -59,6 +59,8 @@ public class GroupUpdateJob implements Job {
         // not an imgroup but in cache: delete it
         if (!isImGroup) {
             GroupShared.removeGroup(groupName);
+            //clear group cache
+            CacheHolder.removeGroup(id);
             logger.debug("end processing " + toString());
             return;
         }
