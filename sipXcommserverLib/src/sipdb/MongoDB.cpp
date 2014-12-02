@@ -240,7 +240,7 @@ namespace MongoDB
     boost::lock_guard<boost::mutex> lock(_updateTimerSamplesMutex);
 
     _lastUpdateSpeed = pTimer->_end - pTimer->_start;
-    _updateTimerSamples.push_back(_lastReadSpeed);
+    _updateTimerSamples.push_back(_lastUpdateSpeed);
     
     if (_lastUpdateSpeed > MAX_UPDATE_DELAY_MS)
     {
@@ -275,7 +275,7 @@ namespace MongoDB
       if (!_lastAlarmLog || now >= _lastAlarmLog + ALARM_RATE_SEC)
       {
         _lastAlarmLog = now;
-        OS_LOG_EMERGENCY(FAC_SIP, "ALARM_MONGODB_SLOW_READ Last Mongo update took a long time:" 
+        OS_LOG_EMERGENCY(FAC_SIP, "ALARM_MONGODB_SLOW_READ Last Mongo read took a long time:"
             << " document: " << _ns
             << " delay: " << _lastReadSpeed << " milliseconds");
       }
