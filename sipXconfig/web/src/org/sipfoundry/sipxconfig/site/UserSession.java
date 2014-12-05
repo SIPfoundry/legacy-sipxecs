@@ -48,11 +48,12 @@ public class UserSession {
     }
 
     public Integer getUserId() {
-        UserDetailsImpl userDetails = getUserDetails();
-        if (userDetails != null) {
-            m_userId = userDetails.getUserId();
+        if (m_userId == null) {
+            UserDetailsImpl userDetails = getUserDetails();
+            if (userDetails != null) {
+                m_userId = userDetails.getUserId();
+            }
         }
-
         return m_userId;
     }
 
