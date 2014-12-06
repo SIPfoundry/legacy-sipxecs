@@ -17,13 +17,16 @@
 package org.sipfoundry.openfire.plugin.job.group;
 
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jivesoftware.openfire.event.GroupEventDispatcher;
 import org.jivesoftware.openfire.group.Group;
-import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
-import org.sipfoundry.openfire.plugin.job.user.UserShared;
 import org.sipfoundry.openfire.provider.CacheHolder;
 import org.sipfoundry.openfire.sync.job.Job;
 import org.xmpp.packet.JID;
@@ -40,9 +43,10 @@ public class GroupUpdateJob implements Job {
     private final JID imbot;
     private final boolean isMyBuddyEnabled;
     private final String id;
+    private final boolean createGroup;
 
     public GroupUpdateJob(String id, String groupName, String oldGroupName, boolean imGroup, String description,
-            boolean isMybuddyEnabled, JID imbot) {
+            boolean isMybuddyEnabled, JID imbot, boolean createGroup) {
         this.groupName = groupName;
         this.oldGroupName = oldGroupName;
         this.isImGroup = imGroup;
@@ -50,6 +54,7 @@ public class GroupUpdateJob implements Job {
         this.imbot = imbot;
         this.isMyBuddyEnabled = isMybuddyEnabled;
         this.id = id;
+        this.createGroup = createGroup;
     }
 
     @Override
@@ -71,22 +76,35 @@ public class GroupUpdateJob implements Job {
             try {
                 //group update is attempted
                 if (!StringUtils.equalsIgnoreCase(oldGroupName, groupName) && !StringUtils.isBlank(oldGroupName)) {
-                    group = GroupManager.getInstance().getGroup(oldGroupName);                    
-                    //Openfire requires members and admins deletion also for update group operation (maybe a bug)
-                    //After group updates, users will be added cleanly to the updated group by GroupUpdateJob
+                    group = GroupManager.getInstance().getGroup(oldGroupName);
                     group.getMembers().clear();
-                    group.getAdmins().clear();
-
-                    //setName method will push group update event in openfire
+                    group.getAdmins().clear();                    
+                    
                     group.setName(groupName);
+                    //ensure cache update
+                    group = GroupManager.getInstance().getGroup(groupName, true);
+                    group.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
+                    group.getProperties().put("sharedRoster.displayName", groupName);
+                    group.getProperties().put("sharedRoster.groupList", "");
                 }
             } catch (GroupNotFoundException e) {
                 logger.debug("Group not found " + groupName, e);
             }
-            //A new group is attempted to be created
+
             if (group == null) {
                 try {
-                    group = GroupManager.getInstance().getGroup(groupName, true);                    
+                    if (createGroup) {
+                        //Group needs to be created. it is already in mongo so we probably only need to fire the creation event
+                        group = GroupManager.getInstance().getGroup(groupName, true);
+                        // Fire event.
+                        GroupEventDispatcher.dispatchEvent(group,
+                            GroupEventDispatcher.EventType.group_created, Collections.emptyMap());
+                        group.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
+                        group.getProperties().put("sharedRoster.displayName", groupName);
+                        group.getProperties().put("sharedRoster.groupList", "");
+                    } else {
+                        group = GroupManager.getInstance().getGroup(groupName);
+                    }
                 } catch (GroupNotFoundException e) {
                     logger.debug("Group already exists " + groupName, e);
                 }
@@ -100,25 +118,17 @@ public class GroupUpdateJob implements Job {
             //keep actual group name in cache
             CacheHolder.putGroup(id, groupName);
             
-            // add mybuddy to group (no UserUpdateJob is triggered for mybuddy, as mybuddy is not part of a group in sipxconfig)
+            // add mybuddy to group (no UserUpdateJob is not triggered for mybuddy, as mybuddy is not part of a group in sipxconfig)          
             if (isMyBuddyEnabled) {
                 group.getMembers().add(imbot);
             } else {
                 group.getMembers().remove(imbot);
             }
-               
+            
             // apply description in case it was changed
             if (StringUtils.isNotBlank(description)) {
                 group.setDescription(description);
-            }
-            //force cache update with new/changed group
-            try {
-                group = GroupManager.getInstance().getGroup(groupName, true);
-                group.getProperties().put("sharedRoster.displayName", groupName);
-                group.getProperties().put("sharedRoster.groupList", "");
-            } catch (GroupNotFoundException e) {
-                logger.debug("Cannot update group " + groupName, e);
-            }
+            }                        
         }
 
         logger.debug("end processing " + toString());

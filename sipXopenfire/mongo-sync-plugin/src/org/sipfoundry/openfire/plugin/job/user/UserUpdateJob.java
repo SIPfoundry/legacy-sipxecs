@@ -20,14 +20,15 @@ import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jivesoftware.openfire.group.Group;
+import org.jivesoftware.openfire.event.UserEventDispatcher;
 import org.jivesoftware.openfire.group.GroupManager;
-import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
@@ -49,9 +50,10 @@ public class UserUpdateJob implements Job {
     private final String uid;
     private final String id;
     private final List<String> groups;
+    private final boolean createUser;
 
     public UserUpdateJob(String id, String userImName, String oldUserImName, boolean isImUser, String displayName,
-            String email, String uid, List<String> groups) {
+            String email, String uid, List<String> groups, boolean createUser) {
         this.userImName = userImName;
         this.oldUserImName = oldUserImName;
         this.isImUser = isImUser;
@@ -60,6 +62,7 @@ public class UserUpdateJob implements Job {
         this.uid = uid;
         this.id = id;
         this.groups = groups;
+        this.createUser = createUser;
     }
 
     @Override
@@ -69,11 +72,10 @@ public class UserUpdateJob implements Job {
         // check if still an IM User, if not delete it
         // not imuser and in cache: delete it
         if (!isImUser && !StringUtils.isBlank(userImName)) {
-            UserShared.removeUser(userImName);
-            //refresh user group cache
+            UserShared.removeUser(userImName, CacheHolder.getUserGroups(id));
             //clear cache
             CacheHolder.removeUser(id);
-            CacheHolder.removeUserGroups(id);
+            CacheHolder.putUserGroups(id, new ArrayList<String>());
             return;
         }
                 
@@ -90,23 +92,24 @@ public class UserUpdateJob implements Job {
                     logger.debug("User already exists " + userImName);
                 }
             }
-            
-            //check if user exists
-            if (user == null) {            
-                try {
-                    user = UserManager.getInstance().getUser(userImName);
-                } catch (UserNotFoundException e) {
-                    logger.debug("User not found " + userImName);
-                }            
-            }            
              
             //new im user creation needed
-            if (user == null) {            
-                try {
-                    user = UserManager.getInstance().createUser(userImName, null, null, null);                
-                } catch (UserAlreadyExistsException e) {
-                    logger.debug("User already exists " + userImName);
-                }            
+            if (user == null) {
+                if (createUser) {
+                    try {
+                        user = UserManager.getInstance().createUser(userImName, null, null, null);
+                        //init cache
+                        CacheHolder.putUserGroups(id, new ArrayList<String>());
+                    } catch (UserAlreadyExistsException e) {
+                        logger.debug("User already exists " + userImName);
+                    }
+                } else {
+                    try {
+                        user = UserManager.getInstance().getUser(userImName);
+                    } catch (UserNotFoundException e) {
+                        logger.debug("User not found " + userImName);
+                    }                    
+                }
             }
             if (user == null) {
                 logger.debug("Cannot update/create openfire user: " + userImName);
@@ -149,47 +152,17 @@ public class UserUpdateJob implements Job {
         @SuppressWarnings("unchecked")
         Collection<String> groupsDeleted = CollectionUtils.subtract(oldGroups, actualGroups);
         for (String groupName : groupsDeleted) {
-            removeUserFromGroup(groupName, jid);
+            UserShared.removeUserFromGroup(groupName, jid);
         }
         
         @SuppressWarnings("unchecked")
         Collection<String> groupsAdded = CollectionUtils.subtract(actualGroups, oldGroups);
         for (String groupName : groupsAdded) {
-            addUserToGroup(groupName, jid);
+            UserShared.addUserToGroup(groupName, jid);
         }
-
         //refresh cache        
         CacheHolder.putUserGroups(id, actualGroups);
 
-    }
-
-    public static void addUserToGroup(String groupName, JID jid) {
-        logger.debug(String.format("Add user %s to group %s", jid.toString(), groupName));
-        try {
-            if (StringUtils.isNotBlank(groupName)) {
-                Group group = GroupManager.getInstance().getGroup(groupName);
-                // automatically add the user in group as admin. Openfire holds two collections
-                // members collection and admins collection. A user is contained either in members
-                // or in admins collection, not in both
-                group.getMembers().add(jid);                
-            }
-        } catch (GroupNotFoundException ex) {
-            logger.error(String.format("Add user %s to group %s: Group not found", jid.toString(), groupName));
-        }
-    }
-    
-    public static void removeUserFromGroup(String groupName, JID jid) {
-        logger.debug(String.format("remove user %s from group %s", jid.toString(), groupName));
-        try {
-            if (StringUtils.isNotBlank(groupName)) {
-                Group group = GroupManager.getInstance().getGroup(groupName);
-                group.getMembers().remove(jid);
-                // it's not supposed to be an admin, but just in case
-                group.getAdmins().remove(jid);
-            }
-        } catch (GroupNotFoundException ex) {
-            logger.error(String.format("Remove user %s from group %s: Group not found", jid.toString(), groupName));
-        }
     }   
 
     @Override

@@ -113,6 +113,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.commons.mongo.MongoConstants;
@@ -588,10 +589,20 @@ public class ValidUsers {
     }
 
     public List<String> getImGroupnamesForUser(String jid) {
+        List<String> names = new ArrayList<String>();
+        Collection<UserGroup> imGroups = getImGroups();        
+        //for imbot user there is a different algoritm to return all groups where imbot is member
+        if (StringUtils.equals(jid, getImBotName())) {
+            for (UserGroup group : imGroups) {
+                if (group.isImbotEnabled()) {
+                    names.add(group.getGroupName());
+                }
+            }
+            return names;
+        }
         BasicDBObject query = new BasicDBObject();
         query.put(IM_ENABLED, true);
         query.put(IM_ID, jid);
-        List<String> names = new ArrayList<String>();
         DBObject user = getEntityCollection().findOne(query);
         if (user != null) {
             BasicDBList groupList = (BasicDBList) user.get(GROUPS);
@@ -599,7 +610,12 @@ public class ValidUsers {
                 names.add((String) groupList.get(i));
             }
         }
-        return names;
+        
+        List<String> imNames = new ArrayList<String>();
+        for (UserGroup group : imGroups) {
+            imNames.add(group.getGroupName());
+        }
+        return new ArrayList<String>(CollectionUtils.intersection(names, imNames));
     }
 
     public List<String> getImUsernamesInGroup(String groupName) {

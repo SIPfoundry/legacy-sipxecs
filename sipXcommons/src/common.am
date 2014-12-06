@@ -19,6 +19,7 @@ commons_PKGS = \
 	commons-codec \
 	commons-digester \
 	commons-lang \
+	commons-collections \
 	xmlrpc-client \
 	spring-beans \
 	spring-context \

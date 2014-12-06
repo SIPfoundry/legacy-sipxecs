@@ -18,7 +18,6 @@ package org.sipfoundry.openfire.plugin.job;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.DESCR;
 import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
-import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_DISPLAY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_GROUP;
@@ -130,14 +129,8 @@ public class JobFactory extends AbstractJobFactory {
             userImName = lookupImId(id);
         }
         
-        List<String> groupNames = getGroupNames(dbObj);
-        if (groupNames == null) {
-            List<String> names = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroupnamesForUser(userImName);
-            logger.debug("loadded group names from mongo: " + names);
-            if (names != null && !names.isEmpty()) {
-                groupNames = names;
-            }
-        }
+        List<String> groupNames = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroupnamesForUser(userImName);
+        logger.debug("loadded group names from mongo: " + groupNames);
         if (!StringUtils.isBlank(userImName)) {
             switch (op) {
             case INSERT:
@@ -148,6 +141,8 @@ public class JobFactory extends AbstractJobFactory {
             case UPDATE:
                 String oldImName = CacheHolder.getUserName(id) == null ? userImName : CacheHolder.getUserName(id);
                 Boolean imUser = (Boolean) dbObj.get(IM_ENABLED);
+                //user is created only if imUser is present in oplog query and is true
+                boolean createUser = (imUser != null && imUser);
                 // avoid querying the actual value; the value wasn't updated, but the user is
                 // cached, therefore it must have IM enabled
                 if (imUser == null) {
@@ -156,10 +151,11 @@ public class JobFactory extends AbstractJobFactory {
                 String displayName = (String) dbObj.get(IM_DISPLAY_NAME);
                 String email = (String) dbObj.get(EMAIL);
                 String uid = (String) dbObj.get(UID);
-                userJob = new UserUpdateJob(id, userImName, oldImName, imUser, displayName, email, uid, groupNames == null ? new ArrayList<String>() : groupNames);
+                userJob = new UserUpdateJob(id, userImName, oldImName, imUser, displayName, email, uid, 
+                    groupNames == null ? new ArrayList<String>() : groupNames, createUser);
                 break;
             case DELETE:
-                userJob = new UserDeleteJob(userImName);
+                userJob = new UserDeleteJob(id, userImName);
                 break;
             default:
                 logger.warn(String.format("Unsupported user operation %s. Ignoring.", op));
@@ -179,7 +175,10 @@ public class JobFactory extends AbstractJobFactory {
         Job groupJob = null;
         String groupName = (String) dbObj.get(UID);
         String imGroupProperty = (String) dbObj.get(IM_GROUP);
-        String oldGroupName = CacheHolder.getGroupName(id);        
+        //String myBuddyInGroup = (String)dbObj.get(MY_BUDDY_GROUP);
+        String oldGroupName = CacheHolder.getGroupName(id); 
+        //boolean myBuddyInGroupChange = myBuddyInGroup != null;
+        boolean createGroup = (imGroupProperty != null && StringUtils.equals(imGroupProperty, "1"));
 
         String description = (String) dbObj.get(DESCR);
 
@@ -202,7 +201,7 @@ public class JobFactory extends AbstractJobFactory {
                     isImGroup = true;
                     isMyBuddyEnabled = group.isImbotEnabled();
                 }
-                groupJob = new GroupUpdateJob(id, groupName, oldGroupName, isImGroup, description, isMyBuddyEnabled, imBotJid);
+                groupJob = new GroupUpdateJob(id, groupName, oldGroupName, isImGroup, description, isMyBuddyEnabled, imBotJid, createGroup);
             } else {
                 // not a known group
                 if (imGroupProperty != null) {
@@ -213,7 +212,7 @@ public class JobFactory extends AbstractJobFactory {
                         if (group != null) {
                             logger.debug("Add all users in group " + groupName);
                             groupJob = new GroupUpdateJob(id, groupName, groupName, true, group.getDescription(),
-                                    group.isImbotEnabled(), imBotJid);
+                                    group.isImbotEnabled(), imBotJid, createGroup);
                         }
                     }
                 }
@@ -231,21 +230,6 @@ public class JobFactory extends AbstractJobFactory {
         }
 
         return groupJob;
-    }
-
-    private static List<String> getGroupNames(DBObject userObject) {
-        List<String> actualGroups = new ArrayList<String>();
-        List<Object> groupList = (BasicDBList) userObject.get(GROUPS);
-
-        if (groupList == null) {
-            return null;
-        }
-
-        for (int i = 0; i < groupList.size(); i++) {
-            actualGroups.add((String) groupList.get(i));
-        }
-
-        return actualGroups;
     }
 
     private static String lookupImId(String uid) {

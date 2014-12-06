@@ -29,6 +29,8 @@ public class GroupShared {
             Group imGroup = GroupManager.getInstance().getGroup(groupName);
             if (imGroup != null) {
                 logger.debug("deleting group: " + imGroup.getName());
+                imGroup.getMembers().clear();
+                imGroup.getAdmins().clear();
                 GroupManager.getInstance().deleteGroup(imGroup);
             }
         } catch (GroupNotFoundException ex) {

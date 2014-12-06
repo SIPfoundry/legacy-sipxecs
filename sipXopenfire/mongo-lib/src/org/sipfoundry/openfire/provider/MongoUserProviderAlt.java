@@ -86,11 +86,14 @@ public class MongoUserProviderAlt implements UserProvider {
         }
         String id = (String) userObj.get("_id");       
         //initialize cache with usernames found in db - this method is called when openfire starts
-        if (CacheHolder.getUserName(id) != null) {
-            CacheHolder.putUser(id, actualUsername);
-            CacheHolder.putUserGroups(id, 
-                GroupManager.getInstance().getProvider().getGroupNames(new JID(username, null, null)));
+        if (CacheHolder.getUserName(id) == null) {
+            CacheHolder.putUser(id, actualUsername);         
         }
+        if (CacheHolder.getUserGroups(id) == null) {
+            CacheHolder.putUserGroups(id, 
+                GroupManager.getInstance().getProvider().getGroupNames(new JID(appendDomain(username))));
+        }
+        
         return fromDBObject(userObj);
     }
 
@@ -271,4 +274,13 @@ public class MongoUserProviderAlt implements UserProvider {
 
         return db.getCollection(COLLECTION_NAME);
     }
+    
+    private static String appendDomain(String userName) {
+        if (userName.indexOf("@") == -1) {
+            // No @ in the domain so assume this is our domain.
+            return userName + "@" + XMPPServer.getInstance().getServerInfo().getXMPPDomain();
+        }
+
+        return userName;
+    }    
 }
