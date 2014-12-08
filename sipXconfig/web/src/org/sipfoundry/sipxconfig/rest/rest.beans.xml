@@ -383,7 +383,15 @@
     <property name="gatewayContext" ref="gatewayContext" />
   </bean>
   <alias name="loginDetailsResourceWithPin" alias="/my/logindetailsunite" />
-  <alias name="loginDetailsResourceWithPin" alias="/my/logindetailsunite/logout" />  
+
+  <bean id="logoutResourceWithPin" class="org.sipfoundry.sipxconfig.rest.LoginDetailsResourceWithPin" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="ldapManager" ref="ldapManager"/>
+    <property name="configManager" ref="configManager"/>
+    <property name="addressManager" ref="addressManager"/>
+    <property name="gatewayContext" ref="gatewayContext" />
+  </bean>
+  <alias name="logoutResourceWithPin" alias="/my/logoutunite" /> 
 
   <bean id="restRedirectorResource" class="org.sipfoundry.sipxconfig.rest.RestRedirectorResource" scope="prototype">
     <property name="addressManager" ref="addressManager"/>
