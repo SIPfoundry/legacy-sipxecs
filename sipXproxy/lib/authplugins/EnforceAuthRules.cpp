@@ -192,7 +192,7 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
       // normal registered calls as well since processing of authrules.xml
       // will no longer be required for all calls to registered users.
       //
-      if (mpRegDb->isRegisteredBinding(requestUri))
+      if (mpSipRouter->trustSbcRegisteredCalls() && mpRegDb->isRegisteredBinding(requestUri))
       {
         Os::Logger::instance().log(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
                           " no permission required for call %s because the target is a registered binding.",

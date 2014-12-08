@@ -199,6 +199,8 @@ class SipRouter : public OsServerTask
    
    static SubscribeDB* getSubscribeDBInstance();
    
+   UtlBoolean trustSbcRegisteredCalls() const;
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
@@ -306,6 +308,7 @@ class SipRouter : public OsServerTask
    Int64 _lastDispatchSpeed;
    long _lastDispatchYieldTime;
    bool _isDispatchYielding;
+   UtlBoolean _trustSbcRegisteredCalls;
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -318,6 +321,11 @@ inline UtlBoolean SipRouter::isRelayAllowed() const
 inline SipUserAgent* SipRouter::getUserAgent() const
 {
   return mpSipUserAgent;
+}
+
+inline UtlBoolean SipRouter::trustSbcRegisteredCalls() const
+{
+  return _trustSbcRegisteredCalls;
 }
 
 
