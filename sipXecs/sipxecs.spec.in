@@ -104,7 +104,6 @@ Requires: sipxconfig >= %version
 Requires: sipxconfig-ftp >= %version
 Requires: sipxconfig-tftp >= %version
 Requires: sipxcounterpath >= %version
-Requires: sipxevent >= %version
 Requires: sipxgrandstream >= %version
 Requires: sipxgtek >= %version
 Requires: sipxhitachi >= %version
