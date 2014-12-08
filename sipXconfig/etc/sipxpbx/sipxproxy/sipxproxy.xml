@@ -107,6 +107,19 @@
       <type><boolean /></type>
       <value>0</value>
     </setting>
+    <setting name="SIPX_TRUST_SBC_REGISTERED_CALLS" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
     <setting name="SIPX_SEND_TRYING_FOR_NIST" advanced="yes">
       <type>
         <boolean>
