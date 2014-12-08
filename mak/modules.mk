@@ -49,7 +49,6 @@ sipx_extra = \
   sipXrest \
   sipXcallController \
   sipXcdrLog \
-  sipXevent \
   sipXrecording \
   sipXhomer \
   sipXcallQueue \
