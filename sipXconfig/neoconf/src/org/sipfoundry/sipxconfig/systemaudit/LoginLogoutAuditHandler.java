@@ -75,7 +75,7 @@ public class LoginLogoutAuditHandler extends AbstractSystemAuditHandler {
         HttpSession session = logoutEvent.getSession();
         Object userSession = (Object) session.getAttribute("state:sipXconfig-web:userSession");
         if (userSession != null) {
-            String userIdString = BeanUtils.getProperty(userSession, "userId");
+            String userIdString = BeanUtils.getProperty(userSession, "loggedInUserId");
             if (userIdString == null || userIdString.isEmpty()) {
                 return;
             }
