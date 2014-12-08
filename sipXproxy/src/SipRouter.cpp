@@ -123,6 +123,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,_lastDispatchSpeed(0)
    ,_lastDispatchYieldTime(0)
    ,_isDispatchYielding(false)
+   ,_trustSbcRegisteredCalls(FALSE)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -385,6 +386,8 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
      mpSipUserAgent->setMaxTransactionCount(_maxTransactionCount);
      OS_LOG_NOTICE(FAC_SIP, "Transaction rejection is in effect when queue is at " <<  _rejectOnFilledQueuePercent << "% capacity and transaction maximum count is " << _maxTransactionCount);
    }
+   
+   _trustSbcRegisteredCalls = configDb.getBoolean("SIPX_TRUST_SBC_REGISTERED_CALLS", FALSE);
    
 }
 
