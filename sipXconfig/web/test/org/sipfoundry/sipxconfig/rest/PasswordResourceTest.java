@@ -117,4 +117,21 @@ public class PasswordResourceTest extends TestCase {
         assertTrue(exceptionThrown);
     }
 
+    @SuppressWarnings("static-method")
+    @Test
+    public void testPasswordUrlEncoded() throws IOException {
+        PasswordResource res = new PasswordResource();
+        res.setCoreContext(m_coreContext);
+        boolean exceptionThrown = false;
+        InputRepresentation rep = new InputRepresentation(null, MediaType.TEXT_PLAIN);
+        Request request = new Request();
+        Map<String, Object> attributes = new HashMap<String, Object>();
+        attributes.put("password", "%21%24%25%5E%26%2A%28%29_%2B%7C%7E%3D%60%7B%7D%5C%5B%5C%5D%3A%3B%27%3C%3E%3F%2C.%5C%2F%40%23%5D%7B8%2C%7D");
+        request.setAttributes(attributes);
+        Response response = new Response(request);
+        res.init(null, request, response);
+
+        assertEquals("!$%^&*()_+|~=`{}\\[\\]:;'<>?,.\\/@#]{8,}", res.getNewPin());
+    }
+
 }
