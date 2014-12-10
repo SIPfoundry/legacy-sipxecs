@@ -103,6 +103,7 @@ sipxconfig_neoconf_PKGS = \
 	stax2-api \
 	jcl-over-slf4j \
 	spring-messaging \
+	jaudiotagger \
     spring-websocket \
     hazelcast-all \
     reflections \
