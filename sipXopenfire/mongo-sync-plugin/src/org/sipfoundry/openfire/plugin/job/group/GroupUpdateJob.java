@@ -76,16 +76,18 @@ public class GroupUpdateJob implements Job {
             try {
                 //group update is attempted
                 if (!StringUtils.equalsIgnoreCase(oldGroupName, groupName) && !StringUtils.isBlank(oldGroupName)) {
+                    //clear old group cached members/admins
                     group = GroupManager.getInstance().getGroup(oldGroupName);
                     group.getMembers().clear();
-                    group.getAdmins().clear();                    
-                    
-                    group.setName(groupName);
-                    //ensure cache update
+                    group.getAdmins().clear();
+                    //Group name needs to be modified. it is already in mongo so we probably only need to fire the modification  event
                     group = GroupManager.getInstance().getGroup(groupName, true);
-                    group.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
-                    group.getProperties().put("sharedRoster.displayName", groupName);
-                    group.getProperties().put("sharedRoster.groupList", "");
+                    //Fire event
+                    Map<String, Object> params = new HashMap<String, Object>();
+                    params.put("type", "nameModified");
+                    params.put("originalValue", oldGroupName);
+                    GroupEventDispatcher.dispatchEvent(group, GroupEventDispatcher.EventType.group_modified, params);
+                    GroupShared.setGroupProperties(group);   
                 }
             } catch (GroupNotFoundException e) {
                 logger.debug("Group not found " + groupName, e);
@@ -99,9 +101,7 @@ public class GroupUpdateJob implements Job {
                         // Fire event.
                         GroupEventDispatcher.dispatchEvent(group,
                             GroupEventDispatcher.EventType.group_created, Collections.emptyMap());
-                        group.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
-                        group.getProperties().put("sharedRoster.displayName", groupName);
-                        group.getProperties().put("sharedRoster.groupList", "");
+                        GroupShared.setGroupProperties(group);
                     } else {
                         group = GroupManager.getInstance().getGroup(groupName);
                     }

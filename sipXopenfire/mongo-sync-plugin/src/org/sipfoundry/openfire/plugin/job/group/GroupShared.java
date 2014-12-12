@@ -16,6 +16,9 @@
  */
 package org.sipfoundry.openfire.plugin.job.group;
 
+import java.util.Collection;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;
@@ -36,5 +39,31 @@ public class GroupShared {
         } catch (GroupNotFoundException ex) {
             logger.error(String.format("Delete group: Group %s not found", groupName));
         }
+    }
+    
+    public static void setGroupProperties(Group group) {
+        group.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
+        group.getProperties().put("sharedRoster.displayName", group.getName());
+        Collection<Group> sharedGroups = GroupManager.getInstance().getPublicSharedGroups();
+        StringBuilder buf = new StringBuilder();
+        if (sharedGroups != null) {           
+            String sep = "";
+            for (Group sharedGroup : sharedGroups) {
+                String groupName = sharedGroup.getName();
+                buf.append(sep).append(groupName);
+                sep = ",";
+            }            
+        }
+        group.getProperties().put("sharedRoster.groupList", buf.toString());      
+    }
+    
+    public static void setGroupProperties(String groupName) {
+        try {
+            Group imGroup = GroupManager.getInstance().getGroup(groupName);
+            setGroupProperties(imGroup);
+        } catch (GroupNotFoundException e) {
+            logger.debug("Group not found: " + groupName + " cannot update properties");
+        }
+
     }
 }

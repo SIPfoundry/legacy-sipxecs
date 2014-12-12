@@ -20,15 +20,11 @@ import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jivesoftware.openfire.event.UserEventDispatcher;
-import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
@@ -163,7 +159,7 @@ public class UserUpdateJob implements Job {
         //refresh cache        
         CacheHolder.putUserGroups(id, actualGroups);
 
-    }   
+    }        
 
     @Override
     public String toString() {
