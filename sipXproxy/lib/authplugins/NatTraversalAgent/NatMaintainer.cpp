@@ -18,6 +18,7 @@
 #include "net/SipMessage.h"
 #include "net/NameValueTokenizer.h"
 #include "NatTraversalAgentDataTypes.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 #define NAT_REFRESH_INTERVAL_IN_MILLISECS (20000)
@@ -146,11 +147,9 @@ int NatMaintainer::run( void* runArg )
           }
        }
      }
-     catch(...)
+     catch(const std::exception& e)
      {
-       //
-       // Treat all exceptions as benign
-       //
+       OS_LOG_ERROR(FAC_SIP, "NatMaintainer::run Exception - " << e.what());
      }
   }
   
