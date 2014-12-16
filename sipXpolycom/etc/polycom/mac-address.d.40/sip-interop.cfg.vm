@@ -42,6 +42,11 @@
         voIpProt.SIP.alertInfo.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
 #end
 #end
+
+      #foreach($setting in $cfg.getSettings($group))
+        voIpProt.SIP.alertInfo.${setting.ProfileName}="$!{setting.Value}"
+      #end
+      
       />
       <voIpProt.SIP.requestValidation
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('requestValidation'))

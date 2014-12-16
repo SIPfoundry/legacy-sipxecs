@@ -63,12 +63,12 @@
 #foreach ($setting in $cfg.getSettings($up))
       up.${setting.ProfileName}="$!{setting.Value}"
 #end
-	#if(($phone.getDeviceVersion() == $ver5 || $phone.getDeviceVersion() == $ver501 || $phone.getDeviceVersion() == $ver502 || $phone.getDeviceVersion() == $ver416) && ($phone.model.modelId == "polycomVVX500" || $phone.model.modelId == "polycomVVX600"))
 	#set ($nodc = $cfg.EndpointSettings.getSetting('up/numOfDisplayColumns/numOfDisplayColumns'))
+	#if($nodc)
      up.numOfDisplayColumns="$!{nodc.Value}"
     #end
-	#if(($phone.getDeviceVersion() == $ver416))
 	#set ($idleV = $cfg.EndpointSettings.getSetting('up/IdleViewPreferenceRemoteCalls/IdleViewPreferenceRemoteCalls'))
+	#if($idleV)
      up.IdleViewPreferenceRemoteCalls="$!{idleV.Value}"
     #end
   >
@@ -90,11 +90,23 @@
     />
   #end
  #end
+
+  #set ($em = $cfg.EndpointSettings.getSetting('up').getSetting('em'))
+  #if($em)
+    <up.em
+  #foreach ($setting in $cfg.getSettings($em))
+      up.em.${setting.ProfileName}="$!{setting.Value}"
+  #end
+    />
+  #end
+  
   </up>
-#if($phone.getDeviceVersion() == $ver416)
+  
+
   #set ($lkre = $cfg.EndpointSettings.getSetting('lineKey/reassignment.enabled'))
+  #if($lkre)
   <lineKey
     lineKey.reassignment.enabled="${lkre.Value}"
-  />  
-#end
+  />
+  #end
 </polycomConfig>

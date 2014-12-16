@@ -159,6 +159,17 @@ public class SipBasicConfigurationTest extends PolycomXmlTestCase {
         expectedPhoneStream.close();
     }
 
+    public void testGenerateProfile418() throws Exception {
+        SipBasicConfiguration app = new SipBasicConfiguration(phone418);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-sip-basic.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
+
     //502 profiles
     public void testGenerateProfileMwiDisabled() throws Exception {
         PolycomModel model = phoneModelBuilder("polycomVVX500", getClass());

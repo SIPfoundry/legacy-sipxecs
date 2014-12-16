@@ -58,6 +58,8 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
     static protected PolycomPhone phone501;
     static protected PolycomPhone phone502;
     static protected PolycomPhone phone416;
+    static protected PolycomPhone phone418;
+    static protected PolycomPhone phone520;
     static protected MemoryProfileLocation location;
     static protected VelocityProfileGenerator m_pg;
 
@@ -150,6 +152,26 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         phone416.setDeviceVersion(PolycomModel.VER_4_1_6);
         phone416.setFeatureManager(featureManagerMock);
         PhoneTestDriver.supplyTestData(phone416);
+
+        phone418 = new PolycomPhone();
+
+        phone418.setModelId("polycomVVX500");
+        phone418.setBeanId("polycomVVX500");
+        phone418.setPhoneModelSource(phoneModelSource);
+        phone418.setModel(model);
+        phone418.setDeviceVersion(PolycomModel.VER_4_1_8);
+        phone418.setFeatureManager(featureManagerMock);
+        PhoneTestDriver.supplyTestData(phone418);
+
+        phone520 = new PolycomPhone();
+
+        phone520.setModelId("polycomVVX500");
+        phone520.setBeanId("polycomVVX500");
+        phone520.setPhoneModelSource(phoneModelSource);
+        phone520.setModel(model);
+        phone520.setDeviceVersion(PolycomModel.VER_5_2_0);
+        phone520.setFeatureManager(featureManagerMock);
+        PhoneTestDriver.supplyTestData(phone520);
 
         location = new MemoryProfileLocation();
 
