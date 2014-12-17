@@ -69,6 +69,8 @@ class TransferControl : public AuthPlugin
 
    virtual void announceAssociatedSipRouter( SipRouter* sipRouter );
    
+   virtual void authorizeAndModifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse);
+   
   protected:
    friend class TransferControlTest;
    

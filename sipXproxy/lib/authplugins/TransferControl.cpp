@@ -318,6 +318,108 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
    return result;
 }
 
+void TransferControl::authorizeAndModifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse)
+{
+  //
+  // Check if the response is a 302
+  //
+  int statusCode = -1;
+  statusCode = finalResponse.getResponseStatusCode();
+  bool is3xx = (statusCode >= SIP_3XX_CLASS_CODE && statusCode < SIP_4XX_CLASS_CODE);
+  if (!is3xx)
+    return;
+  
+  //
+  // Check if the 3xx is from the registrar by checking for sipXecs-CallDest in the contact
+  //
+  UtlString  contactString;
+  UtlString targetId;
+  
+  finalResponse.getContactEntry(0, &contactString);
+  Url contactUri( contactString );
+  contactUri.getUserId(targetId);
+  if (contactString.first(SIP_SIPX_CALL_DEST_FIELD) != UtlString::UTLSTRING_NOT_FOUND)
+    return;
+     
+  //
+  // Check if it already has SIP_SIPX_AUTHIDENTITY
+  //
+  if (contactString.first(SIP_SIPX_AUTHIDENTITY) != UtlString::UTLSTRING_NOT_FOUND)
+    return;
+  
+  //
+  // At this point we already know that this is a 302 redirect that did not ccom from sipx or is signed by sipx
+  //
+  OS_LOG_DEBUG(FAC_SIP, "TransferControl::authorizeAndModifyFinalResponse - Evaluating contact " << contactString.data());
+ 
+  //
+  // Get the request-uri user
+  //
+  UtlString stringUri;
+  UtlString requestUriUser;
+  request.getRequestUri(&stringUri);
+  // The requestUri is an addr-spec, not a name-addr.
+  Url requestUri(stringUri, TRUE);
+  requestUri.getUserId(requestUriUser);
+  if (requestUriUser.isNull())
+  {
+    OS_LOG_ERROR(FAC_SIP, "TransferControl::authorizeAndModifyFinalResponse - Unable to determine user identity.")
+    return;
+  }
+  
+  //
+  // Get local domain
+  //
+  UtlString localDomain;
+  mpSipRouter->getDomain(localDomain);
+  if (localDomain.isNull())
+  {
+    OS_LOG_ERROR(FAC_SIP, "TransferControl::authorizeAndModifyFinalResponse - Unable to determine local domain.")
+    return;
+  }
+  
+  //
+  // Create the identity
+  //
+  std::ostringstream identity;
+  identity << requestUriUser.data() << "@" << localDomain.data();
+  
+  //
+  // Get the source address of the response
+  //
+  UtlString srcAddress;
+  int srcPort = PORT_NONE;
+  finalResponse.getSendAddress(&srcAddress, &srcPort);
+  if (srcAddress.isNull())
+  {
+    OS_LOG_ERROR(FAC_SIP, "TransferControl::authorizeAndModifyFinalResponse - Unable to determine source address.")
+    return;
+  }
+  
+  //
+  // Check if the identity is registered to this address
+  //
+  if  (!mpSipRouter->isRegisteredAddress(identity.str(), srcAddress.str()))
+  {
+    OS_LOG_WARNING(FAC_SIP, "TransferControl::authorizeAndModifyFinalResponse - " << identity.str() << " is not registered from address " << srcAddress.str());
+    return;
+  }
+  
+  //
+  // 3XX is from a registered user.  Sign the contact
+  //
+  SipXauthIdentity authIdentity;
+  authIdentity.setIdentity(identity.str().c_str());
+  authIdentity.encodeUri(contactUri);
+  
+  UtlString signedContact;
+  contactUri.toString(signedContact);
+  
+  finalResponse.setContactField(signedContact, 0);
+  
+  OS_LOG_INFO(FAC_SIP, "TransferControl::authorizeAndModifyFinalResponse - identity=" << identity.str() << " contact was " <<  contactString.data() << " now " <<  signedContact.data());
+}
+
 
 /// destructor
 TransferControl::~TransferControl()
