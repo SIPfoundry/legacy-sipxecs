@@ -907,514 +907,500 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
    // the proxy.
    bool bMessageWillSpiral                 = false;
 
-   /*
-    * Check for a Proxy-Require header containing unsupported extensions
-    */
-   UtlString disallowedExtensions;      
-   if( areAllExtensionsSupported(sipRequest, disallowedExtensions) )
+   // filled in case there will be an exception
+   std::string errorString;
+
+   try
    {
-      // No unsupported extensions, so continue...
-      // Fix strict routes and remove any top route headers that go to myself.
-      Url normalizedRequestUri;
-      UtlSList removedRoutes;
-      sipRequest.normalizeProxyRoutes(mpSipUserAgent,
-                                      normalizedRequestUri, // returns normalized request uri
-                                      &removedRoutes        // route headers popped 
-                                      );
-      
-      // Get any state from the record-route and route headers.
-      RouteState routeState(sipRequest, removedRoutes, mRouteHostPort); 
-      removedRoutes.destroyAll(); // done with routes - discard them.
-      
-      if( !sipRequest.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ))
-      {
-         // Apply NAT mapping info to all non-spiraling requests to make
-         // sure all in-dialog requests sent by the UAS for this request 
-         // will be sent to a routable contact.
-         addNatMappingInfoToContacts( sipRequest );            
+     /*
+      * Check for a Proxy-Require header containing unsupported extensions
+      */
+     UtlString disallowedExtensions;
+     if( areAllExtensionsSupported(sipRequest, disallowedExtensions) )
+     {
+        // No unsupported extensions, so continue...
+        // Fix strict routes and remove any top route headers that go to myself.
+        Url normalizedRequestUri;
+        UtlSList removedRoutes;
+        sipRequest.normalizeProxyRoutes(mpSipUserAgent,
+                                        normalizedRequestUri, // returns normalized request uri
+                                        &removedRoutes        // route headers popped
+                                        );
 
-         // Our custom spiraling header was NOT found indicating that the request
-         // is not received as a result of spiraling. It could either be a 
-         // dialog-forming request or an in-dialog request sent directly by the UAC
-         if( !routeState.isFound() )
-         {
-            // The request is not spiraling and does not bear a RouteState.  
-            // Do not authorize the request right away.  Evaluate the 
-            // Forwarding Rules and let the request spiral.   The request
-            // will eventually get authorized as it spirals back to us.
-            // Add proprietary header indicating that the request is 
-            // spiraling. 
-            // Also, if the user sending this request is located behind 
-            // a NAT and the request is a REGISTER then add a signed 
-            // Path header to this proxy to make sure that all subsequent 
-            // requests sent to the registering user get funneled through
-            // this proxy.  Also, the NAT mapping of the user is encoded
-            // as extra URL parameters of the Path header.
-            sipRequest.setHeaderValue( SIP_SIPX_SPIRAL_HEADER, "true", 0 );
-            bRequestShouldBeAuthorized        = false;
-            bForwardingRulesShouldBeEvaluated = true;
-            // If the UA sending this request is located behind 
-            // a NAT and the request is a REGISTER then add a
-            // Path header to this proxy to make sure that all subsequent 
-            // requests sent to the registering UA get funneled through
-            // this proxy.
-            addPathHeaderIfNATOrTlsRegisterRequest( sipRequest );
+        // Get any state from the record-route and route headers.
+        RouteState routeState(sipRequest, removedRoutes, mRouteHostPort);
+        removedRoutes.destroyAll(); // done with routes - discard them.
 
-            if(isPAIdentityApplicable(sipRequest))
-            {
-               Url fromUrl;
-               UtlString userId;
-               UtlString authTypeDB;
-               UtlString passTokenDB;
+        if( !sipRequest.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ))
+        {
+           // Apply NAT mapping info to all non-spiraling requests to make
+           // sure all in-dialog requests sent by the UAS for this request
+           // will be sent to a routable contact.
+           addNatMappingInfoToContacts( sipRequest );
 
-               sipRequest.getFromUrl(fromUrl); 
+           // Our custom spiraling header was NOT found indicating that the request
+           // is not received as a result of spiraling. It could either be a
+           // dialog-forming request or an in-dialog request sent directly by the UAC
+           if( !routeState.isFound() )
+           {
+              // The request is not spiraling and does not bear a RouteState.
+              // Do not authorize the request right away.  Evaluate the
+              // Forwarding Rules and let the request spiral.   The request
+              // will eventually get authorized as it spirals back to us.
+              // Add proprietary header indicating that the request is
+              // spiraling.
+              // Also, if the user sending this request is located behind
+              // a NAT and the request is a REGISTER then add a signed
+              // Path header to this proxy to make sure that all subsequent
+              // requests sent to the registering user get funneled through
+              // this proxy.  Also, the NAT mapping of the user is encoded
+              // as extra URL parameters of the Path header.
+              sipRequest.setHeaderValue( SIP_SIPX_SPIRAL_HEADER, "true", 0 );
+              bRequestShouldBeAuthorized        = false;
+              bForwardingRulesShouldBeEvaluated = true;
+              // If the UA sending this request is located behind
+              // a NAT and the request is a REGISTER then add a
+              // Path header to this proxy to make sure that all subsequent
+              // requests sent to the registering UA get funneled through
+              // this proxy.
+              addPathHeaderIfNATOrTlsRegisterRequest( sipRequest );
 
-               // If the fromUrl uses domain alias, we need to change the
-               // domain to mDomainName for credential database search,
-               // as identities are stored in credential database using mDomainName.
-               if (mpSipUserAgent->isMyHostAlias(fromUrl))
-               {
-                   fromUrl.setHostAddress(mDomainName);
-               }
+              if(isPAIdentityApplicable(sipRequest))
+              {
+                 Url fromUrl;
+                 UtlString userId;
+                 UtlString authTypeDB;
+                 UtlString passTokenDB;
 
-               // If the identity portion of the From header can be found in the
-               // identity column of the credentials database, then a request
-               // should be challenged for authentication and when authenticated
-               // the PAI should be added by the proxy before passing it on to
-               // other components.
-               if(getCredential(fromUrl,
-                                 mRealm,
-                                 userId,
-                                 passTokenDB,
-                                 authTypeDB))
-               {
-                  UtlString authUser;
-                  if (!isAuthenticated(sipRequest,authUser))
-                  {
-                     // challenge the originator
-                     authenticationChallenge(sipRequest, sipResponse);
+                 sipRequest.getFromUrl(fromUrl);
 
-                     Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                                   "SipRouter::proxyMessage "
-                                   " From '%s' is unauthenticated local user - challenge for PAI",
-                                   fromUrl.toString().data());
-
-                     returnedAction = SendResponse;
-                     bForwardingRulesShouldBeEvaluated = false;
-                  } 
-                  else
-                  {
-                     // already authenticated
-                     // If sipRequest already contains a sender-inserted P-Asserted-Identity
-                     // header, we will remove it and insert a new one with signature to
-                     // prevent spoofing.
-                     if (sipRequest.getHeaderValue(0, 
-                         SipXauthIdentity::PAssertedIdentityHeaderName))
-                     {
-                         sipRequest.removeHeader(SipXauthIdentity::PAssertedIdentityHeaderName, 0);
-                     }
-
-                     SipXauthIdentity pAssertedIdentity;
-                     UtlString fromIdentity;
-                     fromUrl.getIdentity(fromIdentity);
-                     pAssertedIdentity.setIdentity(fromIdentity);
-                     // Sign P-Asserted-Identity header  to prevent from forgery 
-                     // and insert it into sipMessage
-                     pAssertedIdentity.insert(sipRequest,
-                                              SipXauthIdentity::PAssertedIdentityHeaderName);
-                  }
-               }
-               else
-               {
-                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
-                                " From '%s' not local to realm '%s' - do not challenge",
-                                fromUrl.toString().data(), mRealm.data());
-               }
-            }
-         }
-         else
-         {
-            // The request is not spiraling but it has a RouteState.
-            // If the RouteState is not mutable, it indicates that
-            // this request is an in-dialog one.  There is no need to
-            // evaluate the Forwarding Rules on such requests unless the
-            // final target that has been identified is in our own domain.
-            // If the RouteState is mutable, this indicates that we are
-            // still in an early dialog.  Such a condition can occur
-            // when a UAS generates 302 Moved Temporarily in response
-            // to an INVITE that we forked.  The processing of that 302 Moved
-            // Temporarily generates an INVITE that carries a RecordRoute header
-            // with a valid RouteState.  Such requests must be authenticated
-            // and then spiraled to make sure they get forked according to the
-            // forwarding rules. In such cases, our custom spiraling header
-            // is added to make sure that that happens.
-            if( routeState.isMutable() )
-            {
-               sipRequest.setHeaderValue( SIP_SIPX_SPIRAL_HEADER, "true", 0 );
-               bMessageWillSpiral                 = true;
-               bRequestShouldBeAuthorized         = true;
-               bForwardingRulesShouldBeEvaluated  = false;
-            }
-            else if ( isLocalDomain(normalizedRequestUri, false) && normalizedRequestUri.isGRUU() )
-            {             
-               //
-               // The domain points to us and the uri is a GRUU.  We will attempt to query the
-               // registration database locally if there is a registration for this GRUU.
-               // If a registration is found, we will retarget the request-uri.
-               // If no registration is found, we will revert to the old rule and evaluate forwarding rules
-               // and hope or the best.
-               // 
-               Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                             "SipRouter::proxyMessage detected GRUU mid-dialog request.");
-               
-               RegDB::Bindings registrations;
-               UtlString identity;
-               unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
-               normalizedRequestUri.getIdentity(identity);
-               mpRegDb->getUnexpiredContactsUser(identity.str(), timeNow, registrations, true);
-               
-               if (!registrations.empty())
-               {
-                 Url contactUri(registrations[0].getContact().c_str());
-                 
-                 UtlString changedUri;
-                 UtlString previousUri;
-                 normalizedRequestUri.getUri(previousUri);
-                 contactUri.getUri(changedUri);
-                 
-                 if (registrations.size() > 1)
+                 // If the fromUrl uses domain alias, we need to change the
+                 // domain to mDomainName for credential database search,
+                 // as identities are stored in credential database using mDomainName.
+                 if (mpSipUserAgent->isMyHostAlias(fromUrl))
                  {
-                   OS_LOG_WARNING(FAC_SIP, "GRUU normalizing " << previousUri.data() << " resolves to multiple target.  Using first record with extreme prejudice.");
+                     fromUrl.setHostAddress(mDomainName);
                  }
-                 
-                 OS_LOG_INFO(FAC_SIP, "GRUU normalizing " << previousUri.data() << " -> " <<  changedUri.data());
-                 normalizedRequestUri = contactUri;
-                 sipRequest.changeRequestUri(changedUri);
-                 
+
+                 // If the identity portion of the From header can be found in the
+                 // identity column of the credentials database, then a request
+                 // should be challenged for authentication and when authenticated
+                 // the PAI should be added by the proxy before passing it on to
+                 // other components.
+                 if(getCredential(fromUrl,
+                                   mRealm,
+                                   userId,
+                                   passTokenDB,
+                                   authTypeDB))
+                 {
+                    UtlString authUser;
+                    if (!isAuthenticated(sipRequest,authUser))
+                    {
+                       // challenge the originator
+                       authenticationChallenge(sipRequest, sipResponse);
+
+                       Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                                     "SipRouter::proxyMessage "
+                                     " From '%s' is unauthenticated local user - challenge for PAI",
+                                     fromUrl.toString().data());
+
+                       returnedAction = SendResponse;
+                       bForwardingRulesShouldBeEvaluated = false;
+                    }
+                    else
+                    {
+                       // already authenticated
+                       // If sipRequest already contains a sender-inserted P-Asserted-Identity
+                       // header, we will remove it and insert a new one with signature to
+                       // prevent spoofing.
+                       if (sipRequest.getHeaderValue(0,
+                           SipXauthIdentity::PAssertedIdentityHeaderName))
+                       {
+                           sipRequest.removeHeader(SipXauthIdentity::PAssertedIdentityHeaderName, 0);
+                       }
+
+                       SipXauthIdentity pAssertedIdentity;
+                       UtlString fromIdentity;
+                       fromUrl.getIdentity(fromIdentity);
+                       pAssertedIdentity.setIdentity(fromIdentity);
+                       // Sign P-Asserted-Identity header  to prevent from forgery
+                       // and insert it into sipMessage
+                       pAssertedIdentity.insert(sipRequest,
+                                                SipXauthIdentity::PAssertedIdentityHeaderName);
+                    }
+                 }
+                 else
+                 {
+                    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
+                                  " From '%s' not local to realm '%s' - do not challenge",
+                                  fromUrl.toString().data(), mRealm.data());
+                 }
+              }
+           }
+           else
+           {
+              // The request is not spiraling but it has a RouteState.
+              // If the RouteState is not mutable, it indicates that
+              // this request is an in-dialog one.  There is no need to
+              // evaluate the Forwarding Rules on such requests unless the
+              // final target that has been identified is in our own domain.
+              // If the RouteState is mutable, this indicates that we are
+              // still in an early dialog.  Such a condition can occur
+              // when a UAS generates 302 Moved Temporarily in response
+              // to an INVITE that we forked.  The processing of that 302 Moved
+              // Temporarily generates an INVITE that carries a RecordRoute header
+              // with a valid RouteState.  Such requests must be authenticated
+              // and then spiraled to make sure they get forked according to the
+              // forwarding rules. In such cases, our custom spiraling header
+              // is added to make sure that that happens.
+              if( routeState.isMutable() )
+              {
+                 sipRequest.setHeaderValue( SIP_SIPX_SPIRAL_HEADER, "true", 0 );
+                 bMessageWillSpiral                 = true;
                  bRequestShouldBeAuthorized         = true;
                  bForwardingRulesShouldBeEvaluated  = false;
-               }
-               else
-               {
-                 UtlString gruuUri;
-                 normalizedRequestUri.getUri(gruuUri);
-                 OS_LOG_WARNING(FAC_SIP, "Unable to resolve GRUU " << gruuUri.data() << " through the registration database.");
-                 bRequestShouldBeAuthorized         = true;
-                 bForwardingRulesShouldBeEvaluated  = true;
-               }
-            }
-            else
-            {
-               bRequestShouldBeAuthorized         = true;
-               bForwardingRulesShouldBeEvaluated  = false;
-            }
-         }
-      }
-      else
-      {
-         // Request is currently spiraling.  Continue to evaluate Forwarding Rules
-         // to converge on the final target and do authorize the request to
-         // make sure request is allowed to spiral further.
-         bRequestShouldBeAuthorized        = true;
-         bForwardingRulesShouldBeEvaluated = true;
-      }
-
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipRouter::proxyMessage A "
-                    "bRequestShouldBeAuthorized = %d, "
-                    "bForwardingRulesShouldBeEvaluated = %d, "
-                    "bMessageWillSpiral = %d",
-                    bRequestShouldBeAuthorized,
-                    bForwardingRulesShouldBeEvaluated,
-                    bMessageWillSpiral);
-
-      if( bForwardingRulesShouldBeEvaluated )
-      {
-         UtlString topRouteValue;
-         if (sipRequest.getRouteUri(0, &topRouteValue)) 
-         {
-            /*
-             * There is a top route that is not to this domain
-             * (if the top route were to this domain, it would have been removed),
-             * so let the authorization process decide whether or not it can go through
-             */
-            bRequestShouldBeAuthorized = true;
-         }
-         else // there is no Route header, so evaluate forwarding rules 
-              // based on request's Request URI
-         {
-            UtlString mappedTo;
-            UtlString routeType;               
-            bool authRequired;
-            UtlString ruriParams;
-                        
-            // see if we have a mapping for the normalized request uri
-            if (   mpForwardingRules 
-                && (mpForwardingRules->getRoute(normalizedRequestUri, sipRequest,
-                                                mappedTo, routeType, authRequired, ruriParams)==OS_SUCCESS)
-                )
-            {
-               if (mappedTo.length() > 0)
-               {
-                  // Yes, so add a loose route to the mapped server
-                  Url nextHopUrl(mappedTo);
-
-                  // Check if the route points to the Registrar by
-                  // testing for the preseonce of the
-                  // 'x-sipx-routetoreg' custom URL parameter.  If the
-                  // parameter is found, it indicates that the request
-                  // is spiraling.
-                  UtlString dummyString;
-                  if( nextHopUrl.getUrlParameter( SIPX_ROUTE_TO_REGISTRAR_URI_PARAM, dummyString ) )
-                  {
-                     bMessageWillSpiral = true;
-                     nextHopUrl.removeUrlParameter( SIPX_ROUTE_TO_REGISTRAR_URI_PARAM );
-                  }
-                  
-                  nextHopUrl.setUrlParameter("lr", NULL);
-                  UtlString routeString;
-                  nextHopUrl.toString(routeString);
-                  sipRequest.addRouteUri(routeString.data());
-         
-                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                             "SipRouter::proxyMessage fowardingrules added route type '%s' to: '%s'",
-                             routeType.data(), routeString.data());
-    
-               }
-               if (authRequired)
-               {
-                  // Forwarding rules specify that request should be authorized
-                  bRequestShouldBeAuthorized = true;
-               }
-
-               if (!ruriParams.isNull())
-               {
-                 addRuriParams(sipRequest, ruriParams);
-               }
-               else
-               {
+              }
+              else if ( isLocalDomain(normalizedRequestUri, false) && normalizedRequestUri.isGRUU() )
+              {
+                 //
+                 // The domain points to us and the uri is a GRUU.  We will attempt to query the
+                 // registration database locally if there is a registration for this GRUU.
+                 // If a registration is found, we will retarget the request-uri.
+                 // If no registration is found, we will revert to the old rule and evaluate forwarding rules
+                 // and hope or the best.
+                 //
                  Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                             "SipRouter::proxyMessage no ruri params to be added");
-               }
-            }
-            else
-            {
-               // the mapping rules didn't have any route for this,
-               // so let the authorization process decide whether or not it can go through
-               bRequestShouldBeAuthorized = true;
-            }
-         } 
-         if( !bMessageWillSpiral )
-         {
-            // No match found in forwarding rules meaning that spiraling is 
-            // complete and that request will be sent towards its final destination. 
-            // If the request contained our proprietary spiral header then remove it
-            // since spiraling is complete.
-            sipRequest.removeHeader( SIP_SIPX_SPIRAL_HEADER, 0 );
-         }
-      }
-      
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "SipRouter::proxyMessage B "
-                    "bRequestShouldBeAuthorized = %d, "
-                    "bMessageWillSpiral = %d",
-                    bRequestShouldBeAuthorized,
-                    bMessageWillSpiral);
+                               "SipRouter::proxyMessage detected GRUU mid-dialog request.");
 
-      if( bRequestShouldBeAuthorized )
-      {
-          
-         bool requestIsAuthenticated = false; // message carries authenticated identity?         
-         UtlString authUser;                  // authenticated identity of the user.
-         AuthPlugin::AuthResult authStatus   = AuthPlugin::CONTINUE; // authorization status determined from presence of authorization token in Route State 
-         AuthPlugin::AuthResult authDecision = AuthPlugin::CONTINUE; // authorization decision from auth plug-ins
-         UtlString callId;
-         sipRequest.getCallIdField(&callId);  // for logging
+                 RegDB::Bindings registrations;
+                 UtlString identity;
+                 unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
+                 normalizedRequestUri.getIdentity(identity);
+                 mpRegDb->getUnexpiredContactsUser(identity.str(), timeNow, registrations, true);
 
-         // If the RouteState is not mutable, check whether or not the dialog has already
-         // been authorized by interogating the RouteState
-         if( !routeState.isMutable() )
-         {
-            if( routeState.isDialogAuthorized() )
-            {
-               // the dialog has already been authorized, allow request
-               authStatus = AuthPlugin::ALLOW;
-            }           
-         }
-         
-         // try to find authenticated user in SipXauthIdentity or in Authorization headers
-         // Use the identity found in the SipX-Auth-Identity header if found
-         SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::AuthIdentityHeaderName,
-             SipXauthIdentity::allowUnbound); 
-         if ((requestIsAuthenticated = sipxIdentity.getIdentity(authUser)))
-         {
-            // found identity in request
-            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SipRouter::proxyMessage "
-                          " found valid sipXauthIdentity '%s' for callId %s",
-                          authUser.data(), callId.data() 
-                          );
+                 if (!registrations.empty())
+                 {
+                   Url contactUri(registrations[0].getContact().c_str());
 
-            // Can't completely remove identity info, since it may be required
-            // further if the request spirals. Normalize authIdentity to only leave
-            // the most recent info in the request 
-            SipXauthIdentity::normalize(sipRequest, SipXauthIdentity::AuthIdentityHeaderName);
-         }
-         else
-         {
-            // no SipX-Auth-Identity, so see if there is a Proxy-Authorization on the request
-            requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
-         }
+                   UtlString changedUri;
+                   UtlString previousUri;
+                   normalizedRequestUri.getUri(previousUri);
+                   contactUri.getUri(changedUri);
 
-         /*
-          * Determine whether or not this request is authorized.
-          */
-         UtlString rejectReason;
+                   if (registrations.size() > 1)
+                   {
+                     OS_LOG_WARNING(FAC_SIP, "GRUU normalizing " << previousUri.data() << " resolves to multiple target.  Using first record with extreme prejudice.");
+                   }
 
-         // handle special cases that are universal
-         UtlString method;
-         sipRequest.getRequestMethod(&method); // Don't authenticate ACK -- it is always allowed.
-         if (sipRequest.isResponse() || method.compareTo( SIP_ACK_METHOD ) == 0 )  // responses and ACKs are always allowed 
-         {
-            authStatus   = AuthPlugin::ALLOW;
-            authDecision = AuthPlugin::ALLOW;
-         }
-         
-         // call each plugin
-         PluginIterator authPlugins(mAuthPlugins);
-         AuthPlugin* authPlugin;
-         UtlString authPluginName;
-         AuthPlugin::AuthResult pluginResult;
-         while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
-         {
-            pluginResult = authPlugin->authorizeAndModify(authUser,
-                                                          normalizedRequestUri,
-                                                          routeState,
-                                                          method,
-                                                          authStatus,
-                                                          sipRequest,
-                                                          bMessageWillSpiral,                                                          
-                                                          rejectReason
-                                                          );
+                   OS_LOG_INFO(FAC_SIP, "GRUU normalizing " << previousUri.data() << " -> " <<  changedUri.data());
+                   normalizedRequestUri = contactUri;
+                   sipRequest.changeRequestUri(changedUri);
 
-            Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
-                          "SipProxy::proxyMessage plugin %s returned %s for %s",
-                          authPluginName.data(),
-                          AuthPlugin::AuthResultStr(pluginResult),
-                          callId.data()
-                          );
+                   bRequestShouldBeAuthorized         = true;
+                   bForwardingRulesShouldBeEvaluated  = false;
+                 }
+                 else
+                 {
+                   UtlString gruuUri;
+                   normalizedRequestUri.getUri(gruuUri);
+                   OS_LOG_WARNING(FAC_SIP, "Unable to resolve GRUU " << gruuUri.data() << " through the registration database.");
+                   bRequestShouldBeAuthorized         = true;
+                   bForwardingRulesShouldBeEvaluated  = true;
+                 }
+              }
+              else
+              {
+                 bRequestShouldBeAuthorized         = true;
+                 bForwardingRulesShouldBeEvaluated  = false;
+              }
+           }
+        }
+        else
+        {
+           // Request is currently spiraling.  Continue to evaluate Forwarding Rules
+           // to converge on the final target and do authorize the request to
+           // make sure request is allowed to spiral further.
+           bRequestShouldBeAuthorized        = true;
+           bForwardingRulesShouldBeEvaluated = true;
+        }
 
-            // the first plugin to return something other than CONTINUE wins
-            if (AuthPlugin::CONTINUE == authDecision && AuthPlugin::CONTINUE != pluginResult)
-            {
-               authStatus   = pluginResult;
-               authDecision = pluginResult;
-               Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
-                             "SipProxy::proxyMessage authoritative authorization decision is %s by %s for %s",
-                             AuthPlugin::AuthResultStr(authDecision),
-                             authPluginName.data(),
-                             callId.data()
-                             );
-            }
-         }
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                      "SipRouter::proxyMessage A "
+                      "bRequestShouldBeAuthorized = %d, "
+                      "bForwardingRulesShouldBeEvaluated = %d, "
+                      "bMessageWillSpiral = %d",
+                      bRequestShouldBeAuthorized,
+                      bForwardingRulesShouldBeEvaluated,
+                      bMessageWillSpiral);
 
-         // Based on the authorization decision, either proxy the request or send a response.
-         switch (authDecision)
-         {
-         case AuthPlugin::DENY:
-         {
-            // Either not authenticated or not authorized
-            if (requestIsAuthenticated)
-            {
-               // Rewrite sipRequest as the authorization-needed response so our caller
-               // can send it.
-               sipResponse.setResponseData(&sipRequest,
-                                           SIP_FORBIDDEN_CODE,
-                                           rejectReason.data());
-            }
-            else
-            {
-               // There was no authentication, so challenge
-               authenticationChallenge(sipRequest, sipResponse);
-            }
-            returnedAction = SendResponse;
-         }
-         break;
-         
-         case AuthPlugin::CONTINUE: // be permissive - if nothing says DENY, then treat as ALLOW
-         case AuthPlugin::ALLOW:
-         {
-           // Request is sufficiently authorized, so proxy it.
-           // Plugins may have modified the state - if allowed, put that state into the message
-            if (routeState.isMutable())
-            {
-               routeState.markDialogAsAuthorized();              
-               routeState.update(&sipRequest);
-            }
-         }
-         break;
+        if( bForwardingRulesShouldBeEvaluated )
+        {
+           UtlString topRouteValue;
+           if (sipRequest.getRouteUri(0, &topRouteValue))
+           {
+              /*
+               * There is a top route that is not to this domain
+               * (if the top route were to this domain, it would have been removed),
+               * so let the authorization process decide whether or not it can go through
+               */
+              bRequestShouldBeAuthorized = true;
+           }
+           else // there is no Route header, so evaluate forwarding rules
+                // based on request's Request URI
+           {
+              UtlString mappedTo;
+              UtlString routeType;
+              bool authRequired;
+              UtlString ruriParams;
 
-         default:
-            Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
-                          "SipRouter::proxyMessage plugin returned invalid result %d",
-                          authDecision);
-            break;
-         }
-      }     // end should be authorized
+              // see if we have a mapping for the normalized request uri
+              if (   mpForwardingRules
+                  && (mpForwardingRules->getRoute(normalizedRequestUri, sipRequest,
+                                                  mappedTo, routeType, authRequired, ruriParams)==OS_SUCCESS)
+                  )
+              {
+                 if (mappedTo.length() > 0)
+                 {
+                    // Yes, so add a loose route to the mapped server
+                    Url nextHopUrl(mappedTo);
+
+                    // Check if the route points to the Registrar by
+                    // testing for the preseonce of the
+                    // 'x-sipx-routetoreg' custom URL parameter.  If the
+                    // parameter is found, it indicates that the request
+                    // is spiraling.
+                    UtlString dummyString;
+                    if( nextHopUrl.getUrlParameter( SIPX_ROUTE_TO_REGISTRAR_URI_PARAM, dummyString ) )
+                    {
+                       bMessageWillSpiral = true;
+                       nextHopUrl.removeUrlParameter( SIPX_ROUTE_TO_REGISTRAR_URI_PARAM );
+                    }
+
+                    nextHopUrl.setUrlParameter("lr", NULL);
+                    UtlString routeString;
+                    nextHopUrl.toString(routeString);
+                    sipRequest.addRouteUri(routeString.data());
+
+                    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                               "SipRouter::proxyMessage fowardingrules added route type '%s' to: '%s'",
+                               routeType.data(), routeString.data());
+
+                 }
+                 if (authRequired)
+                 {
+                    // Forwarding rules specify that request should be authorized
+                    bRequestShouldBeAuthorized = true;
+                 }
+
+                 if (!ruriParams.isNull())
+                 {
+                   addRuriParams(sipRequest, ruriParams);
+                 }
+                 else
+                 {
+                   Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                               "SipRouter::proxyMessage no ruri params to be added");
+                 }
+              }
+              else
+              {
+                 // the mapping rules didn't have any route for this,
+                 // so let the authorization process decide whether or not it can go through
+                 bRequestShouldBeAuthorized = true;
+              }
+           }
+           if( !bMessageWillSpiral )
+           {
+              // No match found in forwarding rules meaning that spiraling is
+              // complete and that request will be sent towards its final destination.
+              // If the request contained our proprietary spiral header then remove it
+              // since spiraling is complete.
+              sipRequest.removeHeader( SIP_SIPX_SPIRAL_HEADER, 0 );
+           }
+        }
+
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                      "SipRouter::proxyMessage B "
+                      "bRequestShouldBeAuthorized = %d, "
+                      "bMessageWillSpiral = %d",
+                      bRequestShouldBeAuthorized,
+                      bMessageWillSpiral);
+
+        if( bRequestShouldBeAuthorized )
+        {
+
+           bool requestIsAuthenticated = false; // message carries authenticated identity?
+           UtlString authUser;                  // authenticated identity of the user.
+           AuthPlugin::AuthResult authStatus   = AuthPlugin::CONTINUE; // authorization status determined from presence of authorization token in Route State
+           AuthPlugin::AuthResult authDecision = AuthPlugin::CONTINUE; // authorization decision from auth plug-ins
+           UtlString callId;
+           sipRequest.getCallIdField(&callId);  // for logging
+
+           // If the RouteState is not mutable, check whether or not the dialog has already
+           // been authorized by interogating the RouteState
+           if( !routeState.isMutable() )
+           {
+              if( routeState.isDialogAuthorized() )
+              {
+                 // the dialog has already been authorized, allow request
+                 authStatus = AuthPlugin::ALLOW;
+              }
+           }
+
+           // try to find authenticated user in SipXauthIdentity or in Authorization headers
+           // Use the identity found in the SipX-Auth-Identity header if found
+           SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::AuthIdentityHeaderName,
+               SipXauthIdentity::allowUnbound);
+           if ((requestIsAuthenticated = sipxIdentity.getIdentity(authUser)))
+           {
+              // found identity in request
+              Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG, "SipRouter::proxyMessage "
+                            " found valid sipXauthIdentity '%s' for callId %s",
+                            authUser.data(), callId.data()
+                            );
+
+              // Can't completely remove identity info, since it may be required
+              // further if the request spirals. Normalize authIdentity to only leave
+              // the most recent info in the request
+              SipXauthIdentity::normalize(sipRequest, SipXauthIdentity::AuthIdentityHeaderName);
+           }
+           else
+           {
+              // no SipX-Auth-Identity, so see if there is a Proxy-Authorization on the request
+              requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
+           }
+
+           /*
+            * Determine whether or not this request is authorized.
+            */
+           UtlString rejectReason;
+
+           // handle special cases that are universal
+           UtlString method;
+           sipRequest.getRequestMethod(&method); // Don't authenticate ACK -- it is always allowed.
+           if (sipRequest.isResponse() || method.compareTo( SIP_ACK_METHOD ) == 0 )  // responses and ACKs are always allowed
+           {
+              authStatus   = AuthPlugin::ALLOW;
+              authDecision = AuthPlugin::ALLOW;
+           }
+
+           // call each plugin
+           PluginIterator authPlugins(mAuthPlugins);
+           AuthPlugin* authPlugin;
+           UtlString authPluginName;
+           AuthPlugin::AuthResult pluginResult;
+           while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
+           {
+              pluginResult = authPlugin->authorizeAndModify(authUser,
+                                                            normalizedRequestUri,
+                                                            routeState,
+                                                            method,
+                                                            authStatus,
+                                                            sipRequest,
+                                                            bMessageWillSpiral,
+                                                            rejectReason
+                                                            );
+
+              Os::Logger::instance().log(FAC_AUTH, PRI_DEBUG,
+                            "SipProxy::proxyMessage plugin %s returned %s for %s",
+                            authPluginName.data(),
+                            AuthPlugin::AuthResultStr(pluginResult),
+                            callId.data()
+                            );
+
+              // the first plugin to return something other than CONTINUE wins
+              if (AuthPlugin::CONTINUE == authDecision && AuthPlugin::CONTINUE != pluginResult)
+              {
+                 authStatus   = pluginResult;
+                 authDecision = pluginResult;
+                 Os::Logger::instance().log(FAC_AUTH, PRI_INFO,
+                               "SipProxy::proxyMessage authoritative authorization decision is %s by %s for %s",
+                               AuthPlugin::AuthResultStr(authDecision),
+                               authPluginName.data(),
+                               callId.data()
+                               );
+              }
+           }
+
+           // Based on the authorization decision, either proxy the request or send a response.
+           switch (authDecision)
+           {
+           case AuthPlugin::DENY:
+           {
+              // Either not authenticated or not authorized
+              if (requestIsAuthenticated)
+              {
+                 // Rewrite sipRequest as the authorization-needed response so our caller
+                 // can send it.
+                 sipResponse.setResponseData(&sipRequest,
+                                             SIP_FORBIDDEN_CODE,
+                                             rejectReason.data());
+              }
+              else
+              {
+                 // There was no authentication, so challenge
+                 authenticationChallenge(sipRequest, sipResponse);
+              }
+              returnedAction = SendResponse;
+           }
+           break;
+
+           case AuthPlugin::CONTINUE: // be permissive - if nothing says DENY, then treat as ALLOW
+           case AuthPlugin::ALLOW:
+           {
+             // Request is sufficiently authorized, so proxy it.
+             // Plugins may have modified the state - if allowed, put that state into the message
+              if (routeState.isMutable())
+              {
+                 routeState.markDialogAsAuthorized();
+                 routeState.update(&sipRequest);
+              }
+           }
+           break;
+
+           default:
+              Os::Logger::instance().log(FAC_SIP, PRI_CRIT,
+                            "SipRouter::proxyMessage plugin returned invalid result %d",
+                            authDecision);
+              break;
+           }
+        }     // end should be authorized
 
 
-      if (!bRequestShouldBeAuthorized)
-      {
-         // In order to guarantee symmetric signaling, this proxy has to 
-         // Record-Route all incoming requests.  The RouteState mechanism
-         // utilized by the authorization process does add a Record-Route
-         // to the requests it evaluates.  We get into this branch of the
-         // code when the authorization process is skipped, i.e. request
-         // did not get Record-Routed by the authorization process.  In order  
-         // to ensure that each and every request gets Record-Routed, we 
-         // manually add a Record-Route to ourselves here.
-         if( sipRequest.isRecordRouteAccepted() )
-         {
-            // Generate the Record-Route string to be used by proxy to Record-Route requests 
-            // based on the route name
-            UtlString recordRoute;
-            //Url route(mRouteHostPort);
+        if (!bRequestShouldBeAuthorized)
+        {
+           // In order to guarantee symmetric signaling, this proxy has to
+           // Record-Route all incoming requests.  The RouteState mechanism
+           // utilized by the authorization process does add a Record-Route
+           // to the requests it evaluates.  We get into this branch of the
+           // code when the authorization process is skipped, i.e. request
+           // did not get Record-Routed by the authorization process.  In order
+           // to ensure that each and every request gets Record-Routed, we
+           // manually add a Record-Route to ourselves here.
+           if( sipRequest.isRecordRouteAccepted() )
+           {
+              // Generate the Record-Route string to be used by proxy to Record-Route requests
+              // based on the route name
+              UtlString recordRoute;
+              //Url route(mRouteHostPort);
 
-            Url route;
+              Url route;
 
-            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
-            {
-            	route = Url(mRouteHostSecurePort);
-            }
-            else
-            {
-            	route = Url(mRouteHostPort.data());
-            }
-            route.setUrlParameter("lr",NULL);
+              if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
+              {
+                route = Url(mRouteHostSecurePort);
+              }
+              else
+              {
+                route = Url(mRouteHostPort.data());
+              }
+              route.setUrlParameter("lr",NULL);
 
-            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
-            {
-            	route.setUrlParameter("transport=tls",NULL);
-            }
-            else if (mEnsureTcpLifetime && sipRequest.getSendProtocol() == OsSocket::TCP)
-            {
-              //
-              // Endpoints behind NAT need to maintain a reusable transport
-              // to work properly.  Unfortuantely, Some user-agents fallback
-              // to UDP if the transport parameter in record route is not
-              // specific.  We therefore explicitly define "tcp" transport param
-              // to maintain the TCP connection at least within the life time
-              // of the dialog
-              //
-              route.setUrlParameter("transport=tcp",NULL);
-            }
-            else if (mEnsureTcpLifetime && sipRequest.getFirstHeaderLine())
-            {
-              //
-              // Check the request-line if transport=tcp is set;
-              //
-              std::string rline(sipRequest.getFirstHeaderLine());
-              boost::to_lower(rline);
-              if (rline.find("transport=tcp") != std::string::npos)
+              if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
+              {
+                route.setUrlParameter("transport=tls",NULL);
+              }
+              else if (mEnsureTcpLifetime && sipRequest.getSendProtocol() == OsSocket::TCP)
               {
                 //
                 // Endpoints behind NAT need to maintain a reusable transport
@@ -1426,47 +1412,99 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                 //
                 route.setUrlParameter("transport=tcp",NULL);
               }
-            }
+              else if (mEnsureTcpLifetime && sipRequest.getFirstHeaderLine())
+              {
+                //
+                // Check the request-line if transport=tcp is set;
+                //
+                std::string rline(sipRequest.getFirstHeaderLine());
+                boost::to_lower(rline);
+                if (rline.find("transport=tcp") != std::string::npos)
+                {
+                  //
+                  // Endpoints behind NAT need to maintain a reusable transport
+                  // to work properly.  Unfortuantely, Some user-agents fallback
+                  // to UDP if the transport parameter in record route is not
+                  // specific.  We therefore explicitly define "tcp" transport param
+                  // to maintain the TCP connection at least within the life time
+                  // of the dialog
+                  //
+                  route.setUrlParameter("transport=tcp",NULL);
+                }
+              }
 
+              route.toString(recordRoute);
+              sipRequest.addRecordRouteUri(recordRoute);
+
+              //
+              // If the inbound transacton is TLS, insert a new record route on top to retain TCP internally
+              //
+              if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
+              {
+                Url internalRoute(mRouteHostPort.data());
+                internalRoute.setUrlParameter("lr",NULL);
+                internalRoute.toString(recordRoute);
+                sipRequest.addRecordRouteUri(recordRoute);
+              }
+           }
+        }
+        else if (
+          !bMessageWillSpiral &&
+          sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET &&
+          sipRequest.isRecordRouteAccepted())
+        {
+            // Generate the Record-Route string to be used by proxy to Record-Route requests
+            // based on the route name
+            UtlString recordRoute;
+            //Url route(mRouteHostPort);
+            Url route;
+            route = Url(mRouteHostSecurePort);
+            route.setUrlParameter("lr",NULL);
+            route.setUrlParameter("transport=tls",NULL);
             route.toString(recordRoute);
             sipRequest.addRecordRouteUri(recordRoute);
-
-            //
-            // If the inbound transacton is TLS, insert a new record route on top to retain TCP internally
-            //
-            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
-            {
-              Url internalRoute(mRouteHostPort.data());
-              internalRoute.setUrlParameter("lr",NULL);
-              internalRoute.toString(recordRoute);
-              sipRequest.addRecordRouteUri(recordRoute);
-            }
-         }
-      }
-      else if (
-        !bMessageWillSpiral &&
-        sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET &&
-        sipRequest.isRecordRouteAccepted())
-      {
-          // Generate the Record-Route string to be used by proxy to Record-Route requests
-          // based on the route name
-          UtlString recordRoute;
-          //Url route(mRouteHostPort);
-          Url route;
-          route = Url(mRouteHostSecurePort);
-          route.setUrlParameter("lr",NULL);
-          route.setUrlParameter("transport=tls",NULL);
-          route.toString(recordRoute);
-          sipRequest.addRecordRouteUri(recordRoute);
-      }
-   }        // end all extensions are supported
-   else
-   {
-      // The request has a Proxy-Require that we don't support; return an error
-      sipResponse.setRequestBadExtension(&sipRequest, disallowedExtensions.data());
-      returnedAction = SendResponse;
+        }
+     }        // end all extensions are supported
+     else
+     {
+        // The request has a Proxy-Require that we don't support; return an error
+        sipResponse.setRequestBadExtension(&sipRequest, disallowedExtensions.data());
+        returnedAction = SendResponse;
+     }
    }
-   
+#ifdef MONGO_assert
+   catch (mongo::DBException& e)
+   {
+     errorString = "Proxy - Mongo DB Exception";
+     OS_LOG_ERROR( FAC_SIP, "SipRouter::proxyMessage Exception: "
+             << e.what() );
+   }
+#endif
+   catch (boost::exception& e)
+   {
+     errorString = "Proxy - Boost Library Exception";
+     OS_LOG_ERROR( FAC_SIP, "SipRouter::proxyMessage Exception: "
+             << boost::diagnostic_information(e));
+   }
+   catch (std::exception& e)
+   {
+     errorString = "Proxy - Standard Library Exception";
+     OS_LOG_ERROR( FAC_SIP, "SipRouter::proxyMessage Exception: "
+             << e.what() );
+   }
+   catch (...)
+   {
+     errorString = "Proxy - Unknown Exception";
+     OS_LOG_ERROR( FAC_SIP, "SipRouter::proxyMessage Exception: Unknown Exception");
+   }
+
+   // respond with 5XX code in case an exception was caught
+   if (!errorString.empty())
+   {
+     sipResponse.setResponseData(&sipRequest, SIP_5XX_CLASS_CODE, errorString.c_str());
+     returnedAction = SendResponse;
+   }
+
    switch ( returnedAction )
    {
    case SendRequest:
