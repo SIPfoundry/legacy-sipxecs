@@ -207,6 +207,11 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                 	   SipXauthIdentity controllerIdentity;
                 	   controllerIdentity.setIdentity(id);
                 	   controllerIdentity.encodeUri(target);
+                	   
+                	   //
+                       // Add the referror param
+                       //
+                       target.setUrlParameter("X-sipX-referror", id.data());
 
                 	   // add the References to the refer-to.
                 	   UtlString refcallId(callId);
@@ -278,6 +283,31 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
          UtlString targetCallId;
          UtlString targetFromTag;
          UtlString targetToTag;
+         UtlString referrorId;
+
+         requestUri.getUrlParameter("X-sipX-referror", referrorId, 0);
+         if (!referrorId.isNull())
+         {
+           //
+           // This is a transfer.  Set the parameter as a SIP header so it doesn't get lost during redirections
+           //
+           request.setHeaderValue("X-sipX-referror", referrorId.data(), 0);
+           //
+           // Remove the uri parameter
+           //
+           UtlString method;
+           UtlString uri;
+           UtlString protocol;
+           
+           Url newUri(requestUri);
+           newUri.removeUrlParameter("X-sipX-referror");
+           newUri.getUri(uri);
+           
+           request.getRequestMethod(&method);
+           request.getRequestProtocol(&protocol);
+           
+           request.setFirstHeaderLine(method, uri, protocol);
+         }
 
          if (request.getReplacesData(targetCallId, targetToTag, targetFromTag))
          {
@@ -323,3 +353,4 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
 TransferControl::~TransferControl()
 {
 }
+
