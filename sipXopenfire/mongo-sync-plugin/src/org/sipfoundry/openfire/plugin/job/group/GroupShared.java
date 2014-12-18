@@ -18,7 +18,6 @@ package org.sipfoundry.openfire.plugin.job.group;
 
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupManager;

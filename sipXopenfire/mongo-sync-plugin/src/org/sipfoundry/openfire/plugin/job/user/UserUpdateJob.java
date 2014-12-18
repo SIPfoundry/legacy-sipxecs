@@ -25,6 +25,8 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jivesoftware.openfire.group.Group;
+import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
@@ -121,20 +123,38 @@ public class UserUpdateJob implements Job {
             boolean dnChanged = displayName != null && !StringUtils.equals(user.getName(), displayName);
             boolean emailChanged = email != null && !StringUtils.equals(user.getEmail(), email);
             boolean uidChanged = uid != null && !StringUtils.equals(user.getProperties().get(UID), uid);            
-
+            boolean userChanged = false;
             if (dnChanged) {
                 logger.debug(String.format("im name changed to %s from %s", displayName, user.getName()));
-                user.setName(displayName);                
+                user.setName(displayName);
+                userChanged = true;
             }
             if (emailChanged) {
                 logger.debug(String.format("email changed to %s from %s", email, user.getEmail()));
-                user.setEmail(email);                
+                user.setEmail(email);
+                userChanged = true;
             }
             if (uidChanged) {
                 logger.debug(String.format("uid changed to %s", uid));
-                user.getProperties().put(UID, uid);             
+                user.getProperties().put(UID, uid);
+                userChanged = true;
             }
-        }        
+            if (userChanged) {
+                logger.debug("User changed; updating roster: " + userImName);
+                // We need to remove user from all the groups and add it back in order for the
+                // rosters to be updated properly.
+                // More, we need to remove it first and then readd it, otherwise, if it is in more
+                // than 1 im group, the rosters are not updated.
+                JID jid = new JID(UserShared.appendDomain(userImName));
+                Collection<Group> groups = GroupManager.getInstance().getGroups(jid);
+                for (Group g : groups) {
+                    UserShared.removeUserFromGroup(g.getName(), jid);
+                }
+                for (Group g : groups) {
+                    UserShared.addUserToGroup(g.getName(), jid);
+                }
+            }
+        }
         logger.debug("end processing " + toString());
     }
 
