@@ -455,10 +455,14 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
             return "monitor CPU_THRESHOLD_RECOVERED hrProcessorLoad < " + alarm.getMinThreshold();
         }
         if (def == DISK_USAGE_THRESHOLD_EXCEEDED) {
-            return "monitor DISK_USAGE_THRESHOLD_EXCEEDED hrDiskStorageCapacity > " + alarm.getMinThreshold();
+            // Modify default interval for this alarm to 10seconds
+            return "monitor -r 10s DISK_USAGE_THRESHOLD_EXCEEDED dskPercent > " + alarm.getMinThreshold();
         }
         if (def == DISK_USAGE_THRESHOLD_RECOVERED) {
-            return "monitor DISK_USAGE_THRESHOLD_RECOVERED hrDiskStorageCapacity < " + alarm.getMinThreshold();
+            // Modify default interval for this alarm to 10seconds;
+            // Also, to avoid false alarms, prevent this one to appear on snmpd restart (-S option
+            // - see man snmpd.conf)
+            return "monitor -S -r 10s DISK_USAGE_THRESHOLD_RECOVERED dskPercent < " + alarm.getMinThreshold();
         }
 
         return null;
