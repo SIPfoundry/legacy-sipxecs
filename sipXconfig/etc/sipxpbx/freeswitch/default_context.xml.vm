@@ -36,7 +36,7 @@
     </condition>
     <condition field="${slot_count}" expression="^\:0$|no" break="always">
 #end
-#set( $transfer_expression = 'transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}' )
+#set( $transfer_expression = 'transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}' )
       <action application="set" data="fifo_music=${orbit.audioDirectory}${orbit.music}"/>
       <action application="set" data="${transfer_expression}"/>
       <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:${orbit.parkTimeout}"/>
