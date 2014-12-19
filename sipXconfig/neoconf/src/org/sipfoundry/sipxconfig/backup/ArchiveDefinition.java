@@ -16,7 +16,7 @@ package org.sipfoundry.sipxconfig.backup;
 
 import org.apache.commons.collections.Transformer;
 
-public class ArchiveDefinition {
+public class ArchiveDefinition implements Comparable {
     public static final Transformer GET_IDS = new Transformer() {
         public Object transform(Object arg0) {
             return ((ArchiveDefinition) arg0).getId();
@@ -25,11 +25,21 @@ public class ArchiveDefinition {
     private String m_id;
     private String m_backupCommand;
     private String m_restoreCommand;
+    //if the service is running on more than one node, execute backup only on one of them
+    private boolean m_singleNodeBackup = true;
+    private boolean m_singleNodeRestore = true;
 
     public ArchiveDefinition(String id, String backupCommand, String restoreCommand) {
         m_id = id;
         m_backupCommand = backupCommand;
         m_restoreCommand = restoreCommand;
+    }
+
+    public ArchiveDefinition(String id, String backupCommand, String restoreCommand,
+        boolean singleNodeBackup, boolean singleNodeRestore) {
+        this(id, backupCommand, restoreCommand);
+        m_singleNodeBackup = singleNodeBackup;
+        m_singleNodeRestore = singleNodeRestore;
     }
 
     public String getId() {
@@ -42,5 +52,19 @@ public class ArchiveDefinition {
 
     public String getRestoreCommand() {
         return m_restoreCommand;
+    }
+
+    public boolean isSingleNodeBackup() {
+        return m_singleNodeBackup;
+    }
+
+    public boolean isSingleNodeRestore() {
+        return m_singleNodeRestore;
+    }
+
+    @Override
+    public int compareTo(Object arg0) {
+        ArchiveDefinition arch = (ArchiveDefinition) arg0;
+        return arch.getId().compareTo(getId());
     }
 }

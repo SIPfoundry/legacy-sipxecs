@@ -52,7 +52,7 @@ public class BackupConfigTest {
         backupRestore.setBackup(true);
         backupRestore.setRestore(true);
         config.writeHostDefinitions(new YamlConfiguration(actual), l1, Arrays.asList(d1, d2, d3),
-            backupRestore);
+            backupRestore, new TreeSet<ArchiveDefinition>(), new TreeSet<ArchiveDefinition>());
         String expected = IOUtils.toString(getClass().getResourceAsStream("expected-backup.yaml"));
         assertEquals(expected, actual.toString());
     }
@@ -100,6 +100,50 @@ public class BackupConfigTest {
 
         verify(mgr);
     }
+    
+    @Test
+    public void clusterRedundantSingleNodeBackup() throws IOException {
+        BackupConfig config = new BackupConfig();
+
+        BackupSettings settings = new BackupSettings();
+        settings.setModelFilesContext(TestHelper.getModelFilesContext());
+        settings.setSettingTypedValue("ftp/url", "ftp://ftp.example.org");
+        settings.setSettingTypedValue("ftp/user", "joe");
+        settings.setSettingTypedValue("ftp/password", "xxx");
+
+        Location l1 = new Location("one", "1.1.1.1");
+        l1.setUniqueId(1);
+        Location l2 = new Location("two", "2.2.2.2");
+        l2.setUniqueId(2);
+        Collection<Location> hosts = Arrays.asList(l1, l2);
+
+        ArchiveDefinition d1 = new ArchiveDefinition("d1", "backup", "restore");
+        ArchiveDefinition d2 = new ArchiveDefinition("d2", "backup", "restore");
+        ArchiveDefinition d3 = new ArchiveDefinition("d3", "backup", "restore");
+
+        BackupPlan plan = new BackupPlan(BackupType.ftp);
+        plan.setDefinitionIds(new TreeSet<String>(Arrays.asList("d1", "d2", "d3")));
+        plan.setLimitedCount(20);
+
+        BackupManager mgr = createMock(BackupManager.class);
+        mgr.getArchiveDefinitions(l1, null, null);
+        expectLastCall().andReturn(Arrays.asList(d1, d2)).anyTimes();
+        mgr.getArchiveDefinitions(l2, null, null);
+        expectLastCall().andReturn(Arrays.asList(d2, d3)).anyTimes();
+        mgr.getArchiveDefinitions(l1, plan, settings);
+        expectLastCall().andReturn(Arrays.asList(d1, d2)).anyTimes();
+        mgr.getArchiveDefinitions(l2, plan, settings);
+        expectLastCall().andReturn(Arrays.asList(d2, d3)).anyTimes();
+        replay(mgr);
+        config.setBackupManager(mgr);
+
+        StringWriter actual = new StringWriter();
+        config.writeConfig(actual, plan, hosts, settings);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("expected-auto-backup.yaml"));
+        assertEquals(expected, actual.toString());
+
+        verify(mgr);
+    }    
 
     @Test
     public void clusterBackupRestoreOnDifferentNodes() throws IOException {
