@@ -210,85 +210,99 @@ UtlBoolean SipRegistrar::operationalPhase()
 {
    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SipRegistrar entering operational phase");
 
-   // Start the SIP stack.
-   int tcpPort = PORT_DEFAULT;
-   int udpPort = PORT_DEFAULT;
-   int tlsPort = PORT_DEFAULT;
-
-   udpPort = mConfigDb->getPort("SIP_REGISTRAR_UDP_PORT");
-   if (udpPort == PORT_DEFAULT)
+   UtlBoolean isOk = FALSE;
+   try
    {
-      udpPort = REGISTRAR_DEFAULT_SIP_PORT;
+     // Start the SIP stack.
+     int tcpPort = PORT_DEFAULT;
+     int udpPort = PORT_DEFAULT;
+     int tlsPort = PORT_DEFAULT;
+
+     udpPort = mConfigDb->getPort("SIP_REGISTRAR_UDP_PORT");
+     if (udpPort == PORT_DEFAULT)
+     {
+        udpPort = REGISTRAR_DEFAULT_SIP_PORT;
+     }
+
+     tcpPort = mConfigDb->getPort("SIP_REGISTRAR_TCP_PORT");
+     if (tcpPort == PORT_DEFAULT)
+     {
+        tcpPort = REGISTRAR_DEFAULT_SIP_PORT;
+     }
+
+     tlsPort = mConfigDb->getPort("SIP_REGISTRAR_TLS_PORT");
+     if (tlsPort == PORT_DEFAULT)
+     {
+        tlsPort = REGISTRAR_DEFAULT_SIPS_PORT;
+     }
+
+     mSipUserAgent = new SipUserAgent(tcpPort,
+                                      udpPort,
+                                      tlsPort,
+                                      NULL,   // public IP address (not used)
+                                      NULL,   // default user (not used)
+                                      mBindIp,
+                                      NULL,   // outbound proxy
+                                      NULL,   // directory server
+                                      NULL,   // registry server
+                                      NULL,   // auth realm
+                                      NULL,   // auth DB
+                                      NULL,   // auth user IDs
+                                      NULL,   // auth passwords
+                                      NULL,   // line mgr
+                                      SIP_DEFAULT_RTT, // first resend timeout
+                                      TRUE,   // default to UA transaction
+                                      SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
+                                      SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
+                                      FALSE,  // do not use next available port
+                                      FALSE,  // do not do UA message checks for METHOD, requires, etc...
+                                      TRUE,   // forceSymmetricSignaling
+                                      SipUserAgent::PASS_OPTIONS_TO_CONSUMER
+                                      );
+
+     if ( mSipUserAgent )
+     {
+        mSipUserAgent->addMessageObserver( *this->getMessageQueue(), NULL /* all methods */ );
+
+        // the above causes us to receive all methods
+        // the following sets what we send in Allow headers
+        mSipUserAgent->allowMethod(SIP_REGISTER_METHOD);
+        mSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD);
+        mSipUserAgent->allowMethod(SIP_OPTIONS_METHOD);
+        mSipUserAgent->allowMethod(SIP_CANCEL_METHOD);
+
+        mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
+        mSipUserAgent->allowExtension("path");
+
+        mSipUserAgent->setUserAgentHeaderProperty("sipXecs/registry");
+     }
+
+     mSipUserAgent->start();
+     startRegistrarServer();
+     startRedirectServer();
+     startEventServer();
+
+     if (!mSipUserAgent->isOk())
+     {
+        Os::Logger::instance().log(FAC_SIP, PRI_EMERG,
+              "SipUserAgent reported a problem while starting up (port in use?)");
+        Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                      "tcpPort = %d, udpPort = %d, tlsPort = %d, mBindIp = '%s'",
+                      tcpPort, udpPort, tlsPort, mBindIp.data());
+     }
+
+     isOk = mSipUserAgent->isOk();
+   }
+   catch (std::exception& e)
+   {
+     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipRegistrar::operationalPhase Exception: %s", e.what());
+   }
+   catch (...)
+   {
+     Os::Logger::instance().log(FAC_SIP, PRI_ERR, "SipRegistrar::operationalPhase Exception: Unknown Exception");
    }
 
-   tcpPort = mConfigDb->getPort("SIP_REGISTRAR_TCP_PORT");
-   if (tcpPort == PORT_DEFAULT)
-   {
-      tcpPort = REGISTRAR_DEFAULT_SIP_PORT;
-   }
-
-   tlsPort = mConfigDb->getPort("SIP_REGISTRAR_TLS_PORT");
-   if (tlsPort == PORT_DEFAULT)
-   {
-      tlsPort = REGISTRAR_DEFAULT_SIPS_PORT;
-   }
-
-   mSipUserAgent = new SipUserAgent(tcpPort,
-                                    udpPort,
-                                    tlsPort,
-                                    NULL,   // public IP address (not used)
-                                    NULL,   // default user (not used)
-                                    mBindIp,
-                                    NULL,   // outbound proxy
-                                    NULL,   // directory server
-                                    NULL,   // registry server
-                                    NULL,   // auth realm
-                                    NULL,   // auth DB
-                                    NULL,   // auth user IDs
-                                    NULL,   // auth passwords
-                                    NULL,   // line mgr
-                                    SIP_DEFAULT_RTT, // first resend timeout
-                                    TRUE,   // default to UA transaction
-                                    SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
-                                    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
-                                    FALSE,  // do not use next available port
-                                    FALSE,  // do not do UA message checks for METHOD, requires, etc...
-                                    TRUE,   // forceSymmetricSignaling
-                                    SipUserAgent::PASS_OPTIONS_TO_CONSUMER
-                                    );
-
-   if ( mSipUserAgent )
-   {
-      mSipUserAgent->addMessageObserver( *this->getMessageQueue(), NULL /* all methods */ );
-
-      // the above causes us to receive all methods
-      // the following sets what we send in Allow headers
-      mSipUserAgent->allowMethod(SIP_REGISTER_METHOD);
-      mSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD);
-      mSipUserAgent->allowMethod(SIP_OPTIONS_METHOD);
-      mSipUserAgent->allowMethod(SIP_CANCEL_METHOD);
-
-      mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
-      mSipUserAgent->allowExtension("path");
-
-      mSipUserAgent->setUserAgentHeaderProperty("sipXecs/registry");
-   }
-
-   mSipUserAgent->start();
-   startRegistrarServer();
-   startRedirectServer();
-   startEventServer();
-
-   if (!mSipUserAgent->isOk())
-   {
-      Os::Logger::instance().log(FAC_SIP, PRI_EMERG,
-            "SipUserAgent reported a problem while starting up (port in use?)");
-      Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
-                    "tcpPort = %d, udpPort = %d, tlsPort = %d, mBindIp = '%s'",
-                    tcpPort, udpPort, tlsPort, mBindIp.data());
-   }
-
-   return mSipUserAgent->isOk();
+   return isOk;
 }
 
 
