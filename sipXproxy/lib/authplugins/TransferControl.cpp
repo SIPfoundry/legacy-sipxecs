@@ -24,6 +24,7 @@ const char* TransferControl::RecognizerConfigKey1 = "EXCHANGE_SERVER_FQDN";
 const char* TransferControl::RecognizerConfigKey2 = "ADDITIONAL_EXCHANGE_SERVER_FQDN";
 
 const char* SIP_METHOD_URI_PARAMETER = "method";
+const char* SIP_SIPX_REFERROR_HEADER = "X-sipX-referror";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -209,9 +210,9 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                 	   controllerIdentity.encodeUri(target);
                 	   
                 	   //
-                       // Add the referror param
-                       //
-                       target.setUrlParameter("X-sipX-referror", id.data());
+                     // Add the referror param
+                     //
+                     target.setUrlParameter(SIP_SIPX_REFERROR_HEADER, id.data());
 
                 	   // add the References to the refer-to.
                 	   UtlString refcallId(callId);
@@ -285,28 +286,26 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
          UtlString targetToTag;
          UtlString referrorId;
 
-         requestUri.getUrlParameter("X-sipX-referror", referrorId, 0);
+         requestUri.getUrlParameter(SIP_SIPX_REFERROR_HEADER, referrorId, 0);
          if (!referrorId.isNull())
          {
            //
            // This is a transfer.  Set the parameter as a SIP header so it doesn't get lost during redirections
            //
-           request.setHeaderValue("X-sipX-referror", referrorId.data(), 0);
+           request.setHeaderValue(SIP_SIPX_REFERROR_HEADER, referrorId.data(), 0);
            //
            // Remove the uri parameter
            //
-           UtlString method;
            UtlString uri;
            UtlString protocol;
            
            Url newUri(requestUri);
-           newUri.removeUrlParameter("X-sipX-referror");
+           newUri.removeUrlParameter(SIP_SIPX_REFERROR_HEADER);
            newUri.getUri(uri);
            
-           request.getRequestMethod(&method);
            request.getRequestProtocol(&protocol);
            
-           request.setFirstHeaderLine(method, uri, protocol);
+           request.setRequestFirstHeaderLine(method, uri, protocol);
          }
 
          if (request.getReplacesData(targetCallId, targetToTag, targetFromTag))
