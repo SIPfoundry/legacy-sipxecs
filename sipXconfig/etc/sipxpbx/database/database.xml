@@ -470,6 +470,7 @@
     <antcall target="add-schedule-feature" />
     <antcall target="insert_default_dns_view" />
     <antcall target="system-audit" />
+    <antcall target="config-change-value" />
   </target>
 
   <target name="plugin-patches">
@@ -1426,6 +1427,10 @@
     <db-patch patch="system-audit"/>
     <plsql-patch patch="system-audit-cleanup"/>
   </target>
+  <target name="config-change-value" unless="config-change-value">
+    <db-patch patch="config-change-value"/>
+  </target>
+
   <!--
     - SUPPORT UTILITIES
   -->

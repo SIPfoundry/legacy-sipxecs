@@ -90,7 +90,7 @@ main(int argc, char* argv[] )
       CONFIG_LOG_FILE,
       CONFIG_NODE_FILE,
       CONFIG_SETTING_PREFIX,
-      false, // do not check mongo connection
+      true, // check mongo connection
       true, // enable mongo driver logging
       true, // increase application file descriptor limits
       true, // block signals on main thread (and all other threads created by main)
