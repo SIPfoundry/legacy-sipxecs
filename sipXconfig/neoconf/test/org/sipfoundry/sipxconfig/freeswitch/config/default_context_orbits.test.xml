@@ -12,7 +12,10 @@
     </condition>
     <condition field="${slot_count}" expression="^\:0$|no" break="always">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
-      <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
       <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:120"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="fifo" data="QPark12345 in"/>
@@ -27,7 +30,10 @@
   <extension name="ParkOrbitTransfer">
     <condition field="destination_number" expression="^1111$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
-      <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
       <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:120"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="set" data="fifo_caller_exit_key=0"/>
@@ -44,7 +50,10 @@
   <extension name="ParkOrbitBare">
     <condition field="destination_number" expression="^2222$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
-      <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
       <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:86400"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="fifo" data="QPark2222 in"/>
@@ -59,7 +68,10 @@
   <extension name="ParkOrbitFull">
     <condition field="destination_number" expression="^5555$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/custom.wav"/>
-      <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
       <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:10"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="set" data="fifo_caller_exit_key=5"/>
