@@ -69,6 +69,7 @@ bundle edit_line snmptrapd_conf {
 
     has_forwarders::
         "forward SIPXECS-ALARM-NOTIFICATION-MIB::alarmNotifications $(sipx.snmptrapdForward)";
+        "forward DISMAN-EVENT-MIB::mteTriggerFired $(sipx.snmptrapdForward)";
 }
 
 bundle agent snmptrap_sysv_running {
