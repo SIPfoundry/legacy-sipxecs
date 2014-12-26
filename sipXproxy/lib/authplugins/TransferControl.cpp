@@ -305,7 +305,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
            
            request.getRequestProtocol(&protocol);
            
-           request.setRequestFirstHeaderLine(method, uri, protocol);
+           request.setFirstHeaderLine(method, uri, protocol);
          }
 
          if (request.getReplacesData(targetCallId, targetToTag, targetFromTag))
