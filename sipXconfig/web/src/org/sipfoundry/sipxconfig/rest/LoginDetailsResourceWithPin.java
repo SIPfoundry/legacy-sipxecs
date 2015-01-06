@@ -92,7 +92,7 @@ public class LoginDetailsResourceWithPin extends LoginDetailsResource {
         SecurityContextHolder.clearContext();
 
         // ensure login page redirection
-        getResponse().setStatus(Status.REDIRECTION_PERMANENT);
+        getResponse().setStatus(Status.REDIRECTION_FOUND);
         HttpServerCall serverCall = ((HttpResponse) getResponse()).getHttpCall();
         serverCall.getResponseHeaders().add("Connection", "close");
         serverCall.getResponseHeaders().add("Location",
