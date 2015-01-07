@@ -107,6 +107,8 @@ NatMaintainer::~NatMaintainer()
 int NatMaintainer::run( void* runArg )
 {
   OsStatus rc;
+  UtlString stringToMatch( SIPX_PRIVATE_CONTACT_URI_PARAM );
+  
   while( !isShuttingDown() )
   {
      try
@@ -128,13 +130,10 @@ int NatMaintainer::run( void* runArg )
              mNextSeqValue++;
 
              // timer has expired - refresh timeout
-             UtlSList resultList;
-             UtlString stringToMatch( SIPX_PRIVATE_CONTACT_URI_PARAM );
+       
 
              // start by sending keep-alives to non-expired contacts for far-end NATed phones
              // found in the subscription database
-             sendKeepAliveToContactList( resultList );
-             resultList.destroyAll();
              sendKeepAliveToSubscribeContactList(stringToMatch);
 
              // next, send keep-alives to non-expired contacts for far-end NATed phones
@@ -146,12 +145,22 @@ int NatMaintainer::run( void* runArg )
              sendKeepAliveToExternalKeepAliveList();
           }
        }
+       else
+       {
+         OS_LOG_ERROR(FAC_SIP, "NatMaintainer::run Unexpected wait error: " << rc); 
+       }
      }
      catch(const std::exception& e)
      {
        OS_LOG_ERROR(FAC_SIP, "NatMaintainer::run Exception - " << e.what());
      }
+     catch(...)
+     {
+       OS_LOG_ERROR(FAC_SIP, "NatMaintainer::run Exception - UNKNOWN");
+     }
   }
+  
+  OS_LOG_NOTICE(FAC_SIP, "NatMaintainer::run TERMINATED");
   
   return 0;
 }
