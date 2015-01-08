@@ -293,6 +293,8 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
            // This is a transfer.  Set the parameter as a SIP header so it doesn't get lost during redirections
            //
            request.setHeaderValue(SIP_SIPX_REFERROR_HEADER, referrorId.data(), 0);
+           
+           OS_LOG_INFO(FAC_SIP, "Setting " << SIP_SIPX_REFERROR_HEADER << ": " << referrorId.data() << " from local domain transfer.");
            //
            // Remove the uri parameter
            //
@@ -345,6 +347,54 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
    }
    
    return result;
+}
+
+/// Boolean indicator that returns true if the plugin wants to process requests
+/// that requires no authentication
+bool TransferControl::willModifyTrustedRequest() const
+{
+  return true;
+}
+
+/// This method is called by the proxy if willModifyRequest() flag is set to true
+/// giving this plugin the opportunity to modify the request even if it requires
+/// no authentication
+void TransferControl::modifyTrustedRequest(
+                                 const Url&  requestUri,  ///< parsed target Uri
+                                 SipMessage& request,     ///< see below regarding modifying this
+                                 bool bSpiralingRequest  ///< true if request is still spiraling through proxy
+                                 )
+{
+  UtlString method;
+  request.getRequestMethod(&method);
+  
+  if (method.compareTo(SIP_INVITE_METHOD) == 0)
+  {
+    UtlString referrorId;
+    requestUri.getUrlParameter(SIP_SIPX_REFERROR_HEADER, referrorId, 0);
+    if (!referrorId.isNull())
+    {
+      //
+      // This is a transfer.  Set the parameter as a SIP header so it doesn't get lost during redirections
+      //
+      request.setHeaderValue(SIP_SIPX_REFERROR_HEADER, referrorId.data(), 0);
+      
+      OS_LOG_INFO(FAC_SIP, "Setting " << SIP_SIPX_REFERROR_HEADER << ": " << referrorId.data() << " from non-local domain transfer.");
+      
+      //
+      // Remove the uri parameter
+      //
+      UtlString uri;
+      UtlString protocol;
+
+      Url newUri(requestUri);
+      newUri.removeUrlParameter(SIP_SIPX_REFERROR_HEADER);
+      newUri.getUri(uri);
+
+      request.getRequestProtocol(&protocol);
+      request.setFirstHeaderLine(method, uri, protocol);
+    }
+  }
 }
 
 

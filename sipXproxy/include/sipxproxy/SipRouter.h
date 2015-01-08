@@ -26,6 +26,7 @@
 #include <Poco/Semaphore.h>
 #include <boost/thread.hpp>
 #include <boost/circular_buffer.hpp>
+#include <vector>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -82,6 +83,7 @@ class SipRouter : public OsServerTask
     
   typedef boost::mutex mutex_critic_sec;
   typedef boost::lock_guard<mutex_critic_sec> mutex_critic_sec_lock;
+  typedef std::vector<AuthPlugin*> TrustedRequestModifiers;
 
   class DispatchTimer
   {
@@ -309,6 +311,7 @@ class SipRouter : public OsServerTask
    long _lastDispatchYieldTime;
    bool _isDispatchYielding;
    UtlBoolean _trustSbcRegisteredCalls;
+   TrustedRequestModifiers _trustedRequestModifiers;
 };
 
 /* ============================ INLINE METHODS ============================ */

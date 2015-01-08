@@ -344,6 +344,14 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
    {
       authPlugin->announceAssociatedSipRouter( this );
+      
+      //
+      // Check if this plugin wants to modify trusted requests
+      //
+      if (authPlugin->willModifyTrustedRequest())
+      {
+        _trustedRequestModifiers.push_back(authPlugin);
+      }
    }
 
    // Load, instantiate and configure all authorization plugins
@@ -1447,6 +1455,15 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                 sipRequest.addRecordRouteUri(recordRoute);
               }
            }
+           
+           //
+           // Notify the auth plugins that indicated intent to modify trusted requests
+           //
+           for (TrustedRequestModifiers::iterator iter = _trustedRequestModifiers.begin(); iter != _trustedRequestModifiers.end(); iter++)
+           {
+             (*iter)->modifyTrustedRequest(normalizedRequestUri, sipRequest, bMessageWillSpiral);
+           }
+           
         }
         else if (
           !bMessageWillSpiral &&
