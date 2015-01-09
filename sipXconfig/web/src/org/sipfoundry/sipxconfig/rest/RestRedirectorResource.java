@@ -20,8 +20,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -42,6 +44,7 @@ import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.commons.ivr.MimeType;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
@@ -134,7 +137,13 @@ public class RestRedirectorResource extends UserResource {
         } else {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No known resource was requested");
         }
-        return new InputRepresentation(new ByteArrayInputStream(result), MediaType.ALL);
+        MediaType mType = MediaType.ALL;
+        for (Variant v : getVariants()) {
+            if (v.getMediaType() != null) {
+                mType = v.getMediaType();
+            }
+        }
+        return new InputRepresentation(new ByteArrayInputStream(result), mType);
     }
 
     private byte[] invokeIvrFallback(String methodType, String relativeUri) throws ResourceException {
@@ -142,7 +151,7 @@ public class RestRedirectorResource extends UserResource {
     }
 
     private byte[] invokeIvrFallback(String methodType, String relativeUri, Representation entity)
-        throws ResourceException {
+            throws ResourceException {
         byte[] result = null;
         Address ivrGoodAddress = m_mailboxManager.getLastGoodIvrNode();
         if (ivrGoodAddress != null) {
@@ -172,7 +181,7 @@ public class RestRedirectorResource extends UserResource {
     }
 
     private byte[] invokeMethod(Address address, String methodType, String relativeUri, Representation entity)
-        throws ResourceException {
+            throws ResourceException {
         if (StringUtils.equals(methodType, GET)) {
             return m_httpInvoker.invokeGet(address.toString() + relativeUri);
         } else if (StringUtils.equals(methodType, POST)) {
@@ -254,6 +263,17 @@ public class RestRedirectorResource extends UserResource {
                 method.setRequestHeader("sipx-user", getUser().getUserName());
                 int status = client.executeMethod(method);
                 stream = method.getResponseBodyAsStream();
+                Header[] headers = method.getResponseHeaders();
+                for (Header header : headers) {
+                    if (StringUtils.equalsIgnoreCase(header.getName(),"Content-Type")) {
+                        MediaType m = MimeType.getMediaTypeByMime(header.getValue());
+                        if (m != null) {
+                            Variant variant = new Variant(m);
+                            getVariants().clear();
+                            getVariants().add(variant);
+                        }
+                    }
+                }
                 outputStream = new ByteArrayOutputStream();
                 int n;
                 byte[] buffer = new byte[1024];
