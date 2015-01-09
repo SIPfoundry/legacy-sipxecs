@@ -9,6 +9,7 @@ package org.sipfoundry.sipxconfig.cert;
 
 import static java.lang.String.format;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -20,6 +21,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -31,11 +33,13 @@ import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.jfree.util.Log;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public final class CertificateUtils {
     private static final String PROVIDER = "BC";
     private static final int MAX_HEADER_LINE_COUNT = 512;
+    private static final String START_RSA_KEY = "-----BEGIN RSA PRIVATE KEY-----";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -112,6 +116,18 @@ public final class CertificateUtils {
 
         String msg = format("Private key was expected but found %s instead", o.getClass().getSimpleName());
         throw new UserException(msg);
+    }
+
+    public static String convertSslKeyToRSA(File file) {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process process = runtime.exec("openssl rsa -in " + file.getAbsolutePath() + " -check");
+            String result = IOUtils.toString(process.getInputStream());
+            return StringUtils.join(new String []{START_RSA_KEY, StringUtils.substringAfter(result, START_RSA_KEY)});
+        } catch (Exception ex) {
+            Log.error("Cannot Convert key to RSA ", ex);
+            return null;
+        }
     }
 
     public static void writeObject(Writer w, Object o, String description) {
