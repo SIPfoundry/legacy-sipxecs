@@ -1,0 +1,16 @@
+<div class="search-view">
+  <div data-ng-repeat="entry in (filtered = (phonebook.main | orderBy:'name' | csearch:search.t))">
+    <div
+      data-drag
+      data-ng-model="entry"
+      class="entry-container clearfix">
+      <div class="entry-photo pull-left">
+        <img data-ng-src="{{ entry.avatar }}">
+      </div>
+      <div class="entry-name pull-left">
+        <span class="entry-name-big">{{ entry.name }}</span>
+        <span class="entry-loc">{{ entry['contact-information'].location || '-' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

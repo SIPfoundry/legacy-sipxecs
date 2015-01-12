@@ -1,0 +1,50 @@
+<div class="row">
+  <div class="col-md-12">
+
+    <div class="entry clearfix">
+      <div class="entry-photo pull-left">
+        <img data-ng-src="{{ (photoSrc) ? (photoSrc) : ('styles/images/white_no_pic_provided.png') }}">
+        <span class="entry-status {{ status }}"></span>
+      </div>
+      <div class="entry-details pull-left">
+        <div class="entry-status">
+          <i class="icon-settings"></i>
+          <span>{{ show }}</span>
+        </div>
+        <div class="entry-location">
+          <i class="icon-location2"></i>
+          <span>{{ location }}</span>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="presence">
+      <p>PRESENCE</p>
+      <div
+        data-ng-repeat="p in presences"
+        data-ng-class="{ 'active': p.show === show }"
+        data-ng-click="setPresence({icon: p.icon, show: p.show, status: p.status})"
+        class="clearfix">
+        <i style="color: {{p.color}}" class="{{ p.icon }} pull-left"></i>
+        <span class="pull-left">{{ p.show }}</span>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="location">
+      <p>LOCATION</p>
+      <div
+        data-ng-repeat="l in locations"
+        data-ng-class="{ 'active': l.text === location }"
+        data-ng-click="setLocation()"
+        class="clearfix">
+        <i class="icon-location2 pull-left"></i>
+        <span class="pull-left">{{ l.text }}</span>
+      </div>
+    </div>
+
+  </div>
+</div>

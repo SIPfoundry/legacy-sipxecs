@@ -1,0 +1,110 @@
+<div class="main-left-title-wrapper">
+  <i class="icon-group-chat"></i>
+  <h5 class="main-left-title">GROUP CHATS</h5>
+</div>
+<div class="entry-wrapper animated fade"
+  data-ng-repeat="entry in (filtered = (activityList.main | orderBy: '-timestamp' | filter: {type: 'groupchat'})) track by $index"
+  data-ng-class="{ 'last': $last }">
+  <div
+    data-ng-click="selectConversation(entry)"
+    class="entry-container clearfix">
+    <div class="entry-photo pull-left">
+      <img data-ng-show="!entry.type" data-vcard-photo="activityList.main">
+      <i data-ng-show="entry.type" class="icon-group-chat big-grey"></i>
+      <span data-ng-show="!entry.type" class="entry-status {{ entry.show || 'offline' }}"></span>
+    </div>
+    <div class="entry-name pull-left">
+      <span class="entry-name-big">
+        {{ entry.name }}
+        <span class="label label-default animated fade"
+          data-ng-if="entry.type && !entry.connected">Click to connect</span>
+      </span>
+      <span class="entry-msg">{{ entry.last_message }}</span>
+    </div>
+    <div class="entry-misc pull-left">
+      <span data-ng-show="(entry.unread !== 0)" class="entry-unread">{{ entry.unread }}</span>
+      <span data-ng-show="(entry.unread === 0)">{{ entry.timestamp | time }}</span>
+    </div>
+  </div>
+  <span class="entry-remove"
+    data-ng-click="removeConversation(entry)">
+    <i class="icon-close"></i>
+  </span>
+</div>
+
+
+<div class="group-chat-button">
+  <button
+    type="button"
+    data-ng-click="muc.showModal()"
+    class="btn btn-default btn-lg btn-block">
+    Find / Add group
+  </button>
+</div>
+
+<div data-ng-show="muc.conf.modal" class="rooms-modal clearfix animated fade">
+  <div class="clearfix">
+    <div class="main-left-title-wrapper">
+      <i class="icon-group-chat"></i>
+      <h5 class="main-left-title">GROUP CHATS / FIND-ADD GROUP</h5>
+    </div>
+    <div
+      data-ng-click="muc.hideModal()"
+      class="pull-right close-button">
+      <i class="icon-close"></i>
+    </div>
+  </div>
+
+  <form name="mucForm" role="form">
+    <div class="animated fade">
+      <input
+        data-ng-model="muc.conf.muc.room"
+        name="room" type="text" class="form-control" placeholder="Room name">
+      <input
+        data-ng-model="muc.conf.muc.server"
+        name="server" type="text" class="form-control" placeholder="Server">
+      <input
+        data-ng-model="muc.conf.muc.handle"
+        name="handle" type="text" class="form-control" placeholder="Handle">
+      <input
+        data-ng-model="muc.conf.muc.pass"
+        name="pass" type="text" class="form-control" placeholder="Password">
+    </div>
+    <div class="clearfix">
+      <button
+        data-ng-click="muc.getRooms(muc.conf.muc.server)"
+        type="button" class="btn btn-default first">Room list</button>
+      <button
+        data-ng-disabled="muc.conf.muc.room === ''"
+        data-ng-class="{'disabled': muc.conf.muc.room === ''}"
+        data-ng-click="muc.joinRoom(muc.conf.muc.room)"
+        type="button" class="btn btn-default">Join</button>
+    </div>
+  </form>
+  <div class="alert alert-warning alert-dismissable animated fade"
+    data-ng-if="muc.conf.muc.err">
+    <button type="button" class="close" aria-hidden="true"
+      data-ng-click="muc.conf.muc.err = null">
+      <i class="icon-close"></i>
+    </button>
+    <h5>{{muc.conf.muc.err.msg}}</h5>
+    <p><small class="text-muted">{{muc.conf.muc.err.failed}}</small></p>
+  </div>
+  <hr data-ng-show="muc.conf.serverRooms !== null" class="animated fade">
+  <span
+    data-ng-show="muc.conf.serverRooms !== null && muc.conf.serverRooms.length === 0"
+    class="animated fade">Sorry, no groups have been found.</span>
+  <div class="server-groups clearfix">
+    <div
+      data-ng-show="muc.conf.serverRooms"
+      data-ng-repeat="entry in (filtered = (muc.conf.serverRooms | orderBy: 'name')) track by $index"
+      class="server-group animated fade">
+      <div class="entry-name"
+        data-ng-click="muc.joinRoom(entry.name)">
+        <span class="entry-name-big">{{ entry.name }}</span>
+        <i class="icon-group-chat"></i>
+        <!-- <span class="entry-msg">names, names, names</span> -->
+      </div>
+    </div>
+  </div>
+</div>

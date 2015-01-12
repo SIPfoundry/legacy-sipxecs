@@ -1,0 +1,124 @@
+  <div class="row profile-bar-chat">
+    <div class="col-xs-10">
+      <span>CONFERENCE BRIDGE</span>
+    </div>
+    <div class="col-xs-2">
+      <button class="btn btn-link pull-right"
+        data-ng-click="chat.showDefault()"
+        data-click-view="false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="sticky-wrapper">
+    <div class="row conf">
+
+      <div class="col-md-12">
+
+        <div class="row">
+          <div class="col-md-12 conf-options-bar">
+            <p>
+              Use this conference room:
+              <span data-ng-if="conf.err">-</span>
+            </p>
+            <div class="spinner-wrapper animated fade"
+              data-ng-show="!conf.rooms"
+              data-ng-if="!conf.err">
+              <div class="spinner small"></div>
+            </div>
+            <select
+              class="animated fade default"
+              data-ng-show="conf.rooms"
+              data-ng-model="conf.select"
+              data-ng-change="conf.changeRoom()"
+              data-ng-options="opt.name for opt in conf.rooms">
+            </select>
+            <span data-ng-if="conf.rooms">({{ conf.select.extension }})</span>
+            <!-- <div class="conf-pin" data-ng-if="conf.rooms">
+              <p>
+                PIN:
+              </p>
+              <input type="text" name="confPin"
+                data-ng-model="conf.pin"
+                data-ng-keypress="conf.keyPress($event)">
+            </div> -->
+            <button type="button" data-ng-if="conf.refresh || conf.err" data-ng-click="conf.init()" class="btn btn-default pull-right animated fade btn-refresh"
+              title="Refresh">
+              <i class="icon-refresh"></i>
+            </button>
+            <p class="pull-right status">{{ conf.status }}</p>
+          </div>
+        </div>
+        <!-- <div class="spinner-wrapper"
+          data-ng-if="!conf.refresh">
+          <div class="spinner small"></div>
+        </div> -->
+        <div class="alert alert-muted animated fade" data-ng-if="conf.err">
+          <b>No Conference Rooms</b>
+        </div>
+        <div data-ng-if="!conf.err">
+          <div class="row animated fade">
+            <div class="alert alert-muted animated fade" data-ng-if="conf.participants.length === 0">
+              <b>No Participants</b>
+            </div>
+            <div data-drop="conf.moveHere" class="conf-move clearfix">
+              <div
+                data-ng-repeat="entry in conf.participants track by $index"
+                data-ng-class="{'inactive': !entry.conf.active, 'active': entry.conf.active}"
+                class="col-xs-3 col-md-2 clearfix part animated ease fade">
+                <img data-ng-src="{{ entry.avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAQOUlEQVR42uVdaVsbuw7m//+xW9q0lKVNgIQtoSEsIWEv630Pas0wtmVJ9kw4z/GHPnSi8XgsW8srWbPUeW1fvnzppJqEpoUWG8aX16Yiq92ifVnhhDBkGxsbS609z8w/1cxWJzeTJjngfAasr68vaadGMrIgmeSK5B2YWwxki93xP3/+XOr8t5tqEdhWHsPLMAMyxVE766sdGV2TSEmRFSOL0TSyAz7OBi+1riUzqyJzV378+LEkn4jkWFXqK0cnf7R1wMsD5td/GNCmpWhWm4tlAGi+fv2q7VZC2RQDiisMXphS+/z5c00aZPoBtcUR3NwxGmZhVQeZYECwF6FVLlwLcvlbnV/+rarEBXnv35sUyMkHFVDCTYt7uvfbt28rKyvwG/v9/sHBweFrG1caXcFPIAAZiCE0hAqpHWHbnh+g9YaCNFjCy8vL+Pf79++bm5v7+/uY5dPT08vLy9+/fz+8tse/7enpia7gJxCADMS4ZWtrC7e7rsxaKp+FNfnh/vvGgCaWiXCH1l7182sjN317e3s0Gs1ms7u7O8zyi6w9Pz+DGMzAjbgdnaArYmpzu8HW85sOSBpSMR8k0+QIKrHV1VVIkul0innHusaEvpgabsTt6ARdoUN0m2kdSaCkoKqP0fzxA2J6ldH4QtBNpQNxBbK+1+tNJpPr62u35B0DhJzw6dEVOkS36Jx0g2QdSPyezM3xZwf4jG0Bna69M+QDNOfe3t58Pr+/v+dnVssAaugWne/u7kIxJA0kM+yjonmnAxaCDbjnwnQZDofVhd9Eo62AB+Fxi3rlhBVkG1OmDsBOhHyILfziDQ/C4/DQhSNR7xiQ9LCEKldr4WEQmA4YLUFRw4id59eWFEdBiYTH4aF4NEk/uZEmVNRCsjclLDSEghrbN3KTLnt19o+Pj2GruMmiaXp+32KTHqQRkuGheDTxgIfyfRRTMumSqIAdC8p0MuleKMOjoyMIBLOhmS+LMAAM4wPpAPnkypGQ4FqAzQODBEb6y0IbBoBhYDBOELWpmf9hgDAwLQ+zJRmAV4W9D8/o8vKSsSNj4iUo5WM0jPhyDcPAYGhgEnniR1d4acyQiTzh4jAc3nN9ff3k5IREv0SdPntNQiakIWWAIdWwCkbb5WNHbyHJpM50sYhSjhg6hMMFO2RRot9nCQaDIQWdZC0ErfJhdSHJoDGqjQ1glXW73fPzc4kFqfJ7c8jwK4aEgUkAu/x9kMWA/FDGaDR6fHzMnNDiDYIIA5MHiJIWp0R8pcE4xq43ZMBhj6+trU2nU9UsB4l9wz9zc+BfDAzDkwdBkwRJmjAYZwb0k2sHDIC9cX19/fIhGwY2GAwwyKpvHFt8vASOWUG1qX5nBWkdK2ZPxIwf53nZVmtZ6eT3hoGNx2MKohkEvQGZ4CJipfJ2qqtgY2NjNpsZ5lHInkwyXMfwyB6VOKcxfSAkS0AR/nLOz8nd3Ny8ubkpslolbpc2YICG4fV6PUk4TD7dzLRkYUEqy3d5eZnMf8IenN6L4WX+HzGPjAHjgtAe70WTQwBHPQiRFg8ac1kR8ixwIQNWV1cnk4nzfmMMqAkKZspiNEG2BYWPz4Cnpyd4xRiqigFmcR1lAIMF2WIvYABkK5wdCngl3SI5ziMBHuRCCcM7OzuDMcoYQsJwMZ+oy8HRtpgw70yAAdDAEgdYaOM3pKjJJcZa+fTpUzKuIom9SJNzi/jDMXWEhvcBAy4uLszzkgTabICdTzmfzzFUYgAvbCV2J78J3sC4IlqF6Qc7ANyO4c8fp4EZjgHNxcbrUESp5IZgVwSmOgbE1KbERiwSGRYyAAM2JDtpxXiCAaUSN0gE4WEQQe17vLYdUGOA0NFhcsiDkxkG42I4lMFIdY10AN6tlBfGR+FztHdsB/BpCfxJsdiVd1aQ1vhJJvjVgCDeCmp/1cf4SmhElQFCx1i+Y6J5Qc35HRSGPD09bTTxrUjqHAYJPyAmgmxgXEw0KdLTMyOi5AmPx+OqJ/wB2+PjowNEC+bmxMhEUER+Ei41mEPVPBRbTIaBImJqgEGE/K5ccFgFiP4LwDiXB0euAA+fMY6SAYyT90YpKr1er7hA1u2AZIAsZnUl4RE5GtFEoCZJBgVAOIQWiTEfBSyWHS3UwysrK79+/VJlQRe0jpIGGAaG4TWBRavR0LLOdzWtdWtr6+rqSjXRSbQ5Fo2R0FT/wMAwvDbPDYgiYqqdyKfnUUIu7DyJG9UaGOeuY2Du8IxEl2qPTPtT9y49PWftC4E5CnYPh0OJFCqIBUl6w5AODg6SxxF5zFlom7yLCZcNvif1MHiAp8Y8MkmMxRaF5ynJ/8LAhOa/5EqZWhGG5ZBssLIHg8Ht7S0jSdpJWXQ0GAxlBMnRNz5WyNBUybICMlp0sEoAU+/o6EjrFZeyiGp7go6MBa1PYaqPWYmqlbDkYjLJjrxi+DvVELE5gCUnCxJgANPplJwvm48pnxa1GdqcQUYnZLDrbWlCBRsG0O/3YfvH5kt4Pi4WiOex6/QOyOcBs4uxD0ajEeTvoiIzeDQG4OqqSAK5ySixKoGugB+QyRtIXjifNR7EsrK0xj6floKH4tG+6FetuUw0tIwjZtZIdK/jQTAbJQaf8VZmkoZm3z8vL6zFUR6ME0JvfHiST5D3NyBVpiEeHB4e1ngQW7kxPgmTi/AHHoTHra2tudpajOueNDQYpR38KVwvqIgIsu1HV6JmZ2dnPp/7DlpBQBSd4xF4EB4nPOvSKhhn2IAqjc0cqqGzq9vb2/BI/fN7yWQWSSQH3aJzPILwzoJ1sMxkbydkiuQCyYsWBk8ckl2EMQ2Hw9lsxpwj0wIS6Aodolt0zh+F5FNDmFeT1M8Nm6FNgHESSIv3XzCy8Xh8dXWFZYvpM5TswEXciNvRCbqi2ihy75JfZ/l8agQLyiyFXrsdnhpE5P7+/tnZGdQmFefj1zv9CjIQ4xbciNvxkuhKKAkdWtUR1+E3Z4g2DsblpPNRQjUa5DVGCcG9t7cHw3E6nWJFw33F/N7d3f1+bfgD/8VF/AQCkIEYt+BG3E79FAxyGY6G2RlgQH4MBy6Tb0vTB9MFe6Lf7w8Gg93d3b2/DX/DsMFFTDoIqPpJrdArj1bm5BvYJFuCAS0bZMK5oLX86bX9L9LwE633sjUFFhCSbJMN/FJ1a9mVFCUxXW3uSm3fxDght5gXDMYVmVwbA6oDxcxC/nS7XacMJpPJyckJ1CyEPv6FgY8rsHZga0IcgRKOLmGcwdr9BgGiAuOSFT9bBeNsuaQ07xsbGxDxmNbj42PY8peXl1C29/f3Dw8PziiiBsuHyrReX1/D3aUCxrgXzIAVlAyymzMB+dIMdiyoOPwgVFwkwTFlVDIay5xmPGmD1uxRMkZxL7bIaDTa2tqiyrlBi0hStzZ/i/uUIgY0B8b5vWHJkPmPJQ+bknfB5GgEmAFOYEP0er2qjdSJlLnigRlhvFcCxtVFUCYWlEPmyrceHBxAgFSrddti9z49thGYCv1BXrFvpxrWdeZbt4GGJh0FmggsTBjyEBfBSlrJk9mx6E0w/+f8/ByaHFq6hgtJ3KtSiEun+gWNsvpW9YEQMhYxF5A5ULDtHN8AY5xE6vyt1cdbPow4Ur17AAuyVflPOpaSx9ObQ+xALNjqV+ZUSIHJhA0Hu9aPCecbFIqSZQWdbC16hT+wBmEv1hKEhJUok8BcsjdsuIuLC/CgWjfU8JoFMuPKJmYlVbpTuZh9Oe7fxAk9qk3Q7/eDp2I64io1vEFlh6Mz4TnGpiLE31WNLjiz2hAmhWvgKPixmqZtpMJWkJxh0Lp+NspiD0eenZ1RqabMzNesmHA7YBwsThj7rX0tQM4DeN30uR9J+T2bFa4QQTZMn7f6yeSH0uNrFjA5JsEzjsIDMMwf1OCCjEYjUshyMC6nmr0djDPnTGD5Hx8fB3NPYgcZSx2DSVY2e3mtXEmGqTCCViwzLv+7fsmnUuLJzs5OrW4on+3s56RkJmbxmwAKGYKITsprkQY+ua1GRkCp7qB28uNOfE4AnRN2KekFTxeVtaNgGmCVuFhCDgjR0R5TbQ6MI+EDCVvVvUwWfykGGA6aYX3AKo0VrywbDil5TDVZMBnyLla1dYHfDwhSQhvDTiNNwJz7lIvfmCwqnJjFbMxaoYgP3sASuAV0Zk+ePyohU4NxRUwjKhYE44dQhzY/DGCWYzc3N4PBwCzoi4FxwrWftD6paPoHr1dW88smk4nk3KShZrfiGzKSzLhkhBKvMRwOa6CbsM5zc0ImSTCfz51jrA1J8jQlwbhkqgFVrcdqUrm+LRycT5Jhy25ubvq1O1o6plqqYfR0IrXImd7kMdWkgZssZlwt3uSQieJ5N1kBGe0WqXq/qmC6xDYtpX59MgfPOVso55TkIhOzoAD8SmWquYuhbCowjsfpggyYTqfwlXgGJLMTO3zJMsnB9hrGIGnVpx4eHkq+0Sx0jCVQT6aF6q5AD3e7XVvmloQsUbiVSVeKTbffYAJBA8fSHSSfGjTPtTxiHCO7urra3t7umIpGSBgQwIJyAInggKDEXIUmYZ2mhWBBwSu3t7dw4GPHyvLNoSgYZ8MngrfABo19OKzsp3maiOzTt1aZc32ZmrJevj55yC8ZDPLHBAbUbFDVN1KTu0RFoyWrfWNSWK1ZXtT5zw6Q6HHzPgADZrNZZmZn5hYxPw4M2N/fZxigFfodpnZ0MpSsjcm5GKTPgI8AAUmeCOOtyoDi4YHADtDibkl4lkRQWSChteZ2gMQZNhwUSJuhOQXteQYIvaGPwwDtJwQ67Ed1mvWEa2kQMREkmfqGSpYJYSUSQX49rZwM2sIhyeR28xkQhMNsn65qLl+xugNqgKgwe06S5Rj4gob8UyVmBshBoSIAQw4vaztAmPYarOOqQ0NVhXR4cML5AbHPCzJwsWr6JAWlGekU7KdqBeV8PS/GHg6ME36nJgnG+Y5YcoIaAuMksx9kgKsvJEmJUJ1VyfqgszBYGmSA5BOPBUuWGXKNXEzG1wESOECdmthELrRjAOOIfcDMuCAD/h1gnIEBLYNxWic5aYZ+RDAuyQD5hEoQNImeSBr+SR2QyYAYmcIPMHwmRY4FCb+Dl3Ni2/adPQYLkhdfsIBxHf2J35jnrdUBCwEkYk/MB+N0DEgmG6nMXqEOWGyGlnAHVM1QSWo+Ez8IV00seECjxrCYI9ZcfmfB8IAEiug0UbKsk/ElM98Rox0g/PJ7O2CcpKsFgHEFi+3xYJwkmN7y4eEgDeMJJyWzBC8KlKvJ2RBBAEMORSwwRhbjkAGMU1XhUlRN1OJx7roKC2p6H2jJgjugSGisHhEz9xhMzDLvADMPGkpLiSnhUolZ76wg+ck/n8DV+vU3YDIrogUw7kV8TNWABeWcWHpXM64he7TKANsC/y+CcZ0Sx1STDGg/M87mCSfN0FwGxL4BkPk8BowrtfBVJqbBEq1BEWUTs+jbLUsbrw3a4Odr+1FpPyut9t/qdfrJ/Vu9gtbr9S4uLhqSPE1vkYeHh/F43O12/WnxJyQ4df40uoZpHwwG/wc1kGJ/hI+0pQAAAABJRU5ErkJggg==' }}">
+                <!-- <span class="entry-status {{ entry.cResource.show || entry.resources }}"></span> -->
+                <span class="entry-name-big">{{ entry.name }}</span>
+                <span class="entry-remove"
+                  data-ng-if="!entry.conf.active"
+                  data-ng-click="conf.remove($index)">
+                  <i class="icon-close"></i>
+                </span>
+                <div class="conf-info"
+                  data-ng-if="entry.conf.active && (!entry.conf['canSpeak'] || !entry.conf['canHear'])">
+                  <i class="icon-volume_mic_mute"
+                    data-ng-if="!entry.conf['canSpeak']"></i>
+                  <i class="icon-volume_speaker_1_mute"
+                    data-ng-if="!entry.conf['canHear']"></i>
+                </div>
+                <div class="conf-control"
+                  data-ng-if="conf.active">
+                  <button type="button"
+                    data-ng-click="conf.kick(entry)">
+                    <i class="icon-presence_on_the_phone"></i>
+                  </button>
+                  <button type="button"
+                    data-ng-click="conf.mute(entry)">
+                    <i class="icon-volume_mic_mute"></i>
+                  </button>
+                  <button type="button"
+                    data-ng-click="conf.deaf(entry)">
+                    <i class="icon-volume_speaker_1_mute"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-xs-3 col-md-2 clearfix conf-move-space"></div>
+            </div>
+          </div>
+          <hr>
+          <div class="row animated fade">
+
+            <div class="col-xs-4 col-xs-offset-4"
+              data-ng-if="conf.rooms">
+              <button type="button" data-ng-disabled="(conf.participants.length === 0) || (conf.btnDisabled)" class="btn btn-default btn-lg btn-block"
+                data-ng-click="conf.call()">
+                <i class="icon-presence_on_the_phone"
+                  data-ng-class="{'active': conf.active, 'inactive': !conf.active}"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+  <div class="sticky"></div>
+</div>

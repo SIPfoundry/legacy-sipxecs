@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+  <link rel="stylesheet" type="text/css" href="../css/draganddrop.css" />
+  <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" />
+  <style type="text/css">
+    body {
+      padding:25px;
+    }
+  </style>
+</head>
+<body>
+
+  <div ng-controller="MyCntrl" class="row">
+
+    <div class="row">
+      <div class="col-md-8 col-sm-8 col-lg-8">
+        <div class="list-group-item" drag ng-repeat="car in cars" ng-model="car">
+          {{ car.name }}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <input type="text" ng-model="year"/>
+        <button ng-click="add()" class="btn btn-default">Add new period</button>
+      </div>
+    </div>
+
+    <div ng-repeat="period in years" 
+      ng-model="period.cars"
+      drop="moveToYear"  
+      class="col-md-2 col-sm-2 col-lg-2 car">
+      <h2>{{period.year}}</h2>
+      <div class="list-group-item" drag ng-repeat="car in period.cars" ng-model="car">
+        {{ car.name }}
+      </div>
+    </div>
+
+  </div>  
+
+
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular.min.js"></script>
+  <!--<script src="https://rawgithub.com/fisshy/Angular-drag-drop/master/src/dragandrop.js"></script>-->
+  <script src="../src/angular-dnd.js"></script>
+  
+
+  <script>
+    angular.module('myApp', ['dragAndDrop'])
+      .controller('MyCntrl', function($scope){
+
+        $scope.add  = function(){
+          $scope.years.push({ year: $scope.year, cars: []});
+        };
+
+        $scope.cars = [ 
+          { name : 'Volvo'      }, 
+          { name : 'Audi'       }, 
+          { name : 'BMW'        }, 
+          { name : 'Mercedes'   }
+        ];
+
+        $scope.years = [ 
+          { year: 1990, cars: [] }, 
+          { year: 1995, cars: [] }, 
+          { year: 2000, cars: [] }, 
+          { year: 2001, cars: [] }, 
+          { year: 2005, cars: [] }, 
+          { year: 2010, cars: [] }
+        ];
+
+
+        $scope.moveToYear = function(car, list, element) {
+          angular.forEach($scope.years, function(year){
+            var index = year.cars.indexOf(car);
+            if(index > -1) {
+              year.cars.splice(index, 1);
+            }
+          });
+
+          if(!~list.indexOf(car)){
+            list.push(car)
+          }
+        };
+
+      });
+  </script>
+</body>
+</html>

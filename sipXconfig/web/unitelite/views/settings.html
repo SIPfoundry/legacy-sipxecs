@@ -1,0 +1,856 @@
+<div data-ng-controller="settingsController" data-resize>
+  <div id="settings-wideview">
+    <div class="settings profile-bar-chat row">
+      <div class="col-xs-10">
+        <span class="settings-title">Settings</span>
+      </div>
+      <div class="col-xs-2">
+        <button class="btn btn-link pull-right"
+          data-ng-click="chat.showDefault()"
+          data-click-view="false">
+          <i class="icon-close"></i>
+        </button>
+      </div>
+    </div>
+    <div id="settings-list" class="row" data-resize="full">
+      <div class="col-sm-4 col-md-3">
+        <div id="settings-menu">
+          <div class="settings-item row unselectable"
+            data-ng-repeat="option in settings"
+            data-ng-click="selectOption()"
+            data-ng-class="{'active': option.isSelected}">
+            <span class="col-xs-2"><i class="icon-{{option.icon}}"></i></span>
+            <span class="col-xs-8 settings-item-name">{{option.name}}</span>
+            <span class="col-xs-2 arrow"><i class="icon-arrow_collapse_right"></i></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-8 col-md-9 setting-right-side pa unselectable" data-ng-if="selected === 'Personal Attendant'">
+        <div class="row">
+          <div class="settings-details">
+            <div class="settings-title">
+              <span>Personal Attendant</span>
+              <div class="spinner-wrapper animated fade pull-right"
+                data-ng-if="!userSettings.personalAttendant.main && !userSettings.errors.notAvailable">
+                <div class="spinner small"></div>
+              </div>
+            </div>
+
+
+            <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.errors.notAvailable">
+              <div class="alert alert-warning">
+                <p><strong>Feature not available</strong></p>
+                Please contact your administrator.
+              </div>
+            </div>
+            <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.personalAttendant.main.personalAttendantPermission === false">
+              <div class="alert alert-warning">
+                <p><strong>Personal attendant is turned off</strong></p>
+                Please contact your administrator.
+              </div>
+            </div>
+            <div class="settings-details-wrapper" data-ng-if="(userSettings.errors.notAvailable === false) || (userSettings.personalAttendant.main.personalAttendantPermission === true)">
+              <form name="formPa" novalidate>
+                <div class="form-group clearfix">
+                  <label class="col-sm-4 control-label">Override default AutoAttendant language</label>
+                  <div class="col-sm-8">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.personalAttendant.main.overrideLanguage">
+                    <span class="help-block">
+                      Check this box to override the default AutoAttendant language chosen by the administrator.
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group clearfix" data-ng-if="userSettings.personalAttendant.main.overrideLanguage !== false">
+                  <label class="col-sm-4 control-label">Language</label>
+                  <div class="col-sm-8">
+                    <select
+                      class="form-control"
+                      data-ng-model="userSettings.personalAttendant.main.language"
+                      data-ng-options="lang for lang in userSettings.personalAttendant.lang">
+                    </select>
+                    <span class="help-block">
+                      The language used by the AutoAttendant if the override checkbox is selected.
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group clearfix">
+                  <label class="col-sm-4 control-label">Operator</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" data-ng-model="userSettings.personalAttendant.main.operator">
+                    <span class="help-block">
+                      Extension or SIP URI the caller is transferred to after pressing 0.
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group clearfix">
+                  <label class="col-sm-4 control-label">Play default voicemail option</label>
+                  <div class="col-sm-8">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.personalAttendant.main.playVMDefaultOptions">
+                    <span class="help-block">
+                      If enabled default prompt "When you are finished press 1 for more options. To reach the operator, dial 0 at any time." is played.
+                    </span>
+                  </div>
+                </div>
+
+                <div class="form-group clearfix">
+                  <label class="col-sm-4 control-label">Voicemail deposit</label>
+                  <div class="col-sm-8">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.personalAttendant.main.depositVM">
+                    <span class="help-block">
+                      If unchecked, callers will not be able to leave you voicemails, but they will be able to transfer to defined numbers. It is good practice to record a greeting explaining this.
+                    </span>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th width="10%">Dialpad</th>
+                        <th>Call routes to extension</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="pa-dials" data-ng-repeat="(key, val) in userSettings.personalAttendant.main.menu track by $index">
+                        <td>
+                          <select class="form-control"
+                            data-ng-model="key"
+                            data-ng-options="c for c in userSettings.personalAttendant.numbers">
+                          </select>
+                        </td>
+                        <td>
+                          <input class="pa-val form-control" type="text" data-ng-model="val" min="0" step="1" data-ng-pattern="/^\d+$/">
+                        </td>
+                        <td>
+                          <span class="close-inline" title="Remove">
+                            <i class="icon-close"
+                              data-ng-click="userSettings.personalAttendant.rem(userSettings.personalAttendant.main.menu, null, key); formPa.$setDirty();"></i>
+                          </span>
+                        </td>
+                      </tr>
+                      <tr class="pa-dials"
+                        data-ng-if="userSettings.personalAttendant.showNew"
+                        data-ng-repeat="obj in userSettings.personalAttendant.emptyArr track by $index">
+                        <td>
+                          <select class="form-control"
+                            data-ng-model="obj.key"
+                            data-ng-options="c for c in userSettings.personalAttendant.numbers"
+                            data-ng-required="true">
+                          </select>
+                        </td>
+                        <td>
+                          <input class="pa-val form-control" type="text"
+                            data-ng-model="obj.no"
+                            data-ng-pattern="/^\d+$/"
+                            data-ng-required="true">
+                        </td>
+                        <td>
+                          <span class="close-inline" title="Remove">
+                            <i class="icon-close"
+                              data-ng-click="userSettings.personalAttendant.rem(userSettings.personalAttendant.emptyArr, $index)"></i>
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="3">
+                          <p class="add-btn">
+                            <button type="button" class="btn btn-link"
+                              data-ng-click="userSettings.personalAttendant.add(); formPa.$setDirty();"
+                              title="Add dialpad entry">
+                              <b>+</b>
+                            </button>
+
+                          </p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </form>
+
+              <div>
+                <button class="btn btn-default"
+                  data-ng-disabled="!formPa.$dirty"
+                  data-ng-click="userSettings.personalAttendant.cancel(); formPa.$setPristine();">
+                  Cancel
+                </button>
+                <button type="button" class="btn btn-info"
+                  data-ng-click="userSettings.personalAttendant.save()"
+                  data-ng-disabled="!formPa.$dirty || formPa.$invalid">
+                  Save
+                </button>
+                <div class="spinner-wrapper inline animated fade"
+                  data-ng-show="userSettings.loading">
+                  <div class="spinner small"></div>
+                </div>
+                <span data-ng-if="userSettings.success" class="label label-success animated fadeOut">Success</span>
+                <span data-ng-if="userSettings.warning" class="label label-warning animated fadeOut">Warning</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-8 col-md-9 setting-right-side fwd unselectable" data-ng-if="selected === 'Call Forwarding'">
+        <div class="row">
+          <div class="settings-details">
+            <div class="settings-title">
+              <span>Call Forwarding</span>
+              <div class="spinner-wrapper animated fade pull-right"
+                data-ng-if="!userSettings.fwd.setup.resp && !userSettings.errors.notAvailable">
+                <div class="spinner small"></div>
+              </div>
+            </div>
+            <ul class="nav nav-pills nav-justified">
+              <li data-ng-class="{'active': userSettings.fwd.visible === 'setup'}">
+                <button type="button" class="btn btn-default btn-block"
+                  data-ng-click="userSettings.fwd.show('setup')">
+                  Set-up
+                </button>
+              </li>
+              <li data-ng-class="{'active': userSettings.fwd.visible === 'schedule'}">
+                <button type="button" class="btn btn-default btn-block"
+                  data-ng-click="userSettings.fwd.show('schedule')">
+                  Schedules
+                </button>
+              </li>
+            </ul>
+            <div class="settings-details-wrapper">
+
+              <div data-ng-if="userSettings.fwd.visible === 'setup'">
+
+
+                <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.errors.notAvailable">
+                  <div class="alert alert-warning">
+                    <p><strong>Feature not available</strong></p>
+                    Please contact your administrator.
+                  </div>
+                </div>
+
+                <div data-ng-if="!userSettings.errors.notAvailable">
+                  <form name="formSetup">
+                    <p>
+                      Extension will ring first for
+                      <input class="fwd-no form-control" type="number" data-ng-model="userSettings.fwd.setup.resp.expiration" data-ng-pattern="/^\d+$/" data-ng-required="true"> seconds.
+                    </p>
+
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Active</th>
+                            <th>Condition</th>
+                            <th>Schedule</th>
+                            <th>Forward to</th>
+                            <th>Timeout (s)</th>
+                            <th>Move</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="fwd-ring" data-ng-repeat="ring in userSettings.fwd.setup.resp.rings track by $index">
+                            <td>
+                              <input type="checkbox" data-ng-model="ring.enabled" class="form-control">
+                            </td>
+                            <td>
+                              <select class="form-control"
+                                data-ng-model="ring.type"
+                                data-ng-options="c for c in userSettings.fwd.setup.defaultTypes">
+                              </select>
+                            </td>
+                            <td>
+                              <select
+                                class="form-control"
+                                data-ng-model="ring.scheduleId"
+                                data-ng-options="c as (c | translateSchedules:userSettings.fwd.sched.main) for c in userSettings.fwd.setup.defaultSchedules">
+                                </select>
+                            </td>
+                            <td>
+                              <input type="text" class="form-control"
+                                data-ng-model="ring.number"
+                                data-ng-pattern="/^\d+$/"
+                                data-ng-required="true">
+                            </td>
+                            <td>
+                              <input type="number"
+                                class="form-control"
+                                data-ng-model="ring.expiration"
+                                data-ng-pattern="/^\d+$/"
+                                data-ng-required="true">
+                            </td>
+                            <td>
+                              <div class="move-wrapper">
+                                <i class="icon-arrow_collapse_up" title="Move up"
+                                  data-ng-click="userSettings.fwd.setup.moveRing($index, $index-1); formSetup.$setDirty();"></i>
+                                <i class="icon-arrow_collapse_down" title="Move down"
+                                  data-ng-click="userSettings.fwd.setup.moveRing($index, $index+1); formSetup.$setDirty();"></i>
+                              </div>
+                            </td>
+                            <td>
+                              <div class="tooltip-wrapper">
+                                <span class="close-inline" title="Remove">
+                                  <i class="icon-close"
+                                    data-ng-click="userSettings.fwd.setup.rem(userSettings.fwd.setup.resp.rings, $index); formSetup.$setDirty();"></i>
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="6">
+                              <p class="add-btn">
+                                <button type="button" class="btn btn-link" title="Add ring"
+                                  data-ng-click="userSettings.fwd.setup.add(); formSetup.$setDirty();">
+                                  <b>+</b>
+                                </button>
+                              </p>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </form>
+
+                  <p data-ng-if="userSettings.fwd.setup.resp.withVoicemail">
+                    If none of the above answers, the call will be forwarded to your voice mailbox.
+                  </p>
+
+                  <div>
+                    <button class="btn btn-default"
+                      data-ng-disabled="!formSetup.$dirty"
+                      data-ng-click="userSettings.fwd.setup.cancel(); formSetup.$setPristine();">
+                      Cancel
+                    </button>
+                    <button type="button" class="btn btn-info"
+                      data-ng-click="userSettings.fwd.setup.save()"
+                      data-ng-disabled="!formSetup.$dirty || formSetup.$invalid">
+                      Save
+                    </button>
+                    <div class="spinner-wrapper inline animated fade"
+                      data-ng-show="userSettings.loading">
+                      <div class="spinner small"></div>
+                    </div>
+                    <span data-ng-if="userSettings.success" class="label label-success animated fadeOut">Success</span>
+                    <span data-ng-if="userSettings.warning" class="label label-warning animated fadeOut">Warning</span>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="fwd-sched" data-ng-if="userSettings.fwd.visible === 'schedule'">
+
+                <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.errors.notAvailable">
+                  <div class="alert alert-warning">
+                    <p><strong>Feature not available</strong></p>
+                    Please contact your administrator.
+                  </div>
+                </div>
+                <div data-ng-if="!userSettings.errors.notAvailable">
+                  <p data-ng-if="!userSettings.fwd.sched.selected.periods">
+                    No schedules found. Add one.
+                  </p>
+                  <div class="clearfix">
+                    <div data-ng-if="userSettings.fwd.sched.selected">
+                    <p>Select schedule:
+                      <select
+                        data-ng-model="userSettings.fwd.sched.selected"
+                        data-ng-options="c.name for c in userSettings.fwd.sched.main"
+                        data-ng-disabled="userSettings.fwd.sched.selected.periods.length === 0"
+                        class="form-control">
+                        </select>
+                      <span class="close-inline" title="Remove">
+                        <i class="icon-close"
+                          data-ng-click="userSettings.fwd.sched.remSelected(); formSched.$setDirty();"></i>
+                      </span>
+                    </p>
+                    </div>
+
+                    <form name="formSched">
+                      <div class="table-responsive">
+                        <table class="table" data-ng-if="userSettings.fwd.sched.selected">
+                          <thead>
+                            <tr>
+                              <th>Day</th>
+                              <th>From</th>
+                              <th>To</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr class="fwd-ring" data-ng-repeat="prop in userSettings.fwd.sched.selected.periods track by $index">
+                              <td>
+                                <select
+                                  class="form-control"
+                                  data-ng-model="prop.scheduledDay"
+                                  data-ng-options="c as (c | translateDays) for c in userSettings.fwd.sched.predefined"
+                                  data-ng-required="true">
+                                </select>
+                              </td>
+                              <td>
+                                <span>
+                                  <input class="fwd-time form-control" type="text" data-ng-model="prop.start"
+                                    data-ng-pattern="/^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/"
+                                    data-ng-required="true">
+                                </span>
+                              </td>
+                              <td>
+                                <span>
+                                  <input class="fwd-time form-control" type="text" data-ng-model="prop.end"
+                                    data-ng-pattern="/^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/"
+                                    data-ng-required="true">
+                                </span>
+                              </td>
+                              <td>
+                                <div class="tooltip-wrapper">
+                                  <span class="close-inline" title="Remove">
+                                    <i class="icon-close"
+                                      data-ng-click="userSettings.fwd.sched.rem(userSettings.fwd.sched.selected, $index); formSched.$setDirty();"></i>
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td colspan="4">
+                                <p class="add-btn">
+                                  <button type="button" class="btn btn-link" title="Add time period"
+                                    data-ng-click="userSettings.fwd.sched.add(userSettings.fwd.sched.selected); formSched.$setDirty();">
+                                    <b>+</b>
+                                  </button>
+                                </p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </form>
+                      <div class="fwd-sched-btns">
+                        <button class="btn btn-default"
+                          data-ng-click="userSettings.fwd.sched.cancel(); formSched.$setPristine();"
+                          data-ng-disabled="!formSched.$dirty">
+                          Cancel
+                        </button>
+                        <button type="button" class="btn btn-info"
+                          data-ng-click="userSettings.fwd.sched.save()"
+                          data-ng-disabled="!formSched.$dirty || formSched.$invalid || userSettings.fwd.sched.selected.periods.length === 0">
+                          Save
+                        </button>
+                        <div class="spinner-wrapper inline animated fade"
+                          data-ng-show="userSettings.loading">
+                          <div class="spinner small"></div>
+                        </div>
+                        <span data-ng-if="userSettings.success" class="label label-success animated fadeOut">Success</span>
+                        <span data-ng-if="userSettings.warning" class="label label-warning animated fadeOut">Warning</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="animated fade"
+                    data-ng-if="userSettings.fwd.sched.showNew">
+
+                    <div class="clearfix">
+                      <input class="form-control col-xs-4" placeholder="Schedule name" required
+                      data-ng-model="userSettings.fwd.sched.showNewEmpty.name"
+                      data-ng-minlength="1">
+                      <span class="close-inline" title="Remove">
+                        <i class="icon-close" data-ng-click="userSettings.fwd.sched.hideNewEmpty()"></i>
+                      </span>
+                    </div>
+
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Day</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="fwd-ring" data-ng-repeat="prop in userSettings.fwd.sched.showNewEmpty.periods track by $index">
+                            <td>
+                              <select
+                                class="form-control"
+                                data-ng-model="prop.scheduledDay"
+                                data-ng-options="c as (c | translateDays) for c in userSettings.fwd.sched.predefined"
+                                data-ng-required="true">
+                              </select>
+                            </td>
+                            <td>
+                              <span>
+                                <input class="fwd-time form-control" type="text" data-ng-model="prop.start"
+                                  data-ng-pattern="/^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/"
+                                  data-ng-required="true">
+                              </span>
+                            </td>
+                            <td>
+                              <span>
+                                <input class="fwd-time form-control" type="text" data-ng-model="prop.end"
+                                  data-ng-pattern="/^(0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/"
+                                  data-ng-required="true">
+                              </span>
+                            </td>
+                            <td>
+                              <div class="tooltip-wrapper">
+                                <span class="close-inline" title="Remove">
+                                  <i class="icon-close"
+                                    data-ng-click="userSettings.fwd.sched.rem(userSettings.fwd.sched.showNewEmpty, $index)"></i>
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="4">
+                              <p class="add-btn">
+                                <button type="button" class="btn btn-link" title="Add time period"
+                                  data-ng-click="userSettings.fwd.sched.add(userSettings.fwd.sched.showNewEmpty);">
+                                  <b>+</b>
+                                </button>
+                              </p>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <p class="animated">
+                    <button type="button" class="btn btn-default"
+                      data-ng-click="userSettings.fwd.sched.addNew();"
+                      data-ng-disabled="userSettings.fwd.sched.selected.periods.length === 0">
+                      <span data-ng-if="userSettings.fwd.sched.showNew">
+                        Add and save
+                      </span>
+                      <span data-ng-if="!userSettings.fwd.sched.showNew">
+                        Add new schedule
+                      </span>
+                    </button>
+                  </p>
+
+
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-8 col-md-9 setting-right-side unselectable" data-ng-if="selected === 'Speed Dials'">
+        <div class="row">
+          <div class="settings-details speed">
+            <div class="settings-title">
+              <span>Speed Dials</span>
+              <div class="spinner-wrapper animated fade pull-right"
+                data-ng-if="!userSettings.speed.data && !userSettings.errors.notAvailable">
+                <div class="spinner small"></div>
+              </div>
+            </div>
+
+            <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.errors.notAvailable">
+              <div class="alert alert-warning">
+                <p><strong>Feature not available</strong></p>
+                Please contact your administrator.
+              </div>
+            </div>
+
+            <div class="settings-details-wrapper" data-ng-if="!userSettings.errors.notAvailable">
+              <div class="form-group clearfix">
+                <label class="col-sm-5 control-label">Only use Group Speed Dials</label>
+                <div class="col-sm-7">
+                  <input type="checkbox" class="form-control" data-ng-model="userSettings.speed.data.groupSpeedDial">
+                  <span class="help-block">
+                    Enabling this option will delete all your existing Speed Dials and replace them with the Group Speed Dials
+                  </span>
+                </div>
+              </div>
+              <div data-ng-show="!userSettings.speed.data.groupSpeedDial" class="animated fade">
+                <form name="formSpeed" novalidate>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Number</th>
+                          <th>Name</th>
+                          <th>Presence</th>
+                          <th></th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="form-group" data-ng-repeat="obj in userSettings.speed.data.buttons track by $index">
+                          <td>
+                            <input type="text" class="form-control" placeholder="Number"
+                              data-ng-model="userSettings.speed.data.buttons[$index].number"
+                              data-ng-pattern="/^\d+$/"
+                              data-ng-required="true">
+                          </td>
+                          <td>
+                            <input type="text" class="form-control" placeholder="Name"
+                              data-ng-model="userSettings.speed.data.buttons[$index].label"
+                              data-ng-required="true">
+                          </td>
+                          <td>
+                            <input type="checkbox" class="form-control pull-left"
+                              data-ng-model="userSettings.speed.data.buttons[$index].blf"
+                              data-ng-disabled="userSettings.speed.data.canSubscribeToPresence === false">
+                          </td>
+                          <td>
+                            <div class="move-wrapper">
+                              <i class="icon-arrow_collapse_up"
+                                data-ng-click="userSettings.speed.move($index, $index-1); formSpeed.$setDirty();"></i>
+                              <i class="icon-arrow_collapse_down"
+                                data-ng-click="userSettings.speed.move($index, $index+1); formSpeed.$setDirty();"></i>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="tooltip-wrapper">
+                              <span class="close-inline" title="Remove">
+                                <i class="icon-close"
+                                  data-ng-click="userSettings.speed.removeEntry($index); formSpeed.$setDirty();"></i>
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="4">
+                            <p class="add-btn">
+                              <button type="button" class="btn btn-link" title="Add speed dial"
+                                data-ng-click="userSettings.speed.addEntry(); formSpeed.$setDirty();">
+                                <b>+</b>
+                              </button>
+                            </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </form>
+              </div>
+              <div>
+                <button class="btn btn-default"
+                  data-ng-disabled="!formSpeed.$dirty"
+                  data-ng-click="userSettings.speed.cancel(); formSpeed.$setPristine();">
+                  Cancel
+                </button>
+                <button class="btn btn-info" data-ng-click="userSettings.speed.save()"
+                  data-ng-disabled="!formSpeed.$dirty || formSpeed.$invalid">
+                  Save
+                </button>
+                <button class="btn btn-info" data-ng-click="userSettings.speed.save(true)"
+                  data-ng-disabled="!formSpeed.$dirty || formSpeed.$invalid">
+                  Save and update phone(s)
+                </button>
+                <div class="spinner-wrapper inline animated fade"
+                  data-ng-show="userSettings.loading">
+                  <div class="spinner small"></div>
+                </div>
+                <span data-ng-if="userSettings.success" class="label label-success animated fadeOut">Success</span>
+                <span data-ng-if="userSettings.warning" class="label label-warning animated fadeOut">Warning</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-8 col-md-9 setting-right-side unselectable" data-ng-if="selected === 'User Settings'">
+        <div class="row">
+          <div class="settings-details">
+
+            <div class="settings-title">
+              <span>User Settings</span>
+              <div class="spinner-wrapper animated fade pull-right"
+                data-ng-if="!userSettings.user.buddy && !userSettings.errors.notAvailable">
+                <div class="spinner small"></div>
+              </div>
+            </div>
+
+            <div>
+
+              <div class="settings-details-wrapper">
+                <div class="form-group clearfix">
+                  <label for="inputPass" class="col-sm-3 control-label">User Password</label>
+                  <div class="col-sm-9">
+                    <input type="password" class="form-control" placeholder="Password"
+                      data-ng-pattern="/^[a-zA-Z0-9-!$%^&*()_+|~=`{}\[\]:;'<>?,.\/@#]{8,}$/"
+                      data-ng-model="userSettings.user.pass">
+                    <span class="help-block">
+                      Used to log into the User Portal and XMPP. Minimum length is 8.
+                    </span>
+                  </div>
+                </div>
+                <div class="alert alert-warning alert-dismissable animated fade"
+                  data-ng-if="userSettings.user.errors.pass">
+                  <button type="button" class="close" data-ng-click="userSettings.user.errors.pass = null">&times;</button>
+                  Minimum password length: 8
+                </div>
+              </div>
+
+              <p class="settings-subtitle">Voicemail</p>
+              <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.errors.voicemail">
+                <div class="alert alert-warning">
+                  <p><strong>Feature not available</strong></p>
+                  Please contact your administrator.
+                </div>
+              </div>
+              <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.user.vm.main.voicemailPermission === false">
+                <div class="alert alert-warning">
+                  <p><strong>Voicemail is turned off</strong></p>
+                  Please contact your administrator.
+                </div>
+              </div>
+              <div class="settings-details-wrapper" data-ng-if="(userSettings.errors.voicemail === false) || (userSettings.user.vm.main.voicemailPermission === true)">
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Voicemail PIN</label>
+                  <div class="col-sm-9">
+                    <input type="password" class="form-control" placeholder="Password" data-ng-pattern="/^[a-zA-Z0-9]{4,}$/" data-ng-model="userSettings.user.vm.pass">
+                    <span class="help-block">
+                      Used to log into voicemail. Numeric PINs are recommended, since only numbers can be dialed. Minimum length is 4.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Announcement</label>
+                  <div class="col-sm-9">
+                    <select class="form-control"
+                      data-ng-model="userSettings.user.vm.selected"
+                      data-ng-options="c.name for c in userSettings.user.vm.select">
+                    </select>
+                    <span class="help-block">
+                      Voicemail prompt callers will hear before leaving a message.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Email</label>
+                  <div class="col-sm-9">
+                    <input type="email" class="form-control" placeholder="Email" data-ng-model="userSettings.user.vm.main.email">
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Attach audio</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.vm.main.emailIncludeAudioAttachment">
+                    <span class="help-block">
+                      If checked, the voicemail message will be attached to the notification email. Otherwise, the email will contain a link to retrieve voicemail message.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Alternate email</label>
+                  <div class="col-sm-9">
+                    <input type="email" class="form-control" placeholder="Email" data-ng-model="userSettings.user.vm.main.altEmail">
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Attach audio</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.vm.main.altEmailIncludeAudioAttachment">
+                  </div>
+                </div>
+              </div>
+
+              <p class="settings-subtitle">Conference Bridge</p>
+              <div class="settings-details-wrapper animated fade" data-ng-if="userSettings.errors.confBridge">
+                <div class="alert alert-warning">
+                  <p><strong>Feature not available</strong></p>
+                  Please contact your administrator.
+                </div>
+              </div>
+              <div class="settings-details-wrapper" data-ng-if="!userSettings.errors.confBridge">
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Room</label>
+                  <div class="col-sm-9">
+                    <select class="form-control"
+                      data-ng-model="userSettings.user.conf.selected"
+                      data-ng-options="c.name for c in userSettings.user.conf.select"
+                      data-ng-change="userSettings.user.conf.changeConf()">
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Enabled</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.conf.main.enabled">
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Name</label>
+                  <div class="col-sm-9">
+                    <input type="text" placeholder="Name" class="form-control" data-ng-model="userSettings.user.conf.main.name" required>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Moderator PIN</label>
+                  <div class="col-sm-9">
+                    <input type="text" placeholder="PIN" class="form-control" data-ng-model="userSettings.user.conf.main.moderatorCode" data-ng-pattern="/^\d+$/">
+                    <span class="help-block">
+                      Moderator access code for audio conference. Can be empty. If set, a participant PIN must also be set. Users logged in using this pin are automatically recognised as moderators.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Participant PIN</label>
+                  <div class="col-sm-9">
+                    <input type="text" placeholder="PIN" class="form-control" data-ng-model="userSettings.user.conf.main.accessCode" data-ng-pattern="/^\d+$/">
+                    <span class="help-block">
+                      Participant access code for audio conference. Can be empty.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Max. members</label>
+                  <div class="col-sm-9">
+                    <input type="number" class="form-control" data-ng-model="userSettings.user.conf.main.maxMembers" data-ng-pattern="/^\d+$/">
+                    <span class="help-block">
+                      The maximum number of call legs to be allowed by this bridge. 0 means unlimited.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Quickstart</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.conf.main.quickstart">
+                    <span class="help-block">
+                      A non-quickstart conference begins when the chair person arrives. Enable this if you want not to wait for a moderator. Only a quickstart conference can be setup with no PIN.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Auto-record</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.conf.main.autorecorded">
+                    <span class="help-block">
+                      If checked then conference calls will be recorded to the conference owner's mailbox
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-details-wrapper">
+                <button class="btn btn-default"
+                 data-ng-click="userSettings.user.cancel()">
+                  Cancel
+                </button>
+                <button class="btn btn-info"
+                  data-ng-click="userSettings.user.save()">
+                  Save
+                </button>
+                <div class="spinner-wrapper inline animated fade"
+                  data-ng-show="userSettings.user.loading">
+                  <div class="spinner small"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!--/#settings-list-->
+
+  </div>
+</div>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+
+  <style type="text/css">
+    .grey-background {
+  background-color: #eeeeee;
+}
+
+.pink-background {
+  background-color: #F778A1;
+}
+
+.bg-red { background: #FF6961 !important; }
+.bg-orange { background: #FFB34F !important; }
+.bg-yellow { background: #FFFA49 !important; }
+.bg-green { background: #8EC16D !important; }
+.bg-blue { background-color: #8CC9FF !important; }
+.bg-lila { background: #C787FF !important; }
+.bg-pink { background: #FF77A8 !important; }
+.bg-neutral { background: #AAAAAA !important; }
+
+.row {
+  margin: 0px;
+}
+
+.periodContainer {
+  padding: 2px;
+  width: 16.6%;
+  float: left;
+}
+
+.periodBlock {
+  padding: 3px;
+  background-color: #dddddd;
+  border: 2px solid #DDD;
+}
+
+.liketag {
+  float: left;
+  display: inline;
+}
+
+.courseBlock {
+  text-align: center;
+  padding: 10px;
+  background-color: #aaa;
+  font-weight: bold;
+  margin: 3px;
+  cursor: pointer;
+  border-top-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+
+}
+
+.courseBlock:hover {
+  background-color: #C0E0B3;
+  cursor: pointer;
+}
+
+.striped-bg {
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent);
+  -webkit-background-size: 50px 50px;
+  -moz-background-size: 50px 50px;
+  background-size: 50px 50px;
+  // background-color: #eee;
+}
+
+.yearSeparator {
+  background-color: #555;
+  margin: 2px;
+  padding: 12px;
+  text-align: center;
+  color: #fff;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.droppingPossible {
+  border: 2px dashed #666;
+}
+  </style>
+</head>
+<body>
+
+ 
+<div ng-controller="MyCtrl">
+      <h2>add course</h2>
+    
+    <div class="panel panel-default grey-background">
+      <div class="panel-body">
+        <form name="form" role="form" novalidate ng-submit="addCourse()">
+    
+          <div class="form-group">
+            <label for="courseName">Course name <span class="label label-danger"> use spaces for abbreviation</span></label>
+            <input type="text"
+              class="form-control"
+              id="courseName"
+              placeholder="enter course name"
+              ng-model="newcourse.title"
+              required
+              autofocus
+            >
+          </div>
+    
+          <div class="form-group">
+            <label for="studyGuideLink">study guide link <span class="label label-danger"> optional</span></label>
+            <input type="text"
+              class="form-control"
+              id="studyGuideLink"
+              placeholder="study guide link"
+              ng-model="newcourse.link"
+            >
+          </div>
+    
+          <div class="form-group">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox"
+                  checked="checked"
+                  ng-model="newcourse.colored"
+                ><strong>GLBT flag colors ? </strong><span class="label label-danger"> optional</span>
+              </label>
+            </div>
+          </div>
+    
+          <button type="submit" class="btn btn-primary" ng-disabled="form.$invalid">Add course</button>
+          <button type="button" class="btn btn-primary" ng-click="addRandomCourse()" >Generate + add random course</button>
+    
+        </form>
+      </div>
+    </div>
+    
+    <h2>course list</h2>
+    
+    <div class="panel panel-default grey-background">
+      <div class="panel-body">
+        <p drag ng-repeat="course in courses" class="courseBlock liketag bg-{{course.color}}" ng-model="course">
+          <a ng-click="removeCourse(course, null)" class="close"> &times;</a> {{course.title}} [ <a href="{{course.link}}">study guide</a> ]
+        </p>
+        <div class="clearfix"/>
+      </div>
+    </div>
+    
+    <h2>schedule</h2>
+    
+    <button type="submit" id="selectNumYears" class="btn btn-primary" ng-click="addYear()">Add extra year...</button>
+    <br/>
+    
+    <hr/>
+    
+    <div class=".container-fluid">
+      <div ng-repeat="year in years">
+        <h3 class="yearSeparator">year {{$index + 1}}<a ng-click="removeYear(year)" class="close"> &times;</a></h3>
+        <div class="row">
+          <div class="col-md-2 periodContainer" ng-repeat="period in year.periods" drop="moveToPeriod" ng-model="period.courses">
+            <div class="periodBlock striped-bg">
+              <h4 class="text-center"><strong>period {{$index + 1}}</strong></h4>
+              <p drag ng-repeat="course in period.courses" class="courseBlock bg-{{course.color}}" ng-model="course">
+                <a ng-click="removeCourse(course, period)" class="close"> &times;</a><a href="{{course.link}}">{{course.title}}</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular.min.js"></script>
+  <!--<script src="https://rawgithub.com/fisshy/Angular-drag-drop/master/src/dragandrop.js"></script>-->
+  <script src="../src/angular-dnd.js"></script>
+  
+
+  <script>
+    var myApp = angular.module('myApp',['dragAndDrop']);
+
+  //myApp.directive('myDirective', function() {});
+  //myApp.factory('myService', function() {});
+
+  function MyCtrl($scope) {
+      
+      // extra classes
+      
+      var Year = function() {
+          this.periods = [];
+          this.add = function(period) {
+              this.periods.push(period);
+          };
+          this.remove = function(period) {
+              return this.periods.splice(this.periods.indexOf(period), 1);
+          };
+      };
+      
+      var Period = function(year) {
+          this.year = year;
+          this.courses = [];
+          this.add = function(course) {
+              this.courses.push(course);
+          };
+          this.remove = function(course) {
+              var hasCourse = this.hasCourse(course);
+              // console.log('period has course? -> ' + hasCourse);
+              if (hasCourse) {
+                  return this.courses.splice(this.courses.indexOf(course), 1);
+              }
+          };
+          this.hasCourse = function(course) {
+              var found = null;
+              for(var i = 0; i < this.courses.length; i++) {
+                  var currentCourse = this.courses[i];
+                  if (course === currentCourse) {
+                      found = currentCourse;
+                  }
+              }
+              return found !== null;
+          };
+      };
+      
+      var Course = function(title, link, color, period) {
+          if (period !== null) {
+              this.period = period;
+          } else {
+              this.period = null;
+          }
+      
+          this.title = title;
+          this.link = link;
+          this.color = color;
+      };
+          
+      $scope.courses = [];
+      $scope.years = [];
+      $scope.lastCourseColor = '';
+      
+      $scope.courseColors = [
+          'red',
+          'orange',
+          'yellow',
+          'green',
+          'blue',
+          'lila',
+          'pink'
+      ];
+      
+      $scope.randomNames = [
+          'advanced',
+          'topics in',
+          'logic',
+          'agents',
+          'multi-agent',
+          'intelligent',
+          'super',
+          'statistics',
+          'knowledge-representations',
+          'web applications'
+      ];
+      
+      // temp create some stuff
+      
+      var year = new Year();
+      for (var i = 0; i < 6; i++) {
+          var period = new Period(year);
+          for (var j = 0; j < 3; j++) {
+              period.add(new Course('course', 'link', 'green'));
+          }
+          year.add(period);
+      }
+      $scope.years.push(year);
+      
+      $scope.addCourse = function(){
+          
+          // set initial course color to neutral
+          var courseColor = 'neutral';
+          
+          // create new course from scope stuff
+          var course = new Course($scope.newcourse.title, $scope.newcourse.link, courseColor);
+          
+          // if we want colors
+          if ($scope.newcourse.colored) {
+              // create new temp array minus lastCourseColor and randomly select from that. done!
+              var tempCourseColors = $scope.courseColors.slice(0);
+              // splice last selected color if it exists
+              if($scope.lastCourseColor !== '') {
+                  tempCourseColors.splice(tempCourseColors.indexOf($scope.lastCourseColor), 1);
+              }
+              // select random color from tempColors
+              var randomIndex = Math.round(Math.random() * (tempCourseColors.length - 1));
+              courseColor = tempCourseColors[randomIndex];
+              // update course to be of color
+              course.color = courseColor;
+          }
+          
+          $scope.courses.push(course);
+          
+          // reset newcourse in scope
+          $scope.newcourse.title = '';
+          $scope.newcourse.link = '';
+          $scope.newcourse.colored = false;
+          
+      };
+      
+      $scope.generateRandomCourse = function() {
+          var randLink = 'http://www.powergeek.nl/';
+          var ci = Math.round(Math.random() * ($scope.courseColors.length - 1));
+          var randColor = $scope.courseColors[ci];
+          var randTitle = '';
+          
+          var randomNameLength = 2 + Math.round(Math.random() * 3);
+          
+          for(var i = 0; i < randomNameLength; i++) {
+              var ni = Math.round(Math.random() * ($scope.randomNames.length - 1));
+              randTitle += $scope.randomNames[ni] + ' ';
+          }
+          
+          return new Course(randTitle, randLink, randColor);
+      };
+      
+      $scope.addRandomCourse = function() {
+          $scope.courses.push($scope.generateRandomCourse());
+      };
+      
+      $scope.removeCourse = function(course, period) {
+          if(period !== null) {
+              period.remove(course);
+          } else {
+              $scope.courses.splice($scope.courses.indexOf(course), 1);
+          }
+      };
+      
+      $scope.addYear = function(){
+          console.log('adding new year...');
+          var year = new Year();
+          for (var i = 0; i < 6; i++) {
+              var period = new Period(year);
+              for (var j = 0; j < 3; j++) {
+                  period.add($scope.generateRandomCourse());
+              }
+              year.add(period);
+          }
+          $scope.years.push(year);
+      };
+      
+      $scope.removeYear = function(year){
+          console.log('removing year...');
+          $scope.years.splice($scope.years.indexOf(year), 1);
+      };
+      
+      $scope.moveToPeriod = function(course, list, element) {
+          angular.forEach($scope.years, function(year){
+              angular.forEach(year.periods, function(period){
+                  period.remove(course);
+              });
+          });
+          
+          if(!~list.indexOf(course)){
+            list.push(course);
+          }
+          
+      };
+  }
+  </script>
+</body>
+</html>

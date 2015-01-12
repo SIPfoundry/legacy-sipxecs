@@ -1,0 +1,133 @@
+<div id="webchat-main" class="row">
+  <!-- Left side -->
+  <div class="col-sm-4 col-md-3 left-side-view" data-ng-class="leftSideView">
+
+    <div class="sticky-wrapper">
+      <!-- Profile -->
+      <div
+        data-ng-controller="profile"
+        class="profile-wrapper">
+        <div class="profile">
+          <div class="row profile-bar unselectable">
+            <!-- Profile bar -->
+            <div class="col-xs-7">
+              <p>{{ name.user }}</p>
+            </div>
+            <div class="col-xs-5 main-buttons">
+              <button
+                data-ng-click="showMainMenuFn()"
+                data-ng-class="{'active': showMainMenu}"
+                class="btn btn-default animated pull-right"
+                title="Menu">
+                <i class="icon-hamburger"></i>
+              </button>
+              <button
+                data-ng-click="showDialFn()"
+                data-ng-class="{'active': showDial}"
+                class="btn btn-default pull-right"
+                title="Dialpad">
+                <i class="icon-uniE608"></i>
+              </button>
+              <button type="button"
+                data-ng-click="showSearchFn()"
+                data-ng-class="{'active': showSearch}"
+                class="btn btn-default pull-right"
+                title="Search">
+                <i class="icon-search"></i>
+              </button>
+            </div>
+          </div> <!-- /Profile Bar -->
+        </div>
+
+        <div data-ng-show="showMainMenu || showDial" class="main-menu-overlay animated fade"></div>
+        <div data-ng-show="showMainMenu" class="main-menu animated fadeDown">
+          <div data-ng-repeat="item in (filtered = (ui.templates | filter: { show: true } )) track by $index">
+            <button
+              data-ng-click="broadcastViewChange(item);"
+              data-ng-class="{'active': item.name === ui.template.name, 'last': $last}"
+              data-click-view="true"
+              data-ng-if="item.name !== 'Logout'"
+              class="btn btn-link btn-lg btn-block">
+              <i
+              data-ng-class="item.iconClass"></i>
+              <span>{{item.name}}</span>
+            </button>
+            <a data-ng-if="item.name === 'Logout'" href="/sipxconfig/rest/my/logoutunite"><i class="icon-logout"></i> Logout</a>
+          </div>
+        </div>
+
+        <div data-ng-show="showDial" class="main-menu animated fadeDown">
+          <div class="well">
+            <div class="alert alert-warning animated fade" data-ng-show="phone.msg">
+              <button type="button" class="close" aria-hidden="true" data-ng-click="phone.msg = ''">&times;</button>
+              <span>{{ phone.msg }}<span>
+            </div>
+            <div class="input-group">
+              <input
+                type="text"
+                data-ng-model="displayNo"
+                class="form-control"
+                placeholder="Enter a number">
+              <span class="input-group-btn" data-ng-show="startNo">
+                <button class="btn btn-default clear" type="button" data-ng-click="clearNo()">
+                  <i class="icon-close2"></i>
+                </button>
+              </span>
+            </div>
+            <div class="social-wrapper animated fade" data-ng-show="startNo && searchResult.length !== 0">
+              <ul class="list-unstyled">
+                <li data-ng-repeat="item in searchResult track by $index"
+                  data-ng-click="searchResultClick(item)">
+                  <span>{{ item.name }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="keyboard clearfix">
+              <div class="kb-number pull-left col-xs-4"
+                data-ng-repeat="item in keyboard track by $index">
+                <button class="btn btn-default" type="button" data-ng-click="addNo(item.no)">
+                  <span class="kb-number-no">{{ item.no }}</span>
+                  <span class="kb-number-letters">{{ item.text }}</span>
+                </button>
+              </div>
+            </div>
+            <button type="button" data-ng-disabled="callNo === '' || phone.disabled === true" class="btn btn-default btn-lg btn-block"
+              data-ng-click="phone.call()">
+              <i class="icon-presence_on_the_phone"
+                data-ng-class="{'active': callNo !== '' && !phone.disabled, 'inactive': callNo === '' || phone.disabled === true}"></i>
+            </button>
+          </div>
+        </div>
+
+        <div data-ng-show="showSearch" class="main-menu animated fadeDown">
+          <input
+            type="text"
+            data-ng-model="search.t"
+            class="form-control search"
+            placeholder="Search">
+        </div>
+      </div> <!-- /Profile -->
+
+      <!-- Main left side view -->
+      <div class="row" data-max-height>
+        <div data-ng-controller="mainview" data-ng-include="root.template.url" data-max-height data-resize="full" class="mainview unselectable animated fade">
+        </div>
+      </div> <!-- /Main view -->
+    </div>
+
+    <div class="sticky">
+    </div>
+  </div> <!-- /Left side -->
+
+  <!-- Right side -->
+
+  <div class="col-sm-8 col-md-9 right-side-view">
+    <div class="row full-height">
+      <div data-ng-controller="secview" data-ng-include="template.main.url" data-autoscroll class="col-sm-12 secview fade unselectable"></div>
+    </div>
+  </div>
+</div>
+<div class="spinner-wrapper-big animated fade"
+  data-ng-if="!received">
+  <div class="spinner"></div>
+</div>

@@ -1,0 +1,26 @@
+<div id="webchat-login" class="row" data-ng-controller="loginController">
+  <div class="col-xs-4 col-xs-offset-4 well">
+    <legend>Sign in to Unite Web</legend>
+    <div class="alert alert-warning animated fade" data-ng-show="error">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true" data-ng-click="error = ''">&times;</button>
+      <span>{{ error }}<span>
+    </div>
+    <div class="alert alert-info animated fade" data-ng-show="info">
+      <span>{{ info }}<span>
+    </div>
+    <form method="POST" action="" accept-charset="UTF-8" data-ng-submit="submit()">
+      <div class="form-group">
+        <input type="text" class="form-control" name="username" placeholder="Username" data-ng-model="username">
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control" name="password" placeholder="Password" data-ng-model="password">
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="remember" data-ng-model="remember"> Remember Me
+        </label>
+      </div>
+      <button type="submit" name="submit" class="btn btn-info btn-block">Sign in</button>
+    </form>
+  </div>
+</div>

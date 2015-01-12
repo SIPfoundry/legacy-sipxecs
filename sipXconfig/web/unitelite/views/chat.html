@@ -1,0 +1,67 @@
+<div class="sticky-wrapper">
+  <div class="row profile-bar-chat">
+    <div class="col-xs-10">
+      <span>{{ chat.info.name }}</span>
+    </div>
+    <div class="col-xs-2">
+      <button class="btn btn-link pull-right"
+        data-ng-click="chat.showDefault()"
+        data-click-view="false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+  </div><!-- /profile-bar-chat -->
+
+  <div class="row message-list selectable">
+    <div
+      class="message-list"
+      data-ng-class="{'col-xs-10': chat.info.groupChat, 'col-xs-12': !chat.info.groupChat}"
+      data-scroll-glue data-resize>
+      <div
+        data-ng-repeat="message in chat.messages"
+        data-ng-class="{ 'last': $last }"
+        class="col-md-12 message {{ message.type }}">
+        <div class="row">
+          <div class="col-md-12 name">
+            {{ message.fromNormal }}
+          </div>
+        </div>
+        <div class="line row" data-ng-repeat="item in message.grouped">
+          <div class="content col-xs-9">
+            <span data-ng-bind-html=" item.text | linky:'_blank' "></span>
+          </div>
+          <div class="time col-xs-3 text-right">
+            {{ item.timestamp | time }}
+          </div>
+        </div>
+      </div><!--/message-->
+      <div class="col-md-12"
+        data-ng-if="chat.info.chatstateIcon !== ''">
+        <span class="message-list-chatstate">
+          <i class="{{ chat.info.chatstateIcon }}"></i>
+        </span>
+      </div>
+    </div>
+    <div data-ng-if="chat.info.groupChat" class="col-xs-2 part-list" data-resize>
+      <div data-ng-repeat="entry in chat.info.chatPart[chat.info.jid]">
+        {{ entry.nick }}
+      </div>
+    </div>
+
+    <!-- </div> -->
+
+  </div><!--/message-list-->
+</div>
+
+<div class="sticky">
+  <div class="row bottom-bar">
+    <div class="input-group pull-left">
+      <input
+        type="text"
+        data-ng-model="chat.info.outMsg"
+        data-ng-keypress="chat.keyPress($event)"
+        class="form-control"
+        placeholder="Text...">
+    </div><!-- /input-group -->
+  </div>
+</div>

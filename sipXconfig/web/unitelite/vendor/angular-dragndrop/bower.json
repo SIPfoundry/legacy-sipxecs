@@ -1,0 +1,31 @@
+{
+  "name": "angular-dnd",
+  "version": "1.1.5",
+  "homepage": "https://github.com/fisshy/angular-drag-drop",
+  "authors": [
+    "Joachim Karlsson <Jockkee_@hotmail.com>"
+  ],
+  "description": "Drag and drop directive using HTML5 api",
+  "main": "angular-dnd.js",
+  "keywords": [
+    "angular",
+    "dragndrop"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "src",
+    "css",
+    ".gitignore",
+    "package.json",
+    "LICENSE",
+    "Gruntfile.js"
+  ],
+  "dependencies": {
+    "angular": "~1.2.3"
+  }
+}

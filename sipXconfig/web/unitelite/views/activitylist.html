@@ -1,0 +1,341 @@
+<div class="main-left-title-wrapper">
+  <i class="icon-activity_stream"></i>
+  <h5 class="main-left-title">ACTIVITY LIST</h5>
+</div>
+<div class="alert alert-muted acti-list" data-ng-if="activityList.main.length === 0">
+  <b>No Entries</b>
+</div>
+<div class="entry-wrapper animated fade"
+  data-ng-repeat="entry in (filtered = (activityList.main | orderBy: '-timestamp' )) track by $index">
+  <div
+    data-ng-click="selectConversation(entry)"
+    class="entry-container clearfix">
+    <div class="entry-photo pull-left">
+      <img data-ng-show="!entry.type" data-vcard-photo="activityList.main">
+      <i data-ng-show="entry.type" class="icon-group-chat big-grey"></i>
+      <span data-ng-show="!entry.type" class="entry-status {{ entry.show || 'offline' }}"></span>
+    </div>
+    <div class="clearfix"
+      data-ng-click="selectConversation(entry)"
+      data-click-view="true">
+      <div class="entry-name pull-left">
+        <span class="entry-name-big">
+          {{ entry.name }}
+          <span class="label label-default animated fade"
+            data-ng-if="entry.type && !entry.connected">Click to connect</span>
+        </span>
+        <span class="entry-msg">{{ entry.status && entry.status !== 'offline' ? entry.status : '' }} {{ entry.last_message ? ' | ' : '' }}{{ entry.last_message }}</span>
+      </div>
+      <div class="entry-misc pull-left">
+        <span data-ng-show="(entry.unread !== 0)" class="entry-unread">{{ entry.unread }}</span>
+        <span data-ng-show="(entry.unread === 0)">{{ entry.timestamp | time:'activity' }}</span>
+      </div>
+    </div>
+  </div>
+  <span class="entry-remove"
+    data-ng-click="removeConversation(entry)">
+    <i class="icon-close"></i>
+  </span>
+</div>
+<div
+  class="rooms-modal roster-modal animated fade"
+  data-ng-show="muc.conf.modal">
+  <div class="clearfix">
+    <div class="main-left-title-wrapper">
+      <i class="icon-activity_stream"></i>
+      <h5 class="main-left-title">CONTACTS / PROFILE</h5>
+    </div>
+    <div
+      data-ng-click="hideEntry()"
+      class="pull-right close-button">
+      <i class="icon-close"></i>
+    </div>
+  </div>
+  <div class="rooms-modal-wrapper">
+    <div class="roster-modal-mini-profile clearfix">
+      <div class="entry-photo pull-left">
+        <img data-ng-src="{{ showPicture(entry.profile) }}">
+        <span class="entry-status {{ entry.profile.cResource.show || entry.profile.resources }}"></span>
+      </div>
+      <div class="entry-name pull-left">
+        <span class="entry-name-big">{{ entry.profile.name }}</span>
+        <span class="entry-loc">{{ entry.profile.profile.vCard['X-LOCATION'] || '-' }}</span>
+      </div>
+    </div>
+    <div data-ng-if="entry.profile.profile.vCard && entry.profile.profile.vCard['X-INTERN']">
+      <button type="button" class="btn btn-default btn-block"
+        data-ng-click="callDialpad(entry.profile.profile.vCard['X-INTERN'])">
+        <i class="icon-presence_on_the_phone"></i>
+        {{ entry.profile.name }} ({{ entry.profile.profile.vCard['X-INTERN'] }})
+      </button>
+    </div>
+    <div class="roster-modal-vcard wordwrap">
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['N']['GIVEN'].length > 0">
+        <label class="col-sm-4 control-label">First Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['N']['GIVEN'] | linky}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['N']['FAMILY'].length > 0">
+        <label class="col-sm-4 control-label">Last Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['N']['FAMILY'] | linky}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['EMAIL']['USERID'].length > 0">
+        <label class="col-sm-4 control-label">Email Address</label>
+        <div class="col-sm-8">
+          <span data-ng-bind-html="entry.profile.profile.vCard['EMAIL']['USERID'] | linky"></span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-ALT-EMAIL'].length > 0">
+        <label class="col-sm-4 control-label">Alt Email Address</label>
+        <div class="col-sm-8">
+          <span data-ng-bind-html="entry.profile.profile.vCard['X-ALT-EMAIL'] | linky"></span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['JABBERID'].length > 0">
+        <label class="col-sm-4 control-label">IM ID</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['JABBERID']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-ALT-JABBERID'].length > 0">
+        <label class="col-sm-4 control-label">Alt IM ID</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-ALT-JABBERID']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-ASSISTANT'].length > 0">
+        <label class="col-sm-4 control-label">Assistant Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-ASSISTANT']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-ASSISTANT-PHONE'].length > 0">
+        <label class="col-sm-4 control-label">Assistant Phone No.</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-ASSISTANT-PHONE'] | linky}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['TEL-HOME-CELL']['TEL-HOME-CELL-NUMBER'].length > 0">
+        <label class="col-sm-4 control-label">Cell Phone</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['TEL-HOME-CELL']['TEL-HOME-CELL-NUMBER']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['TEL-HOME-VOICE']['TEL-HOME-VOICE-NUMBER'].length > 0">
+        <label class="col-sm-4 control-label">Home Phone</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['TEL-HOME-VOICE']['TEL-HOME-VOICE-NUMBER']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['TEL-WORK-FAX']['TEL-WORK-FAX-NUMBER'].length > 0">
+        <label class="col-sm-4 control-label">Fax Number</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['TEL-WORK-FAX']['TEL-WORK-FAX-NUMBER']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-DID'].length > 0">
+        <label class="col-sm-4 control-label">DID</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-DID']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-LOCATION'].length > 0">
+        <label class="col-sm-4 control-label">Location</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-LOCATION']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['ORG']['ORGNAME'].length > 0">
+        <label class="col-sm-4 control-label">Company</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['ORG']['ORGNAME']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['ORG']['ORGUNIT'].length > 0">
+        <label class="col-sm-4 control-label">Department</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['ORG']['ORGUNIT']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['TITLE'].length > 0">
+        <label class="col-sm-4 control-label">Title</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['TITLE']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-STREET'] ||
+        entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-LOCALITY'] ||
+        entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-REGION'] ||
+        entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-COUNTRY'] ||
+        entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-ZIP']">
+        <label class="col-sm-4 control-label">Business Address</label>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-STREET'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Street</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-STREET']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-LOCALITY'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">City</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-LOCALITY']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-REGION'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">State</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-REGION']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-COUNTRY'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Country</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-COUNTRY']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-ZIP'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">ZIP</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-WORK']['ADR-WORK-ZIP']}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-STREET'] ||
+        entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-LOCALITY'] ||
+        entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-REGION'] ||
+        entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-COUNTRY'] ||
+        entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-ZIP']">
+        <label class="col-sm-4 control-label">Home Address</label>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-STREET'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Street</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-STREET']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-LOCALITY'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">City</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-LOCALITY']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-REGION'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">State</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-REGION']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-COUNTRY'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Country</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-COUNTRY']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-ZIP'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">ZIP</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile.profile.vCard['ADR-HOME']['ADR-HOME-ZIP']}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-FACEBOOK'].length > 0">
+        <label class="col-sm-4 control-label">FB Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-FACEBOOK']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-TWITTER'].length > 0">
+        <label class="col-sm-4 control-label">Twitter Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-TWITTER']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-LINKEDIN'].length > 0">
+        <label class="col-sm-4 control-label">LinkedIn Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-LINKEDIN']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile.profile.vCard['X-XING'].length > 0">
+        <label class="col-sm-4 control-label">XING Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile.profile.vCard['X-XING']}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

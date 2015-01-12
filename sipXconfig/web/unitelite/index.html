@@ -1,1 +1,68 @@
-<!doctype html><!--[if lt IE 7]>      <html xmlns:ng="http://angularjs.org" class="no-js lt-ie9 lt-ie8 lt-ie7 ng-app" ng-app="webchat"> <![endif]--><!--[if IE 7]>         <html xmlns:ng="http://angularjs.org" class="no-js lt-ie9 lt-ie8 ng-app" ng-app="webchat"> <![endif]--><!--[if IE 8]>         <html xmlns:ng="http://angularjs.org" class="no-js lt-ie9 ng-app" ng-app="webchat"> <![endif]--><!--[if gt IE 8]><!--><html class="no-js"><!--<![endif]--><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>sipXecs User Portal</title><meta name="description" content="unique client application that deploys on desktop or mobile computing devices, and consolidates all communication channels into a single, visual, easy-to-use communications hub."><meta name="viewport" content="width=device-width, initial-scale = 1.0, user-scalable = no"><meta name="apple-mobile-web-app-capable" content="yes"><link href="styles/compiled/df9f2aa7d5d384ce7458e908.stylesheet.css" rel="stylesheet" type="text/css"></head><body ng-app="uw"><div class="wrapper" data-ng-view=""></div><script src="scripts/00432c694ddf145e1f67d271.vendor.js"></script><script src="scripts/a03b6ec473ba1047165a130c.scripts.js"></script></body></html>
+<!doctype html>
+<!--[if lt IE 7]>      <html xmlns:ng="http://angularjs.org" class="no-js lt-ie9 lt-ie8 lt-ie7 ng-app" ng-app="webchat"> <![endif]-->
+<!--[if IE 7]>         <html xmlns:ng="http://angularjs.org" class="no-js lt-ie9 lt-ie8 ng-app" ng-app="webchat"> <![endif]-->
+<!--[if IE 8]>         <html xmlns:ng="http://angularjs.org" class="no-js lt-ie9 ng-app" ng-app="webchat"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>sipXecs User Portal</title>
+    <meta name="description" content="unique client application that deploys on desktop or mobile computing devices, and consolidates all communication channels into a single, visual, easy-to-use communications hub.">
+    <meta name="viewport" content="width=device-width, initial-scale = 1.0, user-scalable = no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link href="styles/compiled/stylesheet.css" rel="stylesheet" type="text/css">
+  </head>
+  <body ng-app="uw">
+
+    <div class="wrapper" data-ng-view></div>
+
+    <!-- build:js scripts/vendor.js -->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular-cookies/angular-cookies.min.js"></script>
+    <script src="vendor/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="vendor/angular-route/angular-route.min.js"></script>
+    <script src="vendor/angular-animate/angular-animate.min.js"></script>
+    <script src="vendor/angular-local-storage/angular-local-storage.min.js"></script>
+    <script src="vendor/angular-xml/angular-xml.min.js"></script>
+    <script src="vendor/angular-dragndrop/angular-dnd.min.js"></script>
+
+    <script src="vendor/notify.js/notify.js"></script>
+    <script src="vendor/underscore/underscore.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/modules/config.js"></script>
+    <script src="scripts/modules/emoji.js"></script>
+    <script src="scripts/modules/notify.js"></script>
+    <script src="scripts/modules/underscore.js"></script>
+    <script src="scripts/modules/base64.js"></script>
+
+    <script src="scripts/app.js"></script>
+
+    <script src="scripts/factories/profile.js"></script>
+    <script src="scripts/factories/request.js"></script>
+    <script src="scripts/factories/notification.js"></script>
+
+    <script src="scripts/services/shared.js"></script>
+    <script src="scripts/services/restService.js"></script>
+    <script src="scripts/services/uiService.js"></script>
+
+    <script src="scripts/controllers/login.js"></script>
+    <script src="scripts/controllers/profile.js"></script>
+    <script src="scripts/controllers/mainview.js"></script>
+    <script src="scripts/controllers/secview.js"></script>
+    <script src="scripts/controllers/settings.js"></script>
+
+    <script src="scripts/directives/resize.js"></script>
+    <script src="scripts/directives/tree.js"></script>
+    <script src="scripts/directives/time.js"></script>
+    <script src="scripts/directives/duration.js"></script>
+    <script src="scripts/directives/max-height.js"></script>
+    <script src="scripts/directives/translate-vcard.js"></script>
+    <script src="scripts/directives/translate-days.js"></script>
+    <script src="scripts/directives/translate-schedules.js"></script>
+    <script src="scripts/directives/csearch.js"></script>
+    <script src="scripts/directives/click-view.js"></script>
+    <!-- endbuild -->
+  </body>
+</html>
