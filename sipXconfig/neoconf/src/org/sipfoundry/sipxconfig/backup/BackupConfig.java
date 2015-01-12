@@ -125,11 +125,13 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
                     ArchiveDefinition def = (ArchiveDefinition) arg0;
                     boolean selected = selectedDefIds.contains((def).getId());
                     //at least one backup command
-                    if (!execBackupRestore.isBackup() && !StringUtils.isEmpty(def.getBackupCommand()) && selected) {
+                    if (!execBackupRestore.isBackup() && !StringUtils.isEmpty(def.getBackupCommand()) && selected
+                        && (!def.isSingleNodeBackup() || !configuredBackupArchives.contains(def))) {
                         execBackupRestore.setBackup(true);
                     }
                     //at least one restore command
-                    if (!execBackupRestore.isRestore() && !StringUtils.isEmpty(def.getRestoreCommand()) && selected) {
+                    if (!execBackupRestore.isRestore() && !StringUtils.isEmpty(def.getRestoreCommand()) && selected
+                        && (!def.isSingleNodeRestore() || !configuredRestoreArchives.contains(def))) {
                         execBackupRestore.setRestore(true);
                     }
                     return selected;
