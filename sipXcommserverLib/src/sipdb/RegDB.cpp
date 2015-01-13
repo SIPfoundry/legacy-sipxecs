@@ -185,8 +185,10 @@ void RegDB::removeAllExpired()
     return;
   }
 
-  unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
-  OS_LOG_INFO(FAC_SIP, "RegDB::removeAllExpired INVOKED for shard == " << getShardId() << " and expireTime <= " << timeNow);
+  unsigned long timeNow = OsDateTime::getSecsSinceEpoch() - _expireGracePeriod;
+  
+  
+  OS_LOG_INFO(FAC_SIP, "RegDB::removeAllExpired INVOKED for shard == " << getShardId() << " and expireTime <= " << timeNow << " gracePeriod: " << _expireGracePeriod << " sec");
 
   MongoDB::UpdateTimer updateTimer(const_cast<RegDB&>(*this));
   mongo::BSONObj query = BSON(
@@ -299,7 +301,7 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
 
 	mongo::BSONObjBuilder query;
   query.append("expirationTime", BSON_GREATER_THAN((long long)timeNow));
-
+ 
 	if (_local)
   {
 		preferPrimary = false;
@@ -338,8 +340,9 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
         OS_LOG_INFO(FAC_SIP, "RegDB::getUnexpiredContactsUser "
         << " Identity: " << identity
         << " Contact: " << binding.getContact()
-        << " Expires: " << binding.getExpirationTime() - timeNow << " sec");
- 
+        << " Expires: " << binding.getExpirationTime() - OsDateTime::getSecsSinceEpoch() << " sec"
+        << " Call-Id: " << binding.getCallId());
+
         push_or_replace_binding(bindings, binding);
       }
       else
@@ -347,6 +350,7 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
         OS_LOG_WARNING(FAC_SIP, "RegDB::getUnexpiredContactsUser returned an expired record?!?!"
           << " Identity: " << identity
           << " Contact: " << binding.getContact()
+          << " Call-Id: " << binding.getCallId()
           << " Expires: " <<  binding.getExpirationTime() << " epoch"
           << " TimeNow: " << timeNow << " epoch");
       }
@@ -389,12 +393,12 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsi
 	{
 		while (pCursor->more())
 		{
-			RegBinding binding(pCursor->next());
-			if (binding.getContact().find(matchIdentity) == string::npos)
+			RegBinding binding(pCursor->next());     
+      if (binding.getContact().find(matchIdentity) == string::npos)
       {
         continue;
       }
-			
+
       push_or_replace_binding(bindings, binding);
 		}
 		conn->done();
