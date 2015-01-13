@@ -160,8 +160,10 @@ void RegDB::removeAllExpired()
     return;
   }
 
-  unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
-  OS_LOG_INFO(FAC_SIP, "RegDB::removeAllExpired INVOKED for shard == " << getShardId() << " and expireTime <= " << timeNow);
+  unsigned long timeNow = OsDateTime::getSecsSinceEpoch() - _expireGracePeriod;
+  
+  
+  OS_LOG_INFO(FAC_SIP, "RegDB::removeAllExpired INVOKED for shard == " << getShardId() << " and expireTime <= " << timeNow << " gracePeriod: " << _expireGracePeriod << " sec");
 
   
   mongo::BSONObj query = BSON(
@@ -184,6 +186,45 @@ bool RegDB::isOutOfSequence(const string& identity, const string& callId, unsign
 	return false;
 }
 
+static void push_or_replace_binding(RegDB::Bindings& bindings, const RegBinding& binding)
+{
+  //
+  // Check if the call-id or contact of this binding has been previously pushed
+  //
+  for (RegDB::Bindings::iterator iter = bindings.begin(); iter != bindings.end(); iter++)
+  {
+    if (iter->getCallId() == binding.getCallId() || iter->getContact() == binding.getContact())
+    {
+      //
+      // This is already inserted previously most probably by local shard.
+      // Check which one of them has the larger timestamp, and therefore
+      // the most up-to-date
+      //
+
+      if (binding.getTimestamp() > iter->getTimestamp())
+      {
+        //
+        // The new binding has a more recent timestamp value.  replace the old one
+        //
+        OS_LOG_INFO(FAC_SIP, "RegDB::findAndReplaceOlderBindings - replacing duplicate binding for " << binding.getUri());
+        *iter = binding;
+      }
+      else
+      {
+        //
+        // Simply ignore this binding.  It is older (or equal) than what was previously pushed
+        //
+        OS_LOG_INFO(FAC_SIP, "RegDB::findAndReplaceOlderBindings - dropping older binding for " << binding.getUri());
+      }
+      return;
+    }
+  }
+  //
+  // We haven't found any older duplicate
+  //
+  bindings.push_back(binding);
+}
+
 bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeNow, Bindings& bindings, bool preferPrimary) const
 {
 	static string gruuPrefix = GRUU_PREFIX;
@@ -192,7 +233,7 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
 
 	mongo::BSONObjBuilder query;
   query.append("expirationTime", BSON_GREATER_THAN((long long)timeNow));
-
+ 
 	if (_local)
   {
 		preferPrimary = false;
@@ -229,14 +270,17 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
         OS_LOG_INFO(FAC_SIP, "RegDB::getUnexpiredContactsUser "
         << " Identity: " << identity
         << " Contact: " << binding.getContact()
-        << " Expires: " << binding.getExpirationTime() - timeNow << " sec");
-        bindings.push_back(binding);
+        << " Expires: " << binding.getExpirationTime() - OsDateTime::getSecsSinceEpoch() << " sec"
+        << " Call-Id: " << binding.getCallId());
+        
+        push_or_replace_binding(bindings, binding);
       }
       else
       {
         OS_LOG_WARNING(FAC_SIP, "RegDB::getUnexpiredContactsUser returned an expired record?!?!"
           << " Identity: " << identity
           << " Contact: " << binding.getContact()
+          << " Call-Id: " << binding.getCallId()
           << " Expires: " <<  binding.getExpirationTime() << " epoch"
           << " TimeNow: " << timeNow << " epoch");
       }
@@ -277,9 +321,12 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsi
 	{
 		while (pCursor->more())
 		{
-			RegBinding binding(pCursor->next());
-			if (binding.getContact().find(matchIdentity) != string::npos)
-				bindings.push_back(binding);
+			RegBinding binding(pCursor->next());     
+      if (binding.getContact().find(matchIdentity) == string::npos)
+      {
+        continue;
+      }	
+      push_or_replace_binding(bindings, binding);
 		}
 		conn->done();
 		return bindings.size() > 0;
@@ -317,7 +364,8 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 	{
 		while (pCursor->more())
 		{
-			bindings.push_back(RegBinding(pCursor->next()));
+      RegBinding binding(pCursor->next());
+      push_or_replace_binding(bindings, binding);
 		}
 		conn->done();
 		return true;
@@ -351,9 +399,11 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, unsigned lo
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 	if (pCursor.get() && pCursor->more())
 	{
-		while (pCursor->more()) {
-			bindings.push_back(RegBinding(pCursor->next()));
-		}
+    while (pCursor->more()) 
+    {
+      RegBinding binding(pCursor->next());
+      push_or_replace_binding(bindings, binding);
+    }
 		conn->done();
 		return true;
 	}

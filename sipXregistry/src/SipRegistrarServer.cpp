@@ -281,6 +281,16 @@ SipRegistrarServer::initialize(
                                            ,RegisterPlugin::Prefix
                                            );
     mpSipRegisterPlugins->readConfig(*pOsConfigDb);
+    
+    //
+    // Set the grace period for expirations
+    //
+    
+    int gracePeriod = 0;
+    if ( OS_SUCCESS == pOsConfigDb->get("SIP_REGISTRAR_EXPIRE_GRACE_PERIOD", gracePeriod));
+    {
+      SipRegistrar::getInstance(NULL)->getRegDB()->setExpireGracePeriod(gracePeriod * 60);
+    }
 
     _expireThread.run(SipRegistrar::getInstance(NULL)->getRegDB());
 }
@@ -823,11 +833,17 @@ void SipRegistrarServer::mergeNewBindings(const RegDB::Bindings& unexpiredRegs, 
   {
     const RegBinding::Ptr& rec = *iter;
     const std::string& contact = rec->getContact();
+    const std::string& callId = rec->getCallId();
     bool found = false;
     for (RegDB::Bindings::const_iterator regIter = unexpiredRegs.begin(); regIter != unexpiredRegs.end(); regIter++)
     {
+      //
+      // Note:  We also need to compare the call-id since an old registration with the same
+      // contact belonging to a different session can linger if it was not unregistered
+      // prior to creating a new register session.  Typically happens during phone reboot.
+      //
       const RegBinding& binding = *regIter;
-      if (contact == binding.getContact())
+      if (contact == binding.getContact() && callId == binding.getCallId())
       {
         found = true;
         break;

@@ -38,19 +38,19 @@ public:
     typedef std::vector<RegBinding> Bindings;
 
  RegDB(const MongoDB::ConnectionInfo& info) :
-    BaseDB(info), _local(NULL), _ns(NS)
+    BaseDB(info), _local(NULL), _ns(NS), _expireGracePeriod(0)
 	{
 	}
 	;
 
  RegDB(const MongoDB::ConnectionInfo& info, RegDB* local) :
-    BaseDB(info), _local(local), _ns(NS)
+    BaseDB(info), _local(local), _ns(NS), _expireGracePeriod(0)
 	{
 	}
 	;
 
  RegDB(const MongoDB::ConnectionInfo& info, RegDB* local, const std::string& ns) :
-    BaseDB(info), _local(local), _ns(ns)
+    BaseDB(info), _local(local), _ns(ns), _expireGracePeriod(0)
 	{
 	}
 	;
@@ -127,6 +127,13 @@ public:
 		return _ns;
 	}
 	;
+  
+  //
+  // Set the additional time a registration record can linger after it expires.
+  // This is expressed in seconds
+  //
+  void setExpireGracePeriod(unsigned long expireGracePeriod /* (seconds) */);
+  unsigned long getExpireGracePeriod() const;
 
 protected:
 
@@ -134,7 +141,22 @@ private:
     std::string _localAddress;
     RegDB* _local;
     std::string _ns;
+    unsigned long _expireGracePeriod;
 };
+
+//
+// Inlines
+//
+
+inline void RegDB::setExpireGracePeriod(unsigned long expireGracePeriod /* (seconds) */)
+{
+  _expireGracePeriod = expireGracePeriod;
+}
+
+inline unsigned long RegDB::getExpireGracePeriod() const
+{
+  return _expireGracePeriod;
+}
 
 #endif	/* RegDB_H */
 

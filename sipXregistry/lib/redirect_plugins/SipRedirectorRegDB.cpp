@@ -81,6 +81,7 @@ SipRedirectorRegDB::lookUp(
    ErrorDescriptor& errorDescriptor)
 {
    unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
+   unsigned long adjustedTime = timeNow - SipRegistrar::getInstance(NULL)->getRegDB()->getExpireGracePeriod();
    
    // Local copy of requestUri
    Url requestUriCopy = requestUri;
@@ -129,13 +130,13 @@ SipRedirectorRegDB::lookUp(
          //   getUnexpiredContactsUserInstrument(requestUriCopy, instrumentp, timeNow, registrations);
          UtlString identity;
          requestUriCopy.getIdentity(identity);
-         regDb->getUnexpiredContactsUserInstrument(identity.str(), instrumentp, timeNow, registrations);
+         regDb->getUnexpiredContactsUserInstrument(identity.str(), instrumentp, adjustedTime, registrations);
       }
       else
       {
          // This is a ~~in~[instrument] URI.
          const char* instrumentp = user.data() + sizeof (URI_IN_PREFIX) - 1;
-         regDb->getUnexpiredContactsInstrument(instrumentp, timeNow, registrations);
+         regDb->getUnexpiredContactsInstrument(instrumentp, adjustedTime, registrations);
       }         
    }
    else
@@ -146,9 +147,10 @@ SipRedirectorRegDB::lookUp(
       // "identity" column of the database, which is the identity part of
       // the "uri" column which is stored in registration.xml.
 
+     
       UtlString identity;
      requestUriCopy.getIdentity(identity);
-     regDb->getUnexpiredContactsUser(identity.str(), timeNow, registrations);
+     regDb->getUnexpiredContactsUser(identity.str(), adjustedTime, registrations);
 
    }
 
