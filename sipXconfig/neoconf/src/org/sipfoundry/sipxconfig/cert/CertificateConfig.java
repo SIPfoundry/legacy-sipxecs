@@ -96,8 +96,9 @@ public class CertificateConfig implements ConfigProvider {
         sslWeb.addKey(domain, webCert, webKey);
         sslWeb.storeIfDifferent(new File(dir, "ssl-web.keystore"));
 
+        //store the full chain for openfire certificate
         JavaKeyStore sslOpenfire = new JavaKeyStore();
-        sslOpenfire.addKey(domain, openfireCert.toString(), new String(openfireSslKey));
+        sslOpenfire.addKeys(domain, openfireCert.toString(), new String(openfireSslKey));
         sslOpenfire.storeIfDifferent(new File(dir, "ssl-openfire.keystore"));
 
         File authDir = new File(dir, "authorities");
