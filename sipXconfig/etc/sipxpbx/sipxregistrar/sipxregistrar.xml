@@ -227,6 +227,12 @@
       </type>
       <value>false</value>
     </setting>
+    <setting name="SIP_REGISTRAR_EXPIRE_GRACE_PERIOD" advanced="yes">
+      <type>
+    	<integer min="0"/>
+      </type>
+      <value>0</value>
+    </setting>
   </group>
   <group name="resource-limits" advanced="yes">
     <setting name="fd-soft">
