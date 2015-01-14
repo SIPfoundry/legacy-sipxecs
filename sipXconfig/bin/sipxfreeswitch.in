@@ -23,7 +23,7 @@ DAEMON_ARGS="\
   -db @SIPX_VARDIR@/tmp/freeswitch \
   -log @SIPX_LOGDIR@ \
   -htdocs @SIPX_CONFDIR@/freeswitch/conf/htdoc"
-DAEMON_START_ARGS="-nc -np -nonat \
+DAEMON_START_ARGS="-nc -nonat \
   -u @SIPXPBXUSER@ \
   -g @SIPXPBXGROUP@ \
    $DAEMON_ARGS"
