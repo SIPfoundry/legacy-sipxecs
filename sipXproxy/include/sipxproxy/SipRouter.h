@@ -185,7 +185,6 @@ class SipRouter : public OsServerTask
      * @returns true if user has a location, false otherwise
      */
 
-    bool isRegisteredAddress(const std::string& identity, const std::string& sourceAddress);
 
    /// If the fromUrl uses domain alias, change to original domain as identities are stored in credential database using mDomainName.
    void ensureCanonicalDomain(Url& url) const;
@@ -243,9 +242,6 @@ class SipRouter : public OsServerTask
                                 );
    
 
-   /// process final response and authorize it if necessary
-   void authorizeAndModifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse);
-   
    void handleRequest(SipMessage* pMsg);
    
    bool preDispatch(SipMessage* pMsg);

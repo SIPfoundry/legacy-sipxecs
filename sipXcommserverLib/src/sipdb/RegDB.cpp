@@ -322,28 +322,6 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
 	return bindings.size() > 0;
 }
 
-bool RegDB::getUnexpiredContactsUserWithAddress(const string& identity, const std::string& address, unsigned long timeNow, Bindings& bindings, bool preferPrimary) const
-{
-  Bindings regRecords;
-  
-  if (!getUnexpiredContactsUser(identity, timeNow, regRecords, preferPrimary))
-  {
-    return false;
-  }
-  
-  bindings.clear();
-  
-  for (Bindings::const_iterator iter = regRecords.begin(); iter != regRecords.end(); iter++)
-  {
-    if (iter->getContact().find(address) != std::string::npos)
-    {
-      bindings.push_back(*iter);
-    }
-  }
-  
-  return !bindings.empty();
-}
-
 bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsigned long timeNow, Bindings& bindings, bool preferPrimary) const
 {
 	mongo::BSONObjBuilder query;

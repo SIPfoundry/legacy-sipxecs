@@ -14,7 +14,6 @@
 #include "utl/UtlString.h"
 #include "utl/Plugin.h"
 #include <sipxproxy/RouteState.h>
-#include <net/SipTransaction.h>
 
 // DEFINES
 // CONSTANTS
@@ -187,8 +186,6 @@ class AuthPlugin : public Plugin
    /// Provide a string version of an AuthResult value for logging. 
    static const char* AuthResultStr(AuthResult result);
    
-   virtual void authorizeAndModifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse);
-   
   protected:
 
    /// constructor
@@ -210,12 +207,5 @@ class AuthPlugin : public Plugin
 // @endcond INCLUDENOCOPY
 
 };
-
-inline void AuthPlugin::authorizeAndModifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse)
-{
-  //
-  // Does nothing by default
-  //
-}
 
 #endif // _AUTHPLUGIN_H_

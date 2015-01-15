@@ -4332,14 +4332,6 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 shouldDispatch = TRUE;
             }
         }
-        
-        //
-        // Call SipUserAgent final response handler prior to calling addResponse
-        // to give the chance for applications to modify the response before it
-        // gets attached to this transaction
-        //
-        
-        userAgent.onFinalResponse(this, *mpRequest, incomingMessage);
 
         SipMessage* responseCopy = new SipMessage(incomingMessage);
 #ifdef TEST_PRINT
@@ -4349,9 +4341,6 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                       " Tx %p has relationship is %s",
                       this, relationshipString(relationship));
 #endif
-        
-        
-        
         addResponse(responseCopy,
                     FALSE, // Incoming
                     relationship);

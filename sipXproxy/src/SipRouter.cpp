@@ -232,8 +232,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    mpRegDb = SipRouter::getRegDBInstance();
    
    mpSipUserAgent->setPreDispatchEvaluator(boost::bind(&SipRouter::preDispatch, this, _1));
-   
-   mpSipUserAgent->setFinalResponseHandler(boost::bind(&SipRouter::authorizeAndModifyFinalResponse, this, _1, _2, _3));
      
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
@@ -2055,22 +2053,4 @@ bool SipRouter::getUserLocation(const UtlString& identity, UtlString& location) 
   }
 
   return false;
-}
-
-void SipRouter::authorizeAndModifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse)
-{
-  PluginIterator authPlugins(mAuthPlugins);
-  AuthPlugin* authPlugin;
-  UtlString authPluginName;
-  while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
-  {
-    authPlugin->authorizeAndModifyFinalResponse(pTransaction, request, finalResponse);
-  }
-}
-
-bool SipRouter::isRegisteredAddress(const std::string& identity, const std::string& sourceAddress)
-{
-  unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
-  RegDB::Bindings bindings;
-  return getRegDBInstance()->getUnexpiredContactsUserWithAddress(identity, sourceAddress, timeNow, bindings);
 }
