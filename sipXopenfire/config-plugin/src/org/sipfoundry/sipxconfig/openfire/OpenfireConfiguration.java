@@ -23,17 +23,13 @@ import java.io.Writer;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
-import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
@@ -49,9 +45,7 @@ public class OpenfireConfiguration implements ConfigProvider {
 
     private OpenfireConfigurationFile m_config;
     private SipxOpenfireConfiguration m_sipxConfig;
-    private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
-    private WebSocket m_websocket;
     private Openfire m_openfire;
 
     @Override
@@ -95,15 +89,6 @@ public class OpenfireConfiguration implements ConfigProvider {
             if (!f.exists()) {
                 f.createNewFile();
             }
-            Writer wtr = new FileWriter(f);
-            try {
-                boolean isWsEnabled = m_featureManager.isFeatureEnabled(WebSocket.FEATURE, location);
-                Address addr = m_configManager.getAddressManager().getSingleAddress(AdminContext.HTTP_ADDRESS);
-                write(wtr, isWsEnabled, location.getAddress(), m_websocket.getSettings()
-                        .getWebSocketPort(), addr.toString());
-            } finally {
-                IOUtils.closeQuietly(wtr);
-            }
 
             Writer ofproperty = new FileWriter(new File(dir, "openfire.properties.part"));
             try {
@@ -146,16 +131,6 @@ public class OpenfireConfiguration implements ConfigProvider {
         m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE));
     }
 
-    private static void write(Writer wtr, boolean wsEnabled, String wsAddress, int wsPort,
-            String adminRestUrl) throws IOException {
-        LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
-        if (wsEnabled) {
-            config.write("websocket.address", wsAddress);
-            config.write("websocket.port", wsPort);
-            config.write("admin.rest.url", adminRestUrl);
-        }
-    }
-
     public void setConfig(OpenfireConfigurationFile config) {
         m_config = config;
     }
@@ -164,18 +139,9 @@ public class OpenfireConfiguration implements ConfigProvider {
         m_sipxConfig = sipxConfig;
     }
 
-    public void setConfigManager(ConfigManager configManager) {
-        m_configManager = configManager;
-    }
-
     @Required
     public void setFeatureManager(FeatureManager featureManager) {
         m_featureManager = featureManager;
-    }
-
-    @Required
-    public void setWebsocket(WebSocket websocket) {
-        m_websocket = websocket;
     }
 
     @Required

@@ -1,0 +1,138 @@
+<div class="sticky-wrapper">
+
+  <div class="row profile-bar-chat">
+    <div class="col-xs-10">
+      <span>VOICEMAILS</span>
+    </div>
+    <div class="col-xs-2">
+      <button class="btn btn-link pull-right"
+        data-ng-click="chat.showDefault()"
+        data-click-view="false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+  </div><!-- /profile-bar-chat -->
+
+  <div class="row">
+    <div class="col-md-12 conf-options-bar">
+      <p>
+        Current folder:
+      </p>
+      <select
+        class="animated fade default"
+        data-ng-model="voicemail.folder"
+        data-ng-change="voicemail.changeFolder()"
+        data-ng-options="opt.name for opt in voicemail.folders">
+      </select>
+      <button type="button"
+        class="btn btn-default pull-right animated fade btn-refresh"
+        title="Refresh"
+        data-ng-click="voicemail.init()">
+        <i class="icon-refresh"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="voicemail row" data-resize>
+    <div class="voicemail-wrapper row animated fade"
+      data-ng-repeat="audio in (filtered = (voicemail.messages)) track by $index">
+        <div class="vmsg col-md-12 clearfix">
+
+          <div class="col-sm-3 vmsg-name">
+            <span class="subject">
+              <form role="form" name="vmForm">
+                <input type="text" data-ng-model="audio.subject" class="form-control input-sm">
+              </form>
+              <span data-ng-if="vmForm.$dirty" class="pull-right">
+                <button type="button" class="btn btn-default btn-xs"
+                  data-ng-click="voicemail.cancelChangeSubject(audio.id);vmForm.$setPristine()">
+                  Cancel
+                </button>
+                <button type="button" class="btn btn-primary btn-xs"
+                  data-ng-click="voicemail.changeSubject(audio.id);vmForm.$setPristine()">
+                  Save
+                </button>
+              </span>
+            </span>
+            <span class="name">
+              {{ audio.author }}
+              <span class="label label-primary"
+                data-ng-if="audio.heard === false">New</span>
+            </span>-
+            <span data-duration="{{ audio.duration }}" class="time">{{ audio.duration }}</span>
+          </div>
+          <div class="col-sm-9 vmsg-msg clearfix">
+            <div class="spinner-wrapper inline animated fade"
+              data-ng-show="audio.loading">
+              <div class="spinner small"></div>
+            </div>
+
+            <div class="v-msg-load"
+              data-ng-if="audio.href === undefined || audio.href === ''">
+              <button type="button" class="btn btn-default btn-sm"
+                data-ng-click="voicemail.getMessage(audio.id, $index)">
+                Load message.
+              </button>
+            </div>
+            <div class="v-msg-audio"
+              data-ng-if="audio.href !== undefined && audio.href!==''">
+              <audio controls
+                data-ng-attr-id="{{ audio.id }}"
+                data-ng-src="{{ audio.href }}"
+                data-ng-if="voicemail.mp3Ie(audio.format)"
+                type="{{audio.format=='mp3' ? 'audio/mp3' : 'audio/wav'}}">
+              </audio>
+              <small data-ng-if="!(voicemail.mp3Ie(audio.format))">
+                WAV voicemails cannot be played in Internet Explorer. In order to listen to this voicemail please download it.
+              </small>
+            </div>
+
+            <div class="btn-wrapper">
+              <div class="btn-group btn-group-xs">
+                <a target="_self"
+                  data-ng-if="audio.href"
+                  data-ng-href="{{ audio.href }}"
+                  download="voicemail.mp3"
+                  class="btn btn-default inline-default"
+                  title="Download">
+                  <i class="icon-downloads"></i>
+                </a>
+                <button type="button" class="btn btn-default inline-default"
+                  data-ng-click="voicemail.delMessage(audio.id);"
+                  title="Trash">
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+              <select class="default"
+                data-ng-model="voicemail.moveVoicemail[audio.id]"
+                data-ng-options="c.name for c in voicemail.folders | filter:{name: '!'+voicemail.folder.name}"
+                data-ng-change="voicemail.moveMessage(audio.id)">
+                <option value="">Move to...</option>
+              </select>
+            </div>
+            <div class="pull-right">
+              <span class="received">{{ audio.received | date: 'short' }}</span>
+            </div>
+          </div>
+
+      </div>
+    </div>
+
+    <div class="alert alert-muted animated fade" data-ng-if="voicemail.isEmpty()">
+      <b>No Voicemails</b>
+    </div>
+    <div class="spinner-wrapper animated fade"
+      data-ng-if="!voicemail.messages">
+      <div class="spinner small"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="sticky">
+  <div class="row bottom-bar">
+    <div class="input-group pull-left">
+    </div><!-- /input-group -->
+  </div>
+</div>

@@ -186,6 +186,19 @@ class AuthPlugin : public Plugin
    /// Provide a string version of an AuthResult value for logging. 
    static const char* AuthResultStr(AuthResult result);
    
+   /// Boolean indicator that returns true if the plugin wants to process requests
+   /// that requires no authentication
+   virtual bool willModifyTrustedRequest() const;
+   
+   /// This method is called by the proxy if willModifyRequest() flag is set to true
+   /// giving this plugin the opportunity to modify the request even if it requires
+   /// no authentication
+   virtual void modifyTrustedRequest(
+                                    const Url&  requestUri,  ///< parsed target Uri
+                                    SipMessage& request,     ///< see below regarding modifying this
+                                    bool bSpiralingRequest  ///< true if request is still spiraling through pr
+                                    );
+   
   protected:
 
    /// constructor
@@ -207,5 +220,22 @@ class AuthPlugin : public Plugin
 // @endcond INCLUDENOCOPY
 
 };
+
+//
+// Inlines
+//
+
+inline bool AuthPlugin::willModifyTrustedRequest() const
+{
+  return false;
+}
+
+inline void AuthPlugin::modifyTrustedRequest(
+                                    const Url&  requestUri,  ///< parsed target Uri
+                                    SipMessage& request,     ///< see below regarding modifying this
+                                    bool bSpiralingRequest  ///< true if request is still spiraling through pr
+                                    )
+{
+}
 
 #endif // _AUTHPLUGIN_H_

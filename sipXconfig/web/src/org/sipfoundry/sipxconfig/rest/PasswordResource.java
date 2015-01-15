@@ -14,6 +14,8 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import java.net.URLDecoder;
+
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -32,7 +34,7 @@ public class PasswordResource extends UserResource {
 
         setReadable(false);
 
-        m_newPin = (String) getRequest().getAttributes().get("password");
+        m_newPin = URLDecoder.decode((String) getRequest().getAttributes().get("password"));
     }
 
     @Override
@@ -53,7 +55,11 @@ public class PasswordResource extends UserResource {
             getCoreContext().saveUser(user);
         } else {
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, String.format(
-                "Password must be at least %d characters long", AbstractUser.PASSWORD_LEN));
+                    "Password must be at least %d characters long", AbstractUser.PASSWORD_LEN));
         }
+    }
+
+    public String getNewPin() {
+        return m_newPin;
     }
 }

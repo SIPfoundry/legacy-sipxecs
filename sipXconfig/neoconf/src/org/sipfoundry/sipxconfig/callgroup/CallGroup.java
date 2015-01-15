@@ -183,7 +183,8 @@ public class CallGroup extends AbstractCallSequence implements Replicable, Syste
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
         ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size() + 1);
-        List<AliasMapping> mappings = generateAliases(m_name, domainName, true, m_userForward, forkQueueValue);
+        List<AliasMapping> mappings = generateAliases(m_name, m_extension, domainName, true,
+                m_userForward, forkQueueValue);
 
         if (m_voicemailFallback) {
             AbstractRing lastRing = getLastRing();

@@ -13,7 +13,7 @@ ErrorLog logs/ssl_error_log
 TransferLog logs/ssl_access_log
 LogLevel warn
 SSLEngine on
-SSLProtocol all -SSLv2
+SSLProtocol All -SSLv2 -SSLv3
 SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:RC4+RSA:+HIGH:+MEDIUM:+LOW
 SSLCertificateFile $(sipx.APACHE2_CONFDIR)/ssl/ssl-web.crt
 SSLCertificateKeyFile $(sipx.APACHE2_CONFDIR)/ssl/ssl-web.key

@@ -83,7 +83,7 @@ public class SipFoundryLayout extends Layout {
         } else if (level.equalsIgnoreCase("INFO")) {
             return Level.INFO;
         } else if (level.equalsIgnoreCase("NOTICE")) {
-            return Level.WARN;
+            return Level.INFO;
         } else if (level.equalsIgnoreCase("WARNING")) {
             return Level.WARN;
         } else if (level.equalsIgnoreCase("ERR")) {

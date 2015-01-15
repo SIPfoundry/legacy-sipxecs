@@ -31,9 +31,9 @@ action=shellcmd @SIPX_BINDIR@/sipxtrap <%= a %> %s
     next unless a =~ /^DNS_LOOKUP_FAILED/
     next unless v[:groupName] != 'disabled'
 %>
-type=SingleWithSupress
+type=SingleWithSuppress
 ptype=RegExp
-pattern=(.*):(sipx.*):"*ALARM_<%= a %> (.*)$
+pattern=(.*)(sipx.*)ALARM_<%= a %> (.*)$
 desc=$2: $3
 window=60
 action=shellcmd @SIPX_BINDIR@/sipxtrap <%= a %> %s

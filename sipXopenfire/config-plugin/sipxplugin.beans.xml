@@ -66,9 +66,7 @@
   <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration">
     <property name="config" ref="openfireXml"/>
     <property name="sipxConfig" ref="openfireSipxXml"/>
-	<property name="configManager" ref="configManager"/>
     <property name="featureManager" ref="featureManager"/>
-    <property name="websocket" ref="websocket"/>
     <property name="openfire" ref="openfire"/>
   </bean>
 

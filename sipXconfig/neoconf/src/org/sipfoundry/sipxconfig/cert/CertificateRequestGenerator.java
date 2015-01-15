@@ -23,6 +23,7 @@ import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.jce.X509Principal;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 public class CertificateRequestGenerator extends AbstractCertificateCommon {
     private String m_algorithm = "SHA1WithRSAEncryption";
@@ -40,8 +41,8 @@ public class CertificateRequestGenerator extends AbstractCertificateCommon {
     public String getCertificateRequestText(String certTxt, String keyTxt) {
         X509Certificate cert = CertificateUtils.readCertificate(certTxt);
         PrivateKey key = CertificateUtils.readCertificateKey(keyTxt);
-        X509Principal subject = new X509Principal(getSubject());
         try {
+            X509Principal subject = new X509Principal(getSubject());
             Vector<ASN1ObjectIdentifier> oids = new Vector<ASN1ObjectIdentifier>();
             Vector<X509Extension> values = new Vector<X509Extension>();
             copyExtensions(cert, cert.getNonCriticalExtensionOIDs(), false, oids, values);
@@ -55,7 +56,9 @@ public class CertificateRequestGenerator extends AbstractCertificateCommon {
             CertificateUtils.writeObject(data, csr, null);
             return data.toString();
         } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
+            throw new UserException(e);
+        } catch (IllegalArgumentException e) {
+            throw new UserException(e);
         }
     }
 

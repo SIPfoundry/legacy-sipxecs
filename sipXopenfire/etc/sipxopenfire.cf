@@ -74,7 +74,7 @@ bundle agent sipxopenfire_config {
         comment => "openfire certificates",
         create => "false",
         perms => mog(600, "$(sipx.OPENFIRE_USER)", "$(sipx.OPENFIRE_GROUP)"),
-        copy_from => copy_from_cfdata("ssl-web.keystore"),
+        copy_from => copy_from_cfdata("ssl-openfire.keystore"),
         classes => if_repaired("restart_openfire");
 
       "/etc/sysconfig/openfire"

@@ -99,6 +99,13 @@ Obsoletes: sipx-freeswitch-codec-passthru-g729
 Obsoletes: sipxopenacd
 Obsoletes: sipxacdstatistics
 Obsoletes: sipxacdstatistics-client
+Obsoletes: openacd
+Obsoletes: erlang-oacd_dialplan
+Obsoletes: erlang-oacd_freeswitch
+Obsoletes: erlang-oacd_ouc
+Obsoletes: erlang-oacd_spx
+Obsoletes: erlang-oacd_web
+Obsoletes: erlang-openacd
 
 # 4.6 packages that turned out to not be useful as separate pkgs so
 # projects merged into sipxconfig
@@ -114,6 +121,9 @@ Obsoletes: sipxhttpd
 Obsoletes: sipxsbc
 Obsoletes: sipxsbc-config
 Obsoletes: sipxpark
+
+# XX-11486 - obsolete sipxevent (event notifier) service should be removed
+Obsoletes: sipxevent
 
 %if %{_vendor} == suse
 Requires: apache2-prefork

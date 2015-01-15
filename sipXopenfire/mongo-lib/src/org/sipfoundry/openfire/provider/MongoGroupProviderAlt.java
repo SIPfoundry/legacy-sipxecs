@@ -66,7 +66,6 @@ public class MongoGroupProviderAlt extends AbstractGroupProvider {
 
     @Override
     public void deleteGroup(String name) {
-        CacheHolder.removeGroupByName(name);
         // groups are read-only, no further action needed
     }
 
@@ -88,11 +87,14 @@ public class MongoGroupProviderAlt extends AbstractGroupProvider {
             throw new GroupNotFoundException(name);
         }
         log.debug("Found group: " + groupObj);
+        
 
         String id = (String) groupObj.get("_id");
-
-        CacheHolder.putGroup(id, name);
-
+        //initialize cache with the actual value of group - this method is called when openfire starts
+        if (CacheHolder.getGroupName(id) == null) {
+            CacheHolder.putGroup(id, name);
+        }
+        
         return fromDBObject(groupObj);
     }
 
@@ -142,42 +144,9 @@ public class MongoGroupProviderAlt extends AbstractGroupProvider {
 
     @Override
     public Collection<String> getGroupNames(JID user) {
-        log.debug("Getting group names for " + user.toBareJID());
-
-        List<String> names = new ArrayList<String>();
-        String userName = XMPPServer.getInstance().isLocal(user) ? user.getNode() : user.toString();
-        DBObject query = new BasicDBObject();
-
-        DBCollection usersCollection = getUsersCollection();
-
-        query.put(IM_ENABLED, true);
-        query.put(IM_ID, userName);
-        query.put("ent", "user");
-
-        DBObject userObj = usersCollection.findOne(query);
-        if (userObj != null) {
-            BasicDBList groupList = (BasicDBList) userObj.get(GROUPS);
-            for (Object o : groupList) {
-                names.add((String) o);
-            }
-        }
-
-        // if we didn't find any groups, maybe it's the imbot
-        if (names.isEmpty() && isImBot(userName)) {
-            DBCollection groupsCollection = getCollection();
-            DBObject groupsQuery = new BasicDBObject();
-
-            groupsQuery.put(IM_GROUP, "1");
-            groupsQuery.put("imbot", "1");
-            groupsQuery.put("ent", "group");
-
-            for (DBObject grpObj : groupsCollection.find(groupsQuery)) {
-                names.add((String) grpObj.get("uid"));
-            }
-
-        }
-        log.debug("Returning group names: " + names + " for " + user.toBareJID());
-
+        String jid = user.toBareJID();
+        jid = jid.substring(0, jid.lastIndexOf("@"));
+        List<String> names = UnfortunateLackOfSpringSupportFactory.getValidUsers().getImGroupnamesForUser(jid);
         return names;
     }
 

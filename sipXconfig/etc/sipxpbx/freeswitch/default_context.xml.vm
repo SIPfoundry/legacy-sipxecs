@@ -3,9 +3,6 @@
 #if(${conference.enabled})
   <extension name="${conference.extension}">
     <condition field="destination_number" expression="^${conference.name}${dollar}">
-#if ($ignoreDisplayUpdates)
-      <action application="set" data="ignore_display_updates=true"/>
-#end
       <action application="set" data="supplied_pin=${dollar}{sip_h_X-ConfPin}"/>
       <action application="conference" data="${conference.dialString}"/>
     </condition>
@@ -14,9 +11,7 @@
 #end
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR${dollar}">
-#if ($ignoreDisplayUpdates)
-      <action application="set" data="ignore_display_updates=true"/>
-#end
+      <action application='set' data='sip_callee_id_name=IVR'/>
       <action application="socket" data="${location.address}:8084 async full"/>
 #foreach($other in $locations)
       <action application="redirect" data="sip:IVR@${other.address}:15060;${sip_req_params}"/>
@@ -26,9 +21,6 @@
 #if ($acccode)
   <extension name="ACC">
     <condition field="destination_number" expression="^ACC${dollar}">
-#if ($ignoreDisplayUpdates)
-      <action application="set" data="ignore_display_updates=true"/>
-#end
       <action application="socket" data="${location.address}:8184 async full"/>
     </condition>
   </extension>
@@ -44,9 +36,14 @@
     </condition>
     <condition field="${slot_count}" expression="^\:0$|no" break="always">
 #end
+#set( $transfer_expression_referror = 'transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}' )
+#set( $transfer_expression_auth = 'transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}' )
       <action application="set" data="fifo_music=${orbit.audioDirectory}${orbit.music}"/>
-#if(${orbit.isParkTimeoutEnabled()})      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}:${orbit.parkTimeout}"/>
-#end
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="${transfer_expression_referror}"/>
+        <anti-action application="set" data="${transfer_expression_auth}"/>
+      </condition>
+      <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:${orbit.parkTimeout}"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
 #if(${orbit.isTransferAllowed()})
       <action application="set" data="fifo_caller_exit_key=${orbit.transferKey}"/>
@@ -74,9 +71,6 @@
   <extension name="${extension.name}">
 #foreach($condition in $extension.conditions)
     <condition field="${condition.field}" expression="${condition.escapedExpression}">
-#if ($ignoreDisplayUpdates)
-      <action application="set" data="ignore_display_updates=true"/>
-#end
 #foreach($action in $condition.actions)
       <action application="${action.application}"#if( $action.data ) data="${action.data}"#end/>
 #end
@@ -87,9 +81,6 @@
 #if ($blindTransfer)
   <extension name="going-in">
     <condition>
-#if ($ignoreDisplayUpdates)
-      <action application="set" data="ignore_display_updates=true"/>
-#end
       <action application="set" data="ringback=${us-ring}"/>
       <action application="bridge" data="{api_on_answer='uuid_simplify ${uuid}'}sofia/${domainName}/${destination_number}@${domainName}"/>
     </condition>

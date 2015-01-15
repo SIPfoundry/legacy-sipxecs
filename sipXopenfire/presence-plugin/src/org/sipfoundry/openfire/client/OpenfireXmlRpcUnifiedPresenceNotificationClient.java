@@ -56,7 +56,7 @@ public class OpenfireXmlRpcUnifiedPresenceNotificationClient extends OpenfireXml
             logger.info("removing change listener as a result");
             PresenceUnifier.getInstance().removeUnifiedPresenceChangeListener("xmlrpc", serverUrl);
         } catch (Exception e) {
-            logger.info("unifiedPresenceChanged caught exception for server " + serverUrl + " : ", e);
+            logger.info("unifiedPresenceChanged caught exception " + e.getMessage() + "for server " + serverUrl);
         }
         if (retval != null && !retval.equals("ok")) {
             logger.info("unifiedPresenceChanged returned an error while processing request " + retval);

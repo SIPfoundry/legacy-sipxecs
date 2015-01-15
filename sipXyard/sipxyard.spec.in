@@ -18,15 +18,11 @@ BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 BuildRequires: sipxtacklib-devel        >= %version
 BuildRequires: leveldb-devel
-BuildRequires: java-1.7.0-openjdk-devel
-BuildRequires: sipxcommons >= %version
-BuildRequires: sipxconfig >= %version
 
 Requires: sipxcommserverlib  >= %version
 Requires: sipxportlib        >= %version
 Requires: sipxtacklib        >= %version
 Requires: leveldb
-Requires: sipxcommons >= %version
 
 %description
 Implementation of REST Persistence Store, Remote Configuration and Process Management
@@ -64,9 +60,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libsipXyard.so*
 %attr(755,root,root) %{_libdir}/yard_plugins/libConfigDumper.so*
 %attr(755,root,root) %{_libdir}/yard_plugins/libProcessControl.so*
-%{_sysconfdir}/sipxpbx/yard/yard-gateway.properties
-%{_sysconfdir}/sipxpbx/yard/yard-gateway.xml
-%{_datadir}/java/sipXecs/sipXconfig/plugins/yard-gateway-plugin.jar
 
 %files devel
 %defattr(644,root,root,755)

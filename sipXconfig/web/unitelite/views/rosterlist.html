@@ -1,0 +1,328 @@
+<div class="main-left-title-wrapper">
+  <i class="icon-presence_meeting"></i>
+  <h5 class="main-left-title">CONTACTS</h5>
+</div>
+<div>
+  <div data-ng-repeat="entry in (filtered = (phonebook.main | orderBy:'name' )) track by $index">
+    <div
+      data-drag
+      data-ng-model="entry"
+      data-ng-click="showEntry(entry)"
+      data-ng-class="{first: $first}"
+      class="entry-container clearfix">
+      <div class="entry-photo pull-left">
+        <img data-ng-src="{{ entry.avatar }}">
+      </div>
+      <div class="entry-name pull-left">
+        <span class="entry-name-big">{{ entry.name }}</span>
+        <span class="entry-loc">{{ entry['contact-information'].location || '-' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="rooms-modal roster-modal animated fade"
+  data-ng-show="muc.conf.modal">
+  <div class="clearfix">
+    <div class="main-left-title-wrapper">
+      <i class="icon-presence_meeting"></i>
+      <h5 class="main-left-title">CONTACTS / PROFILE</h5>
+    </div>
+    <div
+      data-ng-click="hideEntry()"
+      class="pull-right close-button">
+      <i class="icon-close"></i>
+    </div>
+  </div>
+  <div class="rooms-modal-wrapper">
+    <div class="roster-modal-mini-profile clearfix">
+      <div class="entry-photo pull-left">
+        <img data-ng-src="{{ entry.profile.avatar }}">
+      </div>
+      <div class="entry-name pull-left">
+        <span class="entry-name-big">{{ entry.profile.name }}</span>
+        <span class="entry-loc">{{ entry.profile['contact-information'].location || '-' }}</span>
+      </div>
+    </div>
+    <div>
+      <button type="button" class="btn btn-default btn-block"
+        data-ng-click="callDialpad(entry.profile.number)">
+        <i class="icon-presence_on_the_phone"></i>
+        {{ entry.profile.name }} ({{ entry.profile.number }})
+      </button>
+    </div>
+    <div class="roster-modal-vcard wordwrap">
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['first-name'].length > 0">
+        <label class="col-sm-4 control-label">First Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['first-name'] | linky}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['last-name'].length > 0">
+        <label class="col-sm-4 control-label">Last Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['last-name'] | linky}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['emailAddress'].length > 0">
+        <label class="col-sm-4 control-label">Email Address</label>
+        <div class="col-sm-8">
+          <span data-ng-bind-html="entry.profile['contact-information']['emailAddress'] | linky"></span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['alternateEmailAddress'].length > 0">
+        <label class="col-sm-4 control-label">Alt Email Address</label>
+        <div class="col-sm-8">
+          <span data-ng-bind-html="entry.profile['contact-information']['alternateEmailAddress'] | linky"></span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['imId'].length > 0">
+        <label class="col-sm-4 control-label">IM ID</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['imId']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['alternateImId'].length > 0">
+        <label class="col-sm-4 control-label">Alt IM ID</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['alternateImId']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['assistantName'].length > 0">
+        <label class="col-sm-4 control-label">Assistant Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['assistantName']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['assistantPhoneNumber'].length > 0">
+        <label class="col-sm-4 control-label">Assistant Phone No.</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['assistantPhoneNumber'] | linky}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['cellPhoneNumber'].length > 0">
+        <label class="col-sm-4 control-label">Cell Phone</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['cellPhoneNumber']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['homePhoneNumber'].length > 0">
+        <label class="col-sm-4 control-label">Home Phone</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['homePhoneNumber']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['faxNumber'].length > 0">
+        <label class="col-sm-4 control-label">Fax Number</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['faxNumber']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['didNumber'].length > 0">
+        <label class="col-sm-4 control-label">DID</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['didNumber']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['location'].length > 0">
+        <label class="col-sm-4 control-label">Location</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['location']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['companyName'].length > 0">
+        <label class="col-sm-4 control-label">Company</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['companyName']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['jobDept'].length > 0">
+        <label class="col-sm-4 control-label">Department</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['jobDept']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['jobTitle'].length > 0">
+        <label class="col-sm-4 control-label">Title</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['jobTitle']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['officeAddress']['street'] ||
+        entry.profile['contact-information']['officeAddress']['city'] ||
+        entry.profile['contact-information']['officeAddress']['state'] ||
+        entry.profile['contact-information']['officeAddress']['country'] ||
+        entry.profile['contact-information']['officeAddress']['zip']">
+        <label class="col-sm-4 control-label">Business Address</label>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['officeAddress']['street'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Street</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['officeAddress']['street']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['officeAddress']['city'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">City</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['officeAddress']['city']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['officeAddress']['state'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">State</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['officeAddress']['state']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['officeAddress']['country'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Country</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['officeAddress']['country']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['officeAddress']['zip'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">ZIP</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['officeAddress']['zip']}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['homeAddress']['street'] ||
+        entry.profile['contact-information']['homeAddress']['city'] ||
+        entry.profile['contact-information']['homeAddress']['state'] ||
+        entry.profile['contact-information']['homeAddress']['country'] ||
+        entry.profile['contact-information']['homeAddress']['zip']">
+        <label class="col-sm-4 control-label">Home Address</label>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['homeAddress']['street'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Street</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['homeAddress']['street']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['homeAddress']['city'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">City</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['homeAddress']['city']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['homeAddress']['state'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">State</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['homeAddress']['state']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['homeAddress']['country'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">Country</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['homeAddress']['country']}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group-child col-sm-12 clearfix"
+          data-ng-show="entry.profile['contact-information']['homeAddress']['zip'].length > 0">
+          <div>
+            <label class="col-sm-4 control-label">ZIP</label>
+            <div class="col-sm-8">
+              <span>{{entry.profile['contact-information']['homeAddress']['zip']}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['facebookName'].length > 0">
+        <label class="col-sm-4 control-label">FB Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['facebookName']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['twiterName'].length > 0">
+        <label class="col-sm-4 control-label">Twitter Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['twiterName']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['linkedinName'].length > 0">
+        <label class="col-sm-4 control-label">LinkedIn Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['linkedinName']}}</span>
+        </div>
+      </div>
+
+      <div class="form-group clearfix"
+        data-ng-show="entry.profile['contact-information']['xingName'].length > 0">
+        <label class="col-sm-4 control-label">XING Name</label>
+        <div class="col-sm-8">
+          <span>{{entry.profile['contact-information']['xingName']}}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+

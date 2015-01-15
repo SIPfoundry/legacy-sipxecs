@@ -17,6 +17,7 @@
 package org.sipfoundry.openfire.plugin.job.user;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.openfire.provider.CacheHolder;
 import org.sipfoundry.openfire.sync.job.Job;
 
 
@@ -26,16 +27,21 @@ public class UserDeleteJob implements Job {
     private static final long serialVersionUID = 1L;
 
     private final String userImName;
+    private final String id;
 
-    public UserDeleteJob(String userImName) {
+    public UserDeleteJob(String id, String userImName) {
         this.userImName = userImName;
+        this.id = id;
     }
 
     @Override
     public void process() {
         logger.debug("start processing " + toString());
 
-        UserShared.removeUser(userImName);
+        UserShared.removeUser(userImName, CacheHolder.getUserGroups(id));
+        //clear cache
+        CacheHolder.removeUser(id);
+        CacheHolder.removeUserGroups(id);
         logger.debug("end processing " + toString());
     }
 

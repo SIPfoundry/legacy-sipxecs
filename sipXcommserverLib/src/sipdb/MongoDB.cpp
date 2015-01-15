@@ -56,27 +56,70 @@ namespace MongoDB
       return ret;
   }
 
-  const ConnectionInfo ConnectionInfo::globalInfo()
+  ConnectionInfo ConnectionInfo::globalInfo()
   {
     const char* fname = SIPX_CONFDIR "/mongo-client.ini";
-    ifstream file(fname);
-      if (!file)
-      {
-          BOOST_THROW_EXCEPTION(ConfigError() <<  errmsg_info(std::string("Missing file ")  + fname));
-      }
-      return ConnectionInfo(file);
+    std::ifstream file(fname);
+    if (!file.is_open())
+    {
+        BOOST_THROW_EXCEPTION(ConfigError() <<  errmsg_info(std::string("Missing file ")  + fname));
+    }
+    return ConnectionInfo(file);
   }
 
-  const ConnectionInfo ConnectionInfo::localInfo()
+  ConnectionInfo ConnectionInfo::localInfo()
   {
-    ifstream file(SIPX_CONFDIR "/mongo-local.ini");
-      if (!file)
-      {
-        return ConnectionInfo();
-      }
-      return ConnectionInfo(file);
+    std::ifstream file(SIPX_CONFDIR "/mongo-local.ini");
+    if (!file.is_open())
+    {
+      return ConnectionInfo();
+    }
+    return ConnectionInfo(file);
   }
   
+  ConnectionInfo::ConnectionInfo()
+  {
+    _shard = 0;
+    _useReadTags = false; 
+    _readQueryTimeoutMs = 0;
+    _writeQueryTimeoutMs = 0;
+  }
+  
+  ConnectionInfo::ConnectionInfo(const ConnectionInfo& rhs)
+	{
+    string errmsg;
+    _rawConnectionString = rhs._rawConnectionString;
+    _connectionString = mongo::ConnectionString::parse(_rawConnectionString, errmsg);
+    _shard = rhs._shard;
+    _useReadTags = rhs._useReadTags;
+    _clusterId = rhs._clusterId;
+    _readQueryTimeoutMs = rhs._readQueryTimeoutMs;
+    _writeQueryTimeoutMs = rhs._writeQueryTimeoutMs;
+	}
+  
+  ConnectionInfo& ConnectionInfo::operator=(const ConnectionInfo& rhs)
+  {
+    string errmsg;
+    _rawConnectionString = rhs._rawConnectionString;
+    _connectionString = mongo::ConnectionString::parse(_rawConnectionString, errmsg);
+    _shard = rhs._shard;
+    _useReadTags = rhs._useReadTags;
+    _clusterId = rhs._clusterId;
+    _readQueryTimeoutMs = rhs._readQueryTimeoutMs;
+    _writeQueryTimeoutMs = rhs._writeQueryTimeoutMs;
+    return *this;
+  }
+  
+  ConnectionInfo::ConnectionInfo(const mongo::ConnectionString& connectionString) :
+                 _connectionString(connectionString),
+                 _shard(0),
+                 _useReadTags(false),
+                 _readQueryTimeoutMs(0),
+                 _writeQueryTimeoutMs(0)
+	{
+	}
+
+	
   ConnectionInfo::ConnectionInfo(ifstream& file) :
       _shard(0),
       _useReadTags(false),
@@ -85,12 +128,11 @@ namespace MongoDB
   {
     set<string> options;
     options.insert("*");
-    string connectionString;
     for (boost::program_options::detail::config_file_iterator i(file, options), e; i != e; ++i) 
     {
       if (i->string_key == "connectionString") 
       {
-        connectionString = i->value[0];
+        _rawConnectionString = i->value[0];
       }
       if (i->string_key == "shardId") 
       {
@@ -122,7 +164,7 @@ namespace MongoDB
     }
     
     OS_LOG_INFO(FAC_SIP, "ConnectionInfo::ConnectionInfo "
-        << "connectionString: " << connectionString
+        << "connectionString: " << _rawConnectionString
         << ", shardId: " << _shard
         << ", clusterId: " << _clusterId
         << ", useReadTags: " << _useReadTags
@@ -130,17 +172,17 @@ namespace MongoDB
         << ", writeQueryTimeoutMs: " << _writeQueryTimeoutMs);
 
     file.close();
-    if (connectionString.size() == 0)
+    if (_rawConnectionString.empty())
     {
         BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(std::string("Invalid contents, missing parameter 'connectionString' in file ")));
     }
     
     string errmsg;
-    _connectionString = mongo::ConnectionString::parse(connectionString, errmsg);
+    _connectionString = mongo::ConnectionString::parse(_rawConnectionString, errmsg);
     if (!_connectionString.isValid()) {
         BOOST_THROW_EXCEPTION(ConfigError() << errmsg_info(errmsg));
     }
-    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", connectionString.c_str());
+    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG, "loaded db connection info for %s", _rawConnectionString.c_str());
   }
   
   void BaseDB::setReadPreference(mongo::BSONObjBuilder& builder, mongo::BSONObj query, const char* readPreferrence) const
@@ -198,7 +240,7 @@ namespace MongoDB
     boost::lock_guard<boost::mutex> lock(_updateTimerSamplesMutex);
 
     _lastUpdateSpeed = pTimer->_end - pTimer->_start;
-    _updateTimerSamples.push_back(_lastReadSpeed);
+    _updateTimerSamples.push_back(_lastUpdateSpeed);
     
     if (_lastUpdateSpeed > MAX_UPDATE_DELAY_MS)
     {
@@ -233,7 +275,7 @@ namespace MongoDB
       if (!_lastAlarmLog || now >= _lastAlarmLog + ALARM_RATE_SEC)
       {
         _lastAlarmLog = now;
-        OS_LOG_EMERGENCY(FAC_SIP, "ALARM_MONGODB_SLOW_READ Last Mongo update took a long time:" 
+        OS_LOG_EMERGENCY(FAC_SIP, "ALARM_MONGODB_SLOW_READ Last Mongo read took a long time:"
             << " document: " << _ns
             << " delay: " << _lastReadSpeed << " milliseconds");
       }

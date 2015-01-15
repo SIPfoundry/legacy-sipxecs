@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.firewall.ServerGroup;
 public abstract class EditFirewallRules extends BaseComponent implements PageBeginRenderListener {
 
     private static final String ADDRESS = "address.";
+    private static final String SEPARATOR = " ";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -73,7 +74,9 @@ public abstract class EditFirewallRules extends BaseComponent implements PageBeg
     public String getAddressLabel() {
         AddressType type = getRule().getAddressType();
         String key = ADDRESS + type.getId();
-        return TapestryUtils.getDefaultMessage(getMessages(), key, key);
+        return StringUtils.join(new String[] {
+            TapestryUtils.getDefaultMessage(getMessages(), key, key), type.getLabel()
+        }, SEPARATOR);
     }
 
     public String getPortDetails() {

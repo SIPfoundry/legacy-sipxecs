@@ -26,6 +26,7 @@
 #include <Poco/Semaphore.h>
 #include <boost/thread.hpp>
 #include <boost/circular_buffer.hpp>
+#include <vector>
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -82,6 +83,7 @@ class SipRouter : public OsServerTask
     
   typedef boost::mutex mutex_critic_sec;
   typedef boost::lock_guard<mutex_critic_sec> mutex_critic_sec_lock;
+  typedef std::vector<AuthPlugin*> TrustedRequestModifiers;
 
   class DispatchTimer
   {
@@ -199,6 +201,8 @@ class SipRouter : public OsServerTask
    
    static SubscribeDB* getSubscribeDBInstance();
    
+   UtlBoolean trustSbcRegisteredCalls() const;
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
@@ -306,6 +310,8 @@ class SipRouter : public OsServerTask
    Int64 _lastDispatchSpeed;
    long _lastDispatchYieldTime;
    bool _isDispatchYielding;
+   UtlBoolean _trustSbcRegisteredCalls;
+   TrustedRequestModifiers _trustedRequestModifiers;
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -318,6 +324,11 @@ inline UtlBoolean SipRouter::isRelayAllowed() const
 inline SipUserAgent* SipRouter::getUserAgent() const
 {
   return mpSipUserAgent;
+}
+
+inline UtlBoolean SipRouter::trustSbcRegisteredCalls() const
+{
+  return _trustSbcRegisteredCalls;
 }
 
 

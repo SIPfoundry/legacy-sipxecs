@@ -78,6 +78,17 @@ public class JavaKeyStore {
         }
     }
 
+    public void addKeys(String alias, String certText, String keyText) throws IOException {
+        try {
+            PrivateKey key = CertificateUtils.readCertificateKey(keyText);
+            X509Certificate[] cert = CertificateUtils.readCertificates(certText);
+
+            m_store.setKeyEntry(alias, key, m_password, cert);
+        } catch (KeyStoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Compare entries from one keystore with another
      *

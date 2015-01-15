@@ -76,6 +76,7 @@ RUNTIME_EPEL = \
 	erlang-gproc-* \
 	erlang-erlando-* \
 	erlang-ibrowse-* \
+	erlang-rpm-macros-* \
 	fail2ban-* \
 	gperftools-libs-* \
 	gtest-1* \

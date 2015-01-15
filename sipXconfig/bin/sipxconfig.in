@@ -19,7 +19,7 @@ Usage: sipxconfig [start|stop|configtest|status|setup|db|run commands ...]
 Start Web UI administration for sipXpbx and for remotely provisioned
 SIP-based phones.
 
-Options include:
+Options include: 
 
   none                 Runs web admin ui
 

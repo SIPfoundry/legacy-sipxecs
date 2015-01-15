@@ -28,7 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.ivr.MimeType;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.SipxIvrConfiguration;
@@ -41,14 +43,17 @@ public class MediaServlet extends HttpServlet {
     private static final String METHOD_GET = "GET";
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
+    @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
     }
 
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);
     }
 
+    @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {
         doIt(request, response);
@@ -91,6 +96,10 @@ public class MediaServlet extends HttpServlet {
                 response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
                 response.setHeader("Pragma", "public");
                 response.setHeader("Content-Disposition", "attachment; filename=\"" + audioFile.getName() + "\"");
+                String mimeType = MimeType.getMimeByFormat(message.getDescriptor().getAudioFormat());
+                if (StringUtils.isNotBlank(mimeType)) {
+                    response.setHeader("Content-type", MimeType.getMimeByFormat(message.getDescriptor().getAudioFormat()));
+                }
 
                 OutputStream responseOutputStream = null;
                 InputStream stream = null;

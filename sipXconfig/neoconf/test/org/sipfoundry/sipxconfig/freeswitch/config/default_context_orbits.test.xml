@@ -1,7 +1,7 @@
 <context name="default">
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR$">
-      <action application="set" data="ignore_display_updates=true"/>
+      <action application='set' data='sip_callee_id_name=IVR'/>
       <action application="socket" data="192.168.1.1:8084 async full"/>
     </condition>
   </extension>
@@ -12,7 +12,11 @@
     </condition>
     <condition field="${slot_count}" expression="^\:0$|no" break="always">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
-      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}:120"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
+      <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:120"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="fifo" data="QPark12345 in"/>
       <action application="hangup"/>
@@ -26,6 +30,11 @@
   <extension name="ParkOrbitTransfer">
     <condition field="destination_number" expression="^1111$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
+      <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:120"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="set" data="fifo_caller_exit_key=0"/>
       <action application="set" data="fifo_caller_exit_to_orbit=true"/>
@@ -41,6 +50,11 @@
   <extension name="ParkOrbitBare">
     <condition field="destination_number" expression="^2222$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/default.wav"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
+      <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:86400"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="fifo" data="QPark2222 in"/>
       <action application="hangup"/>
@@ -54,7 +68,11 @@
   <extension name="ParkOrbitFull">
     <condition field="destination_number" expression="^5555$">
       <action application="set" data="fifo_music=/var/sipxdata/parkserver/music/custom.wav"/>
-      <action application="set" data="fifo_orbit_exten=transferPark${sip_referred_by_user}:10"/>
+      <condition field="${sip_h_X-sipX-referror}" expression=".">
+        <action application="set" data="transf_ext=${regex(${sip_h_X-sipX-referror}|(.*)@|%1)}"/>
+        <anti-action application="set" data="transf_ext=${regex(${sip_h_X-Sipx-Authidentity}|sip:(.*)@|%1)}"/>
+      </condition>
+      <action application="set" data="fifo_orbit_exten=transferPark${transf_ext}:10"/>
       <action application="set" data="fifo_orbit_dialplan=XML"/>
       <action application="set" data="fifo_caller_exit_key=5"/>
       <action application="set" data="fifo_caller_exit_to_orbit=true"/>
@@ -75,13 +93,11 @@
   </extension>
   <extension name="sales">
     <condition field="destination_number" expression="^300$">
-      <action application="set" data="ignore_display_updates=true"/>
       <action application="fly" data="away"/>
     </condition>
   </extension>
   <extension name="going-in">
     <condition>
-      <action application="set" data="ignore_display_updates=true"/>
       <action application="set" data="ringback=${us-ring}"/>
       <action application="bridge" data="{api_on_answer='uuid_simplify ${uuid}'}sofia/ezuce.ro/${destination_number}@ezuce.ro"/>
     </condition>

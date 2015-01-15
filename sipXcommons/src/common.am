@@ -19,6 +19,7 @@ commons_PKGS = \
 	commons-codec \
 	commons-digester \
 	commons-lang \
+	commons-collections \
 	xmlrpc-client \
 	spring-beans \
 	spring-context \
@@ -27,6 +28,7 @@ commons_PKGS = \
 	spring-data-mongodb \
 	spring-data-commons \
 	mongo \
+	org.restlet \
 	spring-data-redis \
 	jedis \
 	thumbnailator \

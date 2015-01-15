@@ -46,6 +46,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -97,6 +98,10 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
             List<ConfigChangeValue> configChangeValues = new ArrayList<ConfigChangeValue>();
             for (Setting parentSetting : persistableSettings.getSettings().getValues()) {
                 for (Setting setting : parentSetting.getValues()) {
+                    // no need to do anything if setting is of SettingSet type
+                    if (setting instanceof SettingSet) {
+                        continue;
+                    }
                     String settingValue = setting.getValue();
                     String settingDefaultValue = setting.getDefaultValue();
                     if (settingValue != null && settingDefaultValue != null
@@ -305,7 +310,7 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
         if (iterator.hasNext()) {
             Object element = iterator.next();
             String elementName = getObjectName(element);
-            if (!elementName.isEmpty()) {
+            if (elementName != null && !elementName.isEmpty()) {
                 stringBuilder.append(getObjectName(element)).append(PROPERTY_DELIMITATOR);
             }
             String[] roleArray = collection.getRole().split("\\.");

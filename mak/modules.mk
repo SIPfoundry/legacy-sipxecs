@@ -33,7 +33,6 @@ sipx_core = \
   sipXrls \
   sipXsaa \
   sipXyard \
-  sipXedgeServices \
   sipXrelease \
   sipXecs
 
@@ -50,7 +49,6 @@ sipx_extra = \
   sipXrest \
   sipXcallController \
   sipXcdrLog \
-  sipXevent \
   sipXrecording \
   sipXhomer \
   sipXcallQueue \
@@ -97,8 +95,8 @@ sipx_lang = \
 sipx_all = \
   $(sipx_core) \
   $(sipx_extra) \
-  $(sipx_lang) \
-  $(sipx_config)
+  $(sipx_config) \
+  $(sipx_lang)
 
 # re: ruby-postgres, there's a new one we should be using ruby-pgsql i
 # think it's called as ruby-postgres is obsoleted.
@@ -170,7 +168,6 @@ sipXcallQueue_DEPS = sipXconfig
 sipXexample_DEPS = sipXcommserverLib sipXconfig
 sipXsss_DEPS = sipXsqa sipXcommserverLib sipXresiprocate
 sipXyard = sipXcommserverLib
-sipXedgeServices_DEPS =  sipXeslLib sipXresiprocate sipXcommserverLib sipXyard
 sipXtools_DEPS = sipXtackLib sipXcommserverLib
 
 all = \

@@ -95,7 +95,7 @@ public abstract class AbstractRing extends BeanWithId implements SystemAuditable
      * @param q contact q value
      * @return String representing the contact
      */
-    public final String calculateContact(String domain, String callgroupName, ForkQueueValue q,
+    public final String calculateContact(String domain, String callgroupExtension, ForkQueueValue q,
             boolean appendIgnoreVoicemail, boolean userforward, String prefix) {
 
         StringBuilder userPart = new StringBuilder(StringUtils.defaultString(prefix));
@@ -111,9 +111,9 @@ public abstract class AbstractRing extends BeanWithId implements SystemAuditable
 
         // XX-11404 sipXconfig should add hunt group extension as a param to all its contact
         // (callgroup=<callgroupid>)
-        if (null != callgroupName) {
+        if (!StringUtils.isEmpty(callgroupExtension)) {
             fieldParams.append(PARAM_DELIMITER);
-            fieldParams.append(String.format(CALLGROUP_FORMAT_FIELD_PARAM, callgroupName));
+            fieldParams.append(String.format(CALLGROUP_FORMAT_FIELD_PARAM, callgroupExtension));
         }
         if (!userforward) {
             fieldParams.append(PARAM_DELIMITER);

@@ -1,6 +1,7 @@
 <context name="default">
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR$">
+      <action application='set' data='sip_callee_id_name=IVR'/>
       <action application="socket" data="192.168.1.1:8084 async full"/>
     </condition>
   </extension>

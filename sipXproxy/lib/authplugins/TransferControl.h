@@ -69,6 +69,19 @@ class TransferControl : public AuthPlugin
 
    virtual void announceAssociatedSipRouter( SipRouter* sipRouter );
    
+   /// Boolean indicator that returns true if the plugin wants to process requests
+   /// that requires no authentication
+   virtual bool willModifyTrustedRequest() const;
+   
+   /// This method is called by the proxy if willModifyRequest() flag is set to true
+   /// giving this plugin the opportunity to modify the request even if it requires
+   /// no authentication
+   virtual void modifyTrustedRequest(
+                                    const Url&  requestUri,  ///< parsed target Uri
+                                    SipMessage& request,     ///< see below regarding modifying this
+                                    bool bSpiralingRequest  ///< true if request is still spiraling through pr
+                                    );
+   
   protected:
    friend class TransferControlTest;
    

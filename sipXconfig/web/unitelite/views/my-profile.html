@@ -1,0 +1,290 @@
+  <div class="sticky-wrapper">
+  <div class="row profile-bar-chat">
+    <div class="col-xs-10">
+      <span>MY PROFILE</span>
+    </div>
+    <div class="col-xs-2">
+      <button class="btn btn-link pull-right"
+        data-ng-click="chat.showDefault()"
+        data-click-view="false">
+        <i class="icon-close"></i>
+      </button>
+    </div>
+  </div>
+  <div data-resize class="row my-profile">
+
+    <div class="row">
+      <div class="col-xs-6">
+
+        <div class="entry clearfix">
+          <div class="entry-photo pull-left">
+            <img data-ng-src="{{ myprofile.info.profile.avatar }}">
+          </div>
+          <div class="pull-left">
+            <div class="entry-name">
+              {{ myprofile.info.profile.firstName + ' ' + myprofile.info.profile.lastName || myprofile.info.profile.imId }}
+            </div>
+            <div class="entry-loc">
+              {{ myprofile.info.profile.location }}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <form class="form-horizontal col-sm-12" role="form" name="profileForm"
+      data-ng-if="myprofile.info.profile">
+
+      <div class="row">
+
+        <div class="col-xs-6">
+          <div class="form-groups clearfix">
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'firstName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.firstName">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'lastName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.lastName">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'emailAddress' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.emailAddress">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'alternateEmailAddress' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.alternateEmailAddress">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'imId' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.imId">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'alternateImId' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.alternateImId">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'assistantName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.assistantName">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'assistantPhoneNumber' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.assistantPhoneNumber">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'cellPhoneNumber' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.cellPhoneNumber">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'homePhoneNumber' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.homePhoneNumber">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'faxNumber' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.faxNumber">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'didNumber' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.didNumber">
+              </div>
+            </div>
+            <hr>
+
+            <!-- <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'imDisplayName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.imDisplayName">
+              </div>
+            </div>
+            <hr> -->
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'location' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.location">
+              </div>
+            </div>
+            <hr>
+
+          </div>
+        </div>
+
+        <div class="col-xs-6">
+          <div class="form-groups">
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'companyName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.companyName">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'jobDept' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.jobDept">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'jobTitle' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.jobTitle">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'homeAddress' | translate }}</label>
+              <div class="form-group-child col-sm-12">
+                <label class="col-sm-4 control-label">{{ 'street' | translate }}</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" data-ng-model="myprofile.info.profile.homeAddress.street">
+                </div>
+                <hr>
+              </div>
+              <div class="form-group-child col-sm-12">
+                <label class="col-sm-4 control-label">{{ 'city' | translate }}</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" data-ng-model="myprofile.info.profile.homeAddress.city">
+                </div>
+                <hr>
+              </div>
+              <div class="form-group-child col-sm-12">
+                <label class="col-sm-4 control-label">{{ 'state' | translate }}</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" data-ng-model="myprofile.info.profile.homeAddress.state">
+                </div>
+                <hr>
+              </div>
+              <div class="form-group-child col-sm-12">
+                <label class="col-sm-4 control-label">{{ 'country' | translate }}</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" data-ng-model="myprofile.info.profile.homeAddress.country">
+                </div>
+                <hr>
+              </div>
+              <div class="form-group-child col-sm-12">
+                <label class="col-sm-4 control-label">{{ 'zip' | translate }}</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" data-ng-model="myprofile.info.profile.homeAddress.zip">
+                </div>
+                <hr>
+              </div>
+            </div>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'facebookName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.facebookName">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'twiterName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.twiterName">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'linkedinName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.linkedinName">
+              </div>
+            </div>
+            <hr>
+
+            <div class="form-group clearfix">
+              <label class="col-sm-4 control-label">{{ 'xingName' | translate }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" data-ng-model="myprofile.info.profile.xingName">
+              </div>
+            </div>
+            <hr>
+          </div>
+        </div>
+
+      </div>
+      <div class="clearfix">
+        <button class="btn btn-default pull-left"
+          data-ng-disabled="!profileForm.$dirty"
+          data-ng-click="myprofile.init(); profileForm.$setPristine();">
+          Cancel
+        </button>
+        <button class="btn btn-info pull-left" data-ng-click="myprofile.save(); profileForm.$setPristine();"
+          data-ng-disabled="!profileForm.$dirty">
+          Save
+        </button>
+        <div class="spinner-wrapper pull-left inline animated fade"
+          data-ng-show="myprofile.util.loading">
+          <div class="spinner small"></div>
+        </div>
+        <span data-ng-if="myprofile.util.success" class="label label-success animated fadeOut">Success</span>
+        <span data-ng-if="myprofile.util.warning" class="label label-warning animated fadeOut">Warning</span>
+      </div>
+    </form>
+
+    <div class="spinner-wrapper animated fade"
+      data-ng-show="!myprofile.info.profile">
+      <div class="spinner small"></div>
+    </div>
+
+  </div>
+  </div>
+  <div class="sticky">
+    <div class="row bottom-bar">
+      <div class="input-group pull-left">
+      </div><!-- /input-group -->
+    </div>
+  </div>
+</div>

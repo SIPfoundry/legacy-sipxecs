@@ -34,6 +34,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.openfire.XMPPServer;
+import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.provider.UserProvider;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserNotFoundException;
@@ -83,10 +84,16 @@ public class MongoUserProviderAlt implements UserProvider {
                 throw new UserNotFoundException(username);
             }
         }
-
-        String id = (String) userObj.get("_id");
-        CacheHolder.putUser(id, actualUsername);
-
+        String id = (String) userObj.get("_id");       
+        //initialize cache with usernames found in db - this method is called when openfire starts
+        if (CacheHolder.getUserName(id) == null) {
+            CacheHolder.putUser(id, actualUsername);         
+        }
+        if (CacheHolder.getUserGroups(id) == null) {
+            CacheHolder.putUserGroups(id, 
+                GroupManager.getInstance().getProvider().getGroupNames(new JID(appendDomain(username))));
+        }
+        
         return fromDBObject(userObj);
     }
 
@@ -267,4 +274,13 @@ public class MongoUserProviderAlt implements UserProvider {
 
         return db.getCollection(COLLECTION_NAME);
     }
+    
+    private static String appendDomain(String userName) {
+        if (userName.indexOf("@") == -1) {
+            // No @ in the domain so assume this is our domain.
+            return userName + "@" + XMPPServer.getInstance().getServerInfo().getXMPPDomain();
+        }
+
+        return userName;
+    }    
 }

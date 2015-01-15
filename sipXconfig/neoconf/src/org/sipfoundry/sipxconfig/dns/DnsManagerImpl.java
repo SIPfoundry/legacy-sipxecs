@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.dns;
 
 import static java.lang.String.format;
+import static org.sipfoundry.sipxconfig.dns.DnsFailoverPlan.FALLBACK;
 
 import java.io.File;
 import java.io.IOException;
@@ -328,19 +329,31 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     @Override
     public Collection<DnsSrvRecord> getResourceRecords(DnsView view) {
         Integer planId = view.getPlanId();
+        DnsFailoverPlan defaultPlan = createFairlyTypicalDnsFailoverPlan();
         DnsFailoverPlan plan = null;
-        if (DnsFailoverPlan.FALLBACK.equals(planId)) {
-            plan = createFairlyTypicalDnsFailoverPlan();
+        if (FALLBACK.equals(planId)) {
+            plan = defaultPlan;
         } else if (planId != null) {
             plan = getPlan(planId);
         }
+
         List<DnsSrvRecord> srvs = new ArrayList<DnsSrvRecord>();
         if (plan != null) {
             Collection<ResourceRecords> rrs = getResourceRecords();
             if (rrs != null) {
                 for (ResourceRecords rr : rrs) {
-                    for (ResourceRecord record : rr.getRecords()) {
-                        srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
+                    if (rr.isInternal()) {
+                        for (ResourceRecord record : rr.getRecords()) {
+                            DnsView defaultViewMockup = new DnsView();
+                            defaultViewMockup.setPlanId(FALLBACK);
+                            defaultViewMockup.setName("default_");
+                            defaultViewMockup.setRegionId(null);
+                            srvs.addAll(defaultPlan.getDnsSrvRecords(defaultViewMockup, record, rr));
+                        }
+                    } else {
+                        for (ResourceRecord record : rr.getRecords()) {
+                            srvs.addAll(plan.getDnsSrvRecords(view, record, rr));
+                        }
                     }
                 }
             }
@@ -557,7 +570,9 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     public DnsView getDefaultView() {
         String filter = "where name = '" + DEFAULT_VIEW_NAME + "'";
         Collection<DnsView> views = loadViews(filter);
-        return DaoUtils.requireOneOrZero(views, filter);
+        DnsView view = DaoUtils.requireOneOrZero(views, filter);
+        view.setPlanId(FALLBACK);
+        return view;
     }
 
     List<DnsView> loadViews(String filter) {

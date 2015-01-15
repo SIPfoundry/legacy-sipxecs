@@ -16,11 +16,11 @@
  */
 package org.sipfoundry.openfire.provider;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.jivesoftware.util.cache.Cache;
 import org.jivesoftware.util.cache.CacheFactory;
 
@@ -33,8 +33,8 @@ import org.jivesoftware.util.cache.CacheFactory;
  * CacheFactory will use a distributed cache when used in a clustered environment.
  */
 public class CacheHolder {
-    private static Logger logger = Logger.getLogger(CacheHolder.class);
     private static final Cache<String, String> USER_CACHE = CacheFactory.createCache("mongoUser");
+    private static final Cache<String, Collection<String>> USER_GROUP_CACHE = CacheFactory.createCache("mongoGroupUser");
     private static final Cache<String, String> GROUP_CACHE = CacheFactory.createCache("mongoGroup");
     private static final Cache<Long, String> MUC_ROOM_CACHE = CacheFactory.createCache("mongoMucRoom");
 
@@ -48,6 +48,18 @@ public class CacheHolder {
 
     public static void removeUser(String id) {
         USER_CACHE.remove(id);
+    }
+    
+    public static void putUserGroups(String id, Collection<String> groups) {
+        USER_GROUP_CACHE.put(id, groups);
+    }
+    
+    public static Collection<String> getUserGroups(String id) {
+        return USER_GROUP_CACHE.get(id);
+    }
+    
+    public static void removeUserGroups(String id) {
+        USER_GROUP_CACHE.remove(id);
     }
 
     public static void removeUserByName(String name) {

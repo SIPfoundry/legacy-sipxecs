@@ -41,7 +41,9 @@ public class RegAdvancedConfigurationTest extends PolycomXmlTestCase {
         m_pg.generate(location, app, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-reg-advanced.cfg");
+        dumpXml(location.getReader(), System.out);
         assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
 
         expectedPhoneStream.close();
     }
@@ -156,6 +158,20 @@ public class RegAdvancedConfigurationTest extends PolycomXmlTestCase {
         m_pg.generate(location, app, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-reg-advanced-416.cfg");
+        assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
+
+        expectedPhoneStream.close();
+    }
+
+    public void testGenerateProfile520() throws Exception {
+        RegAdvancedConfiguration app = new RegAdvancedConfiguration(phone520);
+
+        m_pg.generate(location, app, null, "profile");
+
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sipx-reg-advanced-520.cfg");
+
+        dumpXml(location.getReader(), System.out);
+
         assertPolycomXmlEquals(new InputStreamReader(expectedPhoneStream), location.getReader());
 
         expectedPhoneStream.close();

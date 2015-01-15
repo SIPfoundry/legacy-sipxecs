@@ -61,6 +61,12 @@
         <value>4.1.6</value>
       </option>
       <option>
+        <value>4.1.7</value>
+      </option>
+      <option>
+        <value>4.1.8</value>
+      </option>
+      <option>
         <value>5.0.0</value>
       </option>
       <option>
@@ -68,6 +74,18 @@
       </option>
       <option>
         <value>5.0.2</value>
+      </option>
+      <option>
+        <value>5.1.1</value>
+      </option>
+      <option>
+        <value>5.1.2</value>
+      </option>
+      <option>
+        <value>5.1.3</value>
+      </option>
+      <option>
+        <value>5.2.0</value>
       </option>
     </enum>
   </type>

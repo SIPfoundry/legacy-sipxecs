@@ -9,6 +9,7 @@ package org.sipfoundry.sipxconfig.cert;
 
 import static java.lang.String.format;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -19,7 +20,10 @@ import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -31,11 +35,13 @@ import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.jfree.util.Log;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public final class CertificateUtils {
     private static final String PROVIDER = "BC";
     private static final int MAX_HEADER_LINE_COUNT = 512;
+    private static final String START_RSA_KEY = "-----BEGIN RSA PRIVATE KEY-----";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -55,12 +61,32 @@ public final class CertificateUtils {
     }
 
     public static X509Certificate readCertificate(Reader in) {
-        Object o = readObject(in);
+        //read first certificate found
+        Object o = readObject(in).get(0);
         if (!(o instanceof X509Certificate)) {
             String msg = format("Certificate was expected but found %s instead", o.getClass().getSimpleName());
             throw new UserException(msg);
         }
         return (X509Certificate) o;
+    }
+
+    public static X509Certificate[] readCertificates(Reader in) {
+        List<Object> listO = readObject(in);
+        List<X509Certificate> certs = new ArrayList<X509Certificate>();
+        for (Object o : listO) {
+            if ((o instanceof X509Certificate)) {
+                certs.add((X509Certificate) o);
+            }
+        }
+        if (certs.size() > 0) {
+            return certs.toArray(new X509Certificate[listO.size()]);
+        }
+        String msg = format("Certificate was expected but not found");
+        throw new UserException(msg);
+    }
+
+    public static X509Certificate[] readCertificates(String in) {
+        return readCertificates(new StringReader(in));
     }
 
     public static X500Name x500(String txt) {
@@ -81,18 +107,24 @@ public final class CertificateUtils {
         }
     }
 
-    public static Object readObject(Reader in) {
+    public static List<Object> readObject(Reader in) {
         PEMReader rdr = new PEMReader(in);
+        List<Object> list = new ArrayList<Object>();
         try {
             for (int i = 0; i < MAX_HEADER_LINE_COUNT; i++) {
                 Object o = rdr.readObject();
                 if (o != null) {
-                    return o;
+                    list.add(o);
                 }
+            }
+            rdr.close();
+            if (!list.isEmpty()) {
+                return list;
             }
         } catch (IOException e) {
             throw new UserException("Error reading certificate. " + e.getMessage(), e);
         }
+
         throw new UserException("No recognized security information was found. Files "
                 + "should be in PEM style format.");
     }
@@ -102,7 +134,7 @@ public final class CertificateUtils {
     }
 
     public static PrivateKey readCertificateKey(Reader in) {
-        Object o = readObject(in);
+        Object o = readObject(in).get(0);
         if (o instanceof KeyPair) {
             return ((KeyPair) o).getPrivate();
         }
@@ -112,6 +144,18 @@ public final class CertificateUtils {
 
         String msg = format("Private key was expected but found %s instead", o.getClass().getSimpleName());
         throw new UserException(msg);
+    }
+
+    public static String convertSslKeyToRSA(File file) {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process process = runtime.exec("openssl rsa -in " + file.getAbsolutePath() + " -check");
+            String result = IOUtils.toString(process.getInputStream());
+            return StringUtils.join(new String []{START_RSA_KEY, StringUtils.substringAfter(result, START_RSA_KEY)});
+        } catch (Exception ex) {
+            Log.error("Cannot Convert key to RSA ", ex);
+            return null;
+        }
     }
 
     public static void writeObject(Writer w, Object o, String description) {

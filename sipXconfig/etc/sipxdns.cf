@@ -104,7 +104,8 @@ bundle agent sipxdns_resolv {
         create => "true",
         perms => m(644),
         edit_line => resolv_conf,
-        edit_defaults => std_defs;
+        edit_defaults => std_defs,
+        classes => if_repaired("restart_sipximbot");
 }
 
 bundle agent sipxdns_config {

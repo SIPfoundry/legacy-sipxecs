@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+	<link rel="stylesheet" type="text/css" href="../css/draganddrop.css" />
+	<link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" />
+</head>
+<body>
+
+	<div ng-controller="MyCntrl" class="row">
+
+		<div drop="moveToSelling"  class="col-md-6 car">
+			<h2>Cars</h2>
+			<div>
+			<div class="list-group-item" drag ng-repeat="car in cars" ng-model="car">
+				{{ car.name }}
+			</div>
+		</div>
+		</div>
+
+		<div drop="moveToSold" class="col-md-6 sold">
+			<h2>Sold</h2>
+			<div  class="list-group-item" ng-repeat="car in sold" drag ng-model="car">
+				{{ car.name }}
+			</div>
+		</div>
+
+	</div>	
+
+
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.2/angular.min.js"></script>
+	<!--<script src="https://rawgithub.com/fisshy/Angular-drag-drop/master/src/dragandrop.js"></script>-->
+	<script src="../src/angular-dnd.js"></script>
+	
+
+	<script>
+		angular.module('myApp', ['dragAndDrop'])
+			.controller('MyCntrl', function($scope){
+
+				$scope.cars = [ 
+					{ name : 'Volvo' 		}, 
+					{ name : 'Audi' 		}, 
+					{ name : 'BMW' 			}, 
+					{ name : 'Mercedes' } 
+				];
+
+				$scope.sold = [ { name : 'Volvo' } ]; 
+
+				$scope.moveToSold = function(car, element){
+					var index = $scope.cars.indexOf(car);
+					if(index == -1) return;
+					$scope.cars.splice(index, 1);
+					$scope.sold.push(car);
+				};
+
+				$scope.moveToSelling = function(car, element){
+					var index = $scope.sold.indexOf(car);
+					if(index == -1) return;
+					$scope.sold.splice(index, 1);
+					$scope.cars.push(car);
+				};
+
+			});
+	</script>
+</body>
+</html>

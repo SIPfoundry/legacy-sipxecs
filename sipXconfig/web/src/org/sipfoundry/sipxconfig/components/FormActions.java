@@ -37,7 +37,7 @@ public abstract class FormActions extends BaseComponent {
     @InjectObject(value = "infrastructure:listenerInvoker")
     public abstract ListenerInvoker getListenerInvoker();
 
-    @Parameter(required = false, defaultValue="")
+    @Parameter(required = false, defaultValue = "")
     public abstract String getApplyConfirmMessage();
 
     public void onOk(IRequestCycle cycle) {

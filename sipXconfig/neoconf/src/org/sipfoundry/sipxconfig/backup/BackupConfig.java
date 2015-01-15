@@ -24,6 +24,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -111,6 +113,8 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         final Collection<String> selectedDefIds = plan.getDefinitionIds();
         YamlConfiguration config = new YamlConfiguration(w);
         config.startStruct("hosts");
+        final Set<ArchiveDefinition> configuredBackupArchives = new TreeSet<ArchiveDefinition>();
+        final Set<ArchiveDefinition> configuredRestoreArchives = new TreeSet<ArchiveDefinition>();
         for (Location host : hosts) {
             Collection<ArchiveDefinition> possibleDefIds = m_backupManager.getArchiveDefinitions(host, plan, settings);
             final BackupRestore execBackupRestore = new BackupRestore();
@@ -121,11 +125,13 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
                     ArchiveDefinition def = (ArchiveDefinition) arg0;
                     boolean selected = selectedDefIds.contains((def).getId());
                     //at least one backup command
-                    if (!execBackupRestore.isBackup() && !StringUtils.isEmpty(def.getBackupCommand()) && selected) {
+                    if (!execBackupRestore.isBackup() && !StringUtils.isEmpty(def.getBackupCommand()) && selected
+                        && (!def.isSingleNodeBackup() || !configuredBackupArchives.contains(def))) {
                         execBackupRestore.setBackup(true);
                     }
                     //at least one restore command
-                    if (!execBackupRestore.isRestore() && !StringUtils.isEmpty(def.getRestoreCommand()) && selected) {
+                    if (!execBackupRestore.isRestore() && !StringUtils.isEmpty(def.getRestoreCommand()) && selected
+                        && (!def.isSingleNodeRestore() || !configuredRestoreArchives.contains(def))) {
                         execBackupRestore.setRestore(true);
                     }
                     return selected;
@@ -134,7 +140,8 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
             //write host definitions if we have:
             //at least one definition id and at least one backup/restore command to execute
             if (!defIds.isEmpty() && (execBackupRestore.isBackup() || execBackupRestore.isRestore())) {
-                writeHostDefinitions(config, host, defIds, execBackupRestore);
+                writeHostDefinitions(config, host, defIds, execBackupRestore,
+                    configuredBackupArchives, configuredRestoreArchives);
             }
         }
         config.endStruct(); //hosts
@@ -153,7 +160,8 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
     }
 
     void writeHostDefinitions(YamlConfiguration config, Location host, Collection<ArchiveDefinition> defs,
-        BackupRestore execBackupRestore) throws IOException {
+        BackupRestore execBackupRestore,
+        Set<ArchiveDefinition> backupDefs, Set<ArchiveDefinition> restoreDefs) throws IOException {
 
         config.startStruct(host.getId().toString());
         config.write("host", host.getAddress());
@@ -161,7 +169,10 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         if (execBackupRestore.isBackup()) {
             config.startStruct("backup");
             for (ArchiveDefinition def : defs) {
-                writeCommand(config, def, def.getBackupCommand());
+                if (!def.isSingleNodeBackup() || !backupDefs.contains(def)) {
+                    writeCommand(config, def, def.getBackupCommand());
+                    backupDefs.add(def);
+                }
             }
             config.endStruct();
         }
@@ -169,7 +180,10 @@ public class BackupConfig implements ConfigProvider, FeatureListener {
         if (execBackupRestore.isRestore()) {
             config.startStruct(RESTORE);
             for (ArchiveDefinition def : defs) {
-                writeCommand(config, def, def.getRestoreCommand());
+                if (!def.isSingleNodeRestore() || !restoreDefs.contains(def)) {
+                    writeCommand(config, def, def.getRestoreCommand());
+                    restoreDefs.add(def);
+                }
             }
             config.endStruct();
         }
