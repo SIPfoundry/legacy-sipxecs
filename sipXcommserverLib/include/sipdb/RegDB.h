@@ -39,19 +39,19 @@ public:
     typedef std::vector<RegBinding> Bindings;
 
  RegDB(const MongoDB::ConnectionInfo& info) :
-    BaseDB(info), _local(NULL), _ns(NS), _expireGracePeriod(0)
+    BaseDB(info, NS), _local(NULL), _expireGracePeriod(0)
 	{
 	}
 	;
 
  RegDB(const MongoDB::ConnectionInfo& info, RegDB* local) :
-    BaseDB(info), _local(local), _ns(NS), _expireGracePeriod(0)
+     BaseDB(info, NS), _local(local), _expireGracePeriod(0)
 	{
 	}
 	;
 
  RegDB(const MongoDB::ConnectionInfo& info, RegDB* local, const std::string& ns) :
-    BaseDB(info), _local(local), _ns(ns), _expireGracePeriod(0)
+    BaseDB(info, ns), _local(local), _expireGracePeriod(0)
 	{
 	}
 	;
