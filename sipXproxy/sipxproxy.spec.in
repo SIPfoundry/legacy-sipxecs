@@ -104,6 +104,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
 %attr(755,root,root) %{_libdir}/authplugins/libTransferControl.so*
 %attr(755,root,root) %{_libdir}/libsipXproxy.so*
+%attr(755,root,root) %{_libdir}/transactionplugins/libGatewayDestPlugin.so*
 
 %files devel
 %defattr(644,root,root,755)
@@ -119,6 +120,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/authplugins/libTransferControl.la
 %{_libdir}/libsipXproxy.la
 %{_includedir}/sipxproxy/*
+%{_libdir}/transactionplugins/libGatewayDestPlugin.la
 
 %post
 setcap 'CAP_SYS_RESOURCE=+ep' %{_bindir}/sipXproxy

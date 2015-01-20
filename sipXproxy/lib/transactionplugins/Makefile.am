@@ -28,9 +28,6 @@ libGatewayDestPlugin_la_LDFLAGS = \
     -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libGatewayDestPlugin_la_LIBADD = \
-	-lsqaclient \
-	-lzmq \
-	-lmongoclient \
 	-lboost_system-mt \
 	@SIPXPORT_LIBS@ \
 	@SIPXCOMMSERVER_LIBS@
