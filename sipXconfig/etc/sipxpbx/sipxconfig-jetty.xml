@@ -87,6 +87,7 @@
           </Array>
         </Arg>
         <Set name="port">12000</Set>
+        <Set name="idleTimeout">300000</Set>
       </New>
     </Arg>
   </Call>
