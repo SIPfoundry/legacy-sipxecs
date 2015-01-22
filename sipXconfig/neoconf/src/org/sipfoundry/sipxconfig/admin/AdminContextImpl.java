@@ -224,6 +224,6 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     @Override
     public boolean isSystemAuditEnabled() {
-        return AdminSettings.isSystemAuditEnabled();
+        return (Boolean) getSettings().getSettingTypedValue(AdminSettings.SYSTEM_AUDIT);
     }
 }

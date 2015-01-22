@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.collection.AbstractPersistentCollection;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -103,6 +104,10 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     public void onConfigChangeCollectionUpdate(final Object collection,
             final Serializable key) {
         try {
+            //need to clearDirty the collection to avoid infinite loops
+            if (collection instanceof AbstractPersistentCollection) {
+                ((AbstractPersistentCollection) collection).clearDirty();
+            }
             m_generalAuditHandler.handleCollectionUpdate(collection, key);
         } catch (Exception e) {
             LOG.error(LOG_ERROR_MESSAGE, e);

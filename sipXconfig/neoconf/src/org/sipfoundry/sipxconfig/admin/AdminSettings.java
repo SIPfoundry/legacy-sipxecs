@@ -32,6 +32,8 @@ import org.springframework.beans.factory.annotation.Required;
  * and we don't want to restart config server
  */
 public class AdminSettings extends PersistableSettings implements DeployConfigOnEdit {
+
+    public static final String SYSTEM_AUDIT = "configserver-config/systemAudit";
     private static final Log LOG = LogFactory.getLog(AdminSettings.class);
 
     private static final String LDAP_MANAGEMENT_DISABLE = "ldap-management/disable";
@@ -41,9 +43,6 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String AUTHENTICATION_AUTH_ACC_NAME = "configserver-config/account-name";
     private static final String AUTHENTICATION_EMAIL_ADDRESS = "configserver-config/email-address";
     private static final String CORS_DOMAIN_SETTING = "configserver-config/corsDomains";
-    private static final String SYSTEM_AUDIT = "configserver-config/systemAudit";
-
-    private static boolean s_systemAuditEnabled = true;
 
     private PasswordPolicy m_passwordPolicy;
     private String[] m_logLevelKeys;
@@ -127,12 +126,11 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
         setSettingValue(CORS_DOMAIN_SETTING, noSpaces);
     }
 
-    public static boolean isSystemAuditEnabled() {
-        return s_systemAuditEnabled;
+    public boolean isSystemAuditEnabled() {
+        return (Boolean) getSettingTypedValue(SYSTEM_AUDIT);
     }
 
     public void setSystemAuditEnabled(boolean systemAuditEnabled) {
-        s_systemAuditEnabled = systemAuditEnabled;
         setSettingTypedValue(SYSTEM_AUDIT, systemAuditEnabled);
     }
 
