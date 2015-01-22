@@ -19,6 +19,7 @@ class ArchiveBase
        '@localstatedir@/sipxdata/mediaserver/data/prompts',
        '@localstatedir@/sipxdata/mediaserver/data/ivrscript',
        '@localstatedir@/sipxdata/sipxpage/music',
+       '@localstatedir@/sipxdata/configserver/phone/acd/audio',
        '/var/cfengine/ppkeys'
     ];
   end
@@ -61,6 +62,7 @@ class Backup < ArchiveBase
          '@localstatedir@/sipxdata/mediaserver/data/prompts',
          '@localstatedir@/sipxdata/mediaserver/data/ivrscript',
          '@localstatedir@/sipxdata/sipxpage/music',
+         '@localstatedir@/sipxdata/configserver/phone/acd/audio',
          '/var/cfengine/ppkeys'
       ];
     end
