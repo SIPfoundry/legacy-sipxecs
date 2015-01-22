@@ -39,7 +39,7 @@ public abstract class ReportComponent extends BaseComponent {
 
     private static final String REPORT_CSV_TYPE = ".csv";
 
-    private static final String REPORT_XLS_TYPE = ".xls";
+    private static final String REPORT_XLS_TYPE = ".xlsx";
 
     @InjectObject(value = "service:tapestry.globals.RequestGlobals")
     public abstract RequestGlobals getRequestGlobals();

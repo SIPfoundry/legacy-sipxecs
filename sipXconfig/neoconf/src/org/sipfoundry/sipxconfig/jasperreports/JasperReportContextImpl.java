@@ -22,7 +22,7 @@ import net.sf.jasperreports.engine.export.JRCsvExporter;
 import net.sf.jasperreports.engine.export.JRHtmlExporterParameter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRXhtmlExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +38,8 @@ public class JasperReportContextImpl extends HibernateDaoSupport implements Jasp
     private static final String ERROR_GENERATING = "Error generating report from jasper report ";
 
     private static final String EXCEPTION_FILLING = "&error.fillingDesignReport";
+
+    private static final String XLS_TOO_MANY_ROWS_EXCEPTION = "&error.xlsTooManyRows";
 
     private String m_reportsDirectory;
 
@@ -80,7 +82,7 @@ public class JasperReportContextImpl extends HibernateDaoSupport implements Jasp
     }
 
     public void generateXlsReport(JasperPrint jasperPrint, String xlsFile) {
-        render(new JRXlsExporter(), jasperPrint, xlsFile);
+        render(new JRXlsxExporter(), jasperPrint, xlsFile);
     }
 
     private static void render(JRExporter exporter, JasperPrint print, String destFileName) {
@@ -88,8 +90,9 @@ public class JasperReportContextImpl extends HibernateDaoSupport implements Jasp
             exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
             exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, destFileName);
             exporter.exportReport();
-        } catch (JRException jrEx) {
-            LOG.error(ERROR_GENERATING + print.getName(), jrEx);
+        } catch (Exception ex) {
+            LOG.error(ERROR_GENERATING + print.getName(), ex);
+            throw new UserException(XLS_TOO_MANY_ROWS_EXCEPTION);
         }
     }
 

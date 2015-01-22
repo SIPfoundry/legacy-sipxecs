@@ -27,8 +27,6 @@ import java.util.Set;
 import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.HashBag;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
@@ -52,7 +50,6 @@ import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl;
 import org.sipfoundry.sipxconfig.cdr.CdrMinutesGraphBean;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ReportBean;
 import org.sipfoundry.sipxconfig.components.ReportComponent;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
@@ -104,10 +101,6 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
     private static final String MINUTES_OUTGOING_EXTENSION_GRAPH_NAME = "cdr-minutes-outgoing-graph";
 
     private static final String TERMINATION_CALLS_PIE_NAME = "cdr-termination-calls-pie";
-
-    private static final String XLS_TOO_MANY_ROWS_EXCEPTION = "&error.xlsTooManyRows";
-
-    private static final Log LOG = LogFactory.getLog(CdrReports.class);
 
     private static final String EMPTY_TITLE = "";
 
@@ -203,6 +196,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         return model;
     }
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         if (getEndTime() == null) {
             setEndTime(getDefaultEndTime());
@@ -214,6 +208,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         if (getCdrSearch() == null) {
             setCdrSearch(new CdrSearch());
         }
+        setReportData(null);
     }
 
     public void formSubmit() {
@@ -225,15 +220,9 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
             computeReportData(reportName);
 
             // Generate reports
-            ReportComponent reportComponent = (ReportComponent) getPage().getNestedComponent(
-                    "cdrReports.report");
-            try {
-                reportComponent.generateReports();
-                setShowXlsLink(true);
-            } catch (IndexOutOfBoundsException iobEx) {
-                LOG.error(XLS_TOO_MANY_ROWS_EXCEPTION, iobEx);
-                throw new UserException(XLS_TOO_MANY_ROWS_EXCEPTION);
-            }
+            ReportComponent reportComponent = (ReportComponent) getPage().getNestedComponent("cdrReports.report");
+            reportComponent.generateReports();
+            setShowXlsLink(true);
         }
     }
 
