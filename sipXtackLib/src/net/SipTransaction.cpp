@@ -4333,6 +4333,13 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             }
         }
 
+        //
+        // Call SipUserAgent final response handler prior to calling addResponse
+        // to give the chance for applications to modify the response before it
+        // gets attached to this transaction
+        //
+        userAgent.onFinalResponse(this, *mpRequest, incomingMessage);
+        
         SipMessage* responseCopy = new SipMessage(incomingMessage);
 #ifdef TEST_PRINT
         Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,

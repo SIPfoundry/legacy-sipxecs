@@ -84,6 +84,7 @@ class SipRouter : public OsServerTask
   typedef boost::mutex mutex_critic_sec;
   typedef boost::lock_guard<mutex_critic_sec> mutex_critic_sec_lock;
   typedef std::vector<AuthPlugin*> TrustedRequestModifiers;
+  typedef std::vector<AuthPlugin*> FinalResponseModifiers;
 
   class DispatchTimer
   {
@@ -212,6 +213,17 @@ class SipRouter : public OsServerTask
    
    UtlBoolean trustSbcRegisteredCalls() const;
    
+   //
+   // Returns true if the identity is registered to the binding
+   //
+   bool isRegisteredAddress(const std::string& identity, const std::string& sourceAddress);
+   
+   //
+   // Call plugins that signified intent to modify final responses
+   //
+   void modifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse);
+
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
@@ -321,6 +333,7 @@ class SipRouter : public OsServerTask
    bool _isDispatchYielding;
    UtlBoolean _trustSbcRegisteredCalls;
    TrustedRequestModifiers _trustedRequestModifiers;
+   FinalResponseModifiers _finalResponseModifiers;
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -233,6 +233,8 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    mpRegDb = SipRouter::getRegDBInstance();
    
    mpSipUserAgent->setPreDispatchEvaluator(boost::bind(&SipRouter::preDispatch, this, _1));
+   
+   mpSipUserAgent->setFinalResponseHandler(boost::bind(&SipRouter::modifyFinalResponse, this, _1, _2, _3));
      
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
@@ -351,6 +353,14 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       if (authPlugin->willModifyTrustedRequest())
       {
         _trustedRequestModifiers.push_back(authPlugin);
+      }
+      
+      //
+      // Check if the plugin wants to modify final responses
+      //
+      if (authPlugin->willModifyFinalResponse())
+      {
+        _finalResponseModifiers.push_back(authPlugin);
       }
    }
 
@@ -2116,4 +2126,19 @@ bool SipRouter::getUserLocation(const UtlString& identity, UtlString& location) 
 bool SipRouter::supportMultipleGatewaysPerLocation() const
 {
   return true;
+}
+
+bool SipRouter::isRegisteredAddress(const std::string& identity, const std::string& sourceAddress)
+{
+  unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
+  RegDB::Bindings bindings;
+  return getRegDBInstance()->getUnexpiredContactsUserWithAddress(identity, sourceAddress, timeNow, bindings);
+}
+
+void SipRouter::modifyFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse)
+{
+  for (FinalResponseModifiers::iterator iter = _finalResponseModifiers.begin(); iter != _finalResponseModifiers.end(); iter++)
+  {
+    (*iter)->modifyFinalResponse(pTransaction, request, finalResponse);
+  }
 }
