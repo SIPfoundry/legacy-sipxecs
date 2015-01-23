@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.collections.iterators.ArrayIterator;
+import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.collection.PersistentArrayHolder;
 import org.hibernate.collection.PersistentCollection;
 import org.hibernate.collection.PersistentList;
@@ -193,10 +194,20 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
         if (!isSystemAuditEnabled()) {
             return;
         }
+        boolean requireDirty = false;
+        //need to clearDirty the collection to avoid infinite loops
+        if (collection instanceof AbstractPersistentCollection) {
+            ((AbstractPersistentCollection) collection).clearDirty();
+            requireDirty = true;
+        }
         if (collection instanceof PersistentMap) {
             handlePersistentMap(((PersistentMap) collection));
         } else if (collection instanceof PersistentCollection) {
             handlePersistentCollection((PersistentCollection) collection);
+        }
+        //remark the collection dirty to continue processing
+        if (requireDirty) {
+            ((AbstractPersistentCollection) collection).dirty();
         }
     }
 
