@@ -104,17 +104,11 @@ public class SystemAuditManagerImpl implements SystemAuditManager, FeatureListen
     public void onConfigChangeCollectionUpdate(final Object collection,
             final Serializable key) {
         try {
-            boolean requireDirty = false;
             //need to clearDirty the collection to avoid infinite loops
             if (collection instanceof AbstractPersistentCollection) {
                 ((AbstractPersistentCollection) collection).clearDirty();
-                requireDirty = true;
             }
             m_generalAuditHandler.handleCollectionUpdate(collection, key);
-            //remark the collection dirty to continue processing
-            if (requireDirty) {
-                ((AbstractPersistentCollection) collection).dirty();
-            }
         } catch (Exception e) {
             LOG.error(LOG_ERROR_MESSAGE, e);
         }
