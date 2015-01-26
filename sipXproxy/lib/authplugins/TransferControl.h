@@ -82,6 +82,16 @@ class TransferControl : public AuthPlugin
                                     bool bSpiralingRequest  ///< true if request is still spiraling through pr
                                     );
    
+   /// This method is called by the proxy if willModifyResponse is set to true
+   /// giving the plugin to modify responses before they get relayed
+   virtual void modifyFinalResponse(
+     SipTransaction* pTransaction, 
+     const SipMessage& request, 
+     SipMessage& finalResponse);
+   
+   /// Boolean indicator that returns true if the plugin wants to process final responses
+   virtual bool willModifyFinalResponse() const;
+   
   protected:
    friend class TransferControlTest;
 

@@ -4344,6 +4344,13 @@ UtlBoolean SipUserAgent::doesMaddrMatchesUserAgent(SipMessage& message)
    return bMatch;
 }
 
+void SipUserAgent::onFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse)
+{
+  if (_finalResponseHandler)
+    _finalResponseHandler(pTransaction, request, finalResponse);
+}
+
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */

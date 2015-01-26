@@ -101,6 +101,13 @@ public:
         unsigned long timeNow,
         Bindings& bindings,
         bool preferPrimary = false) const;
+    
+    bool getUnexpiredContactsUserWithAddress(
+      const std::string& identity,
+      const std::string& address,
+      unsigned long timeNow,
+      Bindings& bindings,
+      bool preferPrimary = false) const;
 
     bool getUnexpiredContactsUserInstrument(
         const std::string& identity,

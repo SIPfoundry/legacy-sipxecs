@@ -14,6 +14,7 @@
 #include "utl/UtlString.h"
 #include "utl/Plugin.h"
 #include <sipxproxy/RouteState.h>
+#include <net/SipTransaction.h>
 
 // DEFINES
 // CONSTANTS
@@ -198,7 +199,16 @@ class AuthPlugin : public Plugin
                                     SipMessage& request,     ///< see below regarding modifying this
                                     bool bSpiralingRequest  ///< true if request is still spiraling through pr
                                     );
+   /// This method is called by the proxy if willModifyResponse is set to true
+   /// giving the plugin to modify responses before they get relayed
+   virtual void modifyFinalResponse(
+     SipTransaction* pTransaction, 
+     const SipMessage& request, 
+     SipMessage& finalResponse);
    
+   /// Boolean indicator that returns true if the plugin wants to process final responses
+   virtual bool willModifyFinalResponse() const;
+  
   protected:
 
    /// constructor
@@ -236,6 +246,19 @@ inline void AuthPlugin::modifyTrustedRequest(
                                     bool bSpiralingRequest  ///< true if request is still spiraling through pr
                                     )
 {
+}
+
+inline void AuthPlugin::modifyFinalResponse(
+     SipTransaction* pTransaction, 
+     const SipMessage& request, 
+     SipMessage& finalResponse)
+{
+}
+   
+   /// Boolean indicator that returns true if the plugin wants to process final responses
+inline bool AuthPlugin::willModifyFinalResponse() const
+{
+  return false;
 }
 
 #endif // _AUTHPLUGIN_H_

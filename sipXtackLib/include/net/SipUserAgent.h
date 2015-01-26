@@ -29,6 +29,7 @@
 #include "os/OsThreadPool.h"
 #include <Poco/Semaphore.h>
 #include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 // DEFINES
 #define SIP_DEFAULT_RTT     100 // Default T1 value (RFC 3261), in msec.
@@ -171,6 +172,7 @@ public:
     friend int SipUdpServer::run(void* runArg);
 
     typedef boost::function<bool(SipMessage*)> DispatchEvaluator;
+    typedef boost::function<void(SipTransaction*, const SipMessage&, SipMessage&)> FinalResponseHandler;
     
     enum EventSubTypes
     {
@@ -711,8 +713,12 @@ public:
     int getMaxTransactionCount() const;
     
     void setPreDispatchEvaluator(const DispatchEvaluator& preDispatch);
+    
+    void setFinalResponseHandler(const FinalResponseHandler& finalResponseHandler);
 
     const SipTransactionList& getSipTransactions() const;
+    
+    void onFinalResponse(SipTransaction* pTransaction, const SipMessage& request, SipMessage& finalResponse);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -887,6 +893,7 @@ private:
     int _maxConcurrentThreads;
     int _maxTransactionCount;
     DispatchEvaluator _preDispatch;
+    FinalResponseHandler _finalResponseHandler;
 
     //! Disabled copy constructor
     SipUserAgent(const SipUserAgent& rSipUserAgent);
@@ -927,6 +934,11 @@ inline const SipTransactionList& SipUserAgent::getSipTransactions() const
 inline void SipUserAgent::setPreDispatchEvaluator(const DispatchEvaluator& preDispatch)
 {
   _preDispatch = preDispatch;
+}
+
+inline void SipUserAgent::setFinalResponseHandler(const FinalResponseHandler& finalResponseHandler)
+{
+  _finalResponseHandler = finalResponseHandler;
 }
 
 
