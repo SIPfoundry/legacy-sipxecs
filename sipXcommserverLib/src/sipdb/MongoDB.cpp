@@ -222,17 +222,21 @@ namespace MongoDB
 
   void BaseDB::forEach(mongo::BSONObj& query, const std::string& ns, boost::function<void(mongo::BSONObj)> doSomething)
   {
-      MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
-      auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns, query, 0, 0, 0, mongo::QueryOption_SlaveOk);
-      if (pCursor.get() && pCursor->more())
+    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
+    auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns, query, 0, 0, 0, mongo::QueryOption_SlaveOk);
+    if (!pCursor.get())
+    {
+      throw mongo::DBException("mongo query returned null cursor", 0);
+    }
+    else if (pCursor->more())
+    {
+      while (pCursor->more())
       {
-          while (pCursor->more())
-          {
-              doSomething(pCursor->next());
-          }
+        doSomething(pCursor->next());
       }
+    }
 
-      conn->done();
+    conn->done();
   }
 
   void BaseDB::registerTimer(const UpdateTimer* pTimer)

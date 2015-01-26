@@ -84,22 +84,26 @@ bool EntityDB::findByIdentity(const string& ident, EntityRecord& entity) const
   BaseDB::nearest(builder, query);
 
   auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	if (pCursor.get() && pCursor->more())
-	{
-		OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _ns);
-		entity = pCursor->next();
-		conn->done();
+  if (!pCursor.get())
+  {
+    throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
+  {
+    OS_LOG_DEBUG(FAC_ODBC, identity << " is present in namespace " << _ns);
+    entity = pCursor->next();
+    conn->done();
     //
     // Cache the entity
     //
     const_cast<ExpireCache&>(_cache).add(identity, ExpireCacheable(new EntityRecord(entity)));
-		return true;
-	}
-  
-	OS_LOG_DEBUG(FAC_ODBC, identity << " is NOT present in namespace " << _ns);
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _ns);
+    return true;
+  }
+
+  OS_LOG_DEBUG(FAC_ODBC, identity << " is NOT present in namespace " << _ns);
+  OS_LOG_INFO(FAC_ODBC, "EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _ns);
   conn->done();
-	return false;
+  return false;
 }
 
 bool EntityDB::findByUserId(const string& uid, EntityRecord& entity) const
@@ -123,20 +127,25 @@ bool EntityDB::findByUserId(const string& uid, EntityRecord& entity) const
   MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
   auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 
-	if (pCursor.get() && pCursor->more())
-	{
-		entity = pCursor->next();
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
+  {
+    entity = pCursor->next();
     conn->done();
     //
     // Cache the entity
     //
     const_cast<ExpireCache&>(_cache).add(userId, ExpireCacheable(new EntityRecord(entity)));
     
-		return true;
-	}
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
+    return true;
+  }
+  
+  OS_LOG_INFO(FAC_ODBC, "EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
   conn->done();
-	return false;
+  return false;
 }
 
 bool EntityDB::findByIdentityOrAlias(const Url& uri, EntityRecord& entity) const
@@ -182,19 +191,23 @@ bool EntityDB::findByAliasUserId(const string& alias, EntityRecord& entity) cons
   MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
   auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 
-	if (pCursor.get() && pCursor->more())
-	{
-		entity = pCursor->next();
-		conn->done();
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
+  {
+    entity = pCursor->next();
+    conn->done();
     //
     // Cache the entity
     //
     const_cast<ExpireCache&>(_cache).add(alias, ExpireCacheable(new EntityRecord(entity)));
-		return true;
-	}
-	OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _ns);
-	conn->done();
-	return false;
+    return true;
+  }
+  OS_LOG_INFO(FAC_ODBC, "EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _ns);
+  conn->done();
+  return false;
 }
 
 bool EntityDB::findByAliasIdentity(const std::string& identity, EntityRecord& entity) const

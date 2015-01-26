@@ -112,7 +112,11 @@ bool DB::findE911LineIdentifier(
   mongo::BSONObj query = BSON(EntityRecord::identity_fld() << userId);
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
   std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_info.getNS(), query);
-  if (pCursor.get() && pCursor->more())
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
   {
     mongo::BSONObj obj = pCursor->next();
 

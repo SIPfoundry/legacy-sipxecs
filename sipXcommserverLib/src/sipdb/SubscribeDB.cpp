@@ -60,7 +60,13 @@ void SubscribeDB::getAll(Subscriptions& subscriptions, bool preferPrimary)
 
 
   auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	while (pCursor.get() && pCursor->more()) {
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+
+	while (pCursor->more())
+    {
 		subscriptions.push_back(Subscription(pCursor->next()));
 	}
 	conn->done();
@@ -247,7 +253,11 @@ bool SubscribeDB::subscriptionExists (
 
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-    if (pCursor.get() && pCursor->more()) {
+    if (!pCursor.get())
+    {
+     throw mongo::DBException("mongo query returned null cursor", 0);
+    }
+    else if (pCursor->more()) {
     	conn->done();
         return pCursor->itcount() > 0;
     }
@@ -310,7 +320,12 @@ void SubscribeDB::getUnexpiredSubscriptions (
 
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-    while (pCursor.get() && pCursor->more())
+    if (!pCursor.get())
+    {
+     throw mongo::DBException("mongo query returned null cursor", 0);
+    }
+
+    while (pCursor->more())
     {
         subscriptions.push_back(Subscription(pCursor->next()));
     }
@@ -344,7 +359,12 @@ void SubscribeDB::getUnexpiredContactsFieldsContaining(
 
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-    while (pCursor.get() && pCursor->more())
+    if (!pCursor.get())
+    {
+     throw mongo::DBException("mongo query returned null cursor", 0);
+    }
+
+    while (pCursor->more())
     {
         string contact;
         mongo::BSONObj bsonObj = pCursor->next();
@@ -467,7 +487,12 @@ void SubscribeDB::updateToTag(
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
     mongo::DBClientBase* client = conn->get();
     auto_ptr<mongo::DBClientCursor> pCursor = client->query(_ns, query);
-    while (pCursor.get() && pCursor->more())
+    if (!pCursor.get())
+    {
+     throw mongo::DBException("mongo query returned null cursor", 0);
+    }
+
+    while (pCursor->more())
     {
         mongo::BSONObj bsonObj = pCursor->next();
         if (bsonObj.hasField(Subscription::fromUri_fld()))
@@ -540,7 +565,12 @@ bool SubscribeDB::findFromAndTo(
 
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-    while (pCursor.get() && pCursor->more())
+    if (!pCursor.get())
+    {
+     throw mongo::DBException("mongo query returned null cursor", 0);
+    }
+
+    while (pCursor->more())
     {
         Subscription row = pCursor->next();
         UtlBoolean r;
@@ -593,7 +623,12 @@ int SubscribeDB::getMaxVersion(const UtlString& uri, bool preferPrimary) const
 
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
     auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-    while (pCursor.get() && pCursor->more())
+    if (!pCursor.get())
+    {
+     throw mongo::DBException("mongo query returned null cursor", 0);
+    }
+
+    while (pCursor->more())
     {
         Subscription row = pCursor->next();
         if (value < row.version())

@@ -153,11 +153,16 @@ bool DB::findE911LineIdentifier(
     std::string& location)
 {
   mongo::BSONObj query = BSON(EntityRecord::identity_fld() << userId);
-    MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
-    mongo::BSONObjBuilder builder;
-    BaseDB::nearest(builder, query);
-    std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-  if (pCursor.get() && pCursor->more())
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
+  mongo::BSONObjBuilder builder;
+  BaseDB::nearest(builder, query);
+  std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
+
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
   {
     mongo::BSONObj obj = pCursor->next();
     if (obj.hasField("elin"))
@@ -189,7 +194,11 @@ bool DB::findE911InstrumentIdentifier(
   BaseDB::nearest(builder, query);
   std::auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(ns(), builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
 
-  if (pCursor.get() && pCursor->more())
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
   {
     mongo::BSONObj obj = pCursor->next();
 

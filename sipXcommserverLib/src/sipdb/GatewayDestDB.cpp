@@ -141,8 +141,12 @@ bool GatewayDestDB::getUnexpiredRecord(GatewayDestRecord& record) const
   BaseDB::nearest(builder, query);
 
   auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	if (pCursor.get() && pCursor->more())
-	{
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
+  {
     OS_LOG_DEBUG(FAC_ODBC, "GatewayDestDB::getUnexpiredRecord - found record "
         " callid " << record.getCallId() <<
         " toTag " << record.getToTag() <<
@@ -151,10 +155,10 @@ bool GatewayDestDB::getUnexpiredRecord(GatewayDestRecord& record) const
         " lineId " << record.getLineId() <<
         " expirationTime " << record.getExpirationTime());
 
-  	record = pCursor->next();
-		conn->done();
-		return true;
-	}
+    record = pCursor->next();
+    conn->done();
+    return true;
+  }
 
   OS_LOG_DEBUG(FAC_ODBC, "GatewayDestDB::getUnexpiredRecord - NOT found record "
       " callid " << record.getCallId() <<
@@ -162,6 +166,6 @@ bool GatewayDestDB::getUnexpiredRecord(GatewayDestRecord& record) const
       " fromTag " << record.getFromTag() <<
       " expirationTime " << timeNow);
 
-	conn->done();
-	return false;
+  conn->done();
+  return false;
 }

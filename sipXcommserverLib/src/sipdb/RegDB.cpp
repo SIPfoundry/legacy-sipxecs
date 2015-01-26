@@ -245,7 +245,13 @@ bool RegDB::isRegisteredBinding(const Url& curl, bool preferPrimary)
 
 	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	isRegistered = pCursor.get() && pCursor->more();
+
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+
+	isRegistered = pCursor->more();
 	conn->done();
   
   OS_LOG_INFO(FAC_SIP, "RegDB::isRegisteredBinding returning " << (isRegistered ? "TRUE" : "FALSE") << " for binding " <<  binding.str());
@@ -329,7 +335,11 @@ bool RegDB::getUnexpiredContactsUser(const string& identity, unsigned long timeN
 
 	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	if (pCursor.get() && pCursor->more())
+	if (!pCursor.get())
+	{
+	  throw mongo::DBException("mongo query returned null cursor", 0);
+	}
+	else if (pCursor->more())
 	{
 		while (pCursor->more())
 		{
@@ -389,7 +399,12 @@ bool RegDB::getUnexpiredContactsUserContaining(const string& matchIdentity, unsi
 
 	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	if (pCursor.get() && pCursor->more())
+
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
 	{
 		while (pCursor->more())
 		{
@@ -435,7 +450,11 @@ bool RegDB::getUnexpiredContactsUserInstrument(const string& identity, const str
 
 	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	if (pCursor.get() && pCursor->more())
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
 	{
 		while (pCursor->more())
 		{
@@ -474,7 +493,11 @@ bool RegDB::getUnexpiredContactsInstrument(const string& instrument, unsigned lo
 
     MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 	auto_ptr<mongo::DBClientCursor> pCursor = conn->get()->query(_ns, builder.obj(), 0, 0, 0, mongo::QueryOption_SlaveOk);
-	if (pCursor.get() && pCursor->more())
+  if (!pCursor.get())
+  {
+   throw mongo::DBException("mongo query returned null cursor", 0);
+  }
+  else if (pCursor->more())
 	{
 		while (pCursor->more()) 
     {
