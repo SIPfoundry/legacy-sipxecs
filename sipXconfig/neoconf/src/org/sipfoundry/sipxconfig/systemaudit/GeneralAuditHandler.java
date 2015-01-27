@@ -56,6 +56,7 @@ import org.springframework.beans.factory.annotation.Required;
  */
 public class GeneralAuditHandler extends AbstractSystemAuditHandler {
 
+    private static final int PERSISTENT_MAP_PROCESSED_FLAG = -100;
     private static final String PROPERTY_DELIMITATOR = " / ";
     private static final String VALUE_DELIMITATOR = "/";
     private UserProfileService m_userProfileService;
@@ -261,7 +262,10 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
      * Handles Map updates
      */
     private void handlePersistentMap(PersistentMap collection) throws Exception {
-
+        // first check if this map was already processed by System Audit(XX-11564)
+        if (collection.containsKey(PERSISTENT_MAP_PROCESSED_FLAG)) {
+            return;
+        }
         SystemAuditable systemAuditable = null;
         Object owner = collection.getOwner();
         if (owner instanceof SystemAuditable) {
@@ -298,6 +302,8 @@ public class GeneralAuditHandler extends AbstractSystemAuditHandler {
             if (!configChange.getValues().isEmpty()) {
                 configChange.setDetails(systemAuditable.getEntityIdentifier());
                 getConfigChangeContext().storeConfigChange(configChange);
+                // we add a null object to flag this collection as already processed by System Audit
+                collection.put(PERSISTENT_MAP_PROCESSED_FLAG, null);
             }
         }
     }
