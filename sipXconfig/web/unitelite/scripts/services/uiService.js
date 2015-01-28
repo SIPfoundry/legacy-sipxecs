@@ -224,7 +224,7 @@
             restService.getMessage(bId)
               .then(function (url) {
                 // secondary.voicemail.messages[index].href   = url;
-                secondary.voicemail.messages[bId].href = $sce.trustAsResourceUrl(CONFIG.baseRest +'/my/redirect/media/' + restService.user + '/inbox/' + id);
+                secondary.voicemail.messages[bId].href = $sce.trustAsResourceUrl(CONFIG.baseRest +'/my/redirect/media/' + restService.cred.user + '/inbox/' + id);
                 delete secondary.voicemail.messages[bId].loading;
                 return restService.heardMessage(bId);
               })
