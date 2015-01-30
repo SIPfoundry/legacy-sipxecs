@@ -115,7 +115,8 @@ lib_all = \
   rubygem-net-sftp \
   ruby-postgres \
   jasperserver \
-  libjsonrpccpp
+  libjsonrpccpp \
+  mongo-cxx-driver
 
 lib_exclude_fedora_16 = \
   epel \
