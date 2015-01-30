@@ -67,7 +67,7 @@ $(sipx.SIPX_LOGDIR)/freeswitch*.log {
     notifempty
     postrotate
         # Tell freeswitch to reopen the log file
-        /opt/freeswitch/bin/fs_cli -x \"fsctl send_sighup\" >/dev/null 2>&1
+        fs_cli -x \"fsctl send_sighup\" >/dev/null 2>&1
     endscript
 }
 
