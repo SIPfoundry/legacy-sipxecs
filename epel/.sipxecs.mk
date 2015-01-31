@@ -67,7 +67,10 @@ BUILD_EPEL = \
 	wxGTK-devel-* \
 	wxGTK-media-* \
 	xemacs-* \
-	leveldb-devel-*
+	leveldb-devel-* \
+	ldns-devel-* \
+	portaudio-devel-* \
+	jack-audio-connection-kit-devel*
 
 # Technincally these could be build and runtime requirements
 RUNTIME_EPEL = \
@@ -121,5 +124,8 @@ RUNTIME_EPEL = \
 	leveldb-* \
 	python-pymongo-gridfs-2.5* \
 	sipp-* \
-	socat-1.7.*
+	socat-1.7.* \
+	ldns-1.6.16-2* \
+	portaudio-19* \
+	jack-audio-connection-kit-*
 
