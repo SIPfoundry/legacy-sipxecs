@@ -203,8 +203,6 @@ class SipRouter : public OsServerTask
    
    UtlBoolean trustSbcRegisteredCalls() const;
    
-   UtlBoolean suppressAlertIndicatorForTransfers() const;
-   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
@@ -314,7 +312,6 @@ class SipRouter : public OsServerTask
    bool _isDispatchYielding;
    UtlBoolean _trustSbcRegisteredCalls;
    TrustedRequestModifiers _trustedRequestModifiers;
-   UtlBoolean _suppressAlertIndicatorForTransfers;
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -334,10 +331,5 @@ inline UtlBoolean SipRouter::trustSbcRegisteredCalls() const
   return _trustSbcRegisteredCalls;
 }
 
-
-inline UtlBoolean SipRouter::suppressAlertIndicatorForTransfers() const
-{
-  return _suppressAlertIndicatorForTransfers;
-}
 
 #endif  // _SipRouter_h_

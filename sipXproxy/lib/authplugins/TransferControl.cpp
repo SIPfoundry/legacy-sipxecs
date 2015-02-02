@@ -26,8 +26,6 @@ const char* TransferControl::RecognizerConfigKey2 = "ADDITIONAL_EXCHANGE_SERVER_
 const char* SIP_METHOD_URI_PARAMETER = "method";
 const char* SIP_SIPX_REFERROR_HEADER = "X-sipX-referror";
 
-static const std::string SUPPRESSED_RING_INDICATOR("SIP/2.0 100 Suppressed Ring Indicator");
-
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
@@ -334,42 +332,9 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
             // INVITE without Replaces: is not a transfer - ignore it.
          }
       }
-      else if (mpSipRouter->suppressAlertIndicatorForTransfers() && method.compareTo(SIP_NOTIFY_METHOD) == 0)
-      {
-        //
-        // Devices such as Polycoms cease MoH as soon as they receive an alerting indicator.  
-        // In cases where a call is anchored by an SBC, ceasing MoH early can result to
-        // a media blackout if the alerting phone is not capable of sending actual media
-        // during the alerting phase.  We work around this by changing the SIP fragment to 
-        // 100 Trying if we see the 180 ringing indicator.
-        //
-        
-        const std::string event = request.getHeaderValue(0, SIP_EVENT_FIELD);
-        if (event == "refer")
-        {
-          const HttpBody* notifyBody = request.getBody();
-          if (notifyBody)
-          {
-             UtlString messageContent;
-             ssize_t bodyLength;
-             notifyBody->getBytes(&messageContent, &bodyLength);
-             
-             
-             if (bodyLength)
-             {
-               if (messageContent.first("180") != UtlString::UTLSTRING_NOT_FOUND)
-               {
-                 request.setBody(new HttpBody(SUPPRESSED_RING_INDICATOR.c_str(), -1, "message/sipfrag"));
-                 request.setContentLength(SUPPRESSED_RING_INDICATOR.length());
-                 OS_LOG_INFO(FAC_SIP, "TransferControl[%s]::authorizeAndModify - Suppressing 180 Alerting notification.");
-               }
-             }
-          }
-        }
-      }
       else
       {
-         // neither REFER, NOTIFY nor INVITE, so is not a transfer - ignore it.
+         // neither REFER nor INVITE, so is not a transfer - ignore it.
       }
    }
    else

@@ -124,7 +124,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,_lastDispatchYieldTime(0)
    ,_isDispatchYielding(false)
    ,_trustSbcRegisteredCalls(FALSE)
-   ,_suppressAlertIndicatorForTransfers(FALSE)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -397,7 +396,6 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    }
    
    _trustSbcRegisteredCalls = configDb.getBoolean("SIPX_TRUST_SBC_REGISTERED_CALLS", FALSE);
-   _suppressAlertIndicatorForTransfers = configDb.getBoolean("SIPX_SUPPRESS_ALERT_INDICATOR_IN_TRANSFERS", FALSE);
    
 }
 
