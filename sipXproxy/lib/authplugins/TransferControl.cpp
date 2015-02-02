@@ -11,7 +11,6 @@
 #include "os/OsConfigDb.h"
 
 // APPLICATION INCLUDES
-#include <boost/algorithm/string.hpp>
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SipXauthIdentity.h"
@@ -345,9 +344,8 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
         // 100 Trying if we see the 180 ringing indicator.
         //
         
-        std::string event = request.getHeaderValue(0, SIP_EVENT_FIELD);
-        boost::to_lower(event);
-        if (event.find("refer") != std::string::npos);
+        const std::string event = request.getHeaderValue(0, SIP_EVENT_FIELD);
+        if (event == "refer")
         {
           const HttpBody* notifyBody = request.getBody();
           if (notifyBody)
