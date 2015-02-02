@@ -6,7 +6,16 @@
       settings="ognl:parentSetting"/>
     <fieldset>
       <table>
-      <tr jwcid="@common/FieldPanel" field="component:overrideLanguage"
+        <tr jwcid="@common/FieldPanel" field="component:voicemailPermission"
+          for="user:voicemailPermission"
+          label="message:label.voicemailPermission"
+          description="message:description.voicemailPermission">
+          <td jwcid="voicemailPermission@Checkbox"
+            id="user:voicemailPermission"
+            value="ognl:user.voicemailPermission"
+            displayName="message:label.voicemailPermission"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel" field="component:overrideLanguage"
           for="personalAttendant:overrideLanguage"
           label="message:label.overrideLanguage"
           description="message:description.overrideLanguage">
