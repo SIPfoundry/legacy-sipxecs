@@ -18,6 +18,7 @@
 
 #include <set>
 #include "sipdb/EntityRecord.h"
+#include "sipdb/MongoMod.h"
 #include "utl/UtlString.h"
 #include "net/Url.h"
 #include <Poco/ExpireCache.h>
@@ -37,7 +38,7 @@ public:
 
 	void init()
 	{
-	    _lastTailId = mongo::minKey.firstElement();
+	    _lastTailId = mongoMod::minKey.firstElement();
 	}
 
 	EntityDB(const MongoDB::ConnectionInfo& info) :

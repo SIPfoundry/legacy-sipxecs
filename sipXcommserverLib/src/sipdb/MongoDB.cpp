@@ -1,16 +1,15 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-//#include <boost/program_options.hpp>
 #include <boost/config.hpp>
-//#include <boost/scoped_ptr.hpp>
 #include <boost/program_options/detail/config_file.hpp>
 #include <boost/program_options/parsers.hpp>
-//#include <mongo/client/dbclient.h>
 #include <mongo/client/connpool.h>
-#include "sipdb/MongoDB.h"
 #include <os/OsLogger.h>
 #include <os/OsDateTime.h>
+
+#include "sipdb/MongoDB.h"
+#include "sipdb/MongoMod.h"
 
 const int READ_TIMER_SAMPLES = 5; // Number of samples for getting the read delay
 const int UPDATE_TIMER_SAMPLES = 5; // Number of samples for getting the update delay

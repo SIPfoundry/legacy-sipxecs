@@ -20,7 +20,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "sipdb/MongoDB.h"
-
+#include "sipdb/MongoMod.h"
 
 class RegBinding
 {

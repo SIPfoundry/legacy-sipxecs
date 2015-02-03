@@ -175,6 +175,15 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
 
   std::set_terminate(&OsExceptionHandler::catch_global);
 
+  // initialize the Mongo client driver
+  mongo::Status status = mongo::client::initialize();
+  if (!status.isOK())
+  {
+    fprintf(stderr, "Failed to initialize Mongo client driver: %s\n", status.toString().c_str());
+    OS_LOG_ERROR(FAC_ODBC, "Failed to initialize Mongo client driver: " << status.toString());
+    exit(1);
+  }
+
   // Raise the file handle limit to maximum allowable
   if (_appData._increaseResourceLimits)
   {
@@ -185,7 +194,7 @@ bool SipXApplication::init(int argc, char* argv[], const SipXApplicationData& ap
   {
    if (!testMongoDBConnection())
    {
-     mongo::dbexit(mongo::EXIT_CLEAN);
+     mongo::client::shutdown();
      exit(1);
    }
   }
@@ -351,7 +360,11 @@ void SipXApplication::terminate()
   Os::Logger::instance().log(FAC_KERNEL, PRI_NOTICE, "Exiting %s", _appData._appName.c_str()) ;
   Os::Logger::instance().flush();
 
-  mongo::dbexit(mongo::EXIT_CLEAN);
+  mongo::Status status = mongo::client::shutdown();
+  if (!status.isOK())
+  {
+    OS_LOG_WARNING(FAC_ODBC, "Failed to shutdown Mongo client driver: " << status.toString());
+  }
 }
 
 void SipXApplication::initLoggerByConfigurationFile()
@@ -571,8 +584,11 @@ void SipXApplication::enableMongoDriverLogging() const
       mongoClientConfig.getOption<int>("driver-log-level", driverLogLevel);
       OS_LOG_INFO(FAC_SIP, "SipXApplication::enableMongoDriverLogging Mongo driver log level = " << driverLogLevel);
 
+      // Note: temporarily disabled since the Mongo 26compat removed the following symbols
+#if 0
       mongo::logLevel = convertToMongoLogLevel(driverLogLevel);
       mongo::Logstream::useSyslog(_appData._appName.c_str());
+#endif
     }
   }
   else

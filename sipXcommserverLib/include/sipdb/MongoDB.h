@@ -44,7 +44,6 @@
 #include <boost/shared_array.hpp>
 #include <exception>
 #include <boost/function.hpp>
-#include "sipdb/CustomConnPool.h"
 
 
 // is assert is undefined, just include it again
@@ -66,7 +65,7 @@ typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 namespace MongoDB
 {
    //typedef boost::scoped_ptr<mongo::ScopedDbConnection> ScopedDbConnectionPtr;
-   typedef boost::scoped_ptr<mongoMod::ScopedDbConnection> ScopedDbConnectionPtr;
+   typedef boost::scoped_ptr<mongo::ScopedDbConnection> ScopedDbConnectionPtr;
 
 class ConfigError: public boost::exception, public std::exception {
 public:

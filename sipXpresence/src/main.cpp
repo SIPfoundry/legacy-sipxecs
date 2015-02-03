@@ -287,6 +287,15 @@ int main(int argc, char* argv[])
    // Initialize log file
    initSysLog(&configDb);
 
+   // initialize the Mongo client driver
+   mongo::Status status = mongo::client::initialize();
+   if (!status.isOK())
+   {
+     fprintf(stderr, "Failed to initialize Mongo client driver: %s\n", status.toString().c_str());
+     OS_LOG_ERROR(FAC_ODBC, "Failed to initialize Mongo client driver: " << status.toString());
+     exit(1);
+   }
+
    // Read the user agent parameters from the config file.
    int UdpPort;
    if (configDb.get(CONFIG_SETTING_UDP_PORT, UdpPort) != OS_SUCCESS)

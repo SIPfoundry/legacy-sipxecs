@@ -15,6 +15,7 @@
  */
 
 #include "sipdb/MongoOpLog.h"
+#include "sipdb/MongoMod.h"
 #include <mongo/client/connpool.h>
 
 #include <os/OsLogger.h>
@@ -184,7 +185,7 @@ bool MongoOpLog::prepareFirstEntry(mongo::BSONObj& lastEntry)
 
   if (_startFromTimestamp == 0)
   {
-    lastEntry = mongo::minKey;
+    lastEntry = mongoMod::minKey;
   }
   else
   {

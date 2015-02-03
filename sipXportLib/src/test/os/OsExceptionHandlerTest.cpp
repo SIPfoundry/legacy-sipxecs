@@ -46,8 +46,6 @@ bool boostAction = NO_ACTION_TAKEN;
 bool secondBoostAction = NO_ACTION_TAKEN;
 bool mongoConnectAction = NO_ACTION_TAKEN;
 bool secondMongoConnectAction = NO_ACTION_TAKEN;
-bool mongoSocketAction = NO_ACTION_TAKEN;
-bool secondMongoSocketAction = NO_ACTION_TAKEN;
 bool mongoAction = NO_ACTION_TAKEN;
 bool secondMongoAction = NO_ACTION_TAKEN;
 
@@ -78,8 +76,6 @@ public:
     secondBoostAction = NO_ACTION_TAKEN;
     mongoConnectAction = NO_ACTION_TAKEN;
     secondMongoConnectAction = NO_ACTION_TAKEN;
-    mongoSocketAction = NO_ACTION_TAKEN;
-    secondMongoSocketAction = NO_ACTION_TAKEN;
     mongoAction = NO_ACTION_TAKEN;
     secondMongoAction = NO_ACTION_TAKEN;
   }
@@ -135,11 +131,6 @@ public:
     mongoAction =  EXCEPTION_HANDLED;
   }
 
-  void phonyMongoSocketExceptionHandler(std::exception& e)
-  {
-    mongoSocketAction = EXCEPTION_HANDLED;
-  }
-
   void phonyMongoConnectExceptionHandler(std::exception& e)
   {
     mongoConnectAction = EXCEPTION_HANDLED;
@@ -157,11 +148,6 @@ public:
   void secondMongoExceptionHandler(std::exception& e)
   {
     secondMongoAction =  EXCEPTION_HANDLED;
-  }
-
-  void secondMongoSocketExceptionHandler(std::exception& e)
-  {
-    secondMongoSocketAction = EXCEPTION_HANDLED;
   }
 
   void secondMongoConnectExceptionHandler(std::exception& e)
@@ -200,8 +186,6 @@ public:
     CPPUNIT_ASSERT(OS_SUCCESS == verifyNumberOfBoostHandlers(OsExceptionHandler::_boostHandlersContainer.at(BOOST_GENERAL_EXCEPTION), 1));
     //TEST: number of mongo general handlers has to be 1
     CPPUNIT_ASSERT(OS_SUCCESS == verifyNumberOfHandlers(OsExceptionHandler::_mongoHandlersContainer.at(MONGO_GENERAL_EXCEPTION), 1));
-    //TEST: number of mongo socket handlers has to be 1
-    CPPUNIT_ASSERT(OS_SUCCESS == verifyNumberOfHandlers(OsExceptionHandler::_mongoHandlersContainer.at(MONGO_SOCKET_EXCEPTION), 1));
     //TEST: number of mongo connect handlers has to be 1
     CPPUNIT_ASSERT(OS_SUCCESS == verifyNumberOfHandlers(OsExceptionHandler::_mongoHandlersContainer.at(MONGO_CONNECT_EXCEPTION), 1));
 
@@ -311,10 +295,6 @@ public:
    {
      reInitTestVariables();
 
-     // register custom mongo socket handler
-     ExceptionHandler customMongoSocketHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandlerTest::phonyMongoSocketExceptionHandler, this, _1));
-     OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, customMongoSocketHandler);
-
      // register custom mongo connect handler
      ExceptionHandler customMongoConnectHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandlerTest::phonyMongoConnectExceptionHandler, this, _1));
      OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, customMongoConnectHandler);
@@ -325,20 +305,6 @@ public:
 
      //TEST: check number of entries in exception containers
      CPPUNIT_ASSERT(OS_SUCCESS == verifyContainersSize(1, 1, 3));
-
-     //
-     // throw mongo socket exception and check if action was taken
-     //
-     try
-     {
-       throw mongo::SocketException(mongo::SocketException::SEND_ERROR, "");
-     }
-     catch(mongo::SocketException& e)
-     {
-       OsExceptionHandler::catch_global();
-     }
-     //TEST : check if new custom socket connect defined handler is executed
-     CPPUNIT_ASSERT(EXCEPTION_HANDLED == mongoSocketAction);
 
      //
      // throw mongo connect exception and check if action was taken
@@ -369,10 +335,6 @@ public:
 
      reInitTestVariables();
 
-     // register second custom mongo socket handler
-     ExceptionHandler secondCustomMongoSocketHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandlerTest::secondMongoSocketExceptionHandler, this, _1));
-     OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, secondCustomMongoSocketHandler);
-
      // register second custom mongo connect handler
      ExceptionHandler secondCustomMongoConnectHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandlerTest::secondMongoConnectExceptionHandler, this, _1));
      OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, secondCustomMongoConnectHandler);
@@ -383,32 +345,10 @@ public:
 
      //TEST: check number of entries in exception containers
      CPPUNIT_ASSERT(OS_SUCCESS == verifyContainersSize(1, 1, 3));
-     //TEST: number of mongo socket handlers has to be 2
-     CPPUNIT_ASSERT(OS_SUCCESS == verifyNumberOfHandlers(OsExceptionHandler::_mongoHandlersContainer.at(MONGO_SOCKET_EXCEPTION), 2));
      //TEST: number of mongo connect handlers has to be 2
      CPPUNIT_ASSERT(OS_SUCCESS == verifyNumberOfHandlers(OsExceptionHandler::_mongoHandlersContainer.at(MONGO_CONNECT_EXCEPTION), 2));
      //TEST: number of mongo general handlers has to be 2
      CPPUNIT_ASSERT(OS_SUCCESS == verifyNumberOfHandlers(OsExceptionHandler::_mongoHandlersContainer.at(MONGO_GENERAL_EXCEPTION), 2));
-
-     //
-     // throw socket exception
-     // there are 2 registered custom socket handlers
-     // check if specific socket registered handlers are called
-     //
-     try
-     {
-       throw mongo::SocketException(mongo::SocketException::SEND_ERROR, "");
-     }
-     catch(mongo::SocketException& e)
-     {
-       OsExceptionHandler::catch_global();
-     }
-     //TEST : check if first socket action taken
-     CPPUNIT_ASSERT(EXCEPTION_HANDLED == mongoSocketAction);
-     //TEST : check if second socket action taken
-     CPPUNIT_ASSERT(EXCEPTION_HANDLED == secondMongoSocketAction);
-     //TEST : check if general mongo action not taken
-     CPPUNIT_ASSERT(NO_ACTION_TAKEN == mongoAction);
 
      //
      // throw connect exception
@@ -457,25 +397,6 @@ public:
      ExceptionHandler customMongoHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandlerTest::phonyMongoExceptionHandler, this, _1));
      OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_GENERAL_EXCEPTION, customMongoHandler);
 
-     //
-     // throw a mongo socket exception
-     // the default mongo handler should be called instead of the specific one
-     // since there is no specific mongo socket handler registered
-     //
-     try
-     {
-       throw mongo::SocketException(mongo::SocketException::SEND_ERROR, "");
-     }
-     catch(mongo::SocketException& e)
-     {
-       OsExceptionHandler::catch_global();
-     }
-
-     //TEST: check if corresponding action was taken
-     // since there is no mongo socket exception handler the general one should be called
-     CPPUNIT_ASSERT(EXCEPTION_HANDLED == mongoAction);
-     CPPUNIT_ASSERT(NO_ACTION_TAKEN == mongoSocketAction);
-
      reInitTestVariables();
 
      //
@@ -503,28 +424,6 @@ public:
      //register custom std handler
      ExceptionHandler customStdHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandlerTest::phonyStdExceptionHandler, this, _1));
      OsExceptionHandler::instance().registerHandler(STD_EXCEPTION, STD_GENERAL_EXCEPTION, customStdHandler);
-
-     //
-     // throw mongo socket exception
-     // check if corresponding action was taken
-     // since there is no mongo socket or mongo general exception handler the
-     // std general one should be called
-     //
-     try
-     {
-       throw mongo::SocketException(mongo::SocketException::SEND_ERROR, "");
-     }
-     catch(mongo::SocketException& e)
-     {
-       OsExceptionHandler::catch_global();
-     }
-
-     //TEST : check if std general handler called
-     CPPUNIT_ASSERT(EXCEPTION_HANDLED == stdAction);
-     //TEST : check if mongo  general handler not called
-     CPPUNIT_ASSERT(NO_ACTION_TAKEN == mongoAction);
-     //TEST : check if mongo socket handler not called
-     CPPUNIT_ASSERT(NO_ACTION_TAKEN == mongoSocketAction);
 
      //
      // throw mongo connect exception

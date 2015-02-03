@@ -110,7 +110,7 @@ export rpm_setup_header
 define download_sipfoundry_repo_contents
 [sipxecs]
 name= sipXecs
-baseurl=http://download.sipfoundry.org/pub/release-$(PACKAGE_VERSION)-stable/$(PACKAGE_VERSION)/$(CURRENT_DISTRO)_$$releasever/$$basearch
+baseurl=http://download.sipfoundry.org/pub/$(PACKAGE_VERSION)-unstable/$(CURRENT_DISTRO)_$$releasever/$$basearch
 enabled=1
 gpgcheck=0
 endef

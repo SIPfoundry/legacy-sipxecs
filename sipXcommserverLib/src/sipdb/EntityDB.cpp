@@ -18,6 +18,7 @@
 #include "os/OsLogger.h"
 #include "sipdb/EntityDB.h"
 #include "sipdb/MongoDB.h"
+#include "sipdb/MongoMod.h"
 #include <boost/algorithm/string.hpp>
 #include <vector>
 

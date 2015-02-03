@@ -40,6 +40,7 @@ libsipdb_la_LIBADD = \
 libsipdb_la_SOURCES =  \
    MongoDB.cpp \
    MongoOpLog.cpp \
+   MongoMod.cpp \
    EntityDB.cpp \
    EntityRecord.cpp \
    RegBinding.cpp \
@@ -48,6 +49,5 @@ libsipdb_la_SOURCES =  \
    SubscribeDB.cpp \
    ResultSet.cpp \
    DbHelper.cpp \
-   CustomConnPool.cpp \
    GatewayDestDB.cpp \
    GatewayDestRecord.cpp

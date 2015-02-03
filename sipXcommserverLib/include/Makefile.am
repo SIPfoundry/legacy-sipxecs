@@ -14,6 +14,7 @@ nobase_include_HEADERS =  \
     configrpc/ConfigRPC.h \
     sipdb/MongoDB.h \
     sipdb/MongoOpLog.h \
+    sipdb/MongoMod.h \
     sipdb/EntityDB.h \
     sipdb/EntityRecord.h \
     sipdb/RegBinding.h \
@@ -24,7 +25,6 @@ nobase_include_HEADERS =  \
     sipdb/Subscription.h \
     sipdb/ResultSet.h \
     sipdb/DbHelper.h \
-    sipdb/CustomConnPool.h \
     sipdb/GatewayDestDB.h \
     sipdb/GatewayDestRecord.h \
     digitmaps/UrlMapping.h \

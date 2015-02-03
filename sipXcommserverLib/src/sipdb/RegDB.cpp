@@ -20,6 +20,7 @@
 #include <os/OsLogger.h>
 #include "sipdb/RegDB.h"
 #include "sipdb/RegExpireThread.h"
+#include "sipdb/MongoMod.h"
 
 using namespace std;
 

@@ -1701,7 +1701,7 @@ public:
 
    void terminateMongoDB()
    {
-     mongo::dbexit(mongo::EXIT_CLEAN);
+     mongo::client::shutdown();
    }
 };
 

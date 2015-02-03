@@ -79,7 +79,6 @@ main(int argc, char* argv[] )
   SipXApplication::instance().init(argc, argv, statusData);
 
   // register custom exception handling for mongo
-  OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, boost::bind(&customMongoSocketExceptionHandling, _1));
   OsExceptionHandler::instance().registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, boost::bind(&customMongoConnectExceptionHandling, _1));
 
   const OsConfigDb& configDb = SipXApplication::instance().getConfig().getOsConfigDb();

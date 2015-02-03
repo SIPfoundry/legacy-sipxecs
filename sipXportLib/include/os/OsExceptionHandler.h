@@ -23,7 +23,6 @@
 
 #define STD_GENERAL_EXCEPTION           "stdException"
 #define BOOST_GENERAL_EXCEPTION         "boostException"
-#define MONGO_SOCKET_EXCEPTION          "mongoSocketException"
 #define MONGO_CONNECT_EXCEPTION         "mongoConnectException"
 #define MONGO_GENERAL_EXCEPTION         "mongoDBException"
 #define UNKNOWN_EXCEPTION_MESSAGE       "Error occurred. Unknown exception type."
@@ -102,7 +101,6 @@ public:
   inline void defaultStdGeneralExceptionHandler(std::exception& e);
   inline void defaultBoostGeneralExceptionHandler(boost::exception& e);
 #ifdef MONGO_wassert
-  inline void defaultMongoSocketExceptionHandling(std::exception& e);
   inline void defaultMongoConnectExceptionHandling(std::exception& e);
   inline void defaultMongoGeneralExceptionHandler(std::exception& e);
 #endif
@@ -180,13 +178,6 @@ void OsExceptionHandler::defaultBoostGeneralExceptionHandler(boost::exception& e
 }
 
 #ifdef MONGO_wassert
-//default mongo socket exception handling : log & exit
-void OsExceptionHandler::defaultMongoSocketExceptionHandling(std::exception& e)
-{
-  catch_global_print(static_cast<mongo::DBException&>(e).toString().c_str());
-  _exit(1);
-}
-
 //default mongo connect exception handling : log & exit
 void OsExceptionHandler::defaultMongoConnectExceptionHandling(std::exception& e)
 {
@@ -296,15 +287,8 @@ OsStatus OsExceptionHandler::registerDefaultHandlers()
     }
 
 #ifdef MONGO_wassert
-    // register socket exception handler
-    ExceptionHandler  defaultMongoHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandler::defaultMongoSocketExceptionHandling, this, _1));
-    if(returnStatus != registerHandler(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, defaultMongoHandler))
-    {
-      return OS_FAILED;
-    }
-
     // register connect exception handler
-    defaultMongoHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandler::defaultMongoConnectExceptionHandling, this, _1));
+    ExceptionHandler defaultMongoHandler = static_cast<ExceptionHandler>(boost::bind(&OsExceptionHandler::defaultMongoConnectExceptionHandling, this, _1));
     if(returnStatus != registerHandler(MONGO_EXCEPTION, MONGO_CONNECT_EXCEPTION, defaultMongoHandler))
     {
       return OS_FAILED;
@@ -422,16 +406,6 @@ void OsExceptionHandler::catch_global()
     throw;
   }
 #ifdef MONGO_wassert
-  catch(mongo::SocketException &e)
-  {
-    HandlerVector handlers;
-    returnStatus = treatException(MONGO_EXCEPTION, MONGO_SOCKET_EXCEPTION, _mongoHandlersContainer, e);
-    if(OS_FAILED == returnStatus)
-    {
-      // no mongo related handler found, call std_general one
-      returnStatus = treatException(STD_EXCEPTION, STD_GENERAL_EXCEPTION, _stdHandlersContainer, e);
-    }
-  }
 
   catch(mongo::ConnectException &e)
   {

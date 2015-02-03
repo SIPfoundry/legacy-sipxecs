@@ -57,7 +57,7 @@ void GatewayDestDB::updateRecord(const GatewayDestRecord& record, bool upsert)
           GatewayDestRecord::lineIdField() << record.getLineId() <<
           GatewayDestRecord::expirationTimeField() << record.getExpirationTime()));
 
-  MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
   mongo::DBClientBase* client = conn->get();
 
   client->update(_ns, query, update, upsert, false);
@@ -81,7 +81,7 @@ void GatewayDestDB::removeRecord(const GatewayDestRecord& record)
       GatewayDestRecord::toTagField() << record.getToTag() <<
       GatewayDestRecord::fromTagField() << record.getFromTag());
 
-  MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
   mongo::DBClientBase* client = conn->get();
 
   client->remove(_ns, query);
@@ -96,7 +96,7 @@ void GatewayDestDB::removeAllRecords()
   OS_LOG_DEBUG(FAC_ODBC, "GatewayDestDB::removeAllRecords ");
 
   mongo::BSONObj all;
-  MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
   conn->get()->remove(_ns, all);
   conn->done();
 }
@@ -109,7 +109,7 @@ void GatewayDestDB::removeAllExpired()
   OS_LOG_DEBUG(FAC_ODBC, "GatewayDestDB::removeAllExpired - "
       " timeNow " << timeNow);
 
-	MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
+	MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getWriteQueryTimeout()));
 	mongo::DBClientBase* client = conn->get();
 
   client->remove(_ns, query);
@@ -135,7 +135,7 @@ bool GatewayDestDB::getUnexpiredRecord(GatewayDestRecord& record) const
       GatewayDestRecord::fromTagField() << record.getFromTag() <<
       GatewayDestRecord::expirationTimeField() << BSON_GREATER_THAN(timeNow));
 
-  MongoDB::ScopedDbConnectionPtr conn(mongo::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
+  MongoDB::ScopedDbConnectionPtr conn(mongoMod::ScopedDbConnection::getScopedDbConnection(_info.getConnectionString().toString(), getReadQueryTimeout()));
 
   mongo::BSONObjBuilder builder;
   BaseDB::nearest(builder, query);

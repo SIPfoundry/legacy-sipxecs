@@ -19,6 +19,7 @@
 #include <mongo/client/connpool.h>
 #include "sipdb/SubscribeDB.h"
 #include "sipdb/SubscribeExpireThread.h"
+#include "sipdb/MongoMod.h"
 #include "os/OsDateTime.h"
 #include "os/OsLogger.h"
 
