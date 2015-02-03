@@ -3,12 +3,15 @@
 
 Name:           mongo-cxx-driver
 Version:        2.6.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        The mongoDb C++ client driver library and its include files
 Group:          Development/Libraries
 License:        AGPLv3 and zlib and ASL 2.0
 URL:          	http://www.mongodb.org
 Source0:        https://github.com/mongodb/%{pkg_name}/archive/%{pkg_name}-legacy-0.0-26compat-%{version}.tar.gz
+
+## Patch 1 - http://track.sipfoundry.org/browse/XX-11578
+Patch1:		    mongo-cxx-driver-2.6.7-logger.patch
 
 BuildRequires:  scons
 BuildRequires:  openssl-devel
@@ -18,7 +21,7 @@ BuildRequires:  boost-devel
 ExcludeArch:    ppc ppc64 %{sparc} s390 s390x
 
 Provides: libmongodb = %{version}-%{release}
-Obsoletes: libmongodb < 2.6
+Obsoletes: libmongodb
 
 %description
 This package provides the shared library for the MongoDB legacy C++ Driver.
@@ -29,13 +32,14 @@ Group:          Development/Libraries
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 Provides: libmongodb-devel = 2.6.7-%{release}
-Obsoletes: libmongodb-devel < 2.6
+Obsoletes: libmongodb-devel
 
 %description -n %{pkg_name}-devel
 This package provides the header files for MongoDB legacy C++ driver.
 
 %prep
 %setup -q -n %{name}-legacy-0.0-26compat-%{version}
+%patch1 -p1
 
 # CRLF -> LF
 sed -i 's/\r//' README.md
@@ -78,3 +82,6 @@ rm -f %{buildroot}%{_libdir}/../lib/libmongoclient.a
 %{_libdir}/libmongoclient.so
 
 %changelog
+* Tue Feb 03 2015 Ionut Oancea <ioancea@ezuce.com> - 2.6.7-1
+- Added patch for logging: http://track.sipfoundry.org/browse/XX-11578
+

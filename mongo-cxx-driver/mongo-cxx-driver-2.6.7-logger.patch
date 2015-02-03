@@ -1,0 +1,44 @@
+diff -ur mongo-cxx-driver-legacy-0.0-26compat-2.6.7.orig/src/mongo/logger/log_domain.h mongo-cxx-driver-legacy-0.0-26compat-2.6.7/src/mongo/logger/log_domain.h
+--- mongo-cxx-driver-legacy-0.0-26compat-2.6.7.orig/src/mongo/logger/log_domain.h	2015-01-16 18:18:01.000000000 +0200
++++ mongo-cxx-driver-legacy-0.0-26compat-2.6.7/src/mongo/logger/log_domain.h	2015-02-03 15:21:42.112978000 +0200
+@@ -47,7 +47,7 @@
+      * messages.
+      */
+     template <typename E>
+-    class LogDomain {
++    class MONGO_CLIENT_API LogDomain {
+         MONGO_DISALLOW_COPYING(LogDomain);
+     public:
+         typedef E Event;
+diff -ur mongo-cxx-driver-legacy-0.0-26compat-2.6.7.orig/src/mongo/logger/log_severity.h mongo-cxx-driver-legacy-0.0-26compat-2.6.7/src/mongo/logger/log_severity.h
+--- mongo-cxx-driver-legacy-0.0-26compat-2.6.7.orig/src/mongo/logger/log_severity.h	2015-01-16 18:18:01.000000000 +0200
++++ mongo-cxx-driver-legacy-0.0-26compat-2.6.7/src/mongo/logger/log_severity.h	2015-02-03 11:54:51.869100000 +0200
+@@ -18,6 +18,7 @@
+ #include <iosfwd>
+ #include <string>
+ 
++#include "mongo/client/export_macros.h"
+ #include "mongo/base/string_data.h"
+ 
+ namespace mongo {
+@@ -29,7 +30,7 @@
+      * Severities are totally ordered, from most severe to least severe as follows:
+      * Severe, Error, Warning, Info, Log, Debug(1), Debug(2), ...
+      */
+-    class LogSeverity {
++    class MONGO_CLIENT_API LogSeverity {
+     public:
+         //
+         // Static factory methods for getting LogSeverity objects of the various severity levels.
+diff -ur mongo-cxx-driver-legacy-0.0-26compat-2.6.7.orig/src/mongo/logger/message_event.h mongo-cxx-driver-legacy-0.0-26compat-2.6.7/src/mongo/logger/message_event.h
+--- mongo-cxx-driver-legacy-0.0-26compat-2.6.7.orig/src/mongo/logger/message_event.h	2015-01-16 18:18:01.000000000 +0200
++++ mongo-cxx-driver-legacy-0.0-26compat-2.6.7/src/mongo/logger/message_event.h	2015-02-03 15:17:31.103407000 +0200
+@@ -29,7 +29,7 @@
+      *
+      * Used and owned by one thread.  This is the message type used by MessageLogDomain.
+      */
+-    class MessageEventEphemeral {
++    class MONGO_CLIENT_API MessageEventEphemeral {
+     public:
+         MessageEventEphemeral(
+                 Date_t date,
