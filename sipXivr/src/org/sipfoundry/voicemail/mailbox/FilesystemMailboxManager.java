@@ -411,7 +411,11 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
     @Override
     public void saveRecordedName(TempMessage message) {
         try {
-            FileUtils.copyFile(new File(message.getTempPath()), getRecordedName(message.getCurrentUser()));
+            File name = new File(getUserDirectory(message.getCurrentUser()), getNameFile());
+            if (!name.exists()) {
+                FileUtils.touch(name);
+            }
+            FileUtils.copyFile(new File(message.getTempPath()), name);
         } catch (IOException ex) {
             LOG.error("Failed to save recorded name", ex);
         }
