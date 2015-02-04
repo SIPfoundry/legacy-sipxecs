@@ -1214,7 +1214,12 @@ uw.service('restService', [
      * @return {Object}      extended object
      */
     function authHeaders(conf) {
-      return conf;
+      if (window.navigator.userAgent.indexOf('MSIE ') !== -1 || window.navigator.userAgent.indexOf('Trident/') !== -1) {
+        conf.url = conf.url + '?invcache=' + Math.floor((Math.random() * 99999) + 10000);;
+      }
+      return _.extend(conf, {
+            cache: false
+          });
     }
 
   }
