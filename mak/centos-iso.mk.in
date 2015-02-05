@@ -13,7 +13,7 @@ VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
 PREPARERER_ID ?= sipx-dev@list.sipfoundry.org
-CENTOS_VER = 6.5
+CENTOS_VER = 6.6
 ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/$(CENTOS_VER)
 ISO_M4_OPTS = $(CUSTOM_ISO_M4_OPTS) -D PACKAGE_VERSION=$(PACKAGE_VERSION)
 ISO_PACKAGES_OS=$(ARCH)-os-Packages
@@ -128,9 +128,24 @@ iso-packages-% : iso-download-os-% iso-download-epel-%
 	rsync -av $(realpath $(RPM_DIST_DIR))/CentOS_6/$(ARCH)/ $(ISO_DISC)/Packages/
 	find $(ISO_DISC)/Packages \( \
 	    -not -name 'java-1.6.0-openjdk-devel-*.rpm' -a \
+	    -not -name 'nodejs-devel-*.rpm' -a \
+	    -not -name 'v8-devel-*.rpm' -a \
+	    -not -name 'libuv-devel-*.rpm' -a \
+	    -not -name 'libstdc++-devel-*.rpm' -a \
+	    -not -name 'libgnat-devel-*.rpm' -a \
+	    -not -name 'libgcj-devel-*.rpm' -a \
+	    -not -name 'zlib-devel-*.rpm' -a \
+	    -not -name 'c-ares19-devel-*.rpm' -a \
+	    -not -name 'openssl-devel-*.rpm' -a \
+	    -not -name 'http-parser-devel-*.rpm' -a \
 	    -not -name 'db4-devel-*.rpm' -a \
 	    -not -name 'gdbm-devel-*.rpm' -a \
 	    -not -name 'glibc-devel-*.rpm' -a \
+	    -not -name 'keyutils-libs-devel-*.rpm' -a \
+	    -not -name 'krb5-devel-*.rpm' -a \
+	    -not -name 'libcom_err-devel-*.rpm' -a \
+	    -not -name 'libselinux-devel-*.rpm' -a \
+	    -not -name 'libsepol-devel-*.rpm' -a \
 	    -not -name 'perl-devel-*.rpm' \) \
 	   | grep $(foreach REGEX,$(ISO_RM_LIST),-e '.*/$(REGEX)') \
 	   | xargs rm
@@ -146,11 +161,17 @@ ISO_RM_LIST = \
   emacs-erlang-.* \
   freeswitch-freetdm-.* \
   freeswitch-java-.* \
-  freeswitch-lang-.* \
   freeswitch-perl-.* \
   freeswitch-python-.* \
   freeswitch-skypopen-.* \
   freeswitch-spidermonkey-.* \
+  nodejs-burrito-.* \
+  nodejs-bunker-.* \
+  nodejs-jscoverage-.* \
+  nodejs-muffin-.* \
+  nodejs-tap-.* \
+  nodejs-snockets-.* \
+  nodejs-runforcover-.* \
   oss_core-.* \
   sipxcustomcallerid.* \
   sipxsbc.* \
@@ -172,18 +193,27 @@ ISO_RM_LIST = \
 
 # JV believes erlang list can be dramatically reduced but we haven't investigated
 ISO_ADD_EPEL = \
+  c-ares19-devel-1* \
+  cloc-1.58-* \
+  coffee-script-1.* \
+  coffee-script-common-1.* \
   fail2ban-0.8.10* \
   js-* \
   gperftools-libs-2.0-11* \
   gtest-1* \
+  http-parser-devel-* \
   libiodbc-3* \
   libev-4.* \
   libmcrypt-* \
   libmongodb-2.4* \
+  libuv-devel-* \
   monit-5.1* \
   mongodb-2.4* \
   mongodb-server-2.4* \
+  nodejs-devel-0.* \
+  npm-1.3.* \
   openpgm-5* \
+  perl-Regexp-Common-* \
   perl-Tk-804.* \
   php-pecl-mongo-1.4* \
   poco-crypto-* \
@@ -204,10 +234,14 @@ ISO_ADD_EPEL = \
   shorewall-4* \
   shorewall-core-* \
   snappy-* \
+  uglify-js-* \
+  uglify-js-common-* \
   v8-3.14.5.10* \
+  v8-devel-3.14.5.10-* \
   wxBase-* \
   wxGTK-2.* \
   wxGTK-gl-* \
+  ycssmin-1.* \
   zeromq-*
 
 ISO_ADD_OS = \
@@ -267,11 +301,13 @@ ISO_ADD_OS = \
   chkconfig-* \
   classpathx-jaf-1* \
   classpathx-mail-1* \
+  cloog-ppl-0* \
   compat-expat1-* \
   compat-readline5-* \
   coreutils-* \
   coreutils-libs-* \
   cpio-* \
+  cpp-* \
   cracklib-2.* \
   cracklib-dicts-* \
   cronie-1.* \
@@ -306,7 +342,9 @@ ISO_ADD_OS = \
   ed-* \
   efibootmgr-* \
   eggdbus-* \
+  elfutils-0* \
   elfutils-libelf-* \
+  elfutils-libs-* \
   ethtool-* \
   expat-* \
   file-libs-* \
@@ -322,7 +360,10 @@ ISO_ADD_OS = \
   gamin-python-* \
   gawk-* \
   GConf2-2* \
+  gcc-* \
+  gd-2.* \
   gdb-7.* \
+  gdk-pixbuf2-* \
   gdbm-* \
   gettext-0* \
   giflib-* \
@@ -333,6 +374,7 @@ ISO_ADD_OS = \
   gmp-* \
   gnutls-2.* \
   gpgme-* \
+  graphviz-2.* \
   grep-* \
   groff-1.* \
   grub-* \
@@ -379,6 +421,7 @@ ISO_ADD_OS = \
   java-1.6.0-openjdk-1.* \
   java-1.6.0-openjdk-devel-* \
   java_cup-0.* \
+  java-1.7.0-openjdk-1.* \
   jline-* \
   jpackage-utils-* \
   kbd-1.* \
@@ -387,9 +430,15 @@ ISO_ADD_OS = \
   kernel-firmware-* \
   kernel-headers-* \
   keyutils-libs-* \
+  krb5-devel-* \
   krb5-libs-* \
   less-* \
   libart_lgpl-2* \
+  libcanberra-0.* \
+  libcanberra-gtk2-* \
+  libgnat-devel-4.4.7-* \
+  libmemcached-0.* \
+  libwnck-2.* \
   libevent-1.* \
   libgomp-4.* \
   libgudev1-* \
@@ -404,12 +453,14 @@ ISO_ADD_OS = \
   libXext-* \
   libXfixes-* \
   libXft-* \
+  libXfont-1.* \
   libXi-* \
   libXinerama-* \
   libXmu-1.* \
   libXpm-* \
   libXrandr-* \
   libXrender-* \
+  libXres-* \
   libXtst-* \
   libXxf86vm-* \
   libacl-* \
@@ -425,9 +476,13 @@ ISO_ADD_OS = \
   libedit-* \
   libertas-usb8388-firmware-* \
   libffi-* \
+  libfontenc-1.* \
   libgcc-* \
-  libgcj-4* \
+  libgcj-4.* \
+  libgcj-devel-4.4.7-* \
   libgcrypt-* \
+  libgfortran-* \
+  libgnat-* \
   libgpg-error-* \
   libicu-* \
   libidn-* \
@@ -435,18 +490,24 @@ ISO_ADD_OS = \
   libjpeg-* \
   libnih-* \
   libnl-* \
+  libnotify-* \
   libogg-* \
+  libobjc-4.* \
   liboil-* \
   libpcap-* \
   libpng-* \
   libselinux-2.* \
+  libselinux-devel-* \
   libselinux-utils-* \
   libsemanage-2.* \
   libsepol-2.* \
+  libsepol-devel-* \
   libsndfile-* \
   libss-* \
-  libstdc++-* \
+  libstdc++-4.4.7-* \
+  libstdc++-devel-* \
   libtasn1-2.* \
+  libtdb-1.* \
   libthai-* \
   libtheora-* \
   libtiff-3.* \
@@ -459,8 +520,10 @@ ISO_ADD_OS = \
   libvisual-* \
   libvorbis-* \
   libxcb-1.* \
+  libXaw-1.* \
   libXt-1.* \
   libXv-1.* \
+  lksctp-tools-1.* \
   lm_sensors-libs-* \
   log4j-1.* \
   logrotate-* \
@@ -470,13 +533,14 @@ ISO_ADD_OS = \
   mailx-12.* \
   make-* \
   man-1* \
-  mesa-dri-drivers-9.* \
+  mesa-dri-drivers-10.* \
   mesa-dri-filesystem-* \
   mesa-dri1-drivers-* \
   mesa-libGL-* \
   mesa-libGLU-* \
   mesa-private-llvm-* \
   mingetty-* \
+  mpfr-2.* \
   mod_ssl-* \
   module-init-tools-* \
   mysql-5.*\
@@ -499,10 +563,12 @@ ISO_ADD_OS = \
   nss-util-* \
   ntp-4.* \
   ntpdate-* \
+  notification-daemon-* \
   openldap-2.* \
   openssh-5.* \
   openssh-server-* \
   openssl-1.* \
+  openssl-devel-1* \
   ORBit2-* \
   pam-* \
   pango-* \
@@ -513,6 +579,7 @@ ISO_ADD_OS = \
   pciutils-libs-* \
   pcre-7.* \
   perl-5.* \
+  perl-Algorithm-Diff-1* \
   perl-devel-5.* \
   perl-CGI-3.* \
   perl-DBD-MySQL-* \
@@ -525,6 +592,7 @@ ISO_ADD_OS = \
   perl-Pod-Simple-* \
   perl-Test-Harness-3.* \
   perl-Test-Simple-0.* \
+  perl-TimeDate-1.* \
   perl-libs-5.* \
   perl-version-* \
   pkgconfig-* \
@@ -549,6 +617,7 @@ ISO_ADD_OS = \
   postgresql-odbc-* \
   postgresql-server-* \
   portreserve-* \
+  ppl-0.* \
   procmail-* \
   procps-* \
   psmisc-* \
@@ -579,10 +648,12 @@ ISO_ADD_OS = \
   readline-6.* \
   redhat-logos-* \
   redhat-lsb-core-4* \
+  redhat-rpm-config* \
   regexp-1* \
   rhino-1.* \
   rootfiles-* \
   rpm-4.* \
+  rpm-build-4.8* \
   rpm-libs-* \
   rpm-python-* \
   rsyslog-5.* \
@@ -608,7 +679,10 @@ ISO_ADD_OS = \
   sqlite-3.* \
   strace-* \
   stunnel-* \
+  startup-notification-0.* \
   sudo-* \
+  sound-theme-freedesktop-* \
+  speex-1.* \
   system-config-firewall-base-* \
   system-config-network-tui-* \
   sysvinit-tools-* \
@@ -627,10 +701,13 @@ ISO_ADD_OS = \
   tomcat6-lib-* \
   tomcat6-webapps-* \
   tuned-0.* \
+  ttmkfdir-* \
   tzdata-* \
   udev-* \
+  unzip-* \
   unixODBC-2.* \
   upstart-* \
+  urw-fonts-* \
   usermode-1.* \
   ustr-1.* \
   util-linux-ng-* \
@@ -641,12 +718,15 @@ ISO_ADD_OS = \
   wireless-tools-* \
   wsdl4j-1.* \
   xalan-j2-2.* \
+  xcb-util-0.* \
   xerces-c-3.* \
   xinetd-* \
   xml-common-0* \
   xml-commons-apis-1* \
   xml-commons-resolver-1* \
   xorg-x11-drv-ati-firmware-* \
+  xorg-x11-fonts-Type1-* \
+  xorg-x11-font-utils-* \
   xz-4.* \
   xz-libs-* \
   xz-lzma-compat-4.* \
@@ -655,5 +735,6 @@ ISO_ADD_OS = \
   yum-plugin-fastestmirror-* \
   zd1211-firmware-* \
   zip-3* \
-  zlib-1.*
+  zlib-1.* \
+  zlib-devel-1.*
 
