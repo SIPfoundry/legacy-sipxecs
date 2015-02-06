@@ -155,6 +155,10 @@
       </type>
       <value>20000</value>     
     </setting>
+    <setting name="SIPX_SUPPRESS_ALERT_INDICATOR_IN_TRANSFERS" advanced="yes">
+      <type refid="true-false"/>
+      <value>false</value>
+    </setting>
     <!--  unsure what these next 2 settings do -->
     <setting name="SIPX_PROXY_LOG_CONSOLE" hidden="yes">
       <type><string/></type>
