@@ -97,6 +97,7 @@ enum tagOsSysLogFacility
    FAC_NAT,                ///< NAT Traversal related
    FAC_ALARM,              ///< Alarms
    FAC_SAA,                ///< Shared Appearance Agent
+   FAC_MONGO_CLIENT,       ///< Mongo C++ Client Driver logs
    FAC_MAX_FACILITY        ///< Last Facility (used to for length)
 
    //
@@ -408,7 +409,7 @@ namespace Os
     {
       if(_enabled)
       {
-        static const char* facilityList[44] =
+        static const char* facilityList[45] =
         {
            "PERF",
            "KERNEL",
@@ -453,6 +454,7 @@ namespace Os
            "NAT",
            "ALARM",
            "SAA",
+           "MONGO_CLIENT",
            "UNKNOWN",
         } ;
 
@@ -972,6 +974,11 @@ namespace Os
     void setLevel(int level)
     {
       _pFilter->setLevel(level);
+    }
+
+    int getLevel()
+    {
+      return _pFilter->getLevel();
     }
 
     void setLogPriority(int priority)
