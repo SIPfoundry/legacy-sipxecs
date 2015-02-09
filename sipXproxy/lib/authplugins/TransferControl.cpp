@@ -347,7 +347,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
         
         std::string event = request.getHeaderValue(0, SIP_EVENT_FIELD);
         boost::to_lower(event);
-        if (event.find("refer") != std::string::npos);
+        if (event.find("refer") != std::string::npos)
         {
           const HttpBody* notifyBody = request.getBody();
           if (notifyBody)
