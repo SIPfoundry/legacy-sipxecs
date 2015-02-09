@@ -134,7 +134,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jradius-core-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jradius-dictionary-1.1.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gnu-crypto-2.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/mongo-2.11.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mongo-java-driver-2.13.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-core-asl-1.9.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-mapper-asl-1.9.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jackson-jaxrs-1.9.2.jar"/>
