@@ -171,6 +171,8 @@ class SipRouter : public OsServerTask
 
    SipUserAgent* getUserAgent() const;
    
+   UtlBoolean suppressAlertIndicatorForTransfers() const;
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
 
@@ -247,6 +249,8 @@ class SipRouter : public OsServerTask
 
    EntityDB* mpEntityDb;
    RegDB* mpRegDb;
+   
+   UtlBoolean _suppressAlertIndicatorForTransfers;
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -259,6 +263,11 @@ inline UtlBoolean SipRouter::isRelayAllowed() const
 inline SipUserAgent* SipRouter::getUserAgent() const
 {
   return mpSipUserAgent;
+}
+
+inline UtlBoolean SipRouter::suppressAlertIndicatorForTransfers() const
+{
+  return _suppressAlertIndicatorForTransfers;
 }
 
 

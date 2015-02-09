@@ -80,7 +80,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mpEntityDb(0)
    ,mEnsureTcpLifetime(FALSE)
    ,mRelayAllowed(TRUE)
-
+   ,_suppressAlertIndicatorForTransfers(FALSE)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -314,6 +314,8 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
 
    // Load, instantiate and configure all authorization plugins
    mTransactionPlugins.readConfig(configDb);
+   
+   _suppressAlertIndicatorForTransfers = configDb.getBoolean("SIPX_SUPPRESS_ALERT_INDICATOR_IN_TRANSFERS", FALSE);
 
    // Announce the associated SIP Router to all newly instantiated authorization plugins
    PluginIterator transactionPlugins(mTransactionPlugins);
