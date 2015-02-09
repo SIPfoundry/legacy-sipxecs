@@ -2,6 +2,8 @@
 #define _SIPXECS_APPLICATION_H_
 
 // APPLICATION INCLUDES
+#include <mongo/logger/message_log_domain.h>
+
 #include <os/OsServiceOptions.h>
 #include <os/OsFS.h>
 #include <os/OsLogger.h>
@@ -147,6 +149,20 @@ class SipXApplication
        int run(void* arg);
     private:
        int _shutdownSignal;
+    };
+
+    // The purpose of this class is to register a log callback in 
+    // Mongo Client Driver
+    class MongoClientLogAppender: public mongo::logger::MessageLogDomain::EventAppender
+    {
+    public:
+      MongoClientLogAppender() {}
+      virtual ~MongoClientLogAppender() {}
+
+      /**
+       * Performs the actual logging for Mongo Client Driver messages
+       */
+      virtual mongo::Status append(const mongo::logger::MessageLogDomain::EventAppender::Event& event);
     };
 
     SipXApplication();                                       // SipXApplication constructor

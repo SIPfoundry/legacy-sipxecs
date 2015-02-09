@@ -360,6 +360,9 @@ void SipXApplication::terminate()
   Os::Logger::instance().log(FAC_KERNEL, PRI_NOTICE, "Exiting %s", _appData._appName.c_str()) ;
   Os::Logger::instance().flush();
 
+  // Clear log appenders
+  mongo::logger::globalLogDomain()->clearAppenders();
+
   mongo::Status status = mongo::client::shutdown();
   if (!status.isOK())
   {
@@ -544,24 +547,86 @@ void SipXApplication::waitForTerminationRequest(int seconds)
   std::cout << "Termination Signal RECEIVED" << std::endl;
 }
 
-static int convertToMongoLogLevel(int level)
+// Converts to Mongo log severity
+// Note: PRI_INFO and PRI_NOTICE are intentionally mapped to Log() and, respectively,
+//       Info().
+static mongo::logger::LogSeverity convertToMongoLogSeverity(int priority)
 {
-  OsSysLogPriority logLevel = (OsSysLogPriority)SipXApplication::normalizeLogLevel(level);
-
-  switch (logLevel)
+  switch (priority)
   {
   case PRI_DEBUG:
-    return 5;
+    return mongo::logger::LogSeverity::Debug(3);
   case PRI_INFO:
-    return 4;
+    return mongo::logger::LogSeverity::Log();
   case PRI_NOTICE:
-    return 3;
+    return mongo::logger::LogSeverity::Info();
   case PRI_WARNING:
-    return 2;
+    return mongo::logger::LogSeverity::Warning();
   case PRI_ERR:
+    return mongo::logger::LogSeverity::Error();
   default:
-      return 1;
+    return mongo::logger::LogSeverity::Severe();
   }
+}
+
+// Converts from Mongo log severity
+// Note: PRI_INFO and PRI_NOTICE are intentionally mapped to Log() and, respectively,
+//       Info().
+static int convertFromMongoLogSeverity(mongo::logger::LogSeverity severity)
+{
+  if (mongo::logger::LogSeverity::Severe() == severity)
+  {
+    return PRI_CRIT;
+  }
+  else if (mongo::logger::LogSeverity::Error() == severity)
+  {
+    return PRI_ERR;
+  }
+  else if (mongo::logger::LogSeverity::Warning() == severity)
+  {
+    return PRI_WARNING;
+  }
+  else if (mongo::logger::LogSeverity::Info() == severity)
+  {
+    return PRI_NOTICE;
+  }
+  else if (mongo::logger::LogSeverity::Log() == severity)
+  {
+    return PRI_INFO;
+  }
+  else
+  {
+    return PRI_DEBUG;
+  }
+}
+
+// Mongo Client appender used to intercept driver's logs
+mongo::Status SipXApplication::MongoClientLogAppender::append(const mongo::logger::MessageLogDomain::EventAppender::Event& event)
+{
+  int priority = convertFromMongoLogSeverity(event.getSeverity());
+
+  // ignore all lower-priority logs
+  if (!Os::Logger::instance().willLog(priority))
+  {
+    return mongo::Status::OK();
+  }
+
+  // shape the stream like: <[ContextName - ]LogMessage>
+  std::ostringstream strm;
+
+  // prefix the log message with its context (if any)
+  if (!event.getContextName().empty())
+  {
+    strm << event.getContextName().toString() << " - ";
+  }
+
+  // set the actual message
+  strm << event.getMessage().toString();
+
+  // log the actual message
+  Os::Logger::instance().log(FAC_MONGO_CLIENT, priority, "%s", strm.str().c_str());
+
+  return mongo::Status::OK();
 }
 
 void SipXApplication::enableMongoDriverLogging() const
@@ -570,7 +635,6 @@ void SipXApplication::enableMongoDriverLogging() const
   OsServiceOptions mongoClientConfig(mongoClientIniFilePath);
 
   mongoClientConfig.addOptionString(0, "enable-driver-logging", "", OsServiceOptions::ConfigOption, false);
-  mongoClientConfig.addOption<int>(0, "driver-log-level","", OsServiceOptions::ConfigOption, false);
 
   if (mongoClientConfig.parseOptions())
   {
@@ -580,15 +644,12 @@ void SipXApplication::enableMongoDriverLogging() const
 
     if (enableDriverLogging)
     {
-      int driverLogLevel = 0;
-      mongoClientConfig.getOption<int>("driver-log-level", driverLogLevel);
-      OS_LOG_INFO(FAC_SIP, "SipXApplication::enableMongoDriverLogging Mongo driver log level = " << driverLogLevel);
+      int priority = Os::Logger::instance().getLevel();
+      mongo::logger::globalLogDomain()->setMinimumLoggedSeverity(convertToMongoLogSeverity(priority));
 
-      // Note: temporarily disabled since the Mongo 26compat removed the following symbols
-#if 0
-      mongo::logLevel = convertToMongoLogLevel(driverLogLevel);
-      mongo::Logstream::useSyslog(_appData._appName.c_str());
-#endif
+      // clear all appenders in order to add ours
+      mongo::logger::globalLogDomain()->clearAppenders();
+      mongo::logger::globalLogDomain()->attachAppender(mongo::logger::MessageLogDomain::AppenderAutoPtr(new MongoClientLogAppender()));
     }
   }
   else
