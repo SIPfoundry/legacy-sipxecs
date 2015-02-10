@@ -3,7 +3,7 @@
 	url = git://github.com/SIPfoundry/freeswitch.git
 [submodule "sipXcustomCallerId"]
 	path = sipXcustomCallerId
-	url = git@github.com:ezuce/sipXcustomCallerId.git
+	url = git://github.com/ezuce/sipXcustomCallerId.git
 [submodule "homer"]
 	path = homer
 	url = http://code.google.com/p/homer/
