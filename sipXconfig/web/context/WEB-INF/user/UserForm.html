@@ -22,6 +22,16 @@
       <tr jwcid="userIdPanel" for="user:userId">
         <input jwcid="userId" id="user:userId" type="text" autocomplete="off"/>
       </tr>
+      <tr jwcid="@common/FieldPanel" for="user:imId"
+        field="component:imId"
+        label="message:label.imId"
+        description="message:description.imId">
+        <input jwcid="imId@TextField" id="user:imId"
+          value="ognl:imAccount.imId"
+          validators="spring-validators:validImId"
+          maxlength="255"
+          autocomplete="off" />
+      </tr>
       <tr jwcid="@common/FieldPanel" for="authAccountName"
         field="component:authAccountName"
         label="message:label.authAccountName"

@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.NewEnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -73,6 +74,10 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
     public abstract IPropertySelectionModel getSalutationModel();
 
+    public abstract ImAccount getImAccount();
+
+    public abstract void setImAccount(ImAccount imAccount);
+
     public void prepareForRender(IRequestCycle cycle) {
         UserProfile userProfile = getUser().getUserProfile();
         if (userProfile == null) {
@@ -83,6 +88,9 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
             NewEnumPropertySelectionModel model = new NewEnumPropertySelectionModel();
             model.setEnumType(Salutation.class);
             setSalutationModel(model);
+        }
+        if (getImAccount() == null) {
+            setImAccount(new ImAccount(getUser()));
         }
     }
 
