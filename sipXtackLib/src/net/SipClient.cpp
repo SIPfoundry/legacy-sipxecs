@@ -463,6 +463,11 @@ bool SipClient::isWritable()
     else
     {
       //
+      // Get an exclusive lock for this client socket
+      //
+      OsLock lock(mClientSocket->getMutex());
+      
+      //
       // TCP and TLS.  Make sure sockets are writable
       //
       writable = mClientSocket->write(KEEP_ALIVE, KEEP_ALIVE_SIZE, KEEP_ALIVE_WAIT_TIME) > 0;

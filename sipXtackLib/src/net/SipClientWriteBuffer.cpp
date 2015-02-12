@@ -226,6 +226,11 @@ void SipClientWriteBuffer::writeMore()
    // not write any bytes, and we will then return.
    UtlBoolean exit_loop = FALSE;
 
+   //
+   // Get an exclusive lock for this client socket
+   //
+   OsLock lock(mClientSocket->getMutex());
+
    while (mWriteQueued && !exit_loop)
    {
       if (mWritePointer >= mWriteString.length())
@@ -308,6 +313,11 @@ void SipClientWriteBuffer::writeMore()
          {
             // No data sent, even though (in our caller) poll()
             // reported the socket was ready to write.
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                          "SipClientWriteBuffer[%s]::writeMore "
+                          "OsSocket::write() returned 0 bytes when trying to send %zd bytes",
+                          getName().data(), length);
+
             exit_loop = TRUE;
          }
          else

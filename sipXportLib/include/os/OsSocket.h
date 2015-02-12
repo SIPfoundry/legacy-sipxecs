@@ -17,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
+#include "os/OsMutex.h"
 #include "utl/UtlContainableAtomic.h"
 #include "utl/UtlString.h"
 #include "os/OsBSem.h"
@@ -327,6 +328,9 @@ public:
    // Returns the port to which the socket on the other end of this socket
    // is bound.
 
+   OsMutex& getMutex();
+   //:Returns the reference to the class mutex
+
 /* ============================ INQUIRY =================================== */
 
    virtual UtlBoolean isOk() const;
@@ -419,6 +423,9 @@ private:
      //:Holds the descriptor from the OS to be sent to ::close() ONLY during
      //destruction.  This prevents the OS from re-using the old descriptor
      //number before the lifetime of this object is complete.
+
+   OsMutex mutex;
+   //:Mutex for this object
 };
 
 /* ============================ INLINE METHODS ============================ */

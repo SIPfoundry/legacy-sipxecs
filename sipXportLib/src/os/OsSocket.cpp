@@ -105,6 +105,7 @@ OsSocket::OsSocket()
    , remoteHostPort(OS_INVALID_SOCKET_DESCRIPTOR)
    , mIsConnected(FALSE)
    , mActual_socketDescriptor(OS_INVALID_SOCKET_DESCRIPTOR)
+   , mutex(OsMutex::Q_FIFO)
 {
 }
 
@@ -185,7 +186,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
    if (bytesSent == bufferLength)
    {
       Os::Logger::instance().log(FAC_KERNEL, PRI_DEBUG,
-                    "OsSocket::write %d (%s:%d %s:%d) is on the wire.",
+                    "OsSocket::write %d (rhost: %s, rport: %d lhost: %s, lport :%d) of %zd bytes is on the wire.",
                     socketDescriptor,
                     remoteHostName.data(), remoteHostPort,
                     localHostName.data(), localHostPort,
@@ -1069,6 +1070,11 @@ int OsSocket::getLocalHostPort() const
         return(localHostPort);
 }
 
+OsMutex& OsSocket::getMutex()
+{
+  return mutex;
+}
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean OsSocket::isOk() const
@@ -1228,7 +1234,7 @@ UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
    return r;
 }
 
-//:Returns TRUE if the given IpProtocolSocketType is a relaible message protocol
+//:Returns TRUE if the given IpProtocolSocketType is a reliable message protocol
 // (that is, the transport mechanism will ensure delivery), so that "100 Trying"
 // responses and re-sends are not needed.
 UtlBoolean OsSocket::isReliable(IpProtocolSocketType type)
