@@ -99,13 +99,13 @@ unsigned long osSocketGetDefaultBindAddress()
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsSocket::OsSocket()
+OsSocket::OsSocket(unsigned int flags)
    : socketDescriptor(OS_INVALID_SOCKET_DESCRIPTOR)
    , localHostPort(OS_INVALID_SOCKET_DESCRIPTOR)
    , remoteHostPort(OS_INVALID_SOCKET_DESCRIPTOR)
    , mIsConnected(FALSE)
+   , mFlags(flags)
    , mActual_socketDescriptor(OS_INVALID_SOCKET_DESCRIPTOR)
-   , mutex(OsMutex::Q_FIFO)
 {
 }
 
@@ -149,6 +149,9 @@ int OsSocket::write(const char* buffer, int bufferLength)
    }
 #endif // FORCE_SOCKET_ERRORS
 
+   // try to lock for write
+   bool locked = lock();
+
    ssize_t bytesSent;
 
    int flags = 0;
@@ -191,6 +194,12 @@ int OsSocket::write(const char* buffer, int bufferLength)
                     remoteHostName.data(), remoteHostPort,
                     localHostName.data(), localHostPort,
                     bytesSent);
+   }
+
+   // unlock, if needed
+   if (locked)
+   {
+     unlock();
    }
 
    return(bytesSent);
@@ -843,6 +852,22 @@ void OsSocket::setDefaultBindAddress(const unsigned long bind_address)
     mInitializeSem.release();
 }
 
+bool OsSocket::lock(bool force)
+{
+  bool lock = (force || (OsSocket::SAFE_WRITE & mFlags));
+  if (lock)
+  {
+    safeWriteMutex.lock();
+  }
+
+  return lock;
+}
+
+void OsSocket::unlock()
+{
+  safeWriteMutex.unlock();
+}
+
 unsigned long OsSocket::getDefaultBindAddress()
 {
     return(m_DefaultBindAddress);
@@ -1068,11 +1093,6 @@ void OsSocket::getLocalHostIp(UtlString* localHostAddress) const
 int OsSocket::getLocalHostPort() const
 {
         return(localHostPort);
-}
-
-OsMutex& OsSocket::getMutex()
-{
-  return mutex;
 }
 
 /* ============================ INQUIRY =================================== */
