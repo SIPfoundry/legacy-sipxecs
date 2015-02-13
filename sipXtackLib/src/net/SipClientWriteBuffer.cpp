@@ -332,6 +332,8 @@ void SipClientWriteBuffer::writeMore()
                           getName().data(), length);
             if (++write_retry > WRITE_RETRY_MAX)
             {
+              emptyBuffer(TRUE);
+              clientStopSelf();
               exit_loop = TRUE;
             }
          }
