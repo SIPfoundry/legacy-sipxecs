@@ -70,9 +70,9 @@ bundle edit_line snmpd_conf {
   #
   insert_lines:
     any::
-"com2sec local  localhost  public
-com2sec local  $(sipx.master_address) public
-com2sec local  0.0.0.0/0 public
+"com2sec local  localhost  $(sipx.snmp_community_string)
+com2sec local  $(sipx.master_address) $(sipx.snmp_community_string)
+com2sec local  0.0.0.0/0 $(sipx.snmp_community_string)
 group   rwgroup v1           local
 group   rwgroup v2c           local
 view    all    included   .1  80

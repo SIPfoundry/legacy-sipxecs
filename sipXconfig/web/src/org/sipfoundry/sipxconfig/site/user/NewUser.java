@@ -81,7 +81,9 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         }
         // Save the user
         User user = getUser();
-        user.setImId(user.getUserName());
+        if (user.getImId() == null) {
+            user.setImId(user.getUserName());
+        }
         EditUser.saveGroups(getSettingDao(), user.getGroups());
 
         // Execute the automatic assignments for the user.

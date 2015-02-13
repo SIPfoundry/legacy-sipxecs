@@ -116,6 +116,7 @@ lib_all = \
   ruby-postgres \
   jasperserver \
   libjsonrpccpp \
+  libevent2 \
   mongo-cxx-driver
 
 lib_exclude_fedora_16 = \

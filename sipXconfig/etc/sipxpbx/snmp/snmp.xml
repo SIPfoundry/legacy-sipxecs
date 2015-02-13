@@ -7,5 +7,11 @@
     <setting name="fix_dead_processes">
       <type><boolean/></type>
     </setting>
+    <setting name="community_string" >
+      <type>
+        <string minLen="6" password="yes"></string>
+      </type>
+      <value>public</value>
+    </setting>
   </group>
 </model>
