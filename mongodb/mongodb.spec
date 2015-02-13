@@ -95,8 +95,7 @@ scons all \
     --nostrip \
     --ssl \
     --disable-warnings-as-errors \
-    --use-system-pcre \
-    --use-system-boost
+    --use-system-pcre 
 
 %install
 # NOTE: Install flags must be EXACTLY the same in the build step!
@@ -109,8 +108,7 @@ scons install \
      --nostrip \
      --ssl \
      --disable-warnings-as-errors \
-     --use-system-pcre \
-     --use-system-boost
+     --use-system-pcre 
 
 
 # prepare server's directories
