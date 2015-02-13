@@ -1,0 +1,23 @@
+diff -ur mongodb-src-r2.6.7.orig/src/mongo/client/replica_set_monitor.cpp mongodb-src-r2.6.7/src/mongo/client/replica_set_monitor.cpp
+--- mongodb-src-r2.6.7.orig/src/mongo/client/replica_set_monitor.cpp	2015-01-13 19:12:06.000000000 +0200
++++ mongodb-src-r2.6.7/src/mongo/client/replica_set_monitor.cpp	2015-02-13 18:52:48.726848006 +0200
+@@ -16,6 +16,7 @@
+ #include "mongo/client/replica_set_monitor.h"
+ 
+ #include <algorithm>
++#include <boost/make_shared.hpp>
+ #include <boost/thread.hpp>
+ #include <limits>
+ 
+diff -ur mongodb-src-r2.6.7.orig/src/mongo/client/replica_set_monitor_test.cpp mongodb-src-r2.6.7/src/mongo/client/replica_set_monitor_test.cpp
+--- mongodb-src-r2.6.7.orig/src/mongo/client/replica_set_monitor_test.cpp	2015-01-13 19:12:06.000000000 +0200
++++ mongodb-src-r2.6.7/src/mongo/client/replica_set_monitor_test.cpp	2015-02-13 18:53:03.486069257 +0200
+@@ -26,6 +26,8 @@
+  *    then also delete it in the license file.
+  */
+ 
++#include <boost/make_shared.hpp>
++
+ #include "mongo/client/connpool.h"
+ #include "mongo/client/dbclientinterface.h"
+ #include "mongo/client/dbclient_rs.h"

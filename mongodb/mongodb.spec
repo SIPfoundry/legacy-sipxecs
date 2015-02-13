@@ -19,6 +19,8 @@ Source4:        %{daemon}.sysconfig
 Source5:        %{daemon}.init
 Source6:        %{daemon}.service
 
+Patch1:	        mongodb-2.6.7-make_shared.patch
+
 BuildRequires:  python-devel
 BuildRequires:  scons
 BuildRequires:  openssl-devel
@@ -74,6 +76,7 @@ software, default configuration files, and init scripts.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
+%patch1 -p1
 
 # spurious permissions
 chmod -x README

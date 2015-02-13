@@ -4,6 +4,7 @@ mongodb_SRPM = mongodb-$(mongodb_VER)-$(mongodb_REL)$(RPM_DIST).src.rpm
 mongodb_SPEC = $(SRC)/$(PROJ)/mongodb.spec
 mongodb_SOURCES = \
 	$(SRC)/$(PROJ)/mongodb-src-r$(mongodb_VER).tar.gz \
+	$(SRC)/$(PROJ)/mongodb-2.6.7-make_shared.patch \
 	$(SRC)/$(PROJ)/mongodb.conf \
 	$(SRC)/$(PROJ)/mongod.init \
 	$(SRC)/$(PROJ)/mongodb.logrotate \
