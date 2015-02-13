@@ -2,7 +2,7 @@
 #
 # mongodb      init file for starting up the MongoDB server
 #
-# chkconfig:   - 20 80
+# chkconfig:   - 90 10
 # description: Starts and stops the MongDB daemon that handles all \
 #              database requests.
 
@@ -19,6 +19,80 @@ options="$MONGODB_OPTIONS -f /etc/mongodb.conf"
 
 lockfile="/var/lock/subsys/mongod"
 
+# Nicer version of killproc that does not kill mongodb when it takes
+# a long time to shut down and does not hang for a long time when mongo
+# shuts down quickly
+killproc_nice() {
+	local RC base pid pid_file= delay i
+
+	RC=0; delay=3
+	# Test syntax.
+	if [ "$#" -eq 0 ]; then
+		echo $"Usage: killproc [-p pidfile] [ -d delay] {program} [-signal]"
+		return 1
+	fi
+	if [ "$1" = "-p" ]; then
+		pid_file=$2
+		shift 2
+	fi
+	if [ "$1" = "-d" ]; then
+		delay=$2
+		shift 2
+	fi
+
+	# Save basename.
+	base=${1##*/}
+
+	# Find pid.
+	__pids_var_run "$1" "$pid_file"
+	RC=$?
+	if [ -z "$pid" ]; then
+		if [ -z "$pid_file" ]; then
+			pid="$(__pids_pidof "$1")"
+		else
+			[ "$RC" = "4" ] && { failure $"$base shutdown" ; return $RC ;}
+		fi
+	fi
+
+	# Kill it.
+	if [ -n "$pid" ] ; then
+		[ "$BOOTUP" = "verbose" -a -z "${LSB:-}" ] && echo -n "$base "
+		if checkpid $pid 2>&1; then
+			# TERM first, then KILL if not dead
+			kill -TERM $pid >/dev/null 2>&1
+			usleep 100000
+
+			# Check every one second if the program is stopped.
+			# Do so for a maximum of $delay seconds
+			for ((i = 0 ; i < $delay; i++))
+			do
+				if checkpid $pid; then
+					sleep 1
+				else
+					break
+				fi
+			done
+
+			# If the program is not stopped, kill it
+			if checkpid $pid ; then
+				kill -KILL $pid >/dev/null 2>&1
+				usleep 100000
+			fi
+		fi
+		checkpid $pid
+		RC=$?
+		[ "$RC" -eq 0 ] && failure $"$base shutdown" || success $"$base shutdown"
+		RC=$((! $RC))
+	else
+		failure $"$base shutdown"
+		RC=0
+	fi
+
+	# Remove pid file if any.
+	rm -f "${pid_file:-/var/run/$base.pid}"
+	return $RC
+}
+
 start() {
     [ -x $exec ] || exit 5
     echo -n $"Starting $prog: "
@@ -31,7 +105,7 @@ start() {
 
 stop() {
     echo -n $"Stopping $prog: "
-    killproc -p ${pidfile} $prog
+    killproc_nice -p ${pidfile} -d 300 $prog
     retval=$?
     echo
     [ $retval -eq 0 ] && rm -f $lockfile

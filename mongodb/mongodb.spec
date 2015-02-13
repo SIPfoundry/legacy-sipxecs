@@ -1,7 +1,7 @@
 %global         daemon mongod
 
 Name:           mongodb
-Version:        2.2.3
+Version:        2.6.7
 Release:        1%{?dist}
 Summary:        High-performance, schema-free document-oriented database
 Group:          Applications/Databases
@@ -12,36 +12,20 @@ License:        AGPLv3 and zlib and ASL 2.0
 URL:            http://www.mongodb.org
 
 Source0:        http://fastdl.mongodb.org/src/%{name}-src-r%{version}.tar.gz
-Source1:        %{name}.init
-Source2:        %{name}.logrotate
-Source3:        %{name}.conf
-Source4:        %{daemon}.sysconf
-Source5:        %{name}-tmpfile
+Source1:        %{name}.logrotate
+Source2:        %{name}.conf
+Source3:        %{name}-tmpfile
+Source4:        %{daemon}.sysconfig
+Source5:        %{daemon}.init
 Source6:        %{daemon}.service
-Patch1:         mongodb-2.2.0-no-term.patch
-##Patch 5 - https://jira.mongodb.org/browse/SERVER-6686
-Patch5:         mongodb-2.2.0-fix-xtime.patch
-##Patch 7 - make it possible to use system libraries
-Patch7:         mongodb-2.2.0-use-system-version.patch
-##Patch 8 - make it possible to build shared libraries
-Patch8:         mongodb-2.2.0-shared-library.patch
-##Patch 9 - https://jira.mongodb.org/browse/SERVER-5575
-Patch9:         mongodb-2.2.0-full-flag.patch
-
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  python-devel
 BuildRequires:  scons
 BuildRequires:  openssl-devel
 BuildRequires:  boost-devel
 BuildRequires:  pcre-devel
-BuildRequires:  v8-devel
-BuildRequires:  readline-devel
-BuildRequires:  libpcap-devel
-BuildRequires:  snappy-devel
-BuildRequires:  gperftools-devel
 
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 Requires(post): systemd-units
 Requires(preun): systemd-units
 %else
@@ -51,13 +35,11 @@ Requires(preun): chkconfig
 
 Requires(pre):  shadow-utils
 
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 Requires(postun): systemd-units
 %else
 Requires(postun): initscripts
 %endif
-
-Requires:       lib%{name} = %{version}-%{release}
 
 # Mongodb must run on a little-endian CPU (see bug #630898)
 ExcludeArch:    ppc ppc64 %{sparc} s390 s390x
@@ -80,23 +62,6 @@ A key goal of MongoDB is to bridge the gap between key/value stores (which are
 fast and highly scalable) and traditional RDBMS systems (which are deep in
 functionality).
 
-%package -n lib%{name}
-Summary:        MongoDB shared libraries
-Group:          Development/Libraries
-
-%description -n lib%{name}
-This package provides the shared library for the MongoDB client.
-
-%package devel
-Summary:        MongoDB header files
-Group:          Development/Libraries
-Requires:       lib%{name} = %{version}-%{release}
-Requires:       boost-devel
-
-%description devel
-This package provides the header files and C++ driver for MongoDB. MongoDB is
-a high-performance, open source, schema-free document-oriented database.
-
 %package server
 Summary:        MongoDB server, sharding server and support scripts
 Group:          Applications/Databases
@@ -109,13 +74,6 @@ software, default configuration files, and init scripts.
 
 %prep
 %setup -q -n mongodb-src-r%{version}
-%patch1 -p1
-%patch5 -p1
-%patch7 -p1
-%patch8 -p1
-%ifarch %ix86
-%patch9 -p1
-%endif
 
 # spurious permissions
 chmod -x README
@@ -126,68 +84,52 @@ sed -i 's/\r//' README
 %build
 # NOTE: Build flags must be EXACTLY the same in the install step!
 # If you fail to do this, mongodb will be built twice...
-scons \
-	%{?_smp_mflags} \
-	--sharedclient \
-	--use-system-all \
-	--prefix=%{buildroot}%{_prefix} \
-	--extrapath=%{_prefix} \
-	--usev8 \
-	--nostrip \
-	--ssl \
-	--full
+scons all \
+    %{?_smp_mflags} \
+    --prefix=%{buildroot}%{_prefix} \
+    --extrapath=%{_prefix} \
+    --usev8 \
+    --nostrip \
+    --ssl \
+    --disable-warnings-as-errors \
+    --use-system-pcre \
+    --use-system-boost
 
 %install
-rm -rf %{buildroot}
 # NOTE: Install flags must be EXACTLY the same in the build step!
 # If you fail to do this, mongodb will be built twice...
 scons install \
-	%{?_smp_mflags} \
-	--sharedclient \
-	--use-system-all \
-	--prefix=%{buildroot}%{_prefix} \
-	--extrapath=%{_prefix} \
-	--usev8 \
-	--nostrip \
-	--ssl \
-	--full
-rm -f %{buildroot}%{_libdir}/libmongoclient.a
-rm -f %{buildroot}/usr/lib/libmongoclient.a
+	 %{?_smp_mflags} \
+     --prefix=%{buildroot}%{_prefix} \
+     --extrapath=%{_prefix} \
+     --usev8 \
+     --nostrip \
+     --ssl \
+     --disable-warnings-as-errors \
+     --use-system-pcre \
+     --use-system-boost
 
+
+# prepare server's directories
 mkdir -p %{buildroot}%{_sharedstatedir}/%{name}
 mkdir -p %{buildroot}%{_localstatedir}/log/%{name}
 mkdir -p %{buildroot}%{_localstatedir}/run/%{name}
 mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 
-%if 0%{?fedora} >= 15
-mkdir -p %{buildroot}/lib/systemd/system
-install -p -D -m 644 %{SOURCE5} %{buildroot}%{_libdir}/../lib/tmpfiles.d/mongodb.conf
-install -p -D -m 644 %{SOURCE6} %{buildroot}/lib/systemd/system/%{daemon}.service
-%else
-install -p -D -m 755 %{SOURCE1} %{buildroot}%{_initddir}/%{daemon}
-%endif
-install -p -D -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
-install -p -D -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/mongodb.conf
+# install server's files
+install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -p -D -m 644 %{SOURCE2} %{buildroot}%{_sysconfdir}/%{name}.conf
 install -p -D -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/sysconfig/%{daemon}
 
-mkdir -p %{buildroot}%{_mandir}/man1
-cp -p debian/*.1 %{buildroot}%{_mandir}/man1/
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
+install -p -D -m 644 %{SOURCE3} %{buildroot}%{_tmpfilesdir}/%{name}.conf
+install -p -D -m 644 %{SOURCE6} %{buildroot}%{_unitdir}/%{daemon}.service
+%else
+install -p -D -m 755 %{SOURCE5} %{buildroot}%{_initddir}/%{daemon}
+%endif
 
-mkdir -p %{buildroot}%{_localstatedir}/run/%{name}
-
-# In mongodb 2.2.2 we have duplicate headers
-#  Everything should be in %{_includedir}/mongo
-#  but it is almost all duplicated in %{_includedir}
-#  which could potentially conflict
-#  or cause problems.
-mkdir -p %{buildroot}/%{name}-hold
-mv %{buildroot}/%{_includedir}/mongo %{buildroot}/%{name}-hold/mongo
-rm -rf %{buildroot}/%{_includedir}/*
-mv %{buildroot}/%{name}-hold/mongo %{buildroot}/%{_includedir}/mongo
-rm -rf %{buildroot}/%{name}-hold
-
-%clean
-rm -rf %{buildroot}
+install -d -m 755            %{buildroot}%{_mandir}/man1
+install -p -m 644 debian/*.1 %{buildroot}%{_mandir}/man1/
 
 %post -p /sbin/ldconfig
 
@@ -201,7 +143,7 @@ useradd -r -g %{name} -u 184 -d %{_sharedstatedir}/%{name} -s /sbin/nologin \
 exit 0
 
 %post server
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 /bin/systemctl daemon-reload &> /dev/null || :
 %else
 /sbin/chkconfig --add %{daemon}
@@ -210,22 +152,22 @@ exit 0
 
 %preun server
 if [ $1 = 0 ] ; then
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
   /bin/systemctl --no-reload disable %{daemon}.service &> /dev/null
   /bin/systemctl stop %{daemon}.service &> /dev/null
 %else
-  /sbin/service  stop >/dev/null 2>&1
+  /sbin/service %{daemon} stop >/dev/null 2>&1
   /sbin/chkconfig --del %{daemon}
 %endif
 fi
 
 
 %postun server
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
 /bin/systemctl daemon-reload &> /dev/null
 %endif
 if [ "$1" -ge "1" ] ; then
-%if 0%{?fedora} >= 15
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
    /bin/systemctl try-restart %{daemon}.service &> /dev/null
 %else
    /sbin/service %{daemon} condrestart >/dev/null 2>&1 || :
@@ -235,6 +177,9 @@ fi
 
 %files
 %defattr(-,root,root,-)
+%{!?_licensedir:%global license %%doc}
+%license GNU-AGPL-3.0.txt APACHE-2.0.txt
+%doc README
 %{_bindir}/bsondump
 %{_bindir}/mongo
 %{_bindir}/mongodump
@@ -253,15 +198,13 @@ fi
 %{_mandir}/man1/mongoexport.1*
 %{_mandir}/man1/mongofiles.1*
 %{_mandir}/man1/mongoimport.1*
+%{_mandir}/man1/mongooplog.1*
+%{_mandir}/man1/mongoperf.1*
 %{_mandir}/man1/mongosniff.1*
 %{_mandir}/man1/mongostat.1*
 %{_mandir}/man1/mongorestore.1*
+%{_mandir}/man1/mongotop.1*
 %{_mandir}/man1/bsondump.1*
-
-%files -n lib%{name}
-%defattr(-,root,root,-)
-%doc README GNU-AGPL-3.0.txt APACHE-2.0.txt
-%{_libdir}/libmongoclient.so
 
 %files server
 %defattr(-,root,root,-)
@@ -275,20 +218,17 @@ fi
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %config(noreplace) %{_sysconfdir}/mongodb.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/%{daemon}
-%if 0%{?fedora} >= 15
-/lib/systemd/system/*.service
-%{_libdir}/../lib/tmpfiles.d/mongodb.conf
+%if 0%{?fedora} >= 15 || 0%{?rhel} >= 7
+%{_tmpfilesdir}/%{name}.conf
+%{_unitdir}/*.service
 %else
 %{_initddir}/%{daemon}
 %endif
 
-%{_mandir}/man1/mongod.1*
-
-%files devel
-%defattr(-,root,root,-)
-%{_includedir}
-
 %changelog
+* Fri Feb 13 2015 Oancea Ionuț-Francisc <ioancea@ezuce.com> - 2.6.7-1
+- Update to version 2.6.7
+
 * Tue Feb 05 2013 Troy Dawson <tdawson@redhat.com> - 2.2.3-1
 - Update to version 2.2.3
 
