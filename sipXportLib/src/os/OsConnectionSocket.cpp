@@ -88,7 +88,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
                                        const char* localIp,
                                        unsigned int timeoutInMilliseconds
                                        )
-   : OsSocket()
+   : OsSocket(OsSocket::SAFE_WRITE)
 {
    int error = 0;
    UtlBoolean isIp;

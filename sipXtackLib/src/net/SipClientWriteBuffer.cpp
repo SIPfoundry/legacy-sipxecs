@@ -225,11 +225,29 @@ void SipClientWriteBuffer::writeMore()
    // 'exit_loop' will be set to TRUE if an attempt to write does
    // not write any bytes, and we will then return.
    UtlBoolean exit_loop = FALSE;
+   static const unsigned int WRITE_RETRY_MAX = 5;
+   unsigned int write_retry = 0;
+
+   //
+   // Get an exclusive lock in order for the write no to interfere with another thread
+   //
+   bool locked = mClientSocket->lock();
+   if (!locked)
+   {
+     // This lock should not fail since this class uses TCP client which creates
+     // the socket object with safe write enabled
+     Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
+                   "SipClientWriteBuffer[%s]::writeMore failed to lock for writing on the socket descriptor %d",
+                   mName.data(), mClientSocket->getSocketDescriptor());
+   }
 
    while (mWriteQueued && !exit_loop)
    {
       if (mWritePointer >= mWriteString.length())
       {
+         // resets the write retry counter
+         write_retry = 0;
+
          // We have written all of the first message.
          // Pop it and set up to write the next message.
          delete mWriteBuffer.get();
@@ -308,12 +326,21 @@ void SipClientWriteBuffer::writeMore()
          {
             // No data sent, even though (in our caller) poll()
             // reported the socket was ready to write.
-            exit_loop = TRUE;
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
+                          "SipClientWriteBuffer[%s]::writeMore "
+                          "OsSocket::write() returned 0 when trying to send %zd bytes",
+                          getName().data(), length);
+            if (++write_retry > WRITE_RETRY_MAX)
+            {
+              emptyBuffer(TRUE);
+              clientStopSelf();
+              exit_loop = TRUE;
+            }
          }
          else
          {
             // Error while writing.
-            Os::Logger::instance().log(FAC_SIP, PRI_ERR,
+            Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                           "SipClientWriteBuffer[%s]::writeMore "
                           "OsSocket::write() returned %d, errno = %d",
                           getName().data(), ret, errno);
@@ -326,6 +353,12 @@ void SipClientWriteBuffer::writeMore()
             exit_loop = TRUE;
          }
       }
+   }
+
+   // unlock the socket object
+   if (locked)
+   {
+     mClientSocket->unlock();
    }
 }
 

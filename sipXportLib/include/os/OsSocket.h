@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 //#include <...>
+#include <boost/thread.hpp>
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
@@ -148,6 +149,9 @@ public:
 
    static UtlBoolean socketInitialized;
 
+   /// Recursive mutex lock used to guard the write() function
+   typedef boost::recursive_mutex mutex;
+
    /// Determine whether or not the values in a containable are comparable.
    virtual UtlContainableType getContainableType() const;
    /**<
@@ -166,9 +170,16 @@ public:
    //  Note: If you add a value to this enum, add a case in OsSocket::isFramed
    //  and OsSocket::isReliable.
 
+   typedef enum
+   {
+     SAFE_WRITE = 1 << 0, ///< write operations will be lock guarded
+   } OsSocketFlag;
+   //:Various flags to control the class behavior
+
 /* ============================ CREATORS ================================== */
-   OsSocket();
-     //:Default constructor
+   OsSocket(unsigned int flags = 0);
+   //:Default constructor
+   //!param: flags - OR'ed OsSocketFlag
 
    virtual
    ~OsSocket();
@@ -245,6 +256,17 @@ public:
 
    static void setDefaultBindAddress(const unsigned long bind_address);
    //set the default ipaddress the phone should bind to
+
+   bool lock(bool force = false);
+   //: Locks this object for further write calls
+   // Note: If force is 'false', the object will be actually locked only if it was
+   //       previously created with the SAFE_WRITE flag. Anyway, if the force is
+   //       'true', the object will be locked no matter of creation flags
+   // Note: the caller is responsible to do the unlocking - i.e. unlock() function
+   // Returns: 'true'/'false' - object was actually locked or not
+
+   void unlock();
+   //: Unlocks the object previously locked by a call to the lock() function
 
 /* ============================ ACCESSORS ================================= */
 
@@ -415,10 +437,16 @@ private:
    static UtlBoolean hasDefaultDnsDomain();
      //:Returns TRUE if this host has a default DNS domain
 
+   unsigned int mFlags;
+   //: Holds constructor's creation flags
+
    int mActual_socketDescriptor;
      //:Holds the descriptor from the OS to be sent to ::close() ONLY during
      //destruction.  This prevents the OS from re-using the old descriptor
      //number before the lifetime of this object is complete.
+
+   mutex safeWriteMutex;
+   //:Mutex to be used for write operations
 };
 
 /* ============================ INLINE METHODS ============================ */
