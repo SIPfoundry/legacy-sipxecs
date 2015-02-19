@@ -53,6 +53,7 @@ const UtlContainableType OsConnectionSocket::TYPE = "OsConnectionSocket";
 
 // Constructor
 OsConnectionSocket::OsConnectionSocket(int connectedSocketDescriptor)
+  : OsSocket(OsSocket::SAFE_WRITE)
 {
    Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                  "OsConnectionSocket::_[1] (%d)",
@@ -62,6 +63,7 @@ OsConnectionSocket::OsConnectionSocket(int connectedSocketDescriptor)
 }
 
 OsConnectionSocket::OsConnectionSocket(const char* szLocalIp, int connectedSocketDescriptor)
+  : OsSocket(OsSocket::SAFE_WRITE)
 {
    Os::Logger::instance().log(FAC_KERNEL, PRI_INFO,
                  "OsConnectionSocket::_[2] (%s, %d)",
